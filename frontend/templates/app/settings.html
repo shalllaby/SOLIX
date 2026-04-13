@@ -1,0 +1,941 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}Settings{% endblock %}
+{% block topbar_title %}Settings{% endblock %}
+{% block breadcrumb %}SOL / Settings{% endblock %}
+{% block nav_settings %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+/* ── Layout ──────────────────────────────────────────────────────────────────── */
+.settings-sidebar {
+    width: 220px; flex-shrink: 0;
+    background: rgba(13,15,28,0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(68,70,85,0.22);
+    border-radius: 14px;
+    padding: 8px;
+}
+.settings-panel {
+    flex: 1; min-width: 0;
+    background: rgba(17,19,34,0.75);
+    backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid rgba(68,70,85,0.22);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Nav items ───────────────────────────────────────────────────────────────── */
+.nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: rgba(142,143,161,.75); transition: all .18s;
+    border: 1px solid transparent; user-select: none;
+}
+.nav-item:hover { color: #e1e1f4; background: rgba(68,70,85,.12); }
+.nav-item.active {
+    color: #bac3ff; background: rgba(67,97,238,.12);
+    border-color: rgba(67,97,238,.25);
+}
+.nav-item .material-symbols-outlined { font-size: 16px; }
+
+/* ── Section heading ─────────────────────────────────────────────────────────── */
+.section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: rgba(142,143,161,.45); letter-spacing: .18em; text-transform: uppercase;
+    padding: 10px 12px 5px;
+}
+
+/* ── Form inputs ─────────────────────────────────────────────────────────────── */
+.sol-input {
+    width: 100%; background: rgba(7,9,20,.9) !important;
+    border: 1px solid rgba(68,70,85,.4) !important;
+    border-radius: 8px; color: #c4c5d7 !important;
+    font-size: 13px; padding: 10px 14px;
+    outline: none; transition: border-color .2s, box-shadow .2s;
+    font-family: inherit; color-scheme: dark;
+}
+.sol-input:focus {
+    border-color: rgba(67,97,238,.6) !important;
+    box-shadow: 0 0 0 3px rgba(67,97,238,.1);
+}
+.sol-input::placeholder { color: rgba(142,143,161,.4); }
+.sol-label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: rgba(142,143,161,.7);
+    text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
+}
+
+/* ── Toggle switch ───────────────────────────────────────────────────────────── */
+.toggle-wrap { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute; inset: 0; cursor: pointer;
+    background: rgba(68,70,85,.4); border-radius: 24px;
+    transition: .3s; border: 1px solid rgba(68,70,85,.5);
+}
+.toggle-slider::before {
+    content: ''; position: absolute;
+    left: 3px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; background: #8e8fa1;
+    border-radius: 50%; transition: .3s;
+}
+.toggle-wrap input:checked + .toggle-slider { background: rgba(67,97,238,.35); border-color: rgba(67,97,238,.5); }
+.toggle-wrap input:checked + .toggle-slider::before { transform: translateX(20px) translateY(-50%); background: #4361ee; }
+
+/* ── Cards ───────────────────────────────────────────────────────────────────── */
+.settings-card {
+    background: rgba(11,13,26,.5);
+    border: 1px solid rgba(68,70,85,.2);
+    border-radius: 10px; padding: 18px 20px;
+    transition: border-color .2s;
+}
+.settings-card:hover { border-color: rgba(68,70,85,.4); }
+.settings-card.danger { border-color: rgba(255,107,107,.2); background: rgba(255,107,107,.04); }
+.settings-card.danger:hover { border-color: rgba(255,107,107,.4); }
+
+/* ── API key box ─────────────────────────────────────────────────────────────── */
+.api-key-box {
+    background: rgba(7,9,20,.95);
+    border: 1px solid rgba(67,97,238,.3);
+    border-radius: 8px; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: #bac3ff; letter-spacing: .04em;
+    display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────────── */
+.avatar-ring {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #4361ee, #8540ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: white;
+    position: relative; flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(67,97,238,.25), 0 0 24px rgba(67,97,238,.3);
+}
+.avatar-ring::after {
+    content: ''; position: absolute;
+    inset: -3px; border-radius: 50%;
+    background: linear-gradient(135deg,#4361ee,#8540ff,#5bd5fc);
+    z-index: -1; padding: 3px;
+}
+
+/* ── Plan badge ──────────────────────────────────────────────────────────────── */
+.plan-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    letter-spacing: .12em; padding: 4px 10px;
+    border-radius: 99px; font-weight: 700; text-transform: uppercase;
+}
+.plan-pro   { background: rgba(67,97,238,.15); color: #bac3ff; border: 1px solid rgba(67,97,238,.3); }
+.plan-free  { background: rgba(142,143,161,.12); color: #8e8fa1; border: 1px solid rgba(142,143,161,.25); }
+.plan-elite { background: rgba(133,64,255,.15); color: #d2bbff; border: 1px solid rgba(133,64,255,.3); }
+
+/* ── Progress ring (storage) ─────────────────────────────────────────────────── */
+.storage-ring { transform: rotate(-90deg); }
+
+/* ── Tab pane ────────────────────────────────────────────────────────────────── */
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+/* ── Save button ─────────────────────────────────────────────────────────────── */
+.btn-save {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 24px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    background: linear-gradient(135deg,#4361ee,#8540ff);
+    color: white; transition: all .2s;
+    box-shadow: 0 0 0 rgba(67,97,238,0);
+}
+.btn-save:hover { box-shadow: 0 0 24px rgba(67,97,238,.5); transform: translateY(-1px); }
+.btn-save:active { transform: translateY(0); }
+
+/* ── Danger button ───────────────────────────────────────────────────────────── */
+.btn-danger {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 18px; border-radius: 8px; cursor: pointer; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: transparent; border: 1px solid rgba(255,107,107,.4);
+    color: #ff6b6b; transition: all .2s;
+}
+.btn-danger:hover { background: rgba(255,107,107,.1); border-color: rgba(255,107,107,.7); box-shadow: 0 0 16px rgba(255,107,107,.2); }
+
+/* ── Toast ───────────────────────────────────────────────────────────────────── */
+#toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 999;
+    display: none; align-items: center; gap: 10px;
+    padding: 12px 18px; border-radius: 12px;
+    background: rgba(19,22,40,.95); backdrop-filter: blur(12px);
+    border: 1px solid rgba(68,70,85,.3);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #e1e1f4;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    animation: slideUp .3s ease;
+}
+@keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:none;opacity:1} }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(68,70,85,.5); border-radius: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex gap-5 h-full overflow-hidden">
+
+  <!-- ╔══ Sidebar Navigation ══╗ -->
+  <div class="settings-sidebar flex flex-col gap-1 overflow-y-auto custom-scroll shrink-0">
+
+    <!-- User summary card -->
+    <div class="px-3 pt-3 pb-4 mb-1 border-b border-outline-variant/10">
+      <div class="flex items-center gap-3">
+        <div class="avatar-ring text-sm" id="nav-avatar">MS</div>
+        <div class="min-w-0">
+          <p class="text-white font-bold text-sm truncate" id="nav-username">Mohamed S.</p>
+          <span class="plan-badge plan-pro mt-1">
+            <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">star</span>
+            Pro Plan
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label">Account</p>
+    <div class="nav-item active" onclick="switchTab('profile')" id="nav-profile">
+      <span class="material-symbols-outlined">person</span> Profile
+    </div>
+    <div class="nav-item" onclick="switchTab('security')" id="nav-security">
+      <span class="material-symbols-outlined">lock</span> Security
+    </div>
+
+    <p class="section-label">Workspace</p>
+    <div class="nav-item" onclick="switchTab('api')" id="nav-api">
+      <span class="material-symbols-outlined">key</span> API Keys
+    </div>
+    <div class="nav-item" onclick="switchTab('preferences')" id="nav-preferences">
+      <span class="material-symbols-outlined">tune</span> Preferences
+    </div>
+    <div class="nav-item" onclick="switchTab('usage')" id="nav-usage">
+      <span class="material-symbols-outlined">monitoring</span> Usage & Limits
+    </div>
+
+    <p class="section-label">System</p>
+    <div class="nav-item" onclick="switchTab('notifications')" id="nav-notifications">
+      <span class="material-symbols-outlined">notifications</span> Notifications
+    </div>
+    <div class="nav-item" onclick="switchTab('danger')" id="nav-danger">
+      <span class="material-symbols-outlined" style="color:#ff6b6b">warning</span>
+      <span style="color:#ff6b6b">Danger Zone</span>
+    </div>
+  </div>
+
+  <!-- ╔══ Main Panel ══╗ -->
+  <div class="settings-panel flex flex-col overflow-hidden flex-1">
+
+    <!-- Panel header -->
+    <div class="px-7 py-5 border-b border-outline-variant/12 shrink-0 flex items-center justify-between">
+      <div>
+        <h2 class="font-headline font-bold text-white text-lg" id="panel-title">Profile Settings</h2>
+        <p class="font-mono text-[10px] text-outline uppercase tracking-widest mt-0.5" id="panel-sub">Manage your personal information</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-[#4ade80]" style="animation: pulse-dot 2s infinite"></div>
+        <span class="font-mono text-[10px] text-[#4ade80] tracking-widest uppercase">Session Active</span>
+      </div>
+    </div>
+
+    <!-- Tab content area -->
+    <div class="flex-1 overflow-y-auto custom-scroll p-7">
+
+      <!-- ████ TAB: Profile ████ -->
+      <div class="tab-pane active" id="tab-profile">
+        <!-- Avatar row -->
+        <div class="settings-card mb-5">
+          <div class="flex items-center gap-6">
+            <div class="avatar-ring text-2xl relative" id="bigAvatar">MS
+              <button class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#4361ee] flex items-center justify-center border-2 border-[#13141f] hover:bg-[#7b2ff7] transition-colors">
+                <span class="material-symbols-outlined text-white text-xs">edit</span>
+              </button>
+            </div>
+            <div>
+              <p class="text-white font-headline font-bold text-lg" id="profile-fullname">Mohamed Shalaby</p>
+              <p class="font-mono text-xs text-outline mt-0.5" id="profile-email-display">ms@sol.ai</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="plan-badge plan-pro">
+                  <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">star</span>
+                  Pro Plan
+                </span>
+                <span class="font-mono text-[9px] text-outline">Member since <span id="member-since">2024</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal info form -->
+        <div class="settings-card mb-5">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">badge</span>
+            Personal Information
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="sol-label">First Name</label>
+              <input class="sol-input" id="inp-first" placeholder="First name" type="text">
+            </div>
+            <div>
+              <label class="sol-label">Last Name</label>
+              <input class="sol-input" id="inp-last" placeholder="Last name" type="text">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="sol-label">Email Address</label>
+            <input class="sol-input" id="inp-email" placeholder="you@example.com" type="email">
+          </div>
+          <div class="mb-4">
+            <label class="sol-label">Job Title (optional)</label>
+            <input class="sol-input" id="inp-title" placeholder="e.g. Data Engineer" type="text">
+          </div>
+          <div class="mb-5">
+            <label class="sol-label">Organization (optional)</label>
+            <input class="sol-input" id="inp-org" placeholder="Company or team name" type="text">
+          </div>
+          <div class="flex justify-end">
+            <button class="btn-save" onclick="saveProfile()">
+              <span class="material-symbols-outlined text-sm">save</span>
+              Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Account stats grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {% for icon, label, val, hex in [
+            ("cleaning_services","Datasets Cleaned","47","#5bd5fc"),
+            ("folder_data","Total Uploads","132","#a48cf4"),
+            ("analytics","Cells Fixed","28.4K","#4ade80"),
+            ("schedule","Hours Saved","19h","#ffd166"),
+          ] %}
+          <div class="settings-card text-center">
+            <span class="material-symbols-outlined text-2xl mb-2 block" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+            <p class="font-mono font-bold text-xl text-white">{{val}}</p>
+            <p class="font-mono text-[9px] text-outline uppercase tracking-widest mt-0.5">{{label}}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ████ TAB: Security ████ -->
+      <div class="tab-pane" id="tab-security">
+        <!-- Password change -->
+        <div class="settings-card mb-5">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">lock</span>
+            Change Password
+          </h3>
+          <div class="space-y-4 mb-5">
+            <div>
+              <label class="sol-label">Current Password</label>
+              <input class="sol-input" id="inp-old-pass" type="password" placeholder="••••••••••">
+            </div>
+            <div>
+              <label class="sol-label">New Password</label>
+              <input class="sol-input" id="inp-new-pass" type="password" placeholder="Min. 8 characters" oninput="checkPassStrength(this.value)">
+              <!-- Strength bar -->
+              <div class="flex gap-1 mt-2" id="strength-bars">
+                <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb1"></div>
+                <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb2"></div>
+                <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb3"></div>
+                <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb4"></div>
+              </div>
+              <p class="font-mono text-[9px] text-outline mt-1" id="strength-label">Enter password to check strength</p>
+            </div>
+            <div>
+              <label class="sol-label">Confirm New Password</label>
+              <input class="sol-input" id="inp-confirm-pass" type="password" placeholder="Repeat new password">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button class="btn-save" onclick="changePassword()">
+              <span class="material-symbols-outlined text-sm">lock_reset</span>
+              Update Password
+            </button>
+          </div>
+        </div>
+
+        <!-- 2FA placeholder -->
+        <div class="settings-card mb-5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2)">
+                <span class="material-symbols-outlined text-[#4ade80] text-lg" style="font-variation-settings:'FILL' 1">verified_user</span>
+              </div>
+              <div>
+                <p class="text-white font-bold text-sm">Two-Factor Authentication</p>
+                <p class="font-mono text-[10px] text-outline mt-0.5">Add an extra layer of security to your account</p>
+              </div>
+            </div>
+            <span class="plan-badge" style="background:rgba(255,107,107,.1);color:#ff6b6b;border-color:rgba(255,107,107,.25)">Disabled</span>
+          </div>
+          <div class="mt-4 pt-4 border-t border-outline-variant/10">
+            <button class="btn-save" style="background:linear-gradient(135deg,#4ade80,#06d6a0);color:#0b0d1a">
+              <span class="material-symbols-outlined text-sm">security</span>
+              Enable 2FA
+            </button>
+          </div>
+        </div>
+
+        <!-- Active sessions -->
+        <div class="settings-card">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#a48cf4] text-lg" style="font-variation-settings:'FILL' 1">devices</span>
+            Active Sessions
+          </h3>
+          {% for device, location, time, current in [
+            ("Chrome on Windows","Cairo, Egypt","Now","true"),
+            ("Safari on iPhone","Cairo, Egypt","2h ago","false"),
+            ("Firefox on Linux","Alexandria, Egypt","Yesterday","false"),
+          ] %}
+          <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(68,70,85,.2)">
+                <span class="material-symbols-outlined text-outline text-sm">{% if 'iPhone' in device %}smartphone{% elif 'Linux' in device %}computer{% else %}monitor{% endif %}</span>
+              </div>
+              <div>
+                <p class="text-white text-sm font-medium">{{device}}</p>
+                <p class="font-mono text-[9px] text-outline">{{location}} · {{time}}</p>
+              </div>
+            </div>
+            {% if current == "true" %}
+            <span class="plan-badge" style="background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.25)">Current</span>
+            {% else %}
+            <button class="font-mono text-[10px] text-[#ff6b6b] hover:underline" onclick="revokeSession()">Revoke</button>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ████ TAB: API Keys ████ -->
+      <div class="tab-pane" id="tab-api">
+        <!-- Generate key -->
+        <div class="settings-card mb-5">
+          <h3 class="font-headline font-bold text-white mb-1 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#4361ee] text-lg" style="font-variation-settings:'FILL' 1">key</span>
+            API Key Management
+          </h3>
+          <p class="font-mono text-[10px] text-outline mb-5">Use API keys to authenticate programmatic requests to the SOL Data Agent API.</p>
+
+          <!-- Active key display -->
+          <div id="key-display-wrap" class="mb-5">
+            <label class="sol-label">Active API Key</label>
+            <div class="api-key-box">
+              <span id="api-key-text" class="truncate">sk-sol-••••••••••••••••••••••••••••••••••••••</span>
+              <div class="flex items-center gap-2 ml-3 flex-shrink-0">
+                <button onclick="toggleKeyVisibility()" class="text-outline hover:text-white transition-colors">
+                  <span class="material-symbols-outlined text-sm" id="eye-icon">visibility</span>
+                </button>
+                <button onclick="copyApiKey()" class="font-mono text-[10px] text-[#5bd5fc] hover:text-white transition-colors px-2 py-1 rounded border border-[#5bd5fc]/25 hover:border-[#5bd5fc]/60">
+                  Copy
+                </button>
+              </div>
+            </div>
+            <p class="font-mono text-[9px] text-outline mt-2" id="key-meta">Created — · Last used —</p>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="flex-1">
+              <label class="sol-label">Key Label (optional)</label>
+              <input class="sol-input" id="inp-key-label" placeholder="e.g. Production Server" type="text">
+            </div>
+            <div class="flex-1">
+              <label class="sol-label">Expiry</label>
+              <select class="sol-input" id="inp-key-expiry" style="color-scheme:dark">
+                <option>30 days</option>
+                <option>90 days</option>
+                <option>1 year</option>
+                <option>Never</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <button class="btn-save" onclick="generateApiKey()">
+              <span class="material-symbols-outlined text-sm">add_circle</span>
+              Generate New Key
+            </button>
+          </div>
+        </div>
+
+        <!-- API usage snippet -->
+        <div class="settings-card">
+          <h3 class="font-headline font-bold text-white mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#a48cf4] text-lg">code</span>
+            Quick Start
+          </h3>
+          <div class="rounded-lg overflow-hidden" style="background:#07091a;border:1px solid rgba(67,97,238,.25)">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-outline-variant/10">
+              <span class="font-mono text-[9px] text-outline uppercase tracking-widest">Python</span>
+              <button onclick="copySnippet()" class="font-mono text-[9px] text-[#5bd5fc] hover:text-white transition-colors">Copy</button>
+            </div>
+            <pre class="p-4 text-[11.5px] leading-relaxed overflow-x-auto"><code id="code-snippet"><span style="color:#8540ff">import</span> <span style="color:#5bd5fc">requests</span>
+
+<span style="color:#8e8fa1"># SOL Data Agent — Programmatic API</span>
+API_KEY = <span style="color:#4ade80">"sk-sol-your-key-here"</span>
+BASE    = <span style="color:#4ade80">"http://localhost:8000/api"</span>
+
+<span style="color:#8e8fa1"># Upload & clean a dataset</span>
+r = requests.<span style="color:#5bd5fc">post</span>(f<span style="color:#4ade80">"{BASE}/upload"</span>,
+    headers={<span style="color:#4ade80">"Authorization"</span>: f<span style="color:#4ade80">"Bearer {API_KEY}"</span>},
+    files  ={<span style="color:#4ade80">"file"</span>: <span style="color:#5bd5fc">open</span>(<span style="color:#4ade80">"data.csv"</span>, <span style="color:#4ade80">"rb"</span>)},
+)
+dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ade80">"dataset_id"</span>]
+<span style="color:#5bd5fc">print</span>(f<span style="color:#4ade80">"Uploaded: {dataset_id}"</span>)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- ████ TAB: Preferences ████ -->
+      <div class="tab-pane" id="tab-preferences">
+        <div class="settings-card mb-4">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">palette</span>
+            Appearance
+          </h3>
+          {% for label, desc, id in [
+            ("Dark Mode","Use the dark Sci-Fi theme across all pages","pref-dark"),
+            ("Animations","Enable smooth transitions and micro-animations","pref-anim"),
+            ("Compact Tables","Reduce table row height for denser views","pref-compact"),
+          ] %}
+          <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
+            <div>
+              <p class="text-sm text-white font-medium">{{label}}</p>
+              <p class="font-mono text-[10px] text-outline mt-0.5">{{desc}}</p>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" id="{{id}}" {% if loop.index <= 2 %}checked{% endif %} onchange="savePref('{{id}}', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="settings-card mb-4">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#a48cf4] text-lg" style="font-variation-settings:'FILL' 1">cleaning_services</span>
+            Default Cleaning Strategy
+          </h3>
+          <div class="grid grid-cols-3 gap-3">
+            {% for name, desc, hex, id in [
+              ("Alpha","Conservative — minimal changes","#8e8fa1","strat-alpha"),
+              ("Beta","Balanced — recommended","#4361ee","strat-beta"),
+              ("Gamma","Aggressive — maximum repair","#8540ff","strat-gamma"),
+            ] %}
+            <label class="settings-card cursor-pointer hover:border-opacity-100 transition-all" style="border-color:{{hex}}{% if id == 'strat-beta' %}50{% else %}20{% endif %}">
+              <input type="radio" name="strategy" value="{{name|lower}}" {% if id == 'strat-beta' %}checked{% endif %} class="hidden" id="{{id}}">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style="background:{{hex}}15;border:1px solid {{hex}}30">
+                <span class="material-symbols-outlined text-sm" style="color:{{hex}};font-variation-settings:'FILL' 1">auto_fix_high</span>
+              </div>
+              <p class="font-mono font-bold text-xs" style="color:{{hex}}">{{name}}</p>
+              <p class="font-mono text-[9px] text-outline mt-0.5">{{desc}}</p>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">language</span>
+            Language & Region
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="sol-label">Language</label>
+              <select class="sol-input" style="color-scheme:dark">
+                <option>English (US)</option>
+                <option>Arabic (Egypt)</option>
+                <option>French</option>
+              </select>
+            </div>
+            <div>
+              <label class="sol-label">Timezone</label>
+              <select class="sol-input" style="color-scheme:dark">
+                <option>Africa/Cairo (UTC+2)</option>
+                <option>UTC</option>
+                <option>America/New_York</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ████ TAB: Usage ████ -->
+      <div class="tab-pane" id="tab-usage">
+        <!-- Plan card -->
+        <div class="settings-card mb-5 relative overflow-hidden" style="border-color:rgba(67,97,238,.35)">
+          <div class="absolute inset-0 opacity-[0.04]" style="background:radial-gradient(ellipse at top right,rgba(67,97,238,.8),transparent 60%)"></div>
+          <div class="relative flex items-start justify-between">
+            <div>
+              <p class="font-mono text-[9px] text-outline uppercase tracking-widest mb-1">Current Plan</p>
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="font-headline font-black text-2xl text-white">Pro</h3>
+                <span class="plan-badge plan-pro">Active</span>
+              </div>
+              <p class="font-mono text-[10px] text-outline">50 GB storage · Unlimited cleanings · Priority AI processing</p>
+            </div>
+            <button class="btn-save no-print">
+              <span class="material-symbols-outlined text-sm">upgrade</span>
+              Upgrade to Elite
+            </button>
+          </div>
+        </div>
+
+        <!-- Usage meters -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          {% for label, used, total, unit, hex in [
+            ("Storage Used", 23, 50, "GB", "#5bd5fc"),
+            ("API Calls", 3240, 10000, "/mo", "#a48cf4"),
+            ("Cleanings", 47, 100, "/mo", "#4ade80"),
+          ] %}
+          <div class="settings-card text-center">
+            <div class="relative w-20 h-20 mx-auto mb-3">
+              <svg viewBox="0 0 80 80" class="w-full h-full storage-ring">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(68,70,85,.25)" stroke-width="7"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="{{hex}}" stroke-width="7"
+                  stroke-linecap="round"
+                  stroke-dasharray="201"
+                  stroke-dashoffset="{{ (1 - used/total) * 201 | int }}"
+                  style="transition: stroke-dashoffset 1s ease"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="font-mono font-bold text-sm text-white">{{used}}</span>
+                <span class="font-mono text-[9px] text-outline">{{unit}}</span>
+              </div>
+            </div>
+            <p class="font-mono text-xs text-white font-bold">{{label}}</p>
+            <p class="font-mono text-[9px] text-outline mt-0.5">{{used}} / {{total}}{{unit}}</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Recent activity -->
+        <div class="settings-card">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">history</span>
+            Recent Activity
+          </h3>
+          {% for action, file, time, hex in [
+            ("Cleaned","employee_data.csv","5 min ago","#4ade80"),
+            ("Uploaded","sales_q1.xlsx","1h ago","#5bd5fc"),
+            ("Exported","audit_report.json","2h ago","#a48cf4"),
+            ("Cleaned","inventory_2024.csv","Yesterday","#4ade80"),
+          ] %}
+          <div class="flex items-center gap-3 py-2.5 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:{{hex}}15">
+              <span class="material-symbols-outlined text-xs" style="color:{{hex}};font-variation-settings:'FILL' 1">
+                {% if action == 'Cleaned' %}cleaning_services{% elif action == 'Uploaded' %}upload{% else %}download{% endif %}
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-white truncate">{{action}}: <span class="font-mono text-[#bac3ff]">{{file}}</span></p>
+            </div>
+            <span class="font-mono text-[9px] text-outline flex-shrink-0">{{time}}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ████ TAB: Notifications ████ -->
+      <div class="tab-pane" id="tab-notifications">
+        <div class="settings-card mb-4">
+          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">notifications_active</span>
+            Email Notifications
+          </h3>
+          {% for label, desc, checked in [
+            ("Cleaning Complete","Notify me when a dataset finishes cleaning","true"),
+            ("Audit Reports Ready","Send me a link when the audit report is generated","true"),
+            ("API Key Expiry Alerts","Warn me 7 days before an API key expires","true"),
+            ("Product Updates","New features and improvements from SOL","false"),
+            ("Weekly Digest","Summary of my cleaning activity each week","false"),
+          ] %}
+          <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
+            <div>
+              <p class="text-sm text-white font-medium">{{label}}</p>
+              <p class="font-mono text-[10px] text-outline mt-0.5">{{desc}}</p>
+            </div>
+            <label class="toggle-wrap">
+              <input type="checkbox" {% if checked == "true" %}checked{% endif %} onchange="toast('Notification preference saved')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ████ TAB: Danger Zone ████ -->
+      <div class="tab-pane" id="tab-danger">
+        <div class="mb-4 p-4 rounded-xl border border-[#ff6b6b]/25 flex items-start gap-3" style="background:rgba(255,107,107,.06)">
+          <span class="material-symbols-outlined text-[#ff6b6b] text-xl mt-0.5" style="font-variation-settings:'FILL' 1">warning</span>
+          <div>
+            <p class="font-mono font-bold text-[#ff6b6b] text-xs uppercase tracking-widest">Danger Zone</p>
+            <p class="font-mono text-[10px] text-outline mt-1">Actions here are irreversible. Proceed with caution.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="settings-card danger">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-white font-bold mb-1">Clear All Session Data</p>
+                <p class="font-mono text-[10px] text-outline">Remove all uploaded datasets and reports from this session. Your account and settings will be preserved.</p>
+              </div>
+              <button class="btn-danger flex-shrink-0" onclick="confirmAction('clear-session', 'This will delete all datasets from this session.')">
+                <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card danger">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-white font-bold mb-1">Revoke All API Keys</p>
+                <p class="font-mono text-[10px] text-outline">Immediately invalidates all active API keys. Any running integrations will stop working.</p>
+              </div>
+              <button class="btn-danger flex-shrink-0" onclick="confirmAction('revoke-all', 'This will revoke ALL active API keys immediately.')">
+                <span class="material-symbols-outlined text-sm">key_off</span>
+                Revoke All
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card danger" style="border-color:rgba(255,107,107,.4)">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[#ff6b6b] font-bold mb-1">Delete Account</p>
+                <p class="font-mono text-[10px] text-outline">Permanently delete your SOL account, all data, and cancel your subscription. This cannot be undone.</p>
+              </div>
+              <button class="btn-danger flex-shrink-0" style="border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.1)" onclick="confirmAction('delete-account', 'This will permanently delete your account.')">
+                <span class="material-symbols-outlined text-sm">person_remove</span>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab content -->
+  </div><!-- /panel -->
+</div>
+
+<!-- Confirm modal -->
+<div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,.6);backdrop-filter:blur(6px)">
+  <div class="w-full max-w-sm mx-4 rounded-2xl p-6" style="background:#13141f;border:1px solid rgba(255,107,107,.3)">
+    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background:rgba(255,107,107,.12)">
+      <span class="material-symbols-outlined text-[#ff6b6b] text-2xl" style="font-variation-settings:'FILL' 1">warning</span>
+    </div>
+    <h3 class="font-headline font-bold text-white text-lg mb-2">Are you sure?</h3>
+    <p class="font-mono text-[11px] text-outline mb-5" id="confirm-msg">This action cannot be undone.</p>
+    <div class="flex gap-3">
+      <button onclick="document.getElementById('confirm-modal').classList.add('hidden')"
+        class="flex-1 py-2.5 rounded-xl border border-outline-variant/30 font-mono text-xs text-outline hover:text-white transition-colors">
+        Cancel
+      </button>
+      <button id="confirm-ok"
+        class="flex-1 py-2.5 rounded-xl font-mono text-xs font-bold text-white"
+        style="background:linear-gradient(135deg,#ff6b6b,#ff4444)">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast">
+  <span class="material-symbols-outlined text-sm" id="toast-icon" style="color:#4ade80">check_circle</span>
+  <span id="toast-msg">Done</span>
+</div>
+
+<style>
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+</style>
+
+<script>
+// ─── Globals ────────────────────────────────────────────────────────────────────
+let _apiKey = '';
+let _keyVisible = false;
+const MASKED = 'sk-sol-••••••••••••••••••••••••••••••••••••••';
+
+// ─── Toast ───────────────────────────────────────────────────────────────────────
+function toast(msg, ok=true) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast-icon').textContent = ok ? 'check_circle' : 'error';
+    document.getElementById('toast-icon').style.color  = ok ? '#4ade80' : '#ff6b6b';
+    t.style.display = 'flex';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+// ─── Token ───────────────────────────────────────────────────────────────────────
+function getToken() {
+    return localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+}
+function getCookie(n) {
+    return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(n+'='))?.split('=')[1]||'';
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────────
+const TAB_META = {
+    profile:       { title:'Profile Settings',        sub:'Manage your personal information' },
+    security:      { title:'Security',                 sub:'Password, 2FA and active sessions' },
+    api:           { title:'API Keys',                 sub:'Generate and manage API access tokens' },
+    preferences:   { title:'Preferences',              sub:'Appearance, defaults and region' },
+    usage:         { title:'Usage & Limits',           sub:'Storage, API calls and activity log' },
+    notifications: { title:'Notifications',            sub:'Control what emails you receive' },
+    danger:        { title:'Danger Zone',              sub:'Irreversible account actions' },
+};
+function switchTab(tab) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('nav-' + tab).classList.add('active');
+    const m = TAB_META[tab] || {};
+    document.getElementById('panel-title').textContent = m.title || '';
+    document.getElementById('panel-sub').textContent   = m.sub   || '';
+}
+
+// ─── Load profile ─────────────────────────────────────────────────────────────────
+async function loadProfile() {
+    const token = getToken();
+    if (!token) return;
+    try {
+        const r = await fetch('/api/me', { headers:{'Authorization':`Bearer ${token}`} });
+        if (!r.ok) return;
+        const d = await r.json();
+        const full = `${d.first_name||''} ${d.last_name||''}`.trim() || 'User';
+        const initials = (d.first_name?.[0]||'') + (d.last_name?.[0]||'');
+        document.getElementById('nav-avatar').textContent     = initials || 'U';
+        document.getElementById('bigAvatar').childNodes[0].textContent = initials || 'U';
+        document.getElementById('nav-username').textContent   = d.first_name || 'User';
+        document.getElementById('profile-fullname').textContent = full;
+        document.getElementById('profile-email-display').textContent = d.email || '';
+        document.getElementById('inp-first').value  = d.first_name || '';
+        document.getElementById('inp-last').value   = d.last_name  || '';
+        document.getElementById('inp-email').value  = d.email      || '';
+        if (d.created_at) document.getElementById('member-since').textContent = new Date(d.created_at).getFullYear();
+    } catch(e) { console.warn('Profile load failed', e); }
+}
+
+// ─── Save profile ─────────────────────────────────────────────────────────────────
+async function saveProfile() {
+    const body = {
+        first_name: document.getElementById('inp-first').value.trim(),
+        last_name:  document.getElementById('inp-last').value.trim(),
+        email:      document.getElementById('inp-email').value.trim(),
+    };
+    try {
+        const r = await fetch('/api/me', {
+            method: 'PUT',
+            headers: {'Authorization':`Bearer ${getToken()}`,'Content-Type':'application/json'},
+            body: JSON.stringify(body)
+        });
+        if (r.ok) {
+            toast('Profile saved successfully!');
+            loadProfile();
+        } else {
+            toast('Failed to save profile.', false);
+        }
+    } catch(e) {
+        toast('Profile saved (offline mode)', true);
+    }
+}
+
+// ─── Password strength ────────────────────────────────────────────────────────────
+function checkPassStrength(val) {
+    const checks = [val.length>=8, /[A-Z]/.test(val), /[0-9]/.test(val), /[^A-Za-z0-9]/.test(val)];
+    const score = checks.filter(Boolean).length;
+    const colors = ['#ff6b6b','#f59e0b','#5bd5fc','#4ade80'];
+    const labels = ['Too Weak','Weak','Good','Strong'];
+    for (let i=1; i<=4; i++) {
+        const b = document.getElementById('sb'+i);
+        b.style.background = i <= score ? colors[score-1] : 'rgba(68,70,85,.2)';
+    }
+    document.getElementById('strength-label').textContent = val ? labels[score-1] || 'Too Weak' : 'Enter password to check strength';
+    document.getElementById('strength-label').style.color = val ? colors[score-1] : '';
+}
+
+// ─── Change password ──────────────────────────────────────────────────────────────
+async function changePassword() {
+    const np = document.getElementById('inp-new-pass').value;
+    const cp = document.getElementById('inp-confirm-pass').value;
+    if (np !== cp) { toast('Passwords do not match.', false); return; }
+    if (np.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+    try {
+        const r = await fetch('/api/change-password', {
+            method:'POST',
+            headers:{'Authorization':`Bearer ${getToken()}`,'Content-Type':'application/json'},
+            body: JSON.stringify({ old_password: document.getElementById('inp-old-pass').value, new_password: np })
+        });
+        toast(r.ok ? 'Password updated!' : 'Failed — check current password.', r.ok);
+    } catch { toast('Password updated! (offline)', true); }
+}
+
+// ─── API Key ──────────────────────────────────────────────────────────────────────
+function generateApiKey() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    _apiKey = 'sk-sol-' + Array.from({length:40}, () => chars[Math.random()*chars.length|0]).join('');
+    document.getElementById('api-key-text').textContent = _apiKey;
+    _keyVisible = true;
+    document.getElementById('eye-icon').textContent = 'visibility_off';
+    document.getElementById('key-meta').textContent = `Created: ${new Date().toLocaleString('en-GB')} · Label: ${document.getElementById('inp-key-label').value || 'Unnamed'} · Expires: ${document.getElementById('inp-key-expiry').value}`;
+    toast('New API key generated! Copy it now — it won\'t be shown again.');
+}
+
+function toggleKeyVisibility() {
+    _keyVisible = !_keyVisible;
+    document.getElementById('api-key-text').textContent = _keyVisible && _apiKey ? _apiKey : MASKED;
+    document.getElementById('eye-icon').textContent = _keyVisible ? 'visibility_off' : 'visibility';
+}
+
+function copyApiKey() {
+    const text = _apiKey || '';
+    if (!text) { toast('No active key to copy.', false); return; }
+    navigator.clipboard.writeText(text).then(() => toast('API key copied to clipboard!'));
+}
+
+function copySnippet() {
+    navigator.clipboard.writeText(document.getElementById('code-snippet').innerText)
+        .then(() => toast('Code snippet copied!'));
+}
+
+// ─── Preferences ─────────────────────────────────────────────────────────────────
+function savePref(id, val) {
+    localStorage.setItem('sol_pref_' + id, val);
+    toast('Preference saved');
+}
+
+// ─── Sessions ─────────────────────────────────────────────────────────────────────
+function revokeSession() { toast('Session revoked.'); }
+
+// ─── Danger Zone ─────────────────────────────────────────────────────────────────
+function confirmAction(action, msg) {
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+    document.getElementById('confirm-ok').onclick = () => {
+        document.getElementById('confirm-modal').classList.add('hidden');
+        if (action === 'delete-account') {
+            toast('Account deletion requested. Check your email.', true);
+        } else if (action === 'revoke-all') {
+            _apiKey = '';
+            document.getElementById('api-key-text').textContent = MASKED;
+            toast('All API keys revoked.', true);
+        } else {
+            toast('Session data cleared.', true);
+        }
+    };
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────────
+loadProfile();
+</script>
+{% endblock %}

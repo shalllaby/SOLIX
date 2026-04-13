@@ -1,0 +1,150 @@
+{% extends 'public/_public_layout.html' %}
+
+{% block page_title %}Kinetic Observatory Precision{% endblock %}
+{% block meta_description %}Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time.{% endblock %}
+
+{% block content %}
+<main class="overflow-x-hidden">
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 md:py-28 flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+        <div class="w-full md:w-[48%] space-y-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20">
+                <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">System Status: Optimal</span>
+            </div>
+            <h1 class="font-headline font-black text-5xl md:text-[64px] leading-[1.04] tracking-tighter text-white">
+                CRYSTALLIZE YOUR <span class="text-gradient">MESSY DATA</span>
+            </h1>
+            <p class="text-on-surface/65 text-lg max-w-xl font-body leading-relaxed">
+                Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time. Precision engineering for the modern data stack.
+            </p>
+            <div class="flex flex-wrap gap-4 pt-2">
+                <a href="/register">
+                    <button class="px-7 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,0.30)] hover:shadow-[0_0_48px_rgba(67,97,238,0.52)] hover:scale-[1.02] active:scale-[0.99] transition-all duration-200">
+                        Explore SOL Agent →
+                    </button>
+                </a>
+                <button class="px-7 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/50 transition-all duration-200">
+                    View Demo
+                </button>
+            </div>
+        </div>
+        <!-- Visualization -->
+        <div class="w-full md:w-[52%] relative min-h-[420px] md:min-h-[520px]">
+            <div class="relative w-full h-full rounded-2xl overflow-hidden border border-outline-variant/20 shadow-[0_0_60px_rgba(67,97,238,0.15)]" style="min-height:460px;">
+                <img alt="SOL Data Agent Visualization" class="w-full h-full object-cover"
+                     src="https://i.ibb.co/FqYk7RJp/unnamed-3.png">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+                <!-- Accuracy badge -->
+                <div class="absolute top-4 right-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-primary-container/20">
+                    <div class="font-mono text-[9px] text-primary-container uppercase tracking-widest mb-1">Precision</div>
+                    <div class="font-headline font-bold text-2xl text-white">99.9%</div>
+                    <div class="text-[9px] text-on-surface/40">Accuracy Guarantee</div>
+                </div>
+                <!-- Latency badge -->
+                <div class="absolute bottom-4 left-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-secondary-container/20">
+                    <div class="font-mono text-[9px] text-secondary-container uppercase tracking-widest mb-1">Latency</div>
+                    <div class="font-headline font-bold text-2xl text-white">2.4ms</div>
+                    <div class="text-[9px] text-on-surface/40">Avg Processing Time</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ FEATURES GRID ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {% for feat in [
+                ("cloud_download", "Universal Data Loader",  "Connect to any SQL, NoSQL, or API endpoint with zero-configuration mapping and instant schema detection."),
+                ("psychology",      "AI Strategy Hub",        "Dynamic logic allocation using LLMs to clean, normalize, and enrich raw data streams on the fly."),
+                ("verified",        "Validated Output",       "Rigorous multi-stage validation ensures only clean, high-fidelity data reaches your production warehouses."),
+                ("assessment",      "Audit & Reports",        "Full lineage tracking and observability dashboards for compliance and system transparency.")
+            ] %}
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">{{ feat[0] }}</span>
+                </div>
+                <h3 class="text-white font-headline font-bold text-lg mb-3">{{ feat[1] }}</h3>
+                <p class="text-on-surface/55 text-sm leading-relaxed">{{ feat[2] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══════════ DATA TRANSFORMATION ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20 bg-surface-container-lowest/50 rounded-3xl my-4">
+        <div class="text-center mb-14">
+            <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Specialized Data Transformation</h2>
+            <div class="w-20 h-0.5 bg-gradient-to-r from-primary-container to-secondary-container mx-auto mt-5 rounded-full"></div>
+        </div>
+        <div class="flex flex-col lg:flex-row items-stretch justify-center gap-8 lg:gap-10">
+            <!-- Before table -->
+            <div class="w-full lg:w-[42%]">
+                <h3 class="text-success font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-error inline-block"></span> Before
+                </h3>
+                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                    <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
+                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Error</th><th class="font-medium">Format</th><th class="font-medium">Status</th></tr></thead>
+                        <tbody class="text-white">
+                            <tr><td class="py-1">2026 01-55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026//01-55</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026-01d55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026-01??</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Center divider -->
+            <div class="hidden lg:flex flex-col items-center justify-center gap-3 pt-10">
+                <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-[0_0_40px_rgba(67,97,238,0.6)]">
+                    <span class="material-symbols-outlined text-white text-xl">memory</span>
+                </div>
+                <div class="w-px h-40 bg-gradient-to-b from-primary-container/50 to-transparent"></div>
+            </div>
+            <!-- After table -->
+            <div class="w-full lg:w-[42%]">
+                <h3 class="text-[#4cc9f0] font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-success inline-block"></span> After
+                </h3>
+                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                    <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
+                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Status</th><th class="font-medium">Format</th><th class="font-medium">Result</th></tr></thead>
+                        <tbody class="text-white">
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ BOTTOM CTA ═══════════ -->
+    <section class="mt-16 mb-0 relative overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-container via-[#6b48ff] to-secondary-container animate-shimmer py-16 px-6 text-center">
+            <div class="max-w-4xl mx-auto space-y-7 relative z-10">
+                <h2 class="font-headline font-black text-4xl md:text-6xl text-white tracking-[0.15em] uppercase leading-tight">EXPLORE SOL AGENT</h2>
+                <p class="text-white/80 font-medium text-lg max-w-2xl mx-auto">
+                    Ready to automate your engineering overhead? Deploy the agent to your stack in under 5 minutes.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="/register">
+                        <button class="bg-white text-primary-container font-black px-10 py-4 rounded-full hover:scale-105 transition-transform shadow-2xl">START FREE TRIAL</button>
+                    </a>
+                    <button class="border-2 border-white/40 text-white font-black px-10 py-4 rounded-full hover:bg-white/10 transition-colors">VIEW ARCHITECTURE</button>
+                </div>
+            </div>
+            <!-- Decorative blurs -->
+            <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+                <div class="absolute -top-24 -left-24 w-96 h-96 bg-white rounded-full blur-[100px]"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-white rounded-full blur-[100px]"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+{% endblock %}

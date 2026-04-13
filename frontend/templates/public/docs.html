@@ -1,0 +1,499 @@
+{% extends "public/_public_layout.html" %}
+
+{% block page_title %}Documentation — SOL Data Agent{% endblock %}
+{% block meta_description %}Complete developer and user documentation for SOL Data Agent — API reference, quick start, pipeline guide, and integration tutorials.{% endblock %}
+
+{% block head %}
+<style>
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.docs-sidebar {
+    width: 260px; flex-shrink: 0;
+    position: sticky; top: 56px;
+    height: calc(100vh - 56px); overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #444655 transparent;
+}
+.docs-content { flex: 1; min-width: 0; max-width: 760px; }
+.docs-toc {
+    width: 200px; flex-shrink: 0;
+    position: sticky; top: 56px;
+    height: calc(100vh - 56px); overflow-y: auto;
+}
+
+/* ── Sidebar nav ────────────────────────────────────────────────────────────── */
+.nav-group-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    letter-spacing: .2em; text-transform: uppercase; color: #8e8fa1;
+    padding: 16px 20px 6px;
+}
+.nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 20px; font-size: 13px; color: #8e8fa1;
+    text-decoration: none; transition: all .18s; border-left: 2px solid transparent;
+    font-family: 'Inter', sans-serif;
+}
+.nav-item:hover { color: #e1e1f4; background: rgba(67,97,238,.06); }
+.nav-item.active { color: #bac3ff; border-left-color: #4361ee; background: rgba(67,97,238,.08); }
+.nav-item .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 1px 6px;
+    border-radius: 99px; margin-left: auto; flex-shrink: 0;
+}
+.badge-new  { background: rgba(6,214,160,.15); color: #06d6a0; border: 1px solid rgba(6,214,160,.25); }
+.badge-beta { background: rgba(255,209,102,.12); color: #ffd166; border: 1px solid rgba(255,209,102,.25); }
+
+/* ── Content typography ─────────────────────────────────────────────────────── */
+.doc-h1 { font-family:'Inter',sans-serif; font-weight:900; font-size:2.25rem; color:#e1e1f4; margin-bottom:.5rem; }
+.doc-h2 { font-family:'Inter',sans-serif; font-weight:800; font-size:1.5rem; color:#e1e1f4; margin-top:3rem; margin-bottom:.75rem; padding-bottom:.5rem; border-bottom:1px solid rgba(68,70,85,.22); }
+.doc-h3 { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.1rem; color:#c4c5d7; margin-top:2rem; margin-bottom:.4rem; }
+.doc-p  { color: rgba(225,225,244,.58); font-size:.9rem; line-height:1.85; margin-bottom:1rem; }
+.doc-ul { list-style:none; padding:0; margin:0 0 1rem; }
+.doc-ul li { color:rgba(225,225,244,.58); font-size:.875rem; line-height:1.7; padding-left:1.25rem; position:relative; margin-bottom:.25rem; }
+.doc-ul li::before { content:'▸'; position:absolute; left:0; color:#4361ee; font-size:.7rem; top:.15rem; }
+.doc-note { background:rgba(67,97,238,.08); border-left:3px solid #4361ee; border-radius:0 8px 8px 0; padding:.875rem 1.125rem; margin:1.25rem 0; }
+.doc-note p { margin:0; color:rgba(225,225,244,.7); font-size:.875rem; }
+.doc-warn { background:rgba(255,209,102,.07); border-left:3px solid #ffd166; border-radius:0 8px 8px 0; padding:.875rem 1.125rem; margin:1.25rem 0; }
+.doc-warn p { margin:0; color:rgba(255,209,102,.85); font-size:.875rem; }
+.doc-success { background:rgba(6,214,160,.07); border-left:3px solid #06d6a0; border-radius:0 8px 8px 0; padding:.875rem 1.125rem; margin:1.25rem 0; }
+.doc-success p { margin:0; color:rgba(6,214,160,.85); font-size:.875rem; }
+
+/* ── Code blocks ────────────────────────────────────────────────────────────── */
+.code-block {
+    background: rgba(7,9,20,.85); border: 1px solid rgba(68,70,85,.35);
+    border-radius: 10px; overflow: hidden; margin: 1.25rem 0;
+}
+.code-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 8px 14px; border-bottom: 1px solid rgba(68,70,85,.3);
+    background: rgba(11,13,26,.6);
+}
+.code-lang { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8e8fa1; letter-spacing:.1em; text-transform:uppercase; }
+.code-body { padding: 16px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.8; overflow-x:auto; }
+.code-body { color:#e1e1f4; }
+.kw  { color:#a48cf4; } .fn  { color:#5bd5fc; } .str { color:#06d6a0; }
+.cmt { color:#8e8fa1; font-style:italic; } .num { color:#ffd166; }
+.hl  { color:#bac3ff; }
+
+/* ── API param table ────────────────────────────────────────────────────────── */
+.param-table { width:100%; border-collapse:collapse; margin:1rem 0; }
+.param-table th { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:#8e8fa1; padding:8px 12px; border-bottom:1px solid rgba(68,70,85,.35); text-align:left; }
+.param-table td { font-size:.815rem; padding:9px 12px; border-bottom:1px solid rgba(68,70,85,.12); vertical-align:top; color:rgba(225,225,244,.65); }
+.param-table td:first-child { font-family:'JetBrains Mono',monospace; color:#5bd5fc; font-size:.78rem; }
+.param-table td:nth-child(2) { color:#a48cf4; }
+.param-table tr:hover td { background:rgba(67,97,238,.04); }
+
+/* ── TOC ────────────────────────────────────────────────────────────────────── */
+.toc-item { display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#8e8fa1; padding:4px 0 4px 12px; border-left:2px solid transparent; text-decoration:none; transition:all .2s; }
+.toc-item:hover, .toc-item.active { color:#bac3ff; border-left-color:#4361ee; }
+.toc-sub { padding-left:22px; font-size:9.5px; }
+
+/* ── Method badges ──────────────────────────────────────────────────────────── */
+.method { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; }
+.get    { background:rgba(6,214,160,.18); color:#06d6a0; border:1px solid rgba(6,214,160,.3); }
+.post   { background:rgba(67,97,238,.18); color:#bac3ff; border:1px solid rgba(67,97,238,.3); }
+.delete { background:rgba(255,107,107,.18); color:#ff6b6b; border:1px solid rgba(255,107,107,.3); }
+
+/* ── Search box ─────────────────────────────────────────────────────────────── */
+.doc-search { background:rgba(11,13,26,.7); border:1px solid rgba(68,70,85,.5); color:#e1e1f4; transition:border-color .2s,box-shadow .2s; }
+.doc-search:focus { outline:none; border-color:rgba(67,97,238,.6); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+.doc-search::placeholder { color:rgba(142,143,161,.5); }
+
+/* ── Misc ───────────────────────────────────────────────────────────────────── */
+.endpoint-row { background:rgba(11,13,26,.5); border:1px solid rgba(68,70,85,.25); border-radius:10px; padding:14px 16px; margin:.75rem 0; transition:border-color .2s; }
+.endpoint-row:hover { border-color:rgba(67,97,238,.35); }
+.copy-btn { background:none; border:none; cursor:pointer; color:#8e8fa1; transition:color .2s; padding:0; }
+.copy-btn:hover { color:#5bd5fc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+
+  <!-- ═══ SIDEBAR NAV ═══════════════════════════════════════════════════════── -->
+  <aside class="docs-sidebar hidden lg:block bg-surface-container-lowest border-r border-outline-variant/10">
+
+    <!-- Search -->
+    <div class="p-4 border-b border-outline-variant/10">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-outline text-base">search</span>
+        <input type="text" placeholder="Search docs…" class="doc-search w-full pl-8 pr-3 py-2 rounded-lg text-sm">
+      </div>
+    </div>
+
+    <nav class="pb-10">
+      <p class="nav-group-title">Getting Started</p>
+      <a href="#quickstart"      class="nav-item active"><span class="material-symbols-outlined text-sm">rocket_launch</span>Quick Start</a>
+      <a href="#installation"    class="nav-item"><span class="material-symbols-outlined text-sm">download</span>Installation</a>
+      <a href="#authentication"  class="nav-item"><span class="material-symbols-outlined text-sm">lock</span>Authentication</a>
+
+      <p class="nav-group-title">Core Concepts</p>
+      <a href="#pipeline"        class="nav-item"><span class="material-symbols-outlined text-sm">hub</span>4-Stage Pipeline</a>
+      <a href="#strategies"      class="nav-item"><span class="material-symbols-outlined text-sm">psychology</span>Cleaning Strategies</a>
+      <a href="#file-formats"    class="nav-item"><span class="material-symbols-outlined text-sm">folder</span>File Formats</a>
+
+      <p class="nav-group-title">Modules</p>
+      <a href="#cleaning-studio" class="nav-item"><span class="material-symbols-outlined text-sm">auto_fix_high</span>Cleaning Studio</a>
+      <a href="#ocr-engine"      class="nav-item"><span class="material-symbols-outlined text-sm">document_scanner</span>OCR Engine</a>
+      <a href="#ml-advisor"      class="nav-item"><span class="material-symbols-outlined text-sm">model_training</span>ML Advisor<span class="badge badge-new ml-auto">NEW</span></a>
+      <a href="#forms"           class="nav-item"><span class="material-symbols-outlined text-sm">dynamic_form</span>SOL Forms</a>
+      <a href="#db-connectors"   class="nav-item"><span class="material-symbols-outlined text-sm">cable</span>DB Connectors</a>
+      <a href="#audit"           class="nav-item"><span class="material-symbols-outlined text-sm">summarize</span>Audit Reports</a>
+
+      <p class="nav-group-title">API Reference</p>
+      <a href="#api-auth"        class="nav-item"><span class="material-symbols-outlined text-sm">key</span>Auth Endpoints</a>
+      <a href="#api-clean"       class="nav-item"><span class="material-symbols-outlined text-sm">cleaning_services</span>Cleaning API</a>
+      <a href="#api-forms"       class="nav-item"><span class="material-symbols-outlined text-sm">api</span>Forms API</a>
+      <a href="#api-ocr"         class="nav-item"><span class="material-symbols-outlined text-sm">scanner</span>OCR API<span class="badge badge-beta ml-auto">BETA</span></a>
+
+      <p class="nav-group-title">Integrations</p>
+      <a href="#integrations-db"  class="nav-item"><span class="material-symbols-outlined text-sm">storage</span>SQL Databases</a>
+      <a href="#integrations-api" class="nav-item"><span class="material-symbols-outlined text-sm">link</span>REST API Access</a>
+    </nav>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ══════════════════════════════════════════════════════── -->
+  <main class="flex-1 min-w-0 px-6 md:px-10 lg:px-12 py-10 lg:py-14">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- ── Quick Start ─────────────────────────────────────────────────── -->
+      <div class="mb-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20 mb-4">
+          <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1">menu_book</span>
+          <span class="font-mono text-[10px] uppercase tracking-widest text-outline">Documentation v2.6.0</span>
+        </div>
+        <h1 class="doc-h1" id="quickstart">Quick Start Guide</h1>
+        <p class="doc-p">Welcome to SOL Data Agent — the autonomous AI data cleaning platform. This guide will get you from zero to a clean dataset in under 5 minutes.</p>
+      </div>
+
+      <div class="doc-success"><p>✓ <strong>No API key required</strong> to start. Register for a free account and you get 10 free cleaning jobs/month immediately.</p></div>
+
+      <!-- ── Installation ─────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="installation">Installation</h2>
+      <p class="doc-p">SOL Data Agent is a hosted SaaS — no installation required. For on-premise deployments:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Bash</span>
+          <button class="copy-btn" onclick="copyCode(this)" title="Copy"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+        </div>
+        <div class="code-body"><span class="cmt"># Clone & install dependencies</span>
+git clone https://github.com/your-org/sol-data-agent
+<span class="fn">cd</span> sol-data-agent
+pip install -r requirements.txt
+
+<span class="cmt"># Set environment variables</span>
+<span class="kw">export</span> GROQ_API_KEY=<span class="str">"your_groq_key_here"</span>
+<span class="kw">export</span> SECRET_KEY=<span class="str">"your_jwt_secret"</span>
+
+<span class="cmt"># Start the server</span>
+python -m uvicorn backend.main:app --reload
+<span class="cmt"># → http://127.0.0.1:8000</span></div>
+      </div>
+
+      <div class="doc-note"><p><strong>Requirements:</strong> Python 3.10+, Groq API key (free tier available). Optional: PostgreSQL / MySQL for DB Connector features.</p></div>
+
+      <!-- ── Authentication ──────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="authentication">Authentication</h2>
+      <p class="doc-p">SOL uses JWT (JSON Web Tokens) for authentication. Tokens are issued on login and expire after 7 days.</p>
+
+      <h3 class="doc-h3">Obtaining a Token</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">HTTP</span>
+          <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+        </div>
+        <div class="code-body"><span class="kw">POST</span> /api/auth/login
+Content-Type: application/json
+
+{
+  <span class="str">"email"</span>:    <span class="str">"user@example.com"</span>,
+  <span class="str">"password"</span>: <span class="str">"mysecretpassword"</span>
+}
+
+<span class="cmt">// Response</span>
+{
+  <span class="str">"access_token"</span>: <span class="str">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="str">"token_type"</span>:   <span class="str">"bearer"</span>
+}</div>
+      </div>
+
+      <h3 class="doc-h3">Using the Token</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">HTTP</span>
+          <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+        </div>
+        <div class="code-body"><span class="kw">GET</span> /api/auth/me
+Authorization: Bearer <span class="str">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span></div>
+      </div>
+
+      <!-- ── 4-Stage Pipeline ─────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="pipeline">The 4-Stage Pipeline</h2>
+      <p class="doc-p">Every cleaning operation in SOL passes through four autonomous stages:</p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+        {% for num, label, hex in [("01","Analyze","#5bd5fc"),("02","Strategize","#a48cf4"),("03","Execute","#4361ee"),("04","Validate","#06d6a0")] %}
+        <div class="text-center p-4 rounded-xl" style="background:{{hex}}10;border:1px solid {{hex}}25">
+          <p class="font-mono text-[9px] mb-1" style="color:{{hex}}">STAGE {{num}}</p>
+          <p class="text-white font-bold text-sm">{{label}}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="doc-ul">
+        <ul class="doc-ul">
+          <li><strong class="text-on-surface-variant">Stage 1 — Analyze:</strong> Scans schema, infers types, maps missing values and outliers.</li>
+          <li><strong class="text-on-surface-variant">Stage 2 — Strategize:</strong> AI generates a tailored cleaning plan (Alpha/Beta/Gamma) from the profile + your goal.</li>
+          <li><strong class="text-on-surface-variant">Stage 3 — Execute:</strong> Applies the strategy — imputation, outlier removal, date formatting, deduplication.</li>
+          <li><strong class="text-on-surface-variant">Stage 4 — Validate:</strong> Side-by-side diff, health score, export, and optional DB write-back.</li>
+        </ul>
+      </div>
+
+      <!-- ── Strategies ──────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="strategies">Cleaning Strategies</h2>
+      <p class="doc-p">SOL offers three built-in cleaning intensity levels, plus full AI customisation via a natural-language goal.</p>
+      <div class="space-y-3 my-4">
+        {% for name, hex, badge, desc in [
+          ("Alpha — Conservative","#5bd5fc","SAFE","Fills only obvious missing values (mode/mean). Keeps outliers. Best for financial or regulatory data."),
+          ("Beta — Balanced","#a48cf4","RECOMMENDED","Balanced approach: imputes missing, removes clear outliers, normalises formats. Suitable for most use cases."),
+          ("Gamma — Aggressive","#4361ee","POWER","Full repair: fuzzy text normalization, deep outlier pruning, deduplication. Best for raw CRM / ERP exports."),
+        ] %}
+        <div class="endpoint-row">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="font-mono text-sm font-bold" style="color:{{hex}}">{{name}}</span>
+            <span class="font-mono text-[9px] px-2 py-0.5 rounded-full border" style="color:{{hex}};border-color:{{hex}}35;background:{{hex}}10">{{badge}}</span>
+          </div>
+          <p class="text-on-surface/55 text-xs leading-relaxed">{{desc}}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- ── File Formats ────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="file-formats">Supported File Formats</h2>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 my-4">
+        {% for fmt, ext in [("CSV",".csv"),("Excel",".xlsx"),("JSON",".json"),("Parquet",".parquet"),("Feather",".feather"),("HDF5",".h5"),("TSV",".tsv"),("ODS",".ods")] %}
+        <div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline-variant/15">
+          <p class="font-mono text-sm font-bold text-white">{{fmt}}</p>
+          <p class="font-mono text-[9px] text-outline">{{ext}}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- ── Cleaning Studio ─────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="cleaning-studio">Cleaning Studio</h2>
+      <p class="doc-p">The Cleaning Studio is the primary interface for manual and AI-assisted data cleaning. Navigate to <code class="font-mono text-xs text-secondary bg-surface-container px-1.5 py-0.5 rounded">/app/studio</code> after logging in.</p>
+      <h3 class="doc-h3">Workflow</h3>
+      <ul class="doc-ul">
+        <li>Upload a file via drag-and-drop or the file picker.</li>
+        <li>Optionally type a natural-language cleaning goal in the text box.</li>
+        <li>Select a strategy (Alpha / Beta / Gamma) and click <strong class="text-white">Analyze</strong>.</li>
+        <li>Review the AI strategy card — each column shows the proposed action and confidence score.</li>
+        <li>Click <strong class="text-white">Execute Cleaning</strong> when satisfied.</li>
+        <li>Review the diff table and download the clean file or sync to a DB.</li>
+      </ul>
+
+      <!-- ── OCR Engine ──────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="ocr-engine">OCR Engine</h2>
+      <p class="doc-p">The OCR Engine converts scanned images (PNG, JPG, TIFF) and PDF documents into structured DataFrames, making them ready for SOL's cleaning pipeline.</p>
+      <div class="doc-note"><p>Supports <strong>table detection</strong> — complex multi-column tables in scanned bank statements or invoices are automatically parsed into rows and columns.</p></div>
+
+      <!-- ── ML Advisor ──────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="ml-advisor">ML Advisor <span class="badge badge-new align-middle">NEW</span></h2>
+      <p class="doc-p">After cleaning, the ML Advisor analyzes your dataset's features and target column characteristics to recommend the most suitable model architectures.</p>
+      <h3 class="doc-h3">Output</h3>
+      <ul class="doc-ul">
+        <li>Top-3 recommended algorithms with confidence scores</li>
+        <li>Problem type detection (classification, regression, clustering)</li>
+        <li>Feature importance hints</li>
+        <li>Skeleton Python code snippet for the top recommendation</li>
+      </ul>
+
+      <!-- ── DB Connectors ───────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="db-connectors">DB Connectors</h2>
+      <p class="doc-p">Connect SOL directly to your SQL databases via the Integration Hub at <code class="font-mono text-xs text-secondary bg-surface-container px-1.5 py-0.5 rounded">/app/connectors</code>.</p>
+      <div class="grid grid-cols-3 gap-3 my-4">
+        {% for db, hex in [("PostgreSQL","#5fa8d3"),("MySQL","#f37121"),("SQLite","#a48cf4")] %}
+        <div class="endpoint-row text-center">
+          <div class="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style="background:{{hex}}18;border:1px solid {{hex}}28">
+            <span class="material-symbols-outlined text-sm" style="color:{{hex}};font-variation-settings:'FILL' 1">storage</span>
+          </div>
+          <p class="text-white text-sm font-bold">{{db}}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- ── API Reference: Auth ─────────────────────────────────────── -->
+      <h2 class="doc-h2" id="api-auth">API Reference — Auth</h2>
+      <p class="doc-p">Base URL: <code class="font-mono text-secondary text-xs bg-surface-container px-1.5 py-0.5 rounded">http://your-domain/api/auth</code></p>
+
+      {% for method, path, desc, cls in [
+        ("POST", "/register", "Register a new user account.", "post"),
+        ("POST", "/login",    "Authenticate and receive a JWT token.", "post"),
+        ("GET",  "/me",       "Return the current authenticated user's profile.", "get"),
+        ("POST", "/logout",   "Invalidate the current session token.", "post"),
+      ] %}
+      <div class="endpoint-row">
+        <div class="flex items-center gap-3 mb-1">
+          <span class="method {{cls}}">{{method}}</span>
+          <code class="font-mono text-[13px] text-white">/api/auth{{path}}</code>
+        </div>
+        <p class="text-on-surface/50 text-xs">{{desc}}</p>
+      </div>
+      {% endfor %}
+
+      <!-- ── API Reference: Cleaning ─────────────────────────────────── -->
+      <h2 class="doc-h2" id="api-clean">API Reference — Cleaning</h2>
+      <p class="doc-p">All cleaning endpoints require a Bearer token in the Authorization header.</p>
+
+      <div class="endpoint-row">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="method post">POST</span>
+          <code class="font-mono text-[13px] text-white">/api/clean/analyze</code>
+        </div>
+        <p class="text-on-surface/50 text-xs mb-3">Upload a file and receive a full metadata profile.</p>
+        <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest mb-2">Request Body (multipart/form-data)</h4>
+        <table class="param-table">
+          <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>file</td><td>File</td><td>The dataset file to analyze. Supported formats listed above.</td></tr>
+            <tr><td>goal</td><td>string</td><td>Optional. Natural language cleaning goal.</td></tr>
+            <tr><td>strategy</td><td>string</td><td>alpha | beta | gamma (default: beta)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="endpoint-row">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="method post">POST</span>
+          <code class="font-mono text-[13px] text-white">/api/clean/execute</code>
+        </div>
+        <p class="text-on-surface/50 text-xs mb-3">Execute a cleaning strategy on an analyzed file. Returns a cleaned file + diff report.</p>
+        <div class="code-block mt-3">
+          <div class="code-header"><span class="code-lang">JSON Response</span></div>
+          <div class="code-body">{
+  <span class="str">"status"</span>:         <span class="str">"success"</span>,
+  <span class="str">"rows_original"</span>:  <span class="num">12840</span>,
+  <span class="str">"rows_cleaned"</span>:   <span class="num">12791</span>,
+  <span class="str">"cells_fixed"</span>:    <span class="num">1423</span>,
+  <span class="str">"health_before"</span>:  <span class="num">71.4</span>,
+  <span class="str">"health_after"</span>:   <span class="num">99.1</span>,
+  <span class="str">"strategy_used"</span>:  <span class="str">"beta"</span>,
+  <span class="str">"download_url"</span>:   <span class="str">"/api/clean/download/abc123"</span>
+}</div>
+        </div>
+      </div>
+
+      <!-- ── API: OCR ────────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="api-ocr">API Reference — OCR <span class="badge badge-beta align-middle">BETA</span></h2>
+
+      <div class="endpoint-row">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="method post">POST</span>
+          <code class="font-mono text-[13px] text-white">/api/ocr/upload</code>
+        </div>
+        <p class="text-on-surface/50 text-xs">Upload an image or PDF. Returns a JSON-structured table extracted via OCR.</p>
+      </div>
+
+      <!-- ── Integrations ────────────────────────────────────────────── -->
+      <h2 class="doc-h2" id="integrations-db">SQL Database Integration</h2>
+      <p class="doc-p">Connect SOL to an existing SQL database to read tables directly as datasets and write-back cleaned data without intermediary files.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Python SDK (planned)</span>
+          <button class="copy-btn" onclick="copyCode(this)"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+        </div>
+        <div class="code-body"><span class="kw">from</span> sol_sdk <span class="kw">import</span> SOLClient
+
+client = <span class="fn">SOLClient</span>(api_key=<span class="str">"sol_pk_xxxxxxxx"</span>)
+
+<span class="cmt"># Read from PostgreSQL and run Beta strategy</span>
+result = client.clean.<span class="fn">from_db</span>(
+    connection_string = <span class="str">"postgresql://user:pass@host:5432/db"</span>,
+    table             = <span class="str">"customers"</span>,
+    strategy          = <span class="str">"beta"</span>,
+    goal              = <span class="str">"fix missing email and phone columns"</span>
+)
+
+<span class="cmt"># Write-back to the same table</span>
+result.<span class="fn">write_back</span>(table=<span class="str">"customers_clean"</span>)
+<span class="fn">print</span>(f<span class="str">"Cleaned {result.cells_fixed} cells"</span>)</div>
+      </div>
+
+      <div class="doc-warn"><p>⚠ The Python SDK is currently in development. Use the REST API directly for programmatic access.</p></div>
+
+      <!-- ── Footer nav ──────────────────────────────────────────────── -->
+      <div class="flex items-center justify-between pt-10 mt-10 border-t border-outline-variant/15">
+        <a href="/solutions" class="flex items-center gap-2 text-outline hover:text-white transition-colors text-sm font-medium">
+          <span class="material-symbols-outlined text-base">arrow_back</span> Architecture Overview
+        </a>
+        <a href="/pricing" class="flex items-center gap-2 text-outline hover:text-white transition-colors text-sm font-medium">
+          Pricing Plans <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══ RIGHT TOC ════════════════════════════════════════════════════════── -->
+  <aside class="docs-toc hidden xl:block p-6 border-l border-outline-variant/10 bg-surface-container-lowest">
+    <p class="font-mono text-[9px] uppercase tracking-widest text-outline mb-3">On This Page</p>
+    <nav id="toc-nav" class="space-y-0.5">
+      <a href="#quickstart"      class="toc-item active">Quick Start</a>
+      <a href="#installation"    class="toc-item">Installation</a>
+      <a href="#authentication"  class="toc-item">Authentication</a>
+      <a href="#pipeline"        class="toc-item">Pipeline</a>
+      <a href="#strategies"      class="toc-item toc-sub">Strategies</a>
+      <a href="#file-formats"    class="toc-item toc-sub">File Formats</a>
+      <a href="#cleaning-studio" class="toc-item">Cleaning Studio</a>
+      <a href="#ocr-engine"      class="toc-item">OCR Engine</a>
+      <a href="#ml-advisor"      class="toc-item">ML Advisor</a>
+      <a href="#db-connectors"   class="toc-item">DB Connectors</a>
+      <a href="#api-auth"        class="toc-item">Auth API</a>
+      <a href="#api-clean"       class="toc-item toc-sub">Cleaning API</a>
+      <a href="#api-ocr"         class="toc-item toc-sub">OCR API</a>
+      <a href="#integrations-db" class="toc-item">SQL Integration</a>
+    </nav>
+  </aside>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Scroll-spy for both sidebars
+const headings = document.querySelectorAll('h1[id], h2[id], h3[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const tocItems = document.querySelectorAll('.toc-item');
+
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      [...navItems, ...tocItems].forEach(a => a.classList.remove('active'));
+      document.querySelectorAll(`[href="#${id}"]`).forEach(a => a.classList.add('active'));
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+headings.forEach(h => spy.observe(h));
+
+// Copy code button
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('.code-body');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    const icon = btn.querySelector('.material-symbols-outlined');
+    icon.textContent = 'check';
+    btn.style.color = '#06d6a0';
+    setTimeout(() => { icon.textContent = 'content_copy'; btn.style.color = ''; }, 2000);
+  });
+}
+
+// Sidebar search filter
+document.querySelector('.doc-search')?.addEventListener('input', function () {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.nav-item').forEach(a => {
+    a.style.display = a.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-group-title').forEach(t => {
+    const hasVisible = [...t.nextElementSibling ? [t.nextElementSibling] : []].some(el => el.style.display !== 'none');
+    t.style.display = q ? 'none' : '';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SOL Data Agent | Sign In</title>
+    <meta name="description" content="Sign in to your SOL Data Agent workspace.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":                   "#bac3ff",
+                        "primary-container":         "#4361ee",
+                        "on-primary":                "#00218d",
+                        "on-primary-container":      "#f4f2ff",
+                        "secondary":                 "#5bd5fc",
+                        "secondary-container":       "#00a3c8",
+                        "on-secondary":              "#003543",
+                        "tertiary":                  "#d2bbff",
+                        "tertiary-container":        "#8540ff",
+                        "on-tertiary":               "#3e008e",
+                        "background":                "#111220",
+                        "surface":                   "#111220",
+                        "surface-dim":               "#111220",
+                        "surface-bright":            "#373847",
+                        "surface-container-lowest":  "#0b0d1a",
+                        "surface-container-low":     "#191b28",
+                        "surface-container":         "#1d1f2c",
+                        "surface-container-high":    "#272937",
+                        "surface-container-highest": "#323442",
+                        "surface-variant":           "#323442",
+                        "on-surface":                "#e1e1f4",
+                        "on-surface-variant":        "#c4c5d7",
+                        "on-background":             "#e1e1f4",
+                        "outline":                   "#8e8fa1",
+                        "outline-variant":           "#444655",
+                        "error":                     "#ffb4ab",
+                        "error-container":           "#93000a",
+                        "success":                   "#06d6a0",
+                        "inverse-primary":           "#2e4edc",
+                        "inverse-surface":           "#e1e1f4",
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body":     ["Inter"],
+                        "label":    ["Space Grotesk"],
+                        "mono":     ["JetBrains Mono"],
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel {
+            background: rgba(25, 27, 40, 0.55);
+            backdrop-filter: blur(16px) saturate(1.4);
+            border: 1px solid rgba(68, 70, 85, 0.25);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #4361ee 0%, #00a3c8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .floating-squares-bg { background: linear-gradient(135deg, rgba(67,97,238,0.10), rgba(0,163,200,0.07)); border: 1px solid rgba(68,70,85,0.22); }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px); } }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body selection:bg-primary-container/30 selection:text-white antialiased">
+
+<main class="min-h-screen flex flex-row overflow-hidden">
+    <!-- LEFT PANEL (Copied from _auth_left_panel.html) -->
+    <section class="hidden md:flex md:w-5/12 lg:w-[42%] relative flex-col justify-between p-12 bg-gradient-to-br from-[#090c28] via-[#0d1033] to-[#0b0d1a] border-r border-outline-variant/10 overflow-hidden flex-shrink-0"
+             style="background: linear-gradient(135deg, #090c28 0%, #0d1033 50%, #0b0d1a 100%);">
+        <div class="absolute -top-24 -right-24 w-[420px] h-[420px] bg-primary-container/12 rounded-full blur-[130px] pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-72 h-72 bg-secondary-container/10 rounded-full blur-[110px] pointer-events-none"></div>
+        <div class="absolute top-[45%] left-[20%] w-36 h-36 bg-tertiary-container/8 rounded-full blur-[70px] pointer-events-none"></div>
+
+        <a href="#" class="z-10 flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_24px_rgba(67,97,238,0.5)] group-hover:shadow-[0_0_36px_rgba(67,97,238,0.7)] transition-shadow duration-400">
+                <span class="material-symbols-outlined text-white text-[22px]" style="font-variation-settings:'FILL' 1">hub</span>
+            </div>
+            <h1 class="font-headline font-black text-xl tracking-tighter text-white uppercase group-hover:text-primary transition-colors duration-200">SOL DATA AGENT</h1>
+        </a>
+
+        <div class="relative flex items-center justify-center flex-grow py-8 z-10">
+            <div class="relative w-[260px] h-[260px]">
+                <div class="absolute inset-0 rounded-2xl opacity-25" style="background-image:radial-gradient(circle at 2px 2px,#444655 1px,transparent 0);background-size:22px 22px;"></div>
+                <div class="floating-squares-bg rounded-2xl absolute inset-0 overflow-hidden">
+                    <div class="absolute bg-primary-container/22 rounded-xl backdrop-blur-md border border-primary-container/28 shadow-[0_0_22px_rgba(67,97,238,0.30)] animate-float" style="width:72px;height:72px;top:18%;left:10%;"></div>
+                    <div class="absolute bg-secondary-container/18 rounded-2xl backdrop-blur-lg border border-secondary-container/22 shadow-[0_0_22px_rgba(0,163,200,0.25)] animate-float" style="width:88px;height:88px;bottom:10%;right:8%;animation-delay:1.3s;"></div>
+                    <div class="absolute bg-tertiary-container/15 rounded-xl backdrop-blur-md border border-tertiary-container/18 animate-float" style="width:44px;height:44px;top:52%;left:42%;animation-delay:0.7s;"></div>
+                </div>
+                <div class="absolute top-3 right-6 w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_14px_4px_rgba(91,213,252,0.6)] animate-glow-pulse"></div>
+                <div class="absolute bottom-10 left-5 w-2 h-2 rounded-full bg-primary-container shadow-[0_0_14px_4px_rgba(67,97,238,0.6)] animate-glow-pulse" style="animation-delay:1.1s;"></div>
+            </div>
+        </div>
+
+        <div class="z-10 space-y-7">
+            <div class="space-y-0.5">
+                <p class="font-headline text-[36px] font-extrabold text-white tracking-tight leading-none">Clean Data.</p>
+                <p class="font-headline text-[36px] font-extrabold text-[#4cc9f0] tracking-tight leading-none">Clear Insights.</p>
+                <p class="font-headline text-[36px] font-extrabold text-white tracking-tight leading-none">Zero Effort.</p>
+            </div>
+            <div class="flex items-center gap-8 py-5 border-t border-white/6">
+                <div><p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Free Storage</p><p class="font-headline font-bold text-base text-white">1GB</p></div>
+                <div><p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Accuracy</p><p class="font-headline font-bold text-base text-white">99.9%</p></div>
+                <div><p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Avg Latency</p><p class="font-headline font-bold text-base text-white">2.4ms</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RIGHT: Login Form -->
+    <section class="flex-1 flex flex-col items-center justify-center px-6 py-10 md:px-12 lg:px-20 bg-surface overflow-y-auto">
+        <div class="md:hidden flex items-center gap-2.5 mb-10 w-full max-w-md">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_16px_rgba(67,97,238,0.4)]">
+                <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings:'FILL' 1">hub</span>
+            </div>
+            <span class="font-headline font-black text-lg tracking-tighter text-white uppercase">SOL DATA</span>
+        </div>
+
+        <div class="w-full max-w-md space-y-7">
+            <div class="space-y-1.5">
+                <h2 class="text-3xl font-headline font-bold text-white tracking-tight">Welcome back</h2>
+                <p class="text-on-surface-variant font-body text-sm">Enter your details to sign in to your workspace</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
+                    <span class="font-label text-sm font-bold text-white">Google</span>
+                </button>
+                <button class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
+                    <span class="font-label text-sm font-bold text-white">GitHub</span>
+                </button>
+            </div>
+
+            <div class="relative flex items-center gap-3">
+                <div class="flex-grow border-t border-outline-variant/12"></div>
+                <span class="font-mono text-[10px] text-outline tracking-widest uppercase flex-shrink-0">Or sign in with email</span>
+                <div class="flex-grow border-t border-outline-variant/12"></div>
+            </div>
+
+            <form id="loginForm" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Email Address</label>
+                    <input name="email" type="email" placeholder="you@domain.io" value="demo@sol.ai"
+                           class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Password</label>
+                    <div class="relative">
+                        <input id="loginPassword" name="password" type="password" value="********"
+                               class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white font-body text-sm transition-all duration-200 outline-none pr-11" />
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2.5 cursor-pointer group">
+                        <input type="checkbox" name="remember" class="peer sr-only" />
+                        <div class="w-4.5 h-4.5 rounded bg-surface-container-low border border-outline-variant/30 peer-checked:bg-primary-container transition-all" style="width:18px;height:18px;"></div>
+                        <span class="text-xs text-on-surface-variant group-hover:text-white transition-colors">Remember me</span>
+                    </label>
+                    <a href="#" class="text-xs text-primary font-semibold hover:underline">Forgot password?</a>
+                </div>
+                <!-- Redirect to dashboard for static demo -->
+                <button type="button" onclick="window.location.href='dashboard.html'"
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white font-label font-bold text-sm tracking-wide shadow-[0_0_28px_rgba(67,97,238,0.30)] hover:brightness-110 active:scale-[0.98] transition-all duration-200">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-on-surface-variant">
+                Don't have an account?
+                <a href="#" class="text-primary font-bold hover:underline ml-1">Sign up →</a>
+            </p>
+
+            <div class="pt-4 flex justify-between items-center opacity-35">
+                <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">&copy; 2026 SOL DATA SYSTEMS</span>
+                <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">v2.6.0-STABLE</span>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+{% extends 'public/_public_layout.html' %}
+
+{% block page_title %}Simple, Transparent Pricing{% endblock %}
+{% block meta_description %}Start free, scale as you grow. No hidden fees, no surprises. Experience the next generation of data engineering precision.{% endblock %}
+
+{% block nav_pricing_active %}!text-primary-container font-semibold{% endblock %}
+
+{% block content %}
+<main class="pb-24">
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <section class="max-w-4xl mx-auto text-center px-6 pt-16 mb-14">
+        <h1 class="text-5xl md:text-7xl font-black font-headline tracking-tighter mb-5 leading-[1.08]">
+            Simple, <span class="text-gradient">Transparent</span> Pricing.
+        </h1>
+        <p class="text-xl text-on-surface-variant font-body max-w-2xl mx-auto leading-relaxed">
+            Start free, scale as you grow. No hidden fees, no surprises.
+            Experience the next generation of data engineering precision.
+        </p>
+    </section>
+
+    <!-- ═══════════ BILLING TOGGLE ═══════════ -->
+    <div class="flex items-center justify-center gap-4 mb-16 font-label">
+        <span class="text-on-surface-variant text-sm">Monthly</span>
+        <button id="billing-toggle" class="w-14 h-7 bg-surface-container-highest rounded-full p-1 flex items-center justify-end relative transition-all">
+            <div class="w-5 h-5 bg-primary-container rounded-full shadow-[0_0_10px_rgba(67,97,238,0.5)]"></div>
+        </button>
+        <span class="text-white font-bold text-sm">Annual</span>
+        <span class="px-3 py-1 bg-secondary-container/20 text-secondary text-xs font-bold rounded-full border border-secondary/20">Save 20%</span>
+    </div>
+
+    <!-- ═══════════ PRICING CARDS ═══════════ -->
+    <section class="max-w-7xl mx-auto px-6 pb-28">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+
+            <!-- FREE -->
+            <div class="bg-surface-container-low p-8 rounded-2xl flex flex-col border border-outline-variant/15 hover:-translate-y-1 transition-transform duration-300 hover:border-outline-variant/30">
+                <div class="font-mono text-[10px] text-secondary uppercase tracking-widest mb-5">Foundation</div>
+                <h3 class="text-3xl font-bold mb-2 font-headline">Free</h3>
+                <div class="flex items-baseline gap-1 mb-8">
+                    <span class="text-5xl font-mono font-bold">$0</span>
+                    <span class="text-on-surface-variant">/mo</span>
+                </div>
+                <div class="space-y-4 flex-grow mb-8">
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">1GB upload per month</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">3 AI strategies</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">Basic audit logs</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">Community support</span></div>
+                </div>
+                <a href="/register" class="block w-full">
+                    <button class="w-full py-3.5 bg-surface-container-highest text-white font-bold rounded-xl hover:bg-surface-container-high transition-colors duration-200 text-sm">Get Started Free</button>
+                </a>
+            </div>
+
+            <!-- PRO (featured) -->
+            <div class="gradient-border p-8 rounded-2xl flex flex-col pro-card-glow transform scale-[1.03] z-10 relative">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1 bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white text-[10px] font-black tracking-widest rounded-full shadow-lg whitespace-nowrap">
+                    MOST POPULAR
+                </div>
+                <div class="font-mono text-[10px] text-primary uppercase tracking-widest mb-5">Professional</div>
+                <h3 class="text-3xl font-bold mb-2 font-headline">Pro</h3>
+                <div class="flex items-baseline gap-1 mb-8">
+                    <span class="text-5xl font-mono font-bold">$25</span>
+                    <span class="text-on-surface-variant">/mo</span>
+                </div>
+                <div class="space-y-4 flex-grow mb-8">
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">stars</span><span class="text-on-surface text-sm">Unlimited files &amp; storage</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">stars</span><span class="text-on-surface text-sm">SQL database access</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">stars</span><span class="text-on-surface text-sm">OCR Engine integration</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">stars</span><span class="text-on-surface text-sm">1,000 API calls / day</span></div>
+                </div>
+                <button class="w-full py-3.5 bg-primary-container text-white font-bold rounded-xl shadow-[0_0_24px_rgba(67,97,238,0.35)] hover:opacity-90 active:scale-[0.98] transition-all duration-200 text-sm">Upgrade to Pro</button>
+            </div>
+
+            <!-- ENTERPRISE -->
+            <div class="bg-surface-container-low p-8 rounded-2xl flex flex-col border border-outline-variant/15 hover:-translate-y-1 transition-transform duration-300 hover:border-tertiary-container/30">
+                <div class="font-mono text-[10px] text-tertiary uppercase tracking-widest mb-5">Enterprise</div>
+                <h3 class="text-3xl font-bold mb-2 font-headline">Custom</h3>
+                <div class="flex items-baseline gap-1 mb-8">
+                    <span class="text-3xl font-mono font-bold">Contact Us</span>
+                </div>
+                <div class="space-y-4 flex-grow mb-8">
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">Custom AI training</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">On-premise deployment</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">Dedicated 99.9% SLA</span></div>
+                    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span><span class="text-on-surface-variant text-sm">24/7 Priority support</span></div>
+                </div>
+                <button class="w-full py-3.5 border border-outline-variant/30 text-white font-bold rounded-xl hover:bg-surface-container-highest transition-colors duration-200 text-sm">Talk to Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ FEATURE COMPARISON TABLE ═══════════ -->
+    <section class="max-w-5xl mx-auto px-6 mb-28">
+        <h2 class="text-3xl font-black font-headline text-center mb-14">Compare features</h2>
+        <div class="overflow-x-auto rounded-2xl border border-outline-variant/15">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="border-b border-outline-variant/15 bg-surface-container-low/40">
+                        <th class="py-5 px-6 font-mono text-[10px] text-on-surface-variant uppercase tracking-wider text-left">Feature</th>
+                        <th class="py-5 px-4 font-headline font-bold text-center text-sm">Free</th>
+                        <th class="py-5 px-4 font-headline font-bold text-center text-sm text-primary-container">Pro</th>
+                        <th class="py-5 px-4 font-headline font-bold text-center text-sm">Enterprise</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body">
+                    {% for row in [
+                        ("Data Ingestion",  "1GB / mo",   "Unlimited",    "Unlimited"),
+                        ("AI Strategies",   "3 Preset",   "15+ Advanced", "Custom Tailored"),
+                        ("SQL Access",      None,         True,           True),
+                        ("API Access",      None,         "1,000 req/d",  "Unlimited"),
+                        ("SLA Support",     "Community",  "Email",        "24/7 Dedicated")
+                    ] %}
+                    <tr class="border-b border-outline-variant/8 {% if loop.index % 2 == 0 %}bg-surface-container-low/20{% endif %}">
+                        <td class="py-5 px-6 text-on-surface text-sm">{{ row[0] }}</td>
+                        <td class="py-5 px-4 text-center text-on-surface-variant text-xs font-mono">
+                            {% if row[1] is none %}<span class="material-symbols-outlined text-outline/40 text-lg">close</span>
+                            {% elif row[1] == True %}<span class="material-symbols-outlined text-primary-container">check</span>
+                            {% else %}{{ row[1] }}{% endif %}
+                        </td>
+                        <td class="py-5 px-4 text-center text-on-surface font-bold text-sm">
+                            {% if row[2] is none %}<span class="material-symbols-outlined text-outline/40 text-lg">close</span>
+                            {% elif row[2] == True %}<span class="material-symbols-outlined text-primary-container">check</span>
+                            {% else %}{{ row[2] }}{% endif %}
+                        </td>
+                        <td class="py-5 px-4 text-center text-on-surface font-bold text-sm">
+                            {% if row[3] is none %}<span class="material-symbols-outlined text-outline/40 text-lg">close</span>
+                            {% elif row[3] == True %}<span class="material-symbols-outlined text-primary-container">check</span>
+                            {% else %}{{ row[3] }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══════════ FAQ ═══════════ -->
+    <section class="max-w-3xl mx-auto px-6 mb-28">
+        <h2 class="text-3xl font-black font-headline text-center mb-12">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+            {% for q, a in [
+                ("What is included in the free tier?", "The free tier includes access to 3 core AI strategies, 1GB of total data ingestion per month, and standard community support. It's perfect for hobbyists and individual developers testing workflows."),
+                ("What formats do you support?", "SOL Data Agent supports CSV, JSON, Parquet, XML, Excel, and direct SQL/NoSQL database connections. OCR Engine (Pro+) adds support for PDF, PNG, JPEG, and TIFF document ingestion."),
+                ("How do database connections work?", "Pro and Enterprise plans unlock direct connector support for PostgreSQL, MySQL, MongoDB, and Snowflake. Connections are encrypted in transit and at rest with zero-configuration schema detection."),
+                ("Can I customize AI strategies?", "Pro users have access to 15+ advanced preset strategies. Enterprise customers get fully custom model training and strategy configuration tailored to their data domain."),
+                ("Is on-premise deployment available?", "Yes, on-premise deployment is available exclusively for Enterprise customers with a dedicated SLA agreement and implementation support from our team.")
+            ] %}
+            <details class="bg-surface-container-low rounded-xl group border border-outline-variant/10 hover:border-outline-variant/25 transition-colors duration-200">
+                <summary class="flex justify-between items-center cursor-pointer p-6 list-none">
+                    <h4 class="font-bold text-base pr-4">{{ q }}</h4>
+                    <span class="material-symbols-outlined text-primary-container flex-shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                </summary>
+                <p class="px-6 pb-6 text-on-surface-variant text-sm leading-relaxed -mt-2">{{ a }}</p>
+            </details>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══════════ BOTTOM CTA ═══════════ -->
+    <section class="max-w-7xl mx-auto px-6">
+        <div class="relative bg-gradient-to-r from-[#4361ee] via-[#7b2ff7] to-[#4cc9f0] p-px rounded-2xl overflow-hidden">
+            <div class="bg-surface-container-lowest p-12 md:p-16 text-center rounded-[15px] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 blur-[100px] rounded-full pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary-container/10 blur-[100px] rounded-full pointer-events-none"></div>
+                <h2 class="text-4xl md:text-5xl font-black font-headline mb-7 relative z-10">START FOR FREE — NO CREDIT CARD REQUIRED</h2>
+                <p class="text-xl text-on-surface-variant mb-10 max-w-2xl mx-auto relative z-10">
+                    Join 2,000+ data engineers automating their observability pipeline with SOL Data Agent.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-5 relative z-10">
+                    <a href="/register">
+                        <button class="px-10 py-4 bg-white text-surface-container-lowest font-black text-base rounded-xl hover:scale-105 transition-transform">Create Free Account</button>
+                    </a>
+                    <button class="px-10 py-4 border border-outline-variant/30 text-white font-bold text-base rounded-xl hover:bg-white/5 transition-colors">Book a Demo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

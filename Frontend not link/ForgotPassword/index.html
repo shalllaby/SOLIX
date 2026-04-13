@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SOL Data Agent | Forgot Password</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#4361ee", "secondary": "#5bd5fc", "tertiary": "#d2bbff", "surface": "#111220", "surface-container-low": "#191b28", "on-surface-variant": "#c4c5d7", "outline": "#8e8fa1", "outline-variant": "#444655",
+                    },
+                    fontFamily: { "headline": ["Inter"], "body": ["Inter"], "label": ["Space Grotesk"], "mono": ["JetBrains Mono"] },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body selection:bg-primary-container/30 antialiased">
+
+<main class="min-h-screen flex flex-row overflow-hidden">
+    <!-- LEFT PANEL -->
+    <section class="hidden md:flex md:w-5/12 lg:w-[42%] relative flex-col justify-center p-12 bg-[#090c28] border-r border-outline-variant/10 overflow-hidden shrink-0">
+        <h1 class="font-headline font-black text-xl tracking-tighter text-white uppercase">SOL DATA AGENT</h1>
+    </section>
+
+    <!-- RIGHT: Forgot Password Form -->
+    <section class="flex-1 flex flex-col items-center justify-center px-6 py-10 bg-surface overflow-y-auto">
+        <div class="w-full max-w-md space-y-7">
+            <div class="w-14 h-14 rounded-2xl bg-primary-container/20 border border-primary-container/25 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary-container text-2xl">lock_reset</span>
+            </div>
+            <div class="space-y-1.5">
+                <h2 class="text-3xl font-headline font-bold text-white tracking-tight">Reset Password</h2>
+                <p class="text-on-surface-variant text-sm">Enter your email address and we'll send you a secure link to reset your password.</p>
+            </div>
+            <form id="forgotPasswordForm" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="font-mono text-[10px] text-outline uppercase tracking-widest ml-0.5">Email Address</label>
+                    <input name="email" type="email" placeholder="you@domain.io" required class="w-full bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-sm outline-none" />
+                </div>
+                <button type="button" onclick="alert('Demo: Reset link sent!')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white font-bold text-sm tracking-wide">Send Reset Link</button>
+            </form>
+            <div class="text-center"><a href="#" class="text-sm text-on-surface-variant hover:text-white transition-colors">Back to Sign In</a></div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

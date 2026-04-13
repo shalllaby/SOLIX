@@ -1,0 +1,1 @@
+# Semantic Mapper Tool Initializer

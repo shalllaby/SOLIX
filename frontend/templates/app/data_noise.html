@@ -1,0 +1,705 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}Data Noise Lab{% endblock %}
+{% block topbar_title %}Data Noise Lab{% endblock %}
+{% block breadcrumb %}SOL / App / Data Noise Lab{% endblock %}
+{% block nav_data_noise %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+/* ── Base panels ─────────────────────────────────────────────────────────────── */
+.panel {
+    background: rgba(19,22,40,0.72);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid rgba(68,70,85,0.25);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(68,70,85,0.2);
+    background: rgba(11,13,26,0.4);
+    display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ── Dropzone ────────────────────────────────────────────────────────────────── */
+.dropzone {
+    border: 2px dashed rgba(255,107,107,0.25);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+.dropzone:hover, .dropzone.dragover {
+    border-color: rgba(255,107,107,0.6);
+    background: rgba(255,107,107,0.05);
+    box-shadow: 0 0 24px rgba(255,107,107,0.12);
+}
+
+/* ── Rule cards ─────────────────────────────────────────────────────────────── */
+.rule-card {
+    background: rgba(11,13,26,0.6);
+    border: 1px solid rgba(68,70,85,0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.rule-card:hover { border-color: rgba(255,107,107,0.35); }
+select, input[type="number"], input[type="range"] {
+    background: #0b0d1a !important;
+    border: 1px solid rgba(68,70,85,0.45) !important;
+    border-radius: 6px;
+    color: #c4c5d7 !important;
+    font-size: 12px;
+    padding: 7px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+}
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238e8fa1'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-color: #0b0d1a !important;
+    padding-right: 28px;
+    cursor: pointer;
+}
+select:focus, input[type="number"]:focus {
+    border-color: rgba(255,107,107,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.12);
+}
+select option {
+    background: #0b0d1a !important;
+    color: #c4c5d7 !important;
+}
+input[type="range"] {
+    padding: 0;
+    height: 4px;
+    border: none !important;
+    background: rgba(68,70,85,0.4) !important;
+    accent-color: #ff6b6b;
+    cursor: pointer;
+}
+
+/* ── Diff table ─────────────────────────────────────────────────────────────── */
+.diff-table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+.diff-table th {
+    background: rgba(11,13,26,0.8); padding: 8px 12px;
+    font-family: 'JetBrains Mono',monospace; font-size:10px;
+    color: rgba(142,143,161,.8); text-transform: uppercase; letter-spacing: .1em;
+    border-bottom: 1px solid rgba(68,70,85,.35); text-align: left;
+    position: sticky; top: 0; z-index: 5; white-space: nowrap;
+}
+.diff-table td {
+    padding: 7px 12px; border-bottom: 1px solid rgba(68,70,85,.1);
+    color: #c4c5d7; max-width: 180px; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; vertical-align: middle;
+}
+.diff-table tr:hover td { background: rgba(255,107,107,.04); }
+.diff-table td.cell-dirty {
+    background: rgba(255,107,107,0.12) !important;
+    color: #ff9a9a;
+    border: 1px solid rgba(255,107,107,0.25);
+    border-radius: 4px;
+    font-style: italic;
+    position: relative;
+}
+.diff-table td.cell-clean { color: #9dfcb8; }
+.row-num { color: rgba(142,143,161,.45); font-family:'JetBrains Mono',monospace; font-size:10px; width: 36px; }
+
+/* ── Tab switcher ───────────────────────────────────────────────────────────── */
+.tab-btn {
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+    padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer;
+    transition: all 0.2s; color: rgba(142,143,161,.7); background: transparent;
+}
+.tab-btn.active { background: rgba(255,107,107,0.15); color: #ff9a9a; }
+.tab-btn:hover:not(.active) { color: #e1e1f4; }
+
+/* ── Stats bars ─────────────────────────────────────────────────────────────── */
+.stat-bar { height: 4px; background: rgba(68,70,85,.3); border-radius: 2px; overflow:hidden; margin-top: 4px; }
+.stat-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* ── Loading overlay ────────────────────────────────────────────────────────── */
+#loadingOverlay {
+    background: rgba(11,13,26,0.9);
+    backdrop-filter: blur(8px);
+    position: absolute; inset: 0; z-index: 50;
+}
+.chaos-spinner {
+    width: 56px; height: 56px;
+    border: 3px solid transparent;
+    border-top-color: #ff6b6b;
+    border-bottom-color: rgba(255,107,107,0.3);
+    border-radius: 50%;
+    animation: cspin 0.8s linear infinite;
+}
+@keyframes cspin { to { transform: rotate(360deg); } }
+
+/* ── Log terminal ───────────────────────────────────────────────────────────── */
+#logTerminal {
+    background: rgba(7,9,20,0.95);
+    border-top: 1px solid rgba(68,70,85,0.2);
+    font-family: 'JetBrains Mono',monospace; font-size:11.5px;
+    color: rgba(142,143,161,0.85); line-height: 1.8;
+    padding: 12px 16px; height: 110px; overflow-y: auto;
+}
+.log-ok   { color: #06d6a0; }
+.log-err  { color: #ff6b6b; }
+.log-info { color: #5bd5fc; }
+.log-warn { color: #ffd166; }
+
+/* ── Chaos badge ────────────────────────────────────────────────────────────── */
+@keyframes glitch {
+    0%,100%  { text-shadow: 2px 0 rgba(255,107,107,.6), -2px 0 rgba(91,213,252,.6); }
+    25%      { text-shadow: -2px 0 rgba(255,107,107,.6), 2px 0 rgba(91,213,252,.6); }
+    50%      { text-shadow: 2px 2px rgba(255,107,107,.6), 0 0 rgba(91,213,252,.6); }
+    75%      { text-shadow: -1px -1px rgba(255,107,107,.6), 1px 1px rgba(91,213,252,.6); }
+}
+.glitch-text { animation: glitch 3s infinite; }
+
+/* ── Noise type pills ───────────────────────────────────────────────────────── */
+.noise-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; padding: 3px 8px; border-radius: 99px;
+    font-family: 'JetBrains Mono',monospace; letter-spacing: .06em;
+    cursor: pointer; transition: all .2s; user-select: none;
+    border: 1px solid;
+}
+.noise-pill:hover { transform: translateY(-1px); }
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+.custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(68,70,85,.5); border-radius: 3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="h-full flex flex-col gap-4 overflow-hidden" id="noiseApp">
+
+  <!-- ── Top Toolbar ──────────────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3)">
+        <span class="material-symbols-outlined text-[#ff6b6b] text-sm" style="font-variation-settings:'FILL' 1">science</span>
+      </div>
+      <div>
+        <h1 class="font-headline font-bold text-white text-base leading-none glitch-text">Chaos Engine</h1>
+        <p class="font-mono text-[9px] text-outline uppercase tracking-widest mt-0.5">Data Corruption Sandbox</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div id="statsRow" class="hidden items-center gap-4">
+        <div class="text-center">
+          <p class="font-mono text-[10px] text-outline uppercase">Rows</p>
+          <p class="font-mono font-bold text-white text-sm" id="statRows">—</p>
+        </div>
+        <div class="text-center">
+          <p class="font-mono text-[10px] text-outline uppercase">Cols</p>
+          <p class="font-mono font-bold text-white text-sm" id="statCols">—</p>
+        </div>
+        <div class="text-center">
+          <p class="font-mono text-[10px] text-outline uppercase">Dirty Cells</p>
+          <p class="font-mono font-bold text-[#ff6b6b] text-sm" id="statDirty">—</p>
+        </div>
+        <div class="text-center">
+          <p class="font-mono text-[10px] text-outline uppercase">Noise %</p>
+          <p class="font-mono font-bold text-[#ffd166] text-sm" id="statNoise">—</p>
+        </div>
+      </div>
+      <button id="btnInject" onclick="processNoise()" disabled
+        class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        style="background:linear-gradient(135deg,#ff6b6b,#ff4444);box-shadow:0 0 0 rgba(255,107,107,0);"
+        onmouseenter="this.style.boxShadow='0 0 24px rgba(255,107,107,0.5)'"
+        onmouseleave="this.style.boxShadow='0 0 0 rgba(255,107,107,0)'">
+        <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">bolt</span>
+        Inject Chaos
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Main 3-Column Layout ────────────────────────────────────────────── -->
+  <div class="flex-1 flex gap-4 min-h-0">
+
+    <!-- ╔══ Left: Config Panel ══╗ -->
+    <div class="w-72 shrink-0 panel rounded-2xl flex flex-col overflow-hidden">
+      <div class="panel-header shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#ff6b6b] text-sm">tune</span>
+          <span class="font-mono text-[10px] text-white uppercase tracking-widest">Config</span>
+        </div>
+        <button onclick="document.getElementById('fileInput').click()"
+          class="text-[10px] font-mono px-3 py-1 rounded-lg border border-[#ff6b6b]/40 text-[#ff6b6b] hover:bg-[#ff6b6b]/10 transition-colors">
+          Upload
+        </button>
+        <input type="file" id="fileInput" class="hidden" accept=".csv,.xlsx,.xls,.json,.parquet">
+      </div>
+
+      <div class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col gap-3">
+        <!-- Dropzone -->
+        <div id="dropzone" onclick="document.getElementById('fileInput').click()"
+          class="dropzone rounded-xl p-6 flex flex-col items-center justify-center text-center gap-2">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.25)">
+            <span class="material-symbols-outlined text-[#ff6b6b]" style="font-variation-settings:'FILL' 1">upload_file</span>
+          </div>
+          <p class="text-white font-bold text-sm">Drop Dataset Here</p>
+          <p class="font-mono text-[9px] text-outline">CSV · XLSX · JSON · Parquet</p>
+        </div>
+
+        <!-- Dataset info card -->
+        <div id="datasetInfo" class="hidden rounded-xl p-3 border border-[#ff6b6b]/25" style="background:rgba(255,107,107,.06)">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-white font-bold text-sm truncate" id="dsName">—</p>
+            <span class="font-mono text-[9px] text-[#ff6b6b] px-1.5 py-0.5 rounded" style="background:rgba(255,107,107,.12)">LOADED</span>
+          </div>
+          <p class="font-mono text-[10px] text-outline" id="dsStats">0 rows</p>
+          <div class="stat-bar mt-2">
+            <div class="stat-fill" id="healthBar" style="background:#06d6a0;width:100%"></div>
+          </div>
+        </div>
+
+        <!-- Quick presets -->
+        <div id="presetsSection" class="hidden">
+          <p class="font-mono text-[9px] text-outline uppercase tracking-widest mb-2">Quick Presets</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="applyPreset('light')" class="text-[10px] font-mono py-1.5 px-2 rounded-lg border border-outline/20 text-outline hover:text-white hover:border-outline/50 transition-all">⚡ Light</button>
+            <button onclick="applyPreset('heavy')" class="text-[10px] font-mono py-1.5 px-2 rounded-lg border border-[#ffd166]/30 text-[#ffd166] hover:bg-[#ffd166]/08 transition-all">🔥 Heavy</button>
+            <button onclick="applyPreset('realistic')" class="text-[10px] font-mono py-1.5 px-2 rounded-lg border border-[#a48cf4]/30 text-[#a48cf4] hover:bg-[#a48cf4]/08 transition-all">🧪 Realistic</button>
+            <button onclick="applyPreset('extreme')" class="text-[10px] font-mono py-1.5 px-2 rounded-lg border border-[#ff6b6b]/40 text-[#ff6b6b] hover:bg-[#ff6b6b]/08 transition-all">💀 Extreme</button>
+          </div>
+        </div>
+
+        <!-- Rules -->
+        <div id="rulesSection" class="hidden flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Corruption Rules</p>
+            <button onclick="addRule()" class="text-[10px] font-mono text-[#ff6b6b] hover:underline">+ Add</button>
+          </div>
+          <div id="rulesContainer" class="flex flex-col gap-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔══ Center + Right: Data Preview ══╗ -->
+    <div class="flex-1 min-w-0 flex flex-col gap-3">
+
+      <!-- Tab bar -->
+      <div class="panel rounded-xl p-2 flex items-center gap-1 shrink-0">
+        <button class="tab-btn active" id="tabBefore" onclick="switchTab('before')">
+          <span class="material-symbols-outlined text-xs align-middle mr-1">table_view</span>
+          Original Data
+        </button>
+        <button class="tab-btn" id="tabAfter" onclick="switchTab('after')">
+          <span class="material-symbols-outlined text-xs align-middle mr-1">warning</span>
+          Corrupted Data
+        </button>
+        <button class="tab-btn" id="tabDiff" onclick="switchTab('diff')">
+          <span class="material-symbols-outlined text-xs align-middle mr-1">difference</span>
+          Side-by-Side Diff
+        </button>
+        <div class="flex-1"></div>
+        <!-- Noise type legend -->
+        <div id="noiseLegend" class="hidden items-center gap-2">
+          <span class="noise-pill" style="color:#ff9a9a;border-color:rgba(255,107,107,.3);background:rgba(255,107,107,.08)">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#ff6b6b] inline-block"></span>null
+          </span>
+          <span class="noise-pill" style="color:#ffd166;border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.08)">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#ffd166] inline-block"></span>outlier
+          </span>
+          <span class="noise-pill" style="color:#a48cf4;border-color:rgba(164,140,244,.3);background:rgba(164,140,244,.08)">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#a48cf4] inline-block"></span>typo
+          </span>
+          <span class="noise-pill" style="color:#5bd5fc;border-color:rgba(91,213,252,.3);background:rgba(91,213,252,.08)">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#5bd5fc] inline-block"></span>dup
+          </span>
+        </div>
+        <button id="btnDownload" onclick="downloadCorrupted()" style="display:none;background:linear-gradient(135deg,#ff6b6b,#ff4444);box-shadow:0 0 18px rgba(255,107,107,0.35)"
+          class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-all hover:shadow-[0_0_28px_rgba(255,107,107,0.55)] hover:scale-[1.02]">
+          <span class="material-symbols-outlined text-xs">download</span>
+          Export Dirty
+        </button>
+      </div>
+
+      <!-- Data panel with loading overlay -->
+      <div class="flex-1 panel rounded-2xl relative overflow-hidden flex flex-col min-h-0">
+
+        <!-- Loading overlay -->
+        <div id="loadingOverlay" class="hidden flex-col items-center justify-center gap-4">
+          <div class="chaos-spinner"></div>
+          <p class="font-mono text-xs text-[#ff6b6b] uppercase tracking-[.2em] animate-pulse">Injecting Chaos...</p>
+          <div class="flex gap-1">
+            {% for i in range(8) %}
+            <div class="w-1 h-4 rounded-full bg-[#ff6b6b] opacity-30"
+                 style="animation: bar-pulse 1.2s ease-in-out {{i * 0.15}}s infinite alternate"></div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-center p-8">
+          <div class="w-20 h-20 rounded-2xl mb-5 flex items-center justify-center" style="background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2)">
+            <span class="material-symbols-outlined text-[#ff6b6b] text-4xl" style="font-variation-settings:'FILL' 1">science</span>
+          </div>
+          <h3 class="font-headline font-bold text-lg text-white mb-2">Ready to Corrupt</h3>
+          <p class="text-on-surface/45 text-sm max-w-xs">Upload a clean dataset, configure your corruption rules, and click <strong class="text-[#ff6b6b]">Inject Chaos</strong> to see the before/after comparison.</p>
+          <div class="flex flex-wrap gap-2 justify-center mt-5">
+            {% for label, hex in [("Missing Values","#ff6b6b"),("Outliers","#ffd166"),("Typos","#a48cf4"),("Duplicates","#5bd5fc"),("Formatting","#06d6a0"),("Type Errors","#f37121")] %}
+            <span class="font-mono text-[9px] px-2.5 py-1 rounded-full border" style="color:{{hex}};border-color:{{hex}}35;background:{{hex}}10">{{label}}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Before table -->
+        <div id="viewBefore" class="hidden flex-1 overflow-auto custom-scroll">
+          <table class="diff-table" id="tableBefore"></table>
+        </div>
+
+        <!-- After table -->
+        <div id="viewAfter" class="hidden flex-1 overflow-auto custom-scroll">
+          <table class="diff-table" id="tableAfter"></table>
+        </div>
+
+        <!-- Side-by-side diff -->
+        <div id="viewDiff" class="hidden flex-1 overflow-hidden flex gap-0 min-h-0">
+          <div class="flex-1 overflow-auto custom-scroll border-r border-outline-variant/15">
+            <div class="sticky top-0 z-10 px-4 py-2 flex items-center gap-2 border-b border-outline-variant/15" style="background:rgba(7,9,20,.9)">
+              <span class="material-symbols-outlined text-[#06d6a0] text-xs">check_circle</span>
+              <span class="font-mono text-[10px] text-[#06d6a0] uppercase tracking-widest">Original</span>
+            </div>
+            <table class="diff-table" id="tableDiffLeft"></table>
+          </div>
+          <div class="flex-1 overflow-auto custom-scroll">
+            <div class="sticky top-0 z-10 px-4 py-2 flex items-center gap-2 border-b border-outline-variant/15" style="background:rgba(7,9,20,.9)">
+              <span class="material-symbols-outlined text-[#ff6b6b] text-xs">warning</span>
+              <span class="font-mono text-[10px] text-[#ff6b6b] uppercase tracking-widest">Corrupted</span>
+            </div>
+            <table class="diff-table" id="tableDiffRight"></table>
+          </div>
+        </div>
+
+        <!-- Log terminal -->
+        <div id="logTerminal" class="shrink-0 custom-scroll">
+          <span class="log-info">// SOL Data Noise Lab — Chaos Engine ready</span><br>
+          <span class="log-ok">&gt;</span> Awaiting dataset upload...
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes bar-pulse { from { opacity: .15; transform: scaleY(.6); } to { opacity: .9; transform: scaleY(1.1); } }
+</style>
+
+<script>
+// ─── State ─────────────────────────────────────────────────────────────────────
+let datasetId   = null;
+let corruptedId = null;
+let columns     = [];
+let originalRows = [];  // clean data
+let corruptedRows = []; // dirty data
+let nanMap      = {};   // { col: [dirtyRowIndices] }
+let rules       = [];
+let currentTab  = 'before';
+const MAX_ROWS  = 100;  // preview cap
+
+const NOISE_TYPES = [
+    "Missing Values (NaN)",
+    "Outliers (Numeric)",
+    "Typos (Text)",
+    "Formatting Issues",
+    "Type Inconsistency",
+    "Duplications"
+];
+
+// ─── Auth ───────────────────────────────────────────────────────────────────────
+function getToken() {
+    return localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+}
+function getCookie(name) {
+    return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='))?.split('=')[1] || '';
+}
+
+// ─── Log ────────────────────────────────────────────────────────────────────────
+function log(msg, type='ok') {
+    const el = document.getElementById('logTerminal');
+    const cls = {ok:'log-ok', err:'log-err', info:'log-info', warn:'log-warn'}[type] || 'log-ok';
+    el.innerHTML += `\n<span class="${cls}">&gt;</span> ${msg}`;
+    el.scrollTop = el.scrollHeight;
+}
+
+// ─── Loading ─────────────────────────────────────────────────────────────────────
+function showLoading(show) {
+    const el = document.getElementById('loadingOverlay');
+    el.classList.toggle('hidden', !show);
+    el.classList.toggle('flex', show);
+}
+
+// ─── File Upload ─────────────────────────────────────────────────────────────────
+const fileInput = document.getElementById('fileInput');
+const dropzone  = document.getElementById('dropzone');
+fileInput.addEventListener('change', async e => { if(e.target.files.length) await uploadDataset(e.target.files[0]); });
+['dragover','dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.toggle('dragover', evt === 'dragover');
+}));
+dropzone.addEventListener('drop', async e => {
+    if(e.dataTransfer.files.length) await uploadDataset(e.dataTransfer.files[0]);
+});
+
+async function uploadDataset(file) {
+    showLoading(true);
+    log(`Uploading ${file.name}...`, 'info');
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'Authorization':`Bearer ${getToken()}`}, body:fd });
+        if(!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+
+        datasetId    = data.dataset_id;
+        columns      = data.metadata.columns_info.map(c => c.name);
+        originalRows = (data.raw_data || []).slice(0, MAX_ROWS);
+        corruptedRows = [];
+        nanMap = {};
+
+        // Update UI
+        document.getElementById('dsName').textContent   = file.name;
+        document.getElementById('dsStats').textContent  = `${data.raw_data.length} rows · ${columns.length} cols`;
+        document.getElementById('dropzone').classList.add('hidden');
+        document.getElementById('datasetInfo').classList.remove('hidden');
+        document.getElementById('presetsSection').classList.remove('hidden');
+        document.getElementById('rulesSection').classList.remove('hidden', 'flex');
+        document.getElementById('rulesSection').classList.add('flex');
+        document.getElementById('btnInject').disabled = false;
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('statsRow').classList.remove('hidden');
+        document.getElementById('statsRow').classList.add('flex');
+        document.getElementById('statRows').textContent = data.raw_data.length;
+        document.getElementById('statCols').textContent = columns.length;
+        document.getElementById('statDirty').textContent = '0';
+        document.getElementById('statNoise').textContent = '0%';
+
+        // Render original table
+        renderTable('tableBefore', originalRows, columns, {});
+        document.getElementById('viewBefore').classList.remove('hidden');
+        document.getElementById('viewBefore').classList.add('flex');
+        document.getElementById('emptyState').classList.add('hidden');
+        switchTab('before');
+
+        // Init rules
+        rules = [];
+        document.getElementById('rulesContainer').innerHTML = '';
+        addRule();
+
+        log(`${file.name} loaded — ${data.raw_data.length} rows, ${columns.length} columns`, 'ok');
+    } catch(e) {
+        log(e.message, 'err');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// ─── Render Table ─────────────────────────────────────────────────────────────────
+function renderTable(tableId, rows, cols, dirtyMap, leftSide=false) {
+    const table = document.getElementById(tableId);
+    if(!rows.length) { table.innerHTML = ''; return; }
+
+    // Build dirtySet: row → set of dirty cols
+    const dirtySet = {}; // dirtySet[rowIdx] = Set of column names
+    Object.entries(dirtyMap).forEach(([col, idxList]) => {
+        idxList.forEach(i => {
+            if(!dirtySet[i]) dirtySet[i] = new Set();
+            dirtySet[i].add(col);
+        });
+    });
+
+    const showCols = cols.slice(0, 12); // cap at 12 columns for readability
+    let head = '<thead><tr><th class="row-num">#</th>';
+    showCols.forEach(c => { head += `<th>${c}</th>`; });
+    head += '</tr></thead>';
+
+    let body = '<tbody>';
+    const displayRows = rows.slice(0, MAX_ROWS);
+    displayRows.forEach((row, ri) => {
+        body += `<tr><td class="row-num">${ri+1}</td>`;
+        showCols.forEach(col => {
+            const val = row[col];
+            const isDirty = dirtySet[ri] && dirtySet[ri].has(col);
+            const dispVal = val === null || val === undefined ? '<span style="opacity:.4;font-style:italic">null</span>' : String(val);
+            body += `<td class="${isDirty ? 'cell-dirty' : (leftSide ? 'cell-clean' : '')}" title="${val === null ? 'null' : String(val).replace(/"/g,"'")}">${dispVal}</td>`;
+        });
+        body += '</tr>';
+    });
+    body += '</tbody>';
+    table.innerHTML = head + body;
+}
+
+// ─── Tab Switching ────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    currentTab = tab;
+    ['before','after','diff'].forEach(t => {
+        document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle('active', t===tab);
+    });
+    ['viewBefore','viewAfter','viewDiff'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+        document.getElementById(id).classList.remove('flex');
+    });
+    const viewId = {before:'viewBefore', after:'viewAfter', diff:'viewDiff'}[tab];
+    document.getElementById(viewId).classList.remove('hidden');
+    if(tab === 'diff' || tab === 'before') document.getElementById(viewId).classList.add('flex');
+}
+
+// ─── Rules ───────────────────────────────────────────────────────────────────────
+function addRule() {
+    rules.push({ column: columns[0] || '', problem_type: NOISE_TYPES[0], ratio: 10 });
+    renderRules();
+}
+function removeRule(i) {
+    rules.splice(i, 1);
+    renderRules();
+}
+function updateRule(i, field, value) {
+    rules[i][field] = value;
+    if(field === 'problem_type' && value === 'Duplications') {
+        rules[i].column = 'All Columns (Row Level)';
+        renderRules();
+    }
+}
+
+const NOISE_COLORS = {
+    "Missing Values (NaN)": "#ff6b6b",
+    "Outliers (Numeric)":   "#ffd166",
+    "Typos (Text)":         "#a48cf4",
+    "Formatting Issues":    "#5bd5fc",
+    "Type Inconsistency":   "#06d6a0",
+    "Duplications":         "#f37121"
+};
+
+function renderRules() {
+    const cont = document.getElementById('rulesContainer');
+    cont.innerHTML = '';
+    rules.forEach((r, i) => {
+        const isDup = r.problem_type === 'Duplications';
+        const colOpts = isDup
+            ? `<option>All Columns (Row Level)</option>`
+            : columns.map(c => `<option ${r.column===c?'selected':''}>${c}</option>`).join('');
+        const probOpts = NOISE_TYPES.map(p => `<option ${r.problem_type===p?'selected':''}>${p}</option>`).join('');
+        const hex = NOISE_COLORS[r.problem_type] || '#ff6b6b';
+
+        cont.innerHTML += `
+        <div class="rule-card" style="border-left:3px solid ${hex}40">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-mono text-[9px] uppercase tracking-widest" style="color:${hex}">Rule ${i+1}</span>
+                <button onclick="removeRule(${i})" class="w-5 h-5 rounded flex items-center justify-center text-outline hover:text-[#ff6b6b] hover:bg-[#ff6b6b]/10 transition-all">
+                    <span class="material-symbols-outlined text-xs">close</span>
+                </button>
+            </div>
+            <div class="space-y-2">
+                <div>
+                    <label class="block font-mono text-[9px] text-outline uppercase mb-1">Noise Type</label>
+                    <select onchange="updateRule(${i},'problem_type',this.value)">${probOpts}</select>
+                </div>
+                <div>
+                    <label class="block font-mono text-[9px] text-outline uppercase mb-1">Target Column</label>
+                    <select onchange="updateRule(${i},'column',this.value)" ${isDup?'disabled':''}>${colOpts}</select>
+                </div>
+                <div>
+                    <label class="block font-mono text-[9px] text-outline uppercase mb-1">Intensity: ${r.ratio}%</label>
+                    <input type="range" min="1" max="100" value="${r.ratio}" class="w-full accent-[#ff6b6b]"
+                           oninput="updateRule(${i},'ratio',this.value);this.previousElementSibling.textContent='Intensity: '+this.value+'%'">
+                </div>
+            </div>
+        </div>`;
+    });
+}
+
+// ─── Presets ─────────────────────────────────────────────────────────────────────
+function applyPreset(type) {
+    const presets = {
+        light:     [{ problem_type:"Missing Values (NaN)", ratio:5 }, { problem_type:"Formatting Issues", ratio:8 }],
+        heavy:     [{ problem_type:"Missing Values (NaN)", ratio:30 }, { problem_type:"Outliers (Numeric)", ratio:20 }, { problem_type:"Typos (Text)", ratio:25 }],
+        realistic: [{ problem_type:"Missing Values (NaN)", ratio:12 }, { problem_type:"Outliers (Numeric)", ratio:5 }, { problem_type:"Formatting Issues", ratio:8 }, { problem_type:"Type Inconsistency", ratio:6 }],
+        extreme:   [{ problem_type:"Missing Values (NaN)", ratio:50 }, { problem_type:"Outliers (Numeric)", ratio:35 }, { problem_type:"Typos (Text)", ratio:40 }, { problem_type:"Duplications", ratio:20 }, { problem_type:"Type Inconsistency", ratio:30 }]
+    };
+    rules = presets[type].map(r => ({ column: columns[0] || '', ...r }));
+    renderRules();
+    log(`Applied "${type}" preset — ${rules.length} rules`, 'info');
+}
+
+// ─── Inject Chaos ─────────────────────────────────────────────────────────────────
+async function processNoise() {
+    if(!datasetId) return;
+    if(!rules.length) { log('Add at least 1 rule first', 'warn'); return; }
+
+    showLoading(true);
+    log(`Injecting ${rules.length} corruption rule(s)...`, 'warn');
+    document.getElementById('btnDownload').style.display = 'none';
+
+    const fd = new FormData();
+    fd.append('dataset_id', datasetId);
+    fd.append('rules_json', JSON.stringify(rules));
+
+    try {
+        const res = await fetch('/api/data-noise/process', {
+            method:'POST', headers:{'Authorization':`Bearer ${getToken()}`}, body:fd
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.detail || 'Processing error');
+
+        corruptedId   = data.corrupted_dataset_id;
+        corruptedRows = (data.raw_data || []).slice(0, MAX_ROWS);
+        nanMap        = data.nan_map || {};
+
+        // Compute dirty cell count
+        const dirtyCellCount = Object.values(nanMap).reduce((s,arr) => s + arr.length, 0);
+        const totalCells     = data.stats.rows_after * data.stats.cols;
+        const noisePct       = totalCells > 0 ? ((dirtyCellCount / totalCells) * 100).toFixed(1) : 0;
+
+        document.getElementById('statRows').textContent  = data.stats.rows_after;
+        document.getElementById('statDirty').textContent = dirtyCellCount;
+        document.getElementById('statNoise').textContent = `${noisePct}%`;
+        document.getElementById('noiseLegend').classList.remove('hidden');
+        document.getElementById('noiseLegend').classList.add('flex');
+
+        // Render all views
+        renderTable('tableAfter', corruptedRows, columns, nanMap);
+        renderTable('tableDiffLeft',  originalRows,  columns, {}, true);
+        renderTable('tableDiffRight', corruptedRows, columns, nanMap);
+
+        document.getElementById('viewAfter').classList.remove('hidden');
+        document.getElementById('viewDiff').classList.remove('hidden', 'flex');
+
+        // Update health bar
+        const health = Math.max(0, 100 - parseFloat(noisePct));
+        document.getElementById('healthBar').style.width = `${health}%`;
+        document.getElementById('healthBar').style.background = health > 70 ? '#06d6a0' : health > 40 ? '#ffd166' : '#ff6b6b';
+
+        document.getElementById('btnDownload').style.display = 'flex';
+        switchTab('diff');
+
+        rules.forEach(r => log(`  ↳ "${r.problem_type}" on col "${r.column}" @ ${r.ratio}%`, 'warn'));
+        log(`✓ Chaos injected — ${dirtyCellCount} cells corrupted (${noisePct}% noise)`, 'ok');
+
+    } catch(e) {
+        log(e.message, 'err');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// ─── Download ─────────────────────────────────────────────────────────────────────
+function downloadCorrupted() {
+    if(!corruptedId) return;
+    fetch(`/api/export/${corruptedId}?fmt=original`, { headers:{'Authorization':`Bearer ${getToken()}`} })
+    .then(r => r.blob())
+    .then(blob => {
+        const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'dirty_data.csv' });
+        document.body.appendChild(a); a.click(); a.remove();
+        log('Dirty dataset downloaded.', 'ok');
+    }).catch(e => log(e.message,'err'));
+}
+</script>
+{% endblock %}

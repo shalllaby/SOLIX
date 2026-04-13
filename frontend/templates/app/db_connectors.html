@@ -1,0 +1,474 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}DB Connectors{% endblock %}
+{% block page_title_text %}DB Connectors{% endblock %}
+{% block breadcrumb %}SOL / App / Integrations{% endblock %}
+
+{% block head %}
+<style>
+    .connector-card {
+        background: rgba(29,31,44,0.85);
+        border: 1px solid rgba(68,70,85,0.35);
+        transition: border-color 0.3s, transform 0.25s, box-shadow 0.3s;
+    }
+    .connector-card:hover {
+        border-color: rgba(67,97,238,0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 0 40px -10px rgba(67,97,238,0.25);
+    }
+    .connector-card.active-conn {
+        border-color: rgba(6,214,160,0.4);
+        box-shadow: 0 0 30px -8px rgba(6,214,160,0.2);
+    }
+    .conn-badge-postgres { background: rgba(51,103,145,0.2); color: #5fa8d3; border: 1px solid rgba(95,168,211,0.3); }
+    .conn-badge-mysql    { background: rgba(243,113,33,0.12); color: #f37121; border: 1px solid rgba(243,113,33,0.3); }
+    .conn-badge-sqlite   { background: rgba(100,90,200,0.15); color: #a48cf4; border: 1px solid rgba(164,140,244,0.3); }
+
+    .form-input {
+        background: rgba(11,13,26,0.7);
+        border: 1px solid rgba(68,70,85,0.5);
+        color: #e1e1f4;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: rgba(67,97,238,0.6);
+        box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+    }
+    .form-input::placeholder { color: rgba(142,143,161,0.55); }
+
+    .status-pulse-green { background: #06d6a0; box-shadow: 0 0 8px 2px rgba(6,214,160,0.6); }
+    .status-pulse-red   { background: #ff6b6b; box-shadow: 0 0 8px 2px rgba(255,107,107,0.6); }
+    .status-pulse-yellow{ background: #ffd166; box-shadow: 0 0 8px 2px rgba(255,209,102,0.5); }
+
+    @keyframes pulse-glow { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.85)} }
+    .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+    @keyframes slide-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .slide-in { animation: slide-in 0.4s ease forwards; }
+
+    .table-skeleton { background: linear-gradient(90deg, rgba(50,52,66,0.4) 25%, rgba(68,70,85,0.5) 50%, rgba(50,52,66,0.4) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .tab-btn.active { border-bottom-color: #4361ee; color: #bac3ff; }
+
+    .copy-btn { transition: all 0.2s; }
+    .copy-btn:hover { color: #5bd5fc; }
+
+    .log-line { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .log-ok   { color: #06d6a0; }
+    .log-info { color: #5bd5fc; }
+    .log-warn { color: #ffd166; }
+    .log-err  { color: #ff6b6b; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────────────────────── -->
+<div class="mb-8 flex items-start justify-between">
+    <div>
+        <h1 class="text-3xl font-headline font-black text-white tracking-tight">Integration Hub</h1>
+        <p class="text-on-surface-variant mt-1 font-body text-sm">Connect, inspect, and sync your SQL databases directly with SOL Agent.</p>
+    </div>
+    <button onclick="openNewConnectionModal()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#4361ee] to-[#7b2ff7] text-white font-label font-bold text-sm rounded-xl shadow-[0_0_20px_rgba(67,97,238,0.4)] hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-lg">add_circle</span>
+        New Connection
+    </button>
+</div>
+
+<!-- ── STATS ROW ───────────────────────────────────────────────────────────── -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    {% for icon, label, val, color, glow in [
+        ("cable",      "Total Connections", "3",     "text-primary",   "rgba(67,97,238,0.25)"),
+        ("check_circle","Active",           "2",     "text-[#06d6a0]", "rgba(6,214,160,0.2)"),
+        ("schedule",   "Last Synced",       "4 min", "text-secondary", "rgba(91,213,252,0.2)"),
+        ("table_rows", "Tables Indexed",    "18",    "text-tertiary",  "rgba(213,187,255,0.2)")
+    ] %}
+    <div class="connector-card rounded-xl p-5">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:{{ glow }};border:1px solid {{ glow }}">
+                <span class="material-symbols-outlined text-lg {{ color }}" style="font-variation-settings:'FILL' 1">{{ icon }}</span>
+            </div>
+            <div>
+                <p class="font-mono text-2xl font-bold text-white leading-none">{{ val }}</p>
+                <p class="font-label text-[10px] text-outline uppercase tracking-wider mt-0.5">{{ label }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ── MAIN GRID: Connection Cards + Log Panel ────────────────────────────── -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+    <!-- Left: Connection Cards -->
+    <div class="xl:col-span-2 space-y-4">
+
+        <!-- POSTGRES -->
+        <div class="connector-card active-conn rounded-xl p-5 slide-in" id="conn-postgres">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-[#336391]/20 border border-[#5fa8d3]/25">
+                        <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2z" fill="#336391"/>
+                            <path d="M20 10H12a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2z" fill="#fff" fill-opacity=".9"/>
+                            <path d="M16 14v8M13 17h6" stroke="#336391" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-white font-label font-bold text-base">production-db</p>
+                        <p class="font-mono text-[10px] text-outline mt-0.5">PostgreSQL 15 · analytics.internal:5432</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="conn-badge-postgres font-mono text-[10px] px-2.5 py-0.5 rounded-full">POSTGRES</span>
+                    <div class="flex items-center gap-1.5 bg-[#06d6a0]/10 px-2.5 py-1 rounded-full border border-[#06d6a0]/25">
+                        <div class="w-1.5 h-1.5 rounded-full status-pulse-green pulse-glow"></div>
+                        <span class="font-mono text-[10px] text-[#06d6a0]">CONNECTED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-white">12</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Tables</p>
+                </div>
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-white">2.4M</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Rows</p>
+                </div>
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-[#06d6a0]">2 min</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Last Sync</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="syncDB('postgres')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary-container/10 border border-primary-container/25 text-primary font-label font-bold text-xs hover:bg-primary-container/20 transition-all">
+                    <span class="material-symbols-outlined text-sm">sync</span> Sync Tables
+                </button>
+                <button onclick="openQueryModal('production-db')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-on-surface-variant font-label font-bold text-xs hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm">terminal</span> Query
+                </button>
+                <button onclick="disconnectDB('postgres')" class="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-outline hover:text-error hover:border-error/30 transition-all">
+                    <span class="material-symbols-outlined text-sm">link_off</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MYSQL -->
+        <div class="connector-card rounded-xl p-5 slide-in" id="conn-mysql" style="animation-delay:0.1s">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-[#f37121]/10 border border-[#f37121]/25">
+                        <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="16" cy="16" r="14" fill="#f37121" fill-opacity=".15"/>
+                            <path d="M10 20V12l6 5 6-5v8" stroke="#f37121" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-white font-label font-bold text-base">staging-mysql</p>
+                        <p class="font-mono text-[10px] text-outline mt-0.5">MySQL 8.0 · 192.168.1.42:3306</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="conn-badge-mysql font-mono text-[10px] px-2.5 py-0.5 rounded-full">MYSQL</span>
+                    <div class="flex items-center gap-1.5 bg-[#06d6a0]/10 px-2.5 py-1 rounded-full border border-[#06d6a0]/25">
+                        <div class="w-1.5 h-1.5 rounded-full status-pulse-green pulse-glow"></div>
+                        <span class="font-mono text-[10px] text-[#06d6a0]">CONNECTED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-white">6</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Tables</p>
+                </div>
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-white">840K</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Rows</p>
+                </div>
+                <div class="bg-surface-container-low rounded-lg p-3 text-center">
+                    <p class="font-mono text-lg font-bold text-[#ffd166]">14 min</p>
+                    <p class="font-label text-[9px] text-outline uppercase tracking-wider">Last Sync</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="syncDB('mysql')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#f37121]/10 border border-[#f37121]/25 text-[#f37121] font-label font-bold text-xs hover:bg-[#f37121]/20 transition-all">
+                    <span class="material-symbols-outlined text-sm">sync</span> Sync Tables
+                </button>
+                <button onclick="openQueryModal('staging-mysql')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-on-surface-variant font-label font-bold text-xs hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm">terminal</span> Query
+                </button>
+                <button onclick="disconnectDB('mysql')" class="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-outline hover:text-error hover:border-error/30 transition-all">
+                    <span class="material-symbols-outlined text-sm">link_off</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SQLITE -->
+        <div class="connector-card rounded-xl p-5 slide-in" id="conn-sqlite" style="animation-delay:0.2s">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-[#a48cf4]/10 border border-[#a48cf4]/25">
+                        <span class="material-symbols-outlined text-[#a48cf4] text-xl" style="font-variation-settings:'FILL' 1">storage</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-label font-bold text-base">local.sqlite3</p>
+                        <p class="font-mono text-[10px] text-outline mt-0.5">SQLite 3 · ./data/local.sqlite3</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="conn-badge-sqlite font-mono text-[10px] px-2.5 py-0.5 rounded-full">SQLITE</span>
+                    <div class="flex items-center gap-1.5 bg-error/10 px-2.5 py-1 rounded-full border border-error/25">
+                        <div class="w-1.5 h-1.5 rounded-full status-pulse-red pulse-glow"></div>
+                        <span class="font-mono text-[10px] text-error">DISCONNECTED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="py-3 px-4 rounded-lg bg-error/5 border border-error/15 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-error text-base">error</span>
+                <p class="font-mono text-[11px] text-error">Connection timed out — file may have moved or been locked.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="reconnectDB('sqlite')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-on-surface-variant font-label font-bold text-xs hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm">refresh</span> Reconnect
+                </button>
+                <button onclick="editConnection('sqlite')" class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-on-surface-variant font-label font-bold text-xs hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm">edit</span> Edit Config
+                </button>
+                <button class="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/20 text-outline hover:text-error hover:border-error/30 transition-all">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right: Live Activity Log -->
+    <div class="xl:col-span-1">
+        <div class="connector-card rounded-xl overflow-hidden h-full flex flex-col">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10 flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full status-pulse-green pulse-glow"></div>
+                    <h3 class="font-headline font-bold text-white text-sm">Live Activity Log</h3>
+                </div>
+                <button onclick="clearLog()" class="copy-btn text-outline text-xs font-mono hover:text-white transition-colors">CLEAR</button>
+            </div>
+            <div class="flex-1 p-4 space-y-1.5 overflow-y-auto font-mono" id="activity-log" style="min-height:320px;max-height:480px">
+                <div class="log-line log-ok">[10:42:01] ✓ POSTGRES connected — 12 tables indexed</div>
+                <div class="log-line log-info">[10:42:03] → Fetching schema for customers_2024</div>
+                <div class="log-line log-ok">[10:42:04] ✓ Schema cached — 23 columns detected</div>
+                <div class="log-line log-info">[10:43:15] → MYSQL sync triggered by user</div>
+                <div class="log-line log-ok">[10:43:17] ✓ MYSQL synced — 6 tables updated</div>
+                <div class="log-line log-warn">[10:43:22] ⚠ SQLITE: Connection timeout (retry 1/3)</div>
+                <div class="log-line log-warn">[10:43:27] ⚠ SQLITE: Connection timeout (retry 2/3)</div>
+                <div class="log-line log-err">[10:43:32] ✗ SQLITE: Permanently disconnected</div>
+                <div class="log-line log-info">[10:44:01] → POSTGRES heartbeat check OK (2.1ms)</div>
+                <div class="log-line log-ok">[10:44:01] ✓ All active connections nominal</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     NEW CONNECTION MODAL
+──────────────────────────────────────────────────────────────────────────── -->
+<div id="new-conn-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+     style="background:rgba(7,9,20,0.75);backdrop-filter:blur(6px)">
+    <div class="w-full max-w-lg bg-surface-container rounded-2xl border border-outline-variant/30 shadow-[0_0_80px_rgba(67,97,238,0.2)] slide-in">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-base" style="font-variation-settings:'FILL' 1">cable</span>
+                </div>
+                <h2 class="font-headline font-bold text-white">New Connection</h2>
+            </div>
+            <button onclick="closeNewConnectionModal()" class="text-outline hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- DB Type Tabs -->
+        <div class="flex border-b border-outline-variant/10 px-6 gap-1 pt-4" id="db-type-tabs">
+            <button onclick="selectDBType('postgres')" class="tab-btn active px-4 py-2 font-mono text-xs text-outline" data-type="postgres">PostgreSQL</button>
+            <button onclick="selectDBType('mysql')"    class="tab-btn px-4 py-2 font-mono text-xs text-outline"        data-type="mysql">MySQL</button>
+            <button onclick="selectDBType('sqlite')"   class="tab-btn px-4 py-2 font-mono text-xs text-outline"        data-type="sqlite">SQLite</button>
+        </div>
+
+        <!-- Form Body -->
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Connection Name</label>
+                    <input type="text" placeholder="e.g. production-db" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+                </div>
+                <div id="host-group">
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Host</label>
+                    <input type="text" placeholder="localhost or IP" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4" id="auth-row">
+                <div>
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Port</label>
+                    <input type="text" placeholder="5432" id="port-input" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+                </div>
+                <div>
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Database Name</label>
+                    <input type="text" placeholder="my_database" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4" id="creds-row">
+                <div>
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Username</label>
+                    <input type="text" placeholder="db_user" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+                </div>
+                <div class="relative">
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">Password</label>
+                    <input type="password" placeholder="••••••••" id="pass-input" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono pr-10">
+                    <button type="button" onclick="togglePass()" class="absolute right-3 top-[34px] text-outline hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-base" id="pass-eye">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SQLite path field (shown only for sqlite) -->
+            <div id="sqlite-path-row" class="hidden">
+                <label class="block font-mono text-[10px] text-outline uppercase tracking-widest mb-1.5">File Path</label>
+                <input type="text" placeholder="./data/my_database.sqlite3" class="form-input w-full px-3 py-2.5 rounded-lg text-sm font-mono">
+            </div>
+
+            <!-- SSL Toggle -->
+            <div class="flex items-center justify-between py-3 px-4 rounded-lg bg-surface-container-low border border-outline-variant/15">
+                <div>
+                    <p class="text-white text-sm font-medium">SSL / TLS Encryption</p>
+                    <p class="text-outline text-xs mt-0.5">Encrypt the connection for production environments.</p>
+                </div>
+                <button onclick="this.classList.toggle('bg-primary-container');this.classList.toggle('bg-surface-container-high')" 
+                    class="relative w-11 h-6 rounded-full bg-surface-container-high transition-colors duration-300 flex-shrink-0" id="ssl-toggle">
+                    <span class="absolute top-1 left-1 w-4 h-4 rounded-full bg-outline transition-all duration-300" id="ssl-knob"></span>
+                </button>
+            </div>
+
+            <!-- Test Result -->
+            <div id="test-result" class="hidden py-2.5 px-4 rounded-lg text-sm font-mono"></div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between px-6 pb-6 pt-2 gap-3">
+            <button onclick="testConnection()" id="test-btn"
+                class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-secondary/30 text-secondary font-label font-bold text-sm hover:bg-secondary/5 hover:border-secondary/50 transition-all">
+                <span class="material-symbols-outlined text-sm">bolt</span> Test Connection
+            </button>
+            <div class="flex gap-2">
+                <button onclick="closeNewConnectionModal()" class="px-4 py-2.5 rounded-xl border border-outline-variant/25 text-outline font-label text-sm hover:text-white hover:border-outline-variant/50 transition-all">Cancel</button>
+                <button onclick="saveConnection()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#4361ee] to-[#7b2ff7] text-white font-label font-bold text-sm shadow-[0_0_20px_rgba(67,97,238,0.35)] hover:brightness-110 hover:scale-[1.01] active:scale-[0.99] transition-all">
+                    Save & Connect
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DEFAULT_PORTS = { postgres: '5432', mysql: '3306', sqlite: '' };
+
+function openNewConnectionModal() {
+    document.getElementById('new-conn-modal').classList.remove('hidden');
+    document.getElementById('new-conn-modal').classList.add('flex');
+}
+function closeNewConnectionModal() {
+    document.getElementById('new-conn-modal').classList.add('hidden');
+    document.getElementById('new-conn-modal').classList.remove('flex');
+    document.getElementById('test-result').classList.add('hidden');
+}
+// Close modal on backdrop click
+document.getElementById('new-conn-modal').addEventListener('click', function(e){
+    if (e.target === this) closeNewConnectionModal();
+});
+
+function selectDBType(type) {
+    document.querySelectorAll('[data-type]').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    document.getElementById('port-input').value = DEFAULT_PORTS[type];
+
+    const isSQLite = type === 'sqlite';
+    document.getElementById('host-group').classList.toggle('hidden', isSQLite);
+    document.getElementById('auth-row').classList.toggle('hidden', isSQLite);
+    document.getElementById('creds-row').classList.toggle('hidden', isSQLite);
+    document.getElementById('sqlite-path-row').classList.toggle('hidden', !isSQLite);
+}
+
+function togglePass() {
+    const inp = document.getElementById('pass-input');
+    const eye = document.getElementById('pass-eye');
+    if (inp.type === 'password') { inp.type = 'text'; eye.textContent = 'visibility'; }
+    else { inp.type = 'password'; eye.textContent = 'visibility_off'; }
+}
+
+async function testConnection() {
+    const btn = document.getElementById('test-btn');
+    const result = document.getElementById('test-result');
+    btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Testing…';
+    btn.disabled = true;
+    result.classList.add('hidden');
+    await new Promise(r => setTimeout(r, 1800));
+    // Simulated success
+    result.className = 'py-2.5 px-4 rounded-lg text-sm font-mono bg-[#06d6a0]/10 border border-[#06d6a0]/25 text-[#06d6a0]';
+    result.textContent = '✓ Connection established — latency: 3.2ms';
+    result.classList.remove('hidden');
+    btn.innerHTML = '<span class="material-symbols-outlined text-sm">bolt</span> Test Connection';
+    btn.disabled = false;
+    appendLog('info', 'Test connection successful — latency 3.2ms');
+}
+
+function saveConnection() {
+    appendLog('ok', 'New connection saved and registered');
+    closeNewConnectionModal();
+}
+
+function syncDB(type) {
+    appendLog('info', `Sync triggered for ${type.toUpperCase()} connection`);
+    setTimeout(() => appendLog('ok', `${type.toUpperCase()} sync complete — tables refreshed`), 1200);
+}
+function disconnectDB(type) {
+    appendLog('warn', `${type.toUpperCase()} connection closed by user`);
+}
+function reconnectDB(type) {
+    appendLog('info', `Attempting to reconnect ${type.toUpperCase()}...`);
+    setTimeout(() => appendLog('err', `${type.toUpperCase()} reconnect failed — check file path`), 1500);
+}
+function editConnection(type) {
+    openNewConnectionModal();
+    selectDBType(type);
+}
+function openQueryModal(db) {
+    appendLog('info', `Query terminal opened for ${db}`);
+}
+
+function appendLog(level, msg) {
+    const log = document.getElementById('activity-log');
+    const now = new Date();
+    const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    const icons = { ok:'✓', info:'→', warn:'⚠', err:'✗' };
+    const div = document.createElement('div');
+    div.className = `log-line log-${level}`;
+    div.textContent = `[${ts}] ${icons[level]} ${msg}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+}
+
+function clearLog() {
+    document.getElementById('activity-log').innerHTML = '<div class="log-line log-info">— Log cleared —</div>';
+}
+</script>
+{% endblock %}

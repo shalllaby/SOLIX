@@ -1,0 +1,1107 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}Cleaning Studio{% endblock %}
+{% block page_title_text %}Cleaning Studio{% endblock %}
+{% block breadcrumb %}SOL / App / Cleaning Studio{% endblock %}
+{% block nav_studio %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    /* ── Phase Stepper ── */
+    .step {
+        transition: all 0.3s;
+    }
+
+    .step-active .step-num {
+        background: #4361ee;
+        color: white;
+        box-shadow: 0 0 16px rgba(67, 97, 238, 0.5);
+    }
+
+    .step-active .step-label {
+        color: #bac3ff;
+    }
+
+    .step-done .step-num {
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .step-done .step-label {
+        color: #4ade80;
+    }
+
+    .step-idle .step-num {
+        background: rgba(68, 70, 85, 0.3);
+        color: #8e8fa1;
+        border: 1px solid rgba(68, 70, 85, 0.3);
+    }
+
+    .step-idle .step-label {
+        color: #8e8fa1;
+    }
+
+    .step-connector {
+        height: 1px;
+        flex: 1;
+        background: rgba(68, 70, 85, 0.4);
+        margin-top: -16px;
+    }
+
+    /* ── Drop Zone ── */
+    .drop-zone {
+        border: 2px dashed rgba(67, 97, 238, 0.35);
+        transition: border-color 0.3s, background 0.3s;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragging {
+        border-color: #4361ee;
+        background: rgba(67, 97, 238, 0.06);
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0)
+        }
+
+        50% {
+            transform: translateY(-8px)
+        }
+    }
+
+    .float-icon {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    /* ── Tables ── */
+    .meta-table th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.15em;
+        color: #8e8fa1;
+        text-transform: uppercase;
+    }
+
+    .diff-cell-changed {
+        background: rgba(74, 222, 128, 0.15) !important;
+        border-left: 2px solid #4ade80;
+        color: #4ade80;
+        font-weight: 600;
+    }
+
+    .diff-cell-null {
+        background: rgba(248, 113, 113, 0.12) !important;
+        border-left: 2px solid #f87171;
+        color: #f87171;
+    }
+
+    /* ── Strategy Pills ── */
+    .strategy-pill {
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .strategy-pill.selected {
+        border-color: #4361ee;
+        background: rgba(67, 97, 238, 0.12);
+    }
+
+    .strategy-pill:not(.selected):hover {
+        border-color: rgba(68, 70, 85, 0.6);
+        background: rgba(68, 70, 85, 0.2);
+    }
+
+    /* ── Progress Bar ── */
+    @keyframes progress-slide {
+        from {
+            width: 0
+        }
+
+        to {
+            width: 100%
+        }
+    }
+
+    .progress-bar-anim {
+        animation: progress-slide 2s ease forwards;
+    }
+
+    /* ── General ── */
+    .panel {
+        background: rgba(29, 31, 44, 0.6);
+        border: 1px solid rgba(68, 70, 85, 0.25);
+        border-radius: 0.75rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4361ee, #7b2ff7);
+        color: white;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: .8rem;
+        letter-spacing: .04em;
+        transition: filter 0.2s, transform 0.1s;
+    }
+
+    .btn-primary:hover {
+        filter: brightness(1.1);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
+
+    .btn-secondary {
+        background: rgba(68, 70, 85, 0.3);
+        color: #c4c5d7;
+        border: 1px solid rgba(68, 70, 85, 0.4);
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: .8rem;
+        transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(68, 70, 85, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- State tracking -->
+<div id="app-state" data-dataset-id="" data-cleaned-id="" data-current-phase="1">
+</div>
+
+<!-- ═══ PHASE STEPPER ═══ -->
+<div class="flex items-center gap-0 mb-8 max-w-3xl mx-auto">
+    <div class="step flex flex-col items-center gap-1.5 step-active" id="step-1">
+        <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">1</div>
+        <span class="step-label font-label text-xs font-bold tracking-wide">Upload</span>
+    </div>
+    <div class="step-connector mb-4"></div>
+    <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-2">
+        <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">2</div>
+        <span class="step-label font-label text-xs tracking-wide">Analyze & Goals</span>
+    </div>
+    <div class="step-connector mb-4"></div>
+    <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-3">
+        <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">3</div>
+        <span class="step-label font-label text-xs tracking-wide">Validate</span>
+    </div>
+    <div class="step-connector mb-4"></div>
+    <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-4">
+        <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">4</div>
+        <span class="step-label font-label text-xs tracking-wide">Export</span>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toast" class="fixed top-5 right-5 z-50 hidden">
+    <div
+        class="flex items-center gap-3 bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-3 shadow-xl">
+        <span id="toast-icon" class="material-symbols-outlined text-lg">info</span>
+        <span id="toast-msg" class="font-body text-sm text-white"></span>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay"
+    class="fixed inset-0 bg-surface-container-lowest/80 backdrop-blur-sm z-40 hidden flex items-center justify-center">
+    <div class="text-center">
+        <div
+            class="w-16 h-16 border-2 border-primary-container border-t-transparent rounded-full animate-spin mx-auto mb-4">
+        </div>
+        <p id="loading-msg" class="font-label text-white text-lg">Processing...</p>
+        <p class="font-mono text-xs text-outline mt-1">SOL Engine is working</p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PHASE 1: UPLOAD
+═══════════════════════════════════════════════════════════ -->
+<div id="phase-1">
+    <div class="panel p-8 max-w-2xl mx-auto">
+        <div class="drop-zone rounded-xl p-12 text-center cursor-pointer relative" id="drop-zone"
+            onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" accept=".csv,.xlsx,.xls,.json,.parquet" class="hidden" />
+            <div class="float-icon">
+                <span class="material-symbols-outlined text-6xl text-primary-container/60"
+                    style="font-variation-settings:'FILL' 1">upload_file</span>
+            </div>
+            <p class="font-headline font-bold text-xl text-white mt-4 mb-1">Drag & drop your file here</p>
+            <p class="font-body text-on-surface-variant text-sm">or click to browse from your computer</p>
+
+            <div class="flex items-center justify-center gap-2 mt-6 flex-wrap">
+                <span
+                    class="font-mono text-[10px] px-2 py-1 bg-primary-container/10 text-primary border border-primary-container/20 rounded">CSV</span>
+                <span
+                    class="font-mono text-[10px] px-2 py-1 bg-primary-container/10 text-primary border border-primary-container/20 rounded">XLSX</span>
+                <span
+                    class="font-mono text-[10px] px-2 py-1 bg-primary-container/10 text-primary border border-primary-container/20 rounded">XLS</span>
+                <span
+                    class="font-mono text-[10px] px-2 py-1 bg-primary-container/10 text-primary border border-primary-container/20 rounded">JSON</span>
+                <span
+                    class="font-mono text-[10px] px-2 py-1 bg-primary-container/10 text-primary border border-primary-container/20 rounded">PARQUET</span>
+            </div>
+        </div>
+
+        <div id="file-preview"
+            class="hidden mt-4 flex items-center gap-3 bg-surface-container p-4 rounded-xl border border-outline-variant/20">
+            <span class="material-symbols-outlined text-secondary text-2xl"
+                style="font-variation-settings:'FILL' 1">description</span>
+            <div class="flex-1 min-w-0">
+                <p id="file-name-label" class="text-white font-medium text-sm truncate"></p>
+                <p id="file-size-label" class="font-mono text-xs text-outline"></p>
+            </div>
+            <button onclick="clearFile()" class="text-outline hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+
+        <button id="btn-upload" onclick="uploadFile()"
+            class="btn-primary w-full mt-5 py-3.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            disabled>
+            <span class="material-symbols-outlined text-base">cloud_upload</span>
+            Upload & Analyse
+        </button>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PHASE 2: ANALYZE & GOALS
+═══════════════════════════════════════════════════════════ -->
+<div id="phase-2" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Metadata Panel -->
+        <div class="panel p-5">
+            <h3 class="font-headline font-bold text-white mb-1">Column Analysis</h3>
+            <p class="font-body text-xs text-outline mb-4">Detected schema from your uploaded file</p>
+            <div class="overflow-x-auto">
+                <table class="w-full meta-table">
+                    <thead>
+                        <tr class="border-b border-outline-variant/10">
+                            <th class="text-left py-2.5 pr-3">Column</th>
+                            <th class="text-left py-2.5 pr-3">Type</th>
+                            <th class="text-left py-2.5 pr-3">Dirty Cells</th>
+                            <th class="text-left py-2.5 pr-3">Status</th>
+                            <th class="text-left py-2.5">Health</th>
+                        </tr>
+                    </thead>
+                    <tbody id="meta-table-body" class="font-mono text-xs text-on-surface-variant">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- File Stats -->
+            <div class="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-outline-variant/10">
+                <div class="text-center">
+                    <p id="stat-rows" class="font-mono font-bold text-white text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Rows</p>
+                </div>
+                <div class="text-center">
+                    <p id="stat-cols" class="font-mono font-bold text-white text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Columns</p>
+                </div>
+                <div class="text-center">
+                    <p id="stat-nulls" class="font-mono font-bold text-white text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Total Nulls</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Panel -->
+        <div class="panel p-5 flex flex-col gap-5">
+            <div>
+                <h3 class="font-headline font-bold text-white mb-1">Cleaning Goal <span
+                        class="font-mono text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded ml-1">optional</span>
+                </h3>
+                <p class="font-body text-xs text-outline mb-3">Describe in plain language what you want SOL to achieve
+                </p>
+                <textarea id="goal-input" rows="4"
+                    class="w-full bg-surface-container-lowest border border-outline-variant/30 focus:border-primary-container/50 focus:ring-1 focus:ring-primary-container/30 rounded-xl px-4 py-3 text-white text-sm font-body placeholder:text-outline/50 transition-all resize-none outline-none"
+                    placeholder='e.g. "Normalize all phone numbers to E.164 format, fill missing emails with unknown@sol.ai, and remove duplicate rows."'></textarea>
+            </div>
+
+            <!-- Strategy Selector -->
+            <div>
+                <p class="font-mono text-[10px] text-outline tracking-widest uppercase mb-3">Cleaning Strategy</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="alpha"
+                        onclick="selectStrategy(this)">
+                        <p class="font-mono text-xs font-bold text-outline">ALPHA</p>
+                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Light clean</p>
+                    </div>
+                    <div class="strategy-pill selected rounded-xl p-3 text-center" data-strategy="beta"
+                        onclick="selectStrategy(this)">
+                        <p class="font-mono text-xs font-bold text-primary">BETA</p>
+                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Balanced ★</p>
+                    </div>
+                    <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="gamma"
+                        onclick="selectStrategy(this)">
+                        <p class="font-mono text-xs font-bold text-tertiary">GAMMA</p>
+                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Aggressive</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy Details Box (New) -->
+            <div id="strategy-details-box"
+                class="mt-2 p-4 rounded-xl bg-primary-container/5 border border-primary-container/10 hidden animate-fade-in">
+                <p class="font-mono text-[10px] text-primary tracking-widest uppercase mb-2">Planned Logic Actions:</p>
+                <ul id="strategy-summaries-list" class="space-y-1.5 list-none">
+                    <!-- Populated by JS -->
+                </ul>
+            </div>
+
+            <button onclick="runCleaning()"
+                class="btn-primary mt-auto py-3.5 rounded-xl flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">play_arrow</span>
+                Run SOL Engine →
+            </button>
+        </div>
+    </div>
+
+    <!-- Narrator Pre-Clean Panel (scoped inside phase-2) -->
+    <div id="narrator-pre-panel" class="hidden mt-4">
+        <div class="panel p-5 border border-tertiary-container/30 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60"></div>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL' 1">auto_stories</span>
+                </div>
+                <div>
+                    <p class="font-headline font-bold text-white text-sm">راوي البيانات</p>
+                    <p class="font-mono text-[9px] text-outline tracking-widest uppercase">SOL Data Narrator · Arabic AI Insights</p>
+                </div>
+                <button onclick="fetchPreNarrative()" id="narrator-pre-btn"
+                    class="ml-auto text-xs bg-tertiary-container/20 text-tertiary px-3 py-1.5 rounded-lg hover:bg-tertiary-container/40 transition-colors flex items-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    توليد التقرير العربي
+                </button>
+            </div>
+            <div id="narrator-pre-content" class="hidden">
+                <div id="narrator-pre-loading" class="hidden flex items-center gap-2 text-outline text-xs font-mono mb-3">
+                    <div class="w-3 h-3 border border-tertiary border-t-transparent rounded-full animate-spin"></div>
+                    جاري التحليل بالعربية...
+                </div>
+                <div id="narrator-pre-text" class="prose-sm text-on-surface-variant leading-relaxed text-sm font-body" dir="rtl" style="text-align:right"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PHASE 3: VALIDATE
+═══════════════════════════════════════════════════════════ -->
+<div id="phase-3" class="hidden">
+
+    <!-- Stats Bar -->
+    <div id="cleaning-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6"></div>
+
+    <!-- Narrator Post-Clean Panel -->
+    <div id="narrator-post-panel" class="mb-6 panel p-5 border border-tertiary-container/30 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60"></div>
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL' 1">auto_stories</span>
+            </div>
+            <div>
+                <p class="font-headline font-bold text-white text-sm">تقرير التحويل — راوي البيانات</p>
+                <p class="font-mono text-[9px] text-outline tracking-widest uppercase">Post-Cleaning Arabic Narrative</p>
+            </div>
+        </div>
+        <div id="narrator-post-loading" class="flex items-center gap-2 text-outline text-xs font-mono">
+            <div class="w-3 h-3 border border-tertiary border-t-transparent rounded-full animate-spin"></div>
+            جاري توليد تقرير التحويل بالعربية...
+        </div>
+        <div id="narrator-post-text" class="hidden prose-sm text-on-surface-variant leading-relaxed text-sm font-body" dir="rtl" style="text-align:right"></div>
+    </div>
+
+    <!-- Before / After Preview -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div class="panel overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant/10">
+                <div class="w-2 h-2 rounded-full bg-error"></div>
+                <span class="font-label text-sm font-bold text-white">Before Cleaning</span>
+                <span id="before-badge"
+                    class="font-mono text-[9px] text-outline bg-surface-container px-2 py-0.5 rounded ml-auto"></span>
+            </div>
+            <div class="overflow-auto" style="max-height:400px">
+                <table class="w-full text-xs" id="before-table">
+                    <thead id="before-head" class="sticky top-0 bg-surface-container-lowest"></thead>
+                    <tbody id="before-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant/10">
+                <div class="w-2 h-2 rounded-full bg-[#4ade80]"></div>
+                <span class="font-label text-sm font-bold text-white">After Cleaning</span>
+                <span id="after-badge"
+                    class="font-mono text-[9px] text-outline bg-surface-container px-2 py-0.5 rounded ml-auto"></span>
+            </div>
+            <div class="overflow-auto" style="max-height:400px">
+                <table class="w-full text-xs" id="after-table">
+                    <thead id="after-head" class="sticky top-0 bg-surface-container-lowest"></thead>
+                    <tbody id="after-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-3 justify-end mt-4">
+        <button onclick="goToPhase(2)" class="btn-secondary py-2.5 px-5 rounded-xl">← Adjust Goals</button>
+        <button onclick="goToPhase(4)" class="btn-primary py-2.5 px-5 rounded-xl flex items-center gap-2"><span
+                class="material-symbols-outlined text-base">check_circle</span>Looks Good →</button>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PHASE 4: EXPORT
+═══════════════════════════════════════════════════════════ -->
+<div id="phase-4" class="hidden max-w-2xl mx-auto">
+    <div class="panel p-8 text-center mb-6">
+        <div
+            class="w-16 h-16 rounded-full bg-[#4ade80]/10 border border-[#4ade80]/20 flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl text-[#4ade80]"
+                style="font-variation-settings:'FILL' 1">verified</span>
+        </div>
+        <h3 class="font-headline font-bold text-xl text-white mb-1">Dataset Cleaned Successfully</h3>
+        <p id="export-summary" class="font-body text-on-surface-variant text-sm"></p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <!-- Download CSV -->
+        <div class="panel p-5 flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-lg bg-secondary-container/20 border border-secondary-container/30 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-secondary"
+                        style="font-variation-settings:'FILL' 1">download</span>
+                </div>
+                <div>
+                    <p class="font-label font-bold text-white text-sm">Download File</p>
+                    <p class="font-mono text-[10px] text-outline">Select format & export</p>
+                </div>
+            </div>
+            <select id="export-fmt"
+                class="bg-surface-container-lowest border border-outline-variant/30 text-white text-xs rounded-lg py-2 px-3 font-mono outline-none focus:border-primary-container/50">
+                <option value="original">Original Format</option>
+                <option value="csv">CSV</option>
+                <option value="xlsx">Excel (XLSX)</option>
+                <option value="json">JSON</option>
+                <option value="parquet">Parquet</option>
+            </select>
+            <button onclick="downloadFile()"
+                class="btn-primary py-2.5 rounded-xl flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">download</span>
+                Download Cleaned File
+            </button>
+        </div>
+
+        <!-- Sync to DB -->
+        <div class="panel p-5 flex flex-col gap-3 opacity-50">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-lg bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-tertiary"
+                        style="font-variation-settings:'FILL' 1">cable</span>
+                </div>
+                <div>
+                    <p class="font-label font-bold text-white text-sm">Sync to Database</p>
+                    <p class="font-mono text-[10px] text-outline">Requires DB Connectors</p>
+                </div>
+            </div>
+            <p
+                class="font-mono text-[10px] text-outline bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/20">
+                Connect a database first via the DB Connectors module to enable this feature.</p>
+            <button disabled
+                class="btn-secondary py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                <span class="material-symbols-outlined text-base">lock</span>
+                Sync Unavailable
+            </button>
+        </div>
+    <!-- ML Advisor Integration -->
+    <div id="ml-advisor-card" class="panel p-6 mb-6 border border-primary/20 bg-primary/5 hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">psychology</span>
+                </div>
+                <div>
+                    <h4 class="font-headline font-bold text-white text-lg leading-tight">AI Strategic Recommendation</h4>
+                    <p class="font-mono text-[10px] text-primary uppercase tracking-widest">Model Architect v1.0</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p id="ml-score" class="text-2xl font-black text-white leading-none">--%</p>
+                <p class="text-[9px] font-mono text-outline uppercase tracking-tighter">Topology Match</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-1">
+                <p class="text-[10px] font-mono text-outline uppercase tracking-[0.2em]">Suggested Architecture</p>
+                <p id="ml-model" class="text-white font-bold text-base">Analyzing dataset topology...</p>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[10px] font-mono text-outline uppercase tracking-[0.2em]">Strategic Reasoning</p>
+                <p id="ml-reasoning" class="text-on-surface-variant text-xs leading-relaxed italic">Evaluating features and distributions...</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10">
+            <p class="text-[10px] text-outline italic">Deep analysis available in the ML Advisor module.</p>
+            <a href="/app/ml-advisor" class="text-primary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 hover:underline">
+                Open Strategy Dashboard
+                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ══ Premium Action Bar ══ -->
+    <div class="mt-6 space-y-3">
+
+        <!-- Primary CTAs — two big cards -->
+        <div class="grid grid-cols-2 gap-4">
+
+            <!-- ── View Audit Report ── -->
+            <button id="btn-view-audit" onclick="openAuditReport()"
+                class="group relative overflow-hidden rounded-2xl p-5 flex flex-col items-start gap-3 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
+                style="background:linear-gradient(135deg,rgba(11,13,26,.95),rgba(22,26,50,.95));border:1px solid rgba(91,213,252,0.25);box-shadow:0 0 0 0 rgba(91,213,252,0);"
+                onmouseenter="this.style.boxShadow='0 0 40px -8px rgba(91,213,252,0.35)';this.style.borderColor='rgba(91,213,252,0.55)'"
+                onmouseleave="this.style.boxShadow='0 0 0 0 rgba(91,213,252,0)';this.style.borderColor='rgba(91,213,252,0.25)'">
+
+                <!-- Glow blob -->
+                <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style="background:radial-gradient(circle,rgba(91,213,252,0.12) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+
+                <!-- Icon -->
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style="background:linear-gradient(135deg,rgba(91,213,252,0.15),rgba(67,97,238,0.2));border:1px solid rgba(91,213,252,0.3);">
+                    <span class="material-symbols-outlined text-2xl" style="color:#5bd5fc;font-variation-settings:'FILL' 1">summarize</span>
+                </div>
+
+                <!-- Text -->
+                <div>
+                    <p class="font-headline font-bold text-base text-white leading-tight">View Audit Report</p>
+                    <p class="font-mono text-[10px] mt-0.5 leading-relaxed" style="color:rgba(91,213,252,0.7)">Quality scores · AI reasoning<br>Column intelligence · Certificate</p>
+                </div>
+
+                <!-- Arrow -->
+                <span class="material-symbols-outlined text-sm absolute bottom-4 right-4 transition-transform duration-300 group-hover:translate-x-1"
+                    style="color:rgba(91,213,252,0.5)">arrow_forward</span>
+            </button>
+
+            <!-- ── Clean Another File ── -->
+            <button onclick="resetStudio()"
+                class="group relative overflow-hidden rounded-2xl p-5 flex flex-col items-start gap-3 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
+                style="background:linear-gradient(135deg,rgba(11,13,26,.95),rgba(22,24,38,.95));border:1px solid rgba(68,70,85,0.35);box-shadow:0 0 0 0 rgba(133,64,255,0);"
+                onmouseenter="this.style.boxShadow='0 0 40px -8px rgba(133,64,255,0.25)';this.style.borderColor='rgba(133,64,255,0.45)'"
+                onmouseleave="this.style.boxShadow='0 0 0 0 rgba(133,64,255,0)';this.style.borderColor='rgba(68,70,85,0.35)'">
+
+                <!-- Glow blob -->
+                <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style="background:radial-gradient(circle,rgba(133,64,255,0.10) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+
+                <!-- Icon -->
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style="background:linear-gradient(135deg,rgba(133,64,255,0.15),rgba(186,195,255,0.1));border:1px solid rgba(133,64,255,0.3);">
+                    <span class="material-symbols-outlined text-2xl" style="color:#d2bbff;font-variation-settings:'FILL' 1">refresh</span>
+                </div>
+
+                <!-- Text -->
+                <div>
+                    <p class="font-headline font-bold text-base text-white leading-tight">Clean Another File</p>
+                    <p class="font-mono text-[10px] mt-0.5 leading-relaxed text-outline">Upload a new dataset<br>and start a fresh session</p>
+                </div>
+
+                <!-- Arrow -->
+                <span class="material-symbols-outlined text-sm absolute bottom-4 right-4 transition-transform duration-300 group-hover:translate-x-1 text-outline">arrow_forward</span>
+            </button>
+        </div>
+
+        <!-- Secondary — ghost link -->
+        <a href="/app/dashboard" class="block">
+            <div class="flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 hover:bg-surface-container/50 cursor-pointer"
+                style="border:1px solid rgba(68,70,85,0.2);">
+                <span class="material-symbols-outlined text-sm text-outline">dashboard</span>
+                <span class="font-mono text-xs text-outline hover:text-on-surface-variant transition-colors">Back to Dashboard</span>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+    // ── State ──
+    const state = {
+        datasetId: null,
+        cleanedId: null,
+        auditId: null,
+        metadata: null,
+        rawData: [],
+        cleanedData: [],
+        diffMap: {},
+        nanMap: {},
+        strategy: 'beta',
+        phase: 1,
+        file: null,
+        previews: null,
+    };
+
+    // ── Utilities ──
+    function showToast(msg, type = 'info') {
+        const t = document.getElementById('toast');
+        const icons = { info: 'info', success: 'check_circle', error: 'error' };
+        const colors = { info: 'text-secondary', success: 'text-[#4ade80]', error: 'text-error' };
+        document.getElementById('toast-msg').textContent = msg;
+        const icon = document.getElementById('toast-icon');
+        icon.textContent = icons[type] || 'info';
+        icon.className = `material-symbols-outlined text-lg ${colors[type] || 'text-secondary'}`;
+        t.classList.remove('hidden');
+        setTimeout(() => t.classList.add('hidden'), 3500);
+    }
+
+    function showLoading(msg = 'Processing...') {
+        document.getElementById('loading-msg').textContent = msg;
+        document.getElementById('loading-overlay').classList.remove('hidden');
+        document.getElementById('loading-overlay').classList.add('flex');
+    }
+    function hideLoading() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('loading-overlay').classList.remove('flex');
+    }
+
+    function goToPhase(n) {
+        [1, 2, 3, 4].forEach(i => {
+            document.getElementById(`phase-${i}`).classList.add('hidden');
+            const s = document.getElementById(`step-${i}`);
+            s.classList.remove('step-active', 'step-done', 'step-idle');
+            s.classList.add(i < n ? 'step-done' : i === n ? 'step-active' : 'step-idle');
+        });
+        document.getElementById(`phase-${n}`).classList.remove('hidden');
+        state.phase = n;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectStrategy(el) {
+        document.querySelectorAll('.strategy-pill').forEach(p => p.classList.remove('selected'));
+        el.classList.add('selected');
+        state.strategy = el.dataset.strategy;
+
+        // Match the color for the text labels
+        const labels = { alpha: 'text-outline', beta: 'text-primary', gamma: 'text-tertiary' };
+        el.querySelector('p:first-child').className = `font-mono text-xs font-bold ${labels[state.strategy]}`;
+
+        updateStrategyUI();
+    }
+
+    async function fetchPreviews() {
+        if (!state.datasetId || !state.metadata) return;
+        try {
+            const res = await fetch('/api/strategies/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    metadata: state.metadata,
+                    goal: document.getElementById('goal-input').value.trim()
+                })
+            });
+            if (res.ok) {
+                state.previews = await res.json();
+                updateStrategyUI();
+            }
+        } catch (e) { console.error("Preview failed", e); }
+    }
+
+    function updateStrategyUI() {
+        const box = document.getElementById('strategy-details-box');
+        const list = document.getElementById('strategy-summaries-list');
+
+        if (!state.previews || !state.previews[state.strategy]) {
+            box.classList.add('hidden');
+            return;
+        }
+
+        const plan = state.previews[state.strategy];
+        box.classList.remove('hidden');
+
+        if (plan.summaries && plan.summaries.length > 0) {
+            list.innerHTML = plan.summaries.map(s => `
+                <li class="flex items-start gap-2 text-[11px] font-body text-on-surface-variant/80">
+                    <span class="material-symbols-outlined text-primary text-[14px] mt-0.5" style="font-variation-settings:'FILL' 1">check_circle</span>
+                    ${s}
+                </li>
+            `).join('');
+        } else {
+            list.innerHTML = `<li class="text-[11px] text-outline italic">No specific logic actions detected for this strategy.</li>`;
+        }
+    }
+
+    // ── Phase 1: Upload ──
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragging');
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelect(file);
+    });
+
+    document.getElementById('file-input').addEventListener('change', function () {
+        if (this.files[0]) handleFileSelect(this.files[0]);
+    });
+
+    function handleFileSelect(file) {
+        state.file = file;
+        document.getElementById('file-name-label').textContent = file.name;
+        document.getElementById('file-size-label').textContent = `${(file.size / 1024).toFixed(1)} KB`;
+        document.getElementById('file-preview').classList.remove('hidden');
+        document.getElementById('btn-upload').removeAttribute('disabled');
+    }
+
+    function clearFile() {
+        state.file = null;
+        document.getElementById('file-input').value = '';
+        document.getElementById('file-preview').classList.add('hidden');
+        document.getElementById('btn-upload').setAttribute('disabled', true);
+    }
+
+    async function uploadFile() {
+        if (!state.file) return;
+        showLoading('Uploading & analysing your dataset...');
+        try {
+            const fd = new FormData();
+            fd.append('file', state.file);
+            const res = await fetch('/api/upload', { method: 'POST', body: fd });
+            if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed'); }
+            const data = await res.json();
+            state.datasetId = data.dataset_id;
+            state.metadata = data.metadata;
+            state.rawData = data.raw_data;
+            state.nanMap = data.nan_map || {};
+            renderMetadata(data.metadata);
+
+            // Generate previews immediately to show current plan
+            await fetchPreviews();
+
+            hideLoading();
+            goToPhase(2);
+            // Show narrator panel (it lives inside phase-2, hidden by default)
+            document.getElementById('narrator-pre-panel').classList.remove('hidden');
+            showToast('File uploaded & analysed successfully!', 'success');
+        } catch (err) {
+            hideLoading();
+            showToast(err.message, 'error');
+        }
+    }
+
+    // ── Phase 2: Metadata render ──
+    function renderMetadata(meta) {
+        const body = document.getElementById('meta-table-body');
+        const cols = meta.columns_info || [];
+        let totalDirty = 0;
+
+        body.innerHTML = cols.map(col => {
+            const rawName  = col.name || col.column_name || '—';
+            const dtype    = col.physical_type || col.detected_type || col.type || '—';
+            const dirty    = col.missing_count ?? 0;
+            const dirtyPct = col.missing_percentage ?? col.null_percentage ?? 0;
+            const total    = meta.row_count ?? (state.rawData.length) ?? 1;
+            totalDirty    += dirty;
+
+            let badgeHtml = '';
+            let healthColor = '#4ade80';
+            if (dirty === 0) {
+                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#4ade80]/10 text-[#4ade80] border border-[#4ade80]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">check_circle</span>CLEAN</span>`;
+                healthColor = '#4ade80';
+            } else if (dirtyPct < 10) {
+                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">warning</span>MINOR</span>`;
+                healthColor = '#facc15';
+            } else {
+                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#f87171]/10 text-[#f87171] border border-[#f87171]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">error</span>DIRTY</span>`;
+                healthColor = '#f87171';
+            }
+            const barW = Math.min(100, dirtyPct);
+
+            return `
+            <tr class="border-b border-outline-variant/5 hover:bg-surface-container/30 transition-colors">
+                <td class="py-2.5 pr-3 text-white font-medium text-xs">${rawName}</td>
+                <td class="py-2.5 pr-3"><span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-outline border border-outline-variant/20">${dtype}</span></td>
+                <td class="py-2.5 pr-3">${dirty > 0
+                    ? `<span class="text-[#f87171] font-mono text-xs font-bold">${dirty}</span><span class="text-outline font-mono text-[9px]"> (${dirtyPct.toFixed(1)}%)</span>`
+                    : `<span class="text-[#4ade80] font-mono text-xs">0</span>`}</td>
+                <td class="py-2.5 pr-3">${badgeHtml}</td>
+                <td class="py-2.5"><div class="w-16 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${barW}%;background:${healthColor}"></div></div></td>
+            </tr>`;
+        }).join('');
+
+        const rows = meta.row_count ?? state.rawData.length;
+        document.getElementById('stat-rows').textContent = rows.toLocaleString();
+        document.getElementById('stat-cols').textContent = cols.length;
+        document.getElementById('stat-nulls').textContent = totalDirty.toLocaleString();
+    }
+
+    // ── Phase 3: Run Cleaning ──
+    async function runCleaning() {
+        if (!state.datasetId) return;
+        showLoading('Running SOL Engine...');
+        try {
+            const fd = new FormData();
+            fd.append('dataset_id', state.datasetId);
+            fd.append('strategy', state.strategy);
+            const goal = document.getElementById('goal-input').value.trim();
+            if (goal) fd.append('goal', goal);
+
+            const res = await fetch('/api/clean', { method: 'POST', body: fd });
+            if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Cleaning failed'); }
+            const data = await res.json();
+            state.cleanedId = data.cleaned_dataset_id;
+            state.auditId   = data.audit_id || null;
+            state.rawData = data.raw_data;
+            state.cleanedData = data.cleaned_data;
+            state.diffMap = data.diff_map || {};
+            state.nanMap = data.nan_map || {};
+
+            // Persist dataset_id for the audit page
+            if (state.datasetId) {
+                localStorage.setItem('sol_last_dataset_id', state.datasetId);
+            }
+
+            renderValidation(data);
+            hideLoading();
+            goToPhase(3);
+            showToast('Cleaning complete! Review the results below.', 'success');
+            // Auto-trigger Arabic post-cleaning narrative with full plan details
+            const fullReport = {
+                ...(data.audit_report || {}),
+                ...(data.report      || {}),
+                cleaning_strategy: (data.report || {}).cleaning_strategy || {}
+            };
+            fetchPostNarrative(data.stats || {}, fullReport);
+        } catch (err) {
+            hideLoading();
+            showToast(err.message, 'error');
+        }
+    }
+
+    function renderValidation(data) {
+        const { raw_data, cleaned_data, diff_map, stats } = data;
+
+        // Stats bar
+        const statsEl = document.getElementById('cleaning-stats');
+        const s = stats || {};
+        statsEl.innerHTML = [
+            { label: 'Rows Before', val: (s.rows_before ?? 0).toLocaleString(), color: 'text-white' },
+            { label: 'Rows After', val: (s.rows_after ?? 0).toLocaleString(), color: 'text-[#4ade80]' },
+            { label: 'Missing Before', val: (s.missing_before ?? 0).toLocaleString(), color: 'text-error/80' },
+            { label: 'Cells Fixed', val: (s.cells_fixed ?? 0).toLocaleString(), color: 'text-primary' },
+        ].map(c => `
+            <div class="panel px-4 py-3 text-center">
+                <p class="font-mono text-xl font-bold ${c.color}">${c.val}</p>
+                <p class="font-mono text-[9px] text-outline uppercase tracking-wider mt-1">${c.label}</p>
+            </div>`).join('');
+
+        const cols = raw_data.length ? Object.keys(raw_data[0]) : [];
+        const limit = Math.min(50, raw_data.length);
+
+        function buildTable(headEl, bodyEl, rows, highlightFn) {
+            headEl.innerHTML = `<tr>${cols.map(c => `<th class="text-left py-2 px-3 font-mono text-[9px] text-outline tracking-widest uppercase whitespace-nowrap border-b border-outline-variant/10">${c}</th>`).join('')}</tr>`;
+            bodyEl.innerHTML = rows.slice(0, limit).map((row, ri) =>
+                `<tr class="border-b border-outline-variant/5 hover:bg-surface-container/30">
+                    ${cols.map(col => {
+                    const cls = highlightFn(ri, col);
+                    const val = row[col] ?? '<span class="text-outline">null</span>';
+                    return `<td class="py-2 px-3 font-mono text-[11px] whitespace-nowrap ${cls}">${val}</td>`;
+                }).join('')}
+                </tr>`
+            ).join('');
+        }
+
+        document.getElementById('before-badge').textContent = `${raw_data.length} rows`;
+        document.getElementById('after-badge').textContent = `${cleaned_data.length} rows`;
+
+        buildTable(
+            document.getElementById('before-head'),
+            document.getElementById('before-body'),
+            raw_data,
+            (ri, col) => (diff_map[col] && diff_map[col].includes(ri) ? 'diff-cell-null' : '')
+        );
+        buildTable(
+            document.getElementById('after-head'),
+            document.getElementById('after-body'),
+            cleaned_data,
+            (ri, col) => (diff_map[col] && diff_map[col].includes(ri) ? 'diff-cell-changed' : '')
+        );
+
+        // Export summary
+        document.getElementById('export-summary').textContent =
+            `${(s.cells_fixed ?? 0).toLocaleString()} cells repaired · Strategy: ${(data.strategy_used || state.strategy).toUpperCase()} · ${(s.rows_after ?? 0).toLocaleString()} rows ready`;
+        
+        _triggerMLAdvisor();
+    }
+
+    // ── Phase 4: Download ──
+    async function downloadFile() {
+        if (!state.datasetId) return;
+        const fmt = document.getElementById('export-fmt').value;
+        const url = `/api/export/${state.datasetId}?fmt=${fmt}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.click();
+        showToast('Download started!', 'success');
+    }
+
+    function resetStudio() {
+        state.datasetId = null;
+        state.cleanedId = null;
+        state.auditId   = null;
+        state.file = null;
+        clearFile();
+        document.getElementById('goal-input').value = '';
+        goToPhase(1);
+    }
+
+    function openAuditReport() {
+        const id = state.datasetId;
+        if (!id) {
+            showToast('No dataset cleaned yet.', 'error');
+            return;
+        }
+        // Save to localStorage so the audit page can read it if needed
+        localStorage.setItem('sol_last_dataset_id', id);
+        window.location.href = `/app/audit?id=${id}`;
+    }
+
+
+    async function _triggerMLAdvisor() {
+        if (!state.datasetId) return;
+        const card = document.getElementById('ml-advisor-card');
+        card.classList.remove('hidden');
+        
+        try {
+            const formData = new FormData();
+            formData.append('dataset_id', state.datasetId);
+            const res = await fetch('/api/ml/recommend', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                body: formData
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.recommendations && data.recommendations.length > 0) {
+                    const top = data.recommendations[0];
+                    document.getElementById('ml-model').textContent = top.model;
+                    document.getElementById('ml-score').textContent = top.score + '%';
+                    document.getElementById('ml-reasoning').textContent = top.reasoning;
+                }
+            }
+        } catch (e) {
+            console.error("ML Advisor integration error:", e);
+        }
+    }
+
+    // ════════════════════════════════════════════════════
+    //  SOL Data Narrator — Arabic AI Narrative Functions
+    // ════════════════════════════════════════════════════
+
+    /** Minimal Markdown → HTML renderer (bold, headings, bullets, blockquotes) */
+    function renderMarkdown(md) {
+        if (!md) return '';
+        return md
+            .replace(/^#{3}\s+(.+)$/gm,  '<h4 class="text-white font-bold text-sm mt-4 mb-1">$1</h4>')
+            .replace(/^#{2}\s+(.+)$/gm,  '<h3 class="text-white font-bold text-base mt-5 mb-1.5 border-b border-outline-variant/10 pb-1">$1</h3>')
+            .replace(/^#{1}\s+(.+)$/gm,  '<h2 class="text-white font-bold text-lg mt-5 mb-2">$1</h2>')
+            .replace(/\*\*(.+?)\*\*/g,   '<strong class="text-white">$1</strong>')
+            .replace(/^>\s+(.+)$/gm,     '<blockquote class="border-r-2 border-tertiary pr-3 text-on-surface-variant italic my-2">$1</blockquote>')
+            .replace(/^[-*]\s+(.+)$/gm,  '<li class="flex gap-2 items-start"><span class="text-tertiary mt-0.5">•</span><span>$1</span></li>')
+            .replace(/(<li[\s\S]*?<\/li>)/gm, '<ul class="space-y-1 my-2">$1</ul>')
+            .replace(/\n\n/g, '</p><p class="mb-2">')
+            .replace(/\n/g, '<br>');
+    }
+
+    // ── Pre-Cleaning: allow manual trigger via button ──
+
+    async function fetchPreNarrative() {
+        if (!state.datasetId) return;
+        const btn  = document.getElementById('narrator-pre-btn');
+        const load = document.getElementById('narrator-pre-loading');
+        const text = document.getElementById('narrator-pre-text');
+        const cont = document.getElementById('narrator-pre-content');
+
+        cont.classList.remove('hidden');
+        load.classList.remove('hidden');
+        text.innerHTML = '';
+        if (btn) btn.disabled = true;
+
+        try {
+            const fd = new FormData();
+            fd.append('dataset_id', state.datasetId);
+            const res = await fetch('/api/narrator/pre-clean', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                body: fd
+            });
+            if (res.ok) {
+                const data = await res.json();
+                text.innerHTML = renderMarkdown(data.narrative);
+                load.classList.add('hidden');
+            } else {
+                load.classList.add('hidden');
+                text.innerHTML = '<p class="text-outline text-xs">تعذّر توليد التقرير. حاول مرة أخرى.</p>';
+            }
+        } catch (e) {
+            load.classList.add('hidden');
+            text.innerHTML = '<p class="text-outline text-xs">خطأ في الاتصال.</p>';
+        }
+        if (btn) btn.disabled = false;
+    }
+
+    // ── Post-Cleaning: auto-trigger after cleaning completes ──
+    async function fetchPostNarrative(cleanStats, auditReport) {
+        const load = document.getElementById('narrator-post-loading');
+        const text = document.getElementById('narrator-post-text');
+
+        try {
+            const fd = new FormData();
+            fd.append('dataset_id', state.datasetId);
+            fd.append('strategy', state.strategy);
+            fd.append('stats_json', JSON.stringify(cleanStats || {}));
+            fd.append('report_json', JSON.stringify(auditReport || {}));
+            const res = await fetch('/api/narrator/post-clean', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                body: fd
+            });
+            if (res.ok) {
+                const data = await res.json();
+                text.innerHTML = renderMarkdown(data.narrative);
+                if (load) load.classList.add('hidden');
+                text.classList.remove('hidden');
+            } else {
+                if (load) load.classList.add('hidden');
+            }
+        } catch(e) {
+            if (load) load.classList.add('hidden');
+            console.warn('Narrator post error:', e);
+        }
+    }
+</script>
+{% endblock %}

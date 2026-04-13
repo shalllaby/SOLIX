@@ -1,0 +1,571 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}Forms Dashboard{% endblock %}
+{% block page_title_text %}AI Forms Engine{% endblock %}
+{% block breadcrumb %}SOL / AI Forms{% endblock %}
+
+{% block head %}
+<style>
+    .glass-card { 
+        background: rgba(26, 28, 41, 0.6); 
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(68, 70, 85, 0.4); 
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 32px -8px rgba(0,0,0,0.5);
+    }
+    .btn-gradient { 
+        background: linear-gradient(135deg, #4361ee, #7b2ff7); 
+        color: white; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        box-shadow: 0 4px 15px -3px rgba(67, 97, 238, 0.4);
+    }
+    .btn-gradient:hover { 
+        filter: brightness(1.15); 
+        transform: translateY(-2px); 
+        box-shadow: 0 8px 25px -4px rgba(123, 47, 247, 0.5);
+    }
+    .input-field { 
+        background-color: rgba(11, 13, 26, 0.5) !important; 
+        border: 1px solid rgba(68, 70, 85, 0.6) !important; 
+        color: white !important; 
+        transition: all 0.2s ease;
+    }
+    .input-field:focus { 
+        border-color: #5bd5fc !important; 
+        outline: none; 
+        box-shadow: 0 0 0 3px rgba(91, 213, 252, 0.15) !important; 
+        background-color: rgba(11, 13, 26, 0.8) !important;
+    }
+    .glow-accent { position: relative; }
+    .glow-accent::before {
+        content: ''; position: absolute; inset: -1px; border-radius: 0.75rem;
+        background: linear-gradient(135deg, rgba(67,97,238,0.5), rgba(123,47,247,0.5));
+        z-index: -1; filter: blur(10px); opacity: 0; transition: opacity 0.3s ease;
+    }
+    .glow-accent:hover::before { opacity: 1; }
+
+    /* Custom Scrollbar for inner elements */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(68,70,85,0.5); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(67,97,238,0.5); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex items-start justify-between">
+    <div>
+        <h1 class="text-3xl font-headline font-black text-white tracking-tight">AI Form <span class="bg-gradient-to-r from-[#5bd5fc] to-[#4361ee] bg-clip-text text-transparent">Engine</span> ✨</h1>
+        <p class="text-on-surface-variant mt-2 font-body max-w-2xl">Design intelligent data-collection schemas and gather real-time analytical feedback powered by SOL's Data Intelligence framework.</p>
+    </div>
+    <div class="flex flex-col items-end">
+         <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
+             <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+             Engine Online
+         </span>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-180px)]">
+
+    <!-- CREATE FORM WORKSPACE (Left Side, 7 Cols) -->
+    <div class="xl:col-span-7 glass-card rounded-2xl p-7 flex flex-col h-full overflow-hidden">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4361ee] to-[#7b2ff7] flex items-center justify-center shadow-lg">
+                    <span class="material-symbols-outlined text-white">draw</span>
+                </div>
+                <div>
+                    <h2 id="designerTitle" class="text-xl font-bold text-white">Schema Designer</h2>
+                    <p id="designerSubtitle" class="text-xs text-outline font-mono uppercase tracking-wider">Build dynamic structures</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto custom-scroll pr-2 space-y-6">
+            
+            <!-- Metadata Section -->
+            <div class="p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">tune</span> 
+                    Form Metadata
+                </h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Title</label>
+                        <input type="text" id="formTitle" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="e.g. Automated User Feedback">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Target Objective</label>
+                        <textarea id="formDesc" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" rows="2" placeholder="Describe the semantic goal of this data collection..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions List -->
+            <div id="questionsContainer" class="space-y-3">
+                <!-- Dynamic questions populated here -->
+                <div id="emptyQuestionsState" class="text-center py-8 px-4 border border-dashed border-outline-variant/30 rounded-xl">
+                    <span class="material-symbols-outlined text-outline/50 text-4xl mb-2">fact_check</span>
+                    <p class="text-sm text-outline">No nodes added to the schema yet.</p>
+                </div>
+            </div>
+            
+            <!-- Add new question area -->
+            <div class="p-5 rounded-xl bg-gradient-to-br from-surface-container-lowest to-surface-container border border-outline-variant/40">
+                <h3 class="text-sm font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">add_circle</span> 
+                    Inject Data Node
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    <div class="sm:col-span-8">
+                        <input type="text" id="qText" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="Define inquiry parameter...">
+                    </div>
+                    <div class="sm:col-span-4">
+                        <select id="qType" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" onchange="toggleOptionsField()">
+                            <option value="Short Answer">Short Text</option>
+                            <option value="Paragraph">Long Text</option>
+                            <option value="Multiple Choice">Categorical (Multiple Choice)</option>
+                            <option value="Rating">Sentiment (1-5 Rating)</option>
+                        </select>
+                    </div>
+                    <div id="optionsDiv" class="sm:col-span-12 hidden">
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="optionInput" class="flex-grow input-field rounded-lg px-4 py-2.5 text-sm border-secondary/50 focus:border-secondary" placeholder="Enter option text...">
+                            <button type="button" onclick="addOptionToList()" class="px-4 py-2.5 rounded-lg bg-secondary/20 hover:bg-secondary/30 text-secondary border border-secondary/40 transition-all font-bold text-xs uppercase flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add</span> Add
+                            </button>
+                        </div>
+                        <div id="optionLabels" class="flex flex-wrap gap-2 p-3 rounded-xl bg-surface-container-lowest/50 border border-outline-variant/20 min-h-[50px]">
+                            <p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">No options defined</p>
+                        </div>
+                    </div>
+                    <div class="sm:col-span-12 mt-2">
+                        <button type="button" onclick="addQuestion()" class="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-colors flex justify-center items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">playlist_add</span>
+                            Append Node to Schema
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="pt-5 border-t border-outline-variant/30 mt-4 flex-shrink-0">
+            <button type="button" id="saveBtn" onclick="saveForm()" class="btn-gradient w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined">rocket_launch</span>
+                Compile & Deploy Live Route
+            </button>
+        </div>
+    </div>
+
+    <!-- PUBLISHED FORMS & RESULTS (Right Side, 5 Cols) -->
+    <div class="xl:col-span-5 glass-card rounded-2xl p-7 flex flex-col h-full overflow-hidden">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00a3c8] to-[#5bd5fc] flex items-center justify-center shadow-lg">
+                    <span class="material-symbols-outlined text-on-secondary text-lg">database</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Live Interfaces</h2>
+                    <p class="text-xs text-outline font-mono uppercase tracking-wider">Active collection endpoints</p>
+                </div>
+            </div>
+            <button onclick="fetchForms()" class="text-outline hover:text-white transition-colors" title="Refresh">
+                <span class="material-symbols-outlined">refresh</span>
+            </button>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto custom-scroll pr-2 space-y-4" id="formsList">
+            <!-- Forms populated here -->
+            <div class="flex flex-col items-center justify-center h-full text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary mx-auto mb-4"></div>
+                <p class="text-sm text-outline">Querying active schemas...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Pop-up Notification System -->
+<div id="notification" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-surface-container-high border border-outline-variant/50 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50">
+    <span id="notifIcon" class="material-symbols-outlined">info</span>
+    <span id="notifText" class="text-sm font-medium"></span>
+</div>
+
+<script>
+    let tempQuestions = [];
+    let currentOptions = [];
+    let editingFormId = null;
+
+    function showNotification(msg, type='info') {
+        const notif = document.getElementById('notification');
+        const text = document.getElementById('notifText');
+        const icon = document.getElementById('notifIcon');
+        
+        text.textContent = msg;
+        if(type === 'success') {
+            icon.textContent = 'check_circle';
+            icon.className = 'material-symbols-outlined text-green-400';
+            notif.classList.replace('border-outline-variant/50', 'border-green-500/50');
+        } else if (type === 'error') {
+            icon.textContent = 'error';
+            icon.className = 'material-symbols-outlined text-red-400';
+            notif.classList.replace('border-outline-variant/50', 'border-red-500/50');
+        } else {
+            icon.textContent = 'info';
+            icon.className = 'material-symbols-outlined text-blue-400';
+            notif.classList.replace('border-red-500/50', 'border-outline-variant/50');
+            notif.classList.replace('border-green-500/50', 'border-outline-variant/50');
+        }
+        
+        notif.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            notif.classList.add('translate-y-20', 'opacity-0');
+        }, 4000);
+    }
+
+    function toggleOptionsField() {
+        const type = document.getElementById("qType").value;
+        const optsDiv = document.getElementById("optionsDiv");
+        const optionInput = document.getElementById("optionInput");
+        
+        if(type === "Multiple Choice") {
+            optsDiv.classList.remove("hidden");
+            // Add enter key listener
+            if(!optionInput.dataset.listener) {
+                optionInput.addEventListener("keydown", (e) => {
+                    if(e.key === "Enter") {
+                        e.preventDefault();
+                        addOptionToList();
+                    }
+                });
+                optionInput.dataset.listener = "true";
+            }
+        } else {
+            optsDiv.classList.add("hidden");
+        }
+        // Clear current options when switching types
+        currentOptions = [];
+        renderOptionLabels();
+    }
+
+    function addOptionToList() {
+        const input = document.getElementById("optionInput");
+        const val = input.value.trim();
+        if(!val) return;
+        if(currentOptions.includes(val)) {
+            showNotification("Option already exists.", "error");
+            return;
+        }
+        currentOptions.push(val);
+        input.value = "";
+        renderOptionLabels();
+    }
+
+    function renderOptionLabels() {
+        const container = document.getElementById("optionLabels");
+        container.innerHTML = "";
+        if(currentOptions.length === 0) {
+            container.innerHTML = `<p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">No options defined</p>`;
+            return;
+        }
+        currentOptions.forEach((opt, idx) => {
+            const span = document.createElement("span");
+            span.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/10 border border-secondary/30 text-secondary text-xs font-medium animate-in fade-in zoom-in duration-200";
+            span.innerHTML = `
+                ${opt}
+                <button type="button" onclick="removeOptionFromList(${idx})" class="hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[14px]">close</span>
+                </button>
+            `;
+            container.appendChild(span);
+        });
+    }
+
+    function removeOptionFromList(idx) {
+        currentOptions.splice(idx, 1);
+        renderOptionLabels();
+    }
+
+    function addQuestion() {
+        const text = document.getElementById("qText").value.trim();
+        const type = document.getElementById("qType").value;
+        
+        if(!text) {
+            showNotification("Please define inquiry parameter.", "error"); return;
+        }
+        
+        const qData = { question: text, type: type };
+        if(type === "Multiple Choice") {
+            if(currentOptions.length === 0) {
+                showNotification("Provide at least one categorical option.", "error"); return;
+            }
+            qData.options = [...currentOptions];
+        }
+        
+        tempQuestions.push(qData);
+        renderQuestions();
+        
+        // Reset Inputs
+        document.getElementById("qText").value = "";
+        currentOptions = [];
+        renderOptionLabels();
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById("questionsContainer");
+        const emptyState = document.getElementById("emptyQuestionsState");
+        
+        // Clear all except empty state if we want to keep it
+        container.innerHTML = "";
+        
+        if (tempQuestions.length === 0) {
+            if(emptyState) container.appendChild(emptyState);
+            else container.innerHTML = `<div id="emptyQuestionsState" class="text-center py-8 px-4 border border-dashed border-outline-variant/30 rounded-xl">
+                <span class="material-symbols-outlined text-outline/50 text-4xl mb-2">fact_check</span>
+                <p class="text-sm text-outline">No nodes added to the schema yet.</p></div>`;
+            return;
+        }
+        
+        tempQuestions.forEach((q, i) => {
+            const div = document.createElement("div");
+            div.className = "group bg-surface-container-lowest border border-outline-variant/30 hover:border-primary/50 transition-all p-4 rounded-xl flex justify-between items-start";
+            
+            let icon = 'short_text';
+            if(q.type === 'Paragraph') icon = 'notes';
+            if(q.type === 'Multiple Choice') icon = 'radio_button_checked';
+            if(q.type === 'Rating') icon = 'star_rate';
+
+            let typeBadge = `<span class="inline-flex items-center gap-1 text-[10px] uppercase font-mono tracking-wider bg-outline-variant/20 text-on-surface-variant px-2 py-0.5 rounded">
+                <span class="material-symbols-outlined text-[12px]">${icon}</span> ${q.type}
+            </span>`;
+            
+            let label = `<div class="mb-1 text-sm font-bold text-white flex items-center gap-2"><span class="text-primary">${i+1}.</span> ${q.question}</div> ${typeBadge}`;
+            
+            if(q.type === "Multiple Choice") {
+                label += `<div class="mt-3 flex flex-wrap gap-2">
+                    ${q.options.map(o => `<span class="text-xs bg-surface-container-high border border-outline-variant/20 px-2 py-1 rounded-md text-outline">${o}</span>`).join("")}
+                </div>`;
+            }
+            
+            div.innerHTML = `
+                <div class="flex-1">${label}</div>
+                <button type="button" onclick="removeQuestion(${i})" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-error hover:bg-error/10 transition-colors ml-4 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function removeQuestion(index) {
+        tempQuestions.splice(index, 1);
+        renderQuestions();
+    }
+
+    async function saveForm() {
+        const title = document.getElementById("formTitle").value.trim();
+        const desc = document.getElementById("formDesc").value.trim();
+        
+        if(!title) { showNotification("Dataset title required.", "error"); return; }
+        if(tempQuestions.length === 0) { showNotification("Add at least one node to schema.", "error"); return; }
+        
+        try {
+            const btn = document.getElementById('saveBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> Compiling...`;
+            btn.disabled = true;
+
+            let res;
+            if (editingFormId) {
+                res = await axios.put(`/api/forms/${editingFormId}`, {
+                    title: title,
+                    description: desc,
+                    questions: tempQuestions
+                });
+                showNotification(`Schema updated successfully!`, "success");
+                cancelEdit();
+            } else {
+                res = await axios.post("/api/forms", {
+                    title: title,
+                    description: desc,
+                    questions: tempQuestions
+                });
+                showNotification(`Deployment successful! Endpoint active.`, "success");
+                
+                // reset form
+                document.getElementById("formTitle").value = "";
+                document.getElementById("formDesc").value = "";
+                tempQuestions = [];
+                renderQuestions();
+            }
+            
+            await fetchForms();
+            
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        } catch(e) {
+            console.error(e);
+            showNotification("Compile error: Check logs.", "error");
+            const btn = document.querySelector('.btn-gradient');
+            btn.disabled = false;
+            btn.innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Compile & Deploy Live Route`;
+        }
+    }
+
+    async function fetchForms() {
+        try {
+            const res = await axios.get("/api/forms");
+            const forms = res.data.forms;
+            const container = document.getElementById("formsList");
+            container.innerHTML = "";
+            
+            if(forms.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center opacity-50">
+                        <span class="material-symbols-outlined text-4xl mb-3">cloud_off</span>
+                        <p class="text-sm">No active endpoints.</p>
+                    </div>`;
+                return;
+            }
+            
+            forms.forEach(f => {
+                const dateObj = new Date(f.created_at);
+                const date = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                container.innerHTML += `
+                    <div class="bg-surface-container-lowest hover:bg-surface-container transition-colors border border-outline-variant/30 hover:border-secondary/40 rounded-xl p-5 group flex flex-col relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-bl from-secondary/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="flex justify-between items-start mb-2 relative z-10">
+                            <h3 class="text-white font-bold text-base pr-1">${f.title}</h3>
+                            <div class="flex items-center gap-2">
+                                <button onclick="editForm(${f.id})" class="w-7 h-7 flex items-center justify-center rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all border border-primary/20" title="Edit Form">
+                                    <span class="text-xs">✏️</span>
+                                </button>
+                                <button onclick="deleteForm(${f.id})" class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all border border-red-500/20" title="Delete Form">
+                                    <span class="text-xs">🗑️</span>
+                                </button>
+                                <span class="flex items-center gap-1.5 text-[10px] text-secondary font-mono bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20 whitespace-nowrap">
+                                    <span class="material-symbols-outlined text-[10px]">analytics</span>
+                                    ${f.responses_count} RES
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-outline-variant line-clamp-2 mb-4 font-body relative z-10 min-h-[32px]">${f.description || 'No declarative metadata provided.'}</p>
+                        
+                        <div class="flex items-center justify-between text-xs text-outline font-mono mb-4">
+                            <span>ID: ${String(f.id).padStart(4, '0')}</span>
+                            <span>${date}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-auto relative z-10">
+                            <a href="/f/${f.id}" target="_blank" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                Open View
+                            </a>
+                            <a href="/api/forms/${f.id}/export" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-[#4ade80] bg-[#4ade80]/10 hover:bg-[#4ade80]/20 border border-[#4ade80]/20 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">download</span>
+                                Vector Data
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+        } catch (e) {
+            console.error(e);
+            document.getElementById("formsList").innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-center text-error">
+                    <span class="material-symbols-outlined text-4xl mb-3">error</span>
+                    <p class="text-sm">Connection Refused.</p>
+                </div>`;
+        }
+    }
+
+    async function editForm(id) {
+        try {
+            const res = await axios.get(`/api/forms/${id}`);
+            const form = res.data;
+            
+            editingFormId = id;
+            document.getElementById("formTitle").value = form.title;
+            document.getElementById("formDesc").value = form.description;
+            tempQuestions = form.questions;
+            
+            renderQuestions();
+            
+            // Update Designer UI to show editing mode
+            document.getElementById("designerTitle").textContent = "Update Schema";
+            document.getElementById("designerSubtitle").textContent = `Editing Interface ID: ${id}`;
+            document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">save</span> Update & Deploy Changes`;
+            
+            // Add a cancel button if not already there
+            if(!document.getElementById("cancelEditBtn")) {
+                const cancelBtn = document.createElement("button");
+                cancelBtn.id = "cancelEditBtn";
+                cancelBtn.className = "mt-3 w-full py-2 text-xs font-bold text-outline hover:text-white transition-colors uppercase tracking-widest";
+                cancelBtn.textContent = "Cancel Editing / Create New";
+                cancelBtn.onclick = cancelEdit;
+                document.getElementById("saveBtn").parentElement.appendChild(cancelBtn);
+            }
+
+            // Scroll to designer
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showNotification(`Loading Schema ID: ${id}`, "info");
+
+        } catch (e) {
+            console.error(e);
+            showNotification("Failed to load form for editing.", "error");
+        }
+    }
+
+    function cancelEdit() {
+        editingFormId = null;
+        document.getElementById("formTitle").value = "";
+        document.getElementById("formDesc").value = "";
+        tempQuestions = [];
+        renderQuestions();
+        
+        document.getElementById("designerTitle").textContent = "Schema Designer";
+        document.getElementById("designerSubtitle").textContent = "Build dynamic structures";
+        document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Compile & Deploy Live Route`;
+        
+        const cb = document.getElementById("cancelEditBtn");
+        if(cb) cb.remove();
+    }
+
+    async function deleteForm(id) {
+        Swal.fire({
+            title: 'Permanent Deletion',
+            text: "This will purge the schema and all associated vector data from core systems. This operation is non-reversible.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: 'rgba(68,70,85,0.5)',
+            confirmButtonText: 'PURGE DATA',
+            background: '#1a1c29',
+            color: '#fff',
+            backdrop: `rgba(0,0,0,0.4) blur(4px)`
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await axios.delete(`/api/forms/${id}`);
+                    showNotification("Data purged successfully.", "success");
+                    await fetchForms();
+                } catch(e) {
+                    console.error(e);
+                    showNotification("Purge operation failed.", "error");
+                }
+            }
+        });
+    }
+
+    // init
+    renderQuestions();
+    fetchForms();
+</script>
+{% endblock %}

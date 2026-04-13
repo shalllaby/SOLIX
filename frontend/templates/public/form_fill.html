@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOL Data Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0b0d1a;
+            color: white; 
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(67, 97, 238, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(91, 213, 252, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card { 
+            background: rgba(17, 18, 32, 0.7); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(68, 70, 85, 0.3); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05); 
+        }
+        
+        .input-field { 
+            background-color: rgba(0, 0, 0, 0.2); 
+            border: 1px solid rgba(68, 70, 85, 0.5); 
+            color: white; 
+            transition: all 0.3s ease; 
+        }
+        .input-field:focus { 
+            border-color: #5bd5fc; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(91, 213, 252, 0.15); 
+            background-color: rgba(11, 13, 26, 0.8);
+        }
+        
+        .btn-submit { 
+            background: linear-gradient(135deg, #4361ee, #7b2ff7); 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite 2s;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+        .btn-submit:hover { 
+            filter: brightness(1.15); 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.5); 
+        }
+        
+        /* Custom Rating styles porting the Streamlit widget - Upgraded Premium AI Look */
+        .rating-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 16px; margin-bottom: 24px;}
+        .rating-title { color: white; margin-bottom: 30px; width: 100%; text-align: left; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;}
+        .rating-bar-wrapper { position: relative; width: 100%; height: 32px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px;}
+        .rating-line-bg { position: absolute; top: 15px; left: 10px; right: 10px; height: 3px; background-color: rgba(68,70,85,0.4); z-index: 1; border-radius: 2px;}
+        .rating-line-fill { position: absolute; top: 15px; left: 10px; width: 0%; height: 3px; background: linear-gradient(90deg, #4361ee, #5bd5fc); z-index: 2; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px;}
+        .rating-dot { 
+            width: 20px; height: 20px; background: #1d1f2c; border: 2px solid rgba(68,70,85,0.8); 
+            border-radius: 50%; cursor: pointer; z-index: 3; 
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            position: relative;
+        }
+        .rating-dot:hover { transform: scale(1.3); border-color: #5bd5fc; }
+        .rating-dot.active { 
+            background: #5bd5fc; border-color: white; transform: scale(1.4); 
+            box-shadow: 0 0 15px rgba(91, 213, 252, 0.6);
+        }
+        
+        .form-radio { 
+            appearance: none; width: 1.25rem; height: 1.25rem; 
+            border: 2px solid rgba(68,70,85,0.8); border-radius: 50%; 
+            background-color: rgba(0,0,0,0.2); display: inline-block; 
+            position: relative; cursor: pointer; transition: 0.2s; 
+        }
+        .form-radio:checked { border-color: #5bd5fc; }
+        .form-radio:checked::after { 
+            content: ''; position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); width: 0.6rem; height: 0.6rem; 
+            border-radius: 50%; background-color: #5bd5fc; 
+            box-shadow: 0 0 8px rgba(91,213,252,0.8);
+        }
+
+        .question-block {
+            background: rgba(29, 31, 44, 0.4);
+            border: 1px solid rgba(68, 70, 85, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .question-block:hover {
+            border-color: rgba(67, 97, 238, 0.4);
+            background: rgba(29, 31, 44, 0.6);
+            box-shadow: 0 4px 20px -10px rgba(0,0,0,0.3);
+        }
+
+        /* Abstract AI Background shapes */
+        .bg-shape { position: fixed; filter: blur(60px); z-index: -1; opacity: 0.4; }
+        .shape-1 { width: 300px; height: 300px; background: #4361ee; top: -100px; left: -100px; border-radius: 50%; }
+        .shape-2 { width: 400px; height: 400px; background: #7b2ff7; bottom: -150px; right: -100px; border-radius: 50%; }
+    </style>
+</head>
+<body class="py-12 px-4 flex justify-center items-start min-h-screen relative overflow-x-hidden">
+
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <div class="w-full max-w-2xl glass-card rounded-2xl p-8 md:p-10 relative z-10" id="mainContainer">
+        
+        <!-- Header Branding -->
+        <div class="flex items-center justify-center gap-3 mb-8 pb-8 border-b border-white/5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4361ee] to-[#5bd5fc] flex items-center justify-center shadow-[0_0_15px_rgba(67,97,238,0.4)]">
+                <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1">hub</span>
+            </div>
+            <div>
+                <p class="font-bold text-lg tracking-tight text-white uppercase leading-none">SOL Data Agent</p>
+                <p class="font-mono text-[10px] text-gray-400 tracking-widest uppercase mt-1">Intelligence Collection</p>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="text-center py-16">
+            <div class="relative w-16 h-16 mx-auto mb-6">
+                <div class="absolute inset-0 border-t-2 border-[#5bd5fc] rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border-r-2 border-[#4361ee] rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+            </div>
+            <p class="text-gray-400 font-mono text-sm tracking-widest uppercase animate-pulse">Initializing Schema...</p>
+        </div>
+        
+        <!-- Error -->
+        <div id="error" class="hidden text-center py-16">
+            <span class="material-symbols-outlined text-5xl text-red-400 mb-4">error</span>
+            <h3 class="text-xl font-bold text-white mb-2">Connection Error</h3>
+            <p class="text-gray-400" id="errorText">Could not load form. It may not exist.</p>
+        </div>
+        
+        <!-- Form Content -->
+        <div id="formContent" class="hidden">
+            <div class="text-center mb-10">
+                <h1 id="titleDisplay" class="text-3xl font-black text-white mb-3 tracking-tight"></h1>
+                <p id="descDisplay" class="text-gray-400 text-sm max-w-xl mx-auto"></p>
+            </div>
+            
+            <form id="dynamicForm" onsubmit="submitForm(event)">
+                <div class="space-y-6 mb-10" id="questionsRenderArea"></div>
+                
+                <div class="pt-8 border-t border-white/10">
+                    <button type="submit" class="w-full btn-submit text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-3 text-sm tracking-wide uppercase">
+                        <span class="material-symbols-outlined">send</span>
+                        Transmit Response
+                    </button>
+                    <p class="text-center text-[11px] text-gray-500 mt-4 flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">lock</span>
+                        End-to-end encrypted interaction
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Success State -->
+        <div id="success" class="hidden text-center py-16">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-green-400 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(52,211,153,0.3)]">
+                <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1">check</span>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-3">Data Received</h2>
+            <p class="text-gray-400 mb-8 max-w-sm mx-auto">Your response has been securely transmitted to the SOL intelligence hub.</p>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-400">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Network Synced
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden template used by script for forms_id -->
+    <script>
+        const formId = {{ form_id }};
+        let formDefinition = null;
+        
+        // Structure to store ratings: { question_text: value }
+        const ratings = {};
+
+        async function init() {
+            try {
+                const res = await axios.get(`/api/forms/${formId}`);
+                formDefinition = res.data;
+                
+                // Add a slight artificial delay for the premium loading effect
+                setTimeout(() => {
+                    document.getElementById("loader").classList.add("hidden");
+                    document.getElementById("formContent").classList.remove("hidden");
+                    
+                    document.getElementById("titleDisplay").textContent = formDefinition.title || "Untitled Form";
+                    document.getElementById("descDisplay").textContent = formDefinition.description || "";
+                    
+                    renderForm(formDefinition.questions);
+                }, 800);
+            } catch (e) {
+                console.error(e);
+                document.getElementById("loader").classList.add("hidden");
+                const errDiv = document.getElementById("error");
+                errDiv.classList.remove("hidden");
+            }
+        }
+
+        function renderForm(questions) {
+            const container = document.getElementById("questionsRenderArea");
+            
+            // Render basic User fields first mimicking the Streamlit Logic 
+            container.innerHTML += `
+                <div class="question-block">
+                    <label class="block text-sm font-semibold mb-3 flex items-center gap-2 text-white">
+                        <span class="material-symbols-outlined text-primary text-[18px]">person</span> 
+                        Subject Identity *
+                    </label>
+                    <input type="text" name="Respondent_Name" required class="w-full input-field rounded-xl px-4 py-3" placeholder="Enter your full name">
+                </div>
+                <div class="question-block">
+                    <label class="block text-sm font-semibold mb-3 flex items-center gap-2 text-white">
+                        <span class="material-symbols-outlined text-primary text-[18px]">mail</span> 
+                        Comms Channel (Email) *
+                    </label>
+                    <input type="email" name="Respondent_Email" required class="w-full input-field rounded-xl px-4 py-3" placeholder="user@domain.com">
+                </div>
+                <div class="my-8 flex items-center justify-center opacity-30">
+                    <div class="w-2 h-2 rounded-full bg-white mx-1"></div>
+                    <div class="w-2 h-2 rounded-full bg-white mx-1"></div>
+                    <div class="w-2 h-2 rounded-full bg-white mx-1"></div>
+                </div>
+            `;
+            
+            questions.forEach((q, idx) => {
+                const qDiv = document.createElement("div");
+                qDiv.className = "question-block";
+                const nameAttr = `question_${idx}`; // Use index to avoid special char issues in name
+                
+                let icon = 'short_text';
+                
+                if (q.type === "Rating") {
+                    ratings[q.question] = 1; // Default rating
+                    icon = 'auto_graph';
+                    qDiv.innerHTML = createRatingWidget(q.question, idx, icon);
+                } 
+                else if (q.type === "Multiple Choice") {
+                    icon = 'checklist';
+                    const opts = q.options || [];
+                    if (opts.length >= 5) {
+                        // Select box
+                        let optsHtml = opts.map(o => `<option value="${o}">${o}</option>`).join("");
+                        qDiv.innerHTML = `
+                            <label class="block text-sm font-semibold mb-4 text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[#5bd5fc] text-[18px]">${icon}</span>
+                                ${q.question}
+                            </label>
+                            <div class="relative">
+                                <select name="${nameAttr}" data-qtxt="${q.question}" required class="w-full input-field rounded-xl px-4 py-3 appearance-none">
+                                    <option value="" disabled selected>Select an option</option>
+                                    ${optsHtml}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                                    <span class="material-symbols-outlined">expand_more</span>
+                                </div>
+                            </div>`;
+                    } else {
+                        // Radio buttons
+                        let optsHtml = opts.map((o, optIdx) => `
+                            <label class="flex items-center gap-3 p-3.5 border border-white/10 bg-black/20 rounded-xl hover:border-[#5bd5fc]/50 hover:bg-[#5bd5fc]/5 transition cursor-pointer mb-2">
+                                <input type="radio" name="${nameAttr}" value="${o}" data-qtxt="${q.question}" required class="form-radio flex-shrink-0">
+                                <span class="text-sm">${o}</span>
+                            </label>
+                        `).join("");
+                        qDiv.innerHTML = `
+                            <label class="block text-sm font-semibold mb-4 text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[#5bd5fc] text-[18px]">${icon}</span>
+                                ${q.question}
+                            </label>
+                            <div class="space-y-2">${optsHtml}</div>
+                        `;
+                    }
+                }
+                else if (q.type === "Paragraph") {
+                    icon = 'notes';
+                    qDiv.innerHTML = `
+                        <label class="block text-sm font-semibold mb-4 text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[#5bd5fc] text-[18px]">${icon}</span>
+                            ${q.question}
+                        </label>
+                        <textarea name="${nameAttr}" data-qtxt="${q.question}" required class="w-full input-field rounded-xl px-4 py-3" rows="4" placeholder="Provide detailed input..."></textarea>
+                    `;
+                }
+                else {
+                    // Short Answer
+                    qDiv.innerHTML = `
+                        <label class="block text-sm font-semibold mb-4 text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[#5bd5fc] text-[18px]">${icon}</span>
+                            ${q.question}
+                        </label>
+                        <input type="text" name="${nameAttr}" data-qtxt="${q.question}" required class="w-full input-field rounded-xl px-4 py-3" placeholder="Enter response...">
+                    `;
+                }
+                
+                container.appendChild(qDiv);
+            });
+        }
+        
+        function createRatingWidget(label, idx, icon) {
+            return `
+            <div class="rating-container">
+                <div class="rating-title flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#5bd5fc] text-[18px]">${icon}</span>
+                    ${label}
+                </div>
+                <div class="rating-bar-wrapper">
+                    <div class="rating-line-bg"></div>
+                    <div id="fill_${idx}" class="rating-line-fill"></div>
+                    
+                    <div id="dot_${idx}_1" onclick="setRating(${idx}, 1, '${label.replace(/'/g, "\\'")}')" class="rating-dot active"></div>
+                    <div id="dot_${idx}_2" onclick="setRating(${idx}, 2, '${label.replace(/'/g, "\\'")}')" class="rating-dot"></div>
+                    <div id="dot_${idx}_3" onclick="setRating(${idx}, 3, '${label.replace(/'/g, "\\'")}')" class="rating-dot"></div>
+                    <div id="dot_${idx}_4" onclick="setRating(${idx}, 4, '${label.replace(/'/g, "\\'")}')" class="rating-dot"></div>
+                    <div id="dot_${idx}_5" onclick="setRating(${idx}, 5, '${label.replace(/'/g, "\\'")}')" class="rating-dot"></div>
+                </div>
+                <div class="w-full flex justify-between px-1 text-[11px] font-mono tracking-wider uppercase text-gray-500 mt-4">
+                    <span>Negative</span>
+                    <span>Positive</span>
+                </div>
+            </div>
+            `;
+        }
+
+        function setRating(idx, value, qtxt) {
+            ratings[qtxt] = value;
+            
+            // update UI
+            for(let i=1; i<=5; i++){
+                const dot = document.getElementById(`dot_${idx}_${i}`);
+                if(i <= value) dot.classList.add('active');
+                else dot.classList.remove('active');
+            }
+            
+            // Correct fill percentage calculation based on dots distribution
+            // 5 dots mean 4 segments of 25% each
+            const fillWidth = ((value - 1) * 25);
+            document.getElementById(`fill_${idx}`).style.width = `calc(${fillWidth}% - ${(value-1)*5}px)`; // slight optical correction for dot width
+        }
+
+        async function submitForm(e) {
+            e.preventDefault();
+            
+            const formObj = document.getElementById("dynamicForm");
+            const fd = new FormData(formObj);
+            
+            const payload = {};
+            
+            // Extract standard inputs
+            fd.forEach((val, key) => {
+                const el = formObj.querySelector(`[name="${key}"]`);
+                if (el && el.hasAttribute('data-qtxt')) {
+                    payload[el.getAttribute('data-qtxt')] = val;
+                } else {
+                    payload[key] = val; // name & email
+                }
+            });
+            
+            // Inject Ratings
+            for (const [qText, val] of Object.entries(ratings)) {
+                payload[qText] = val;
+            }
+            
+            try {
+                const btn = formObj.querySelector("button[type='submit']");
+                btn.disabled = true;
+                btn.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> <span class="tracking-wide uppercase">Transmitting...</span>`;
+                
+                await axios.post(`/api/forms/${formId}/responses`, payload);
+                
+                setTimeout(() => {
+                    document.getElementById("formContent").classList.add("hidden");
+                    document.getElementById("success").classList.remove("hidden");
+                }, 500); // UI breathing room
+                
+            } catch(err) {
+                console.error(err);
+                alert("An error occurred preserving your response.");
+                const btn = formObj.querySelector("button[type='submit']");
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-outlined">send</span> Transmit Response`;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

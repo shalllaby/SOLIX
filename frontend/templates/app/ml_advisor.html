@@ -1,0 +1,361 @@
+{% extends "app/_layout.html" %}
+
+{% block title %}ML Advisor — SOL Agent{% endblock %}
+
+{% block page_title_text %}AI Strategic Advisor{% endblock %}
+{% block breadcrumb %}SOL / Smart Modules / ML Advisor{% endblock %}
+{% block nav_ml %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    .neural-bg {
+        background: radial-gradient(circle at 50% 50%, rgba(67, 97, 238, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .glass-card {
+        background: rgba(23, 25, 35, 0.4);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .neon-border {
+        position: relative;
+        overflow: hidden;
+    }
+    .neon-border::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #4361ee, #5bd5fc, transparent);
+        opacity: 0.5;
+        filter: blur(4px);
+    }
+    .gradient-text {
+        background: linear-gradient(90deg, #bac3ff, #5bd5fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen pb-20">
+    <div class="absolute inset-0 neural-bg"></div>
+
+    <div class="max-w-6xl mx-auto relative z-10 space-y-8">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
+                    <span class="material-symbols-outlined text-sm">psychology</span>
+                    Strategic Reasoning Engine
+                </div>
+                <h1 class="text-4xl font-black text-white tracking-tight">Model <span class="gradient-text">Architect</span></h1>
+                <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed">
+                    Automatically analyze dataset topology to determine optimal training architectures. 
+                    Leveraging Llama-3.3-70b for high-fidelity strategic selection.
+                </p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('file-input').click()" class="px-6 py-3 rounded-xl bg-surface-container border border-outline-variant/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">upload_file</span>
+                    Analyze New File
+                </button>
+                <input type="file" id="file-input" class="hidden" accept=".csv,.xlsx,.xls,.json,.parquet" onchange="handleFileUpload(event)">
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Analysis Control & Session Selection -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-card neon-border rounded-2xl p-6 space-y-6">
+                    <div>
+                        <h3 class="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">database</span>
+                            Active Sessions
+                        </h3>
+                        <div id="session-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">
+                                Loading active datasets...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="target-selection-area" class="hidden pt-4 border-t border-outline-variant/5 animate-in slide-in-from-top-2">
+                        <h4 class="text-[10px] font-mono text-outline uppercase tracking-widest mb-3">Prediction Target</h4>
+                        <select id="target-column" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs focus:ring-2 focus:ring-primary outline-none transition-all">
+                            <option value="">Auto-Detect Target</option>
+                        </select>
+                        <p class="text-[10px] text-outline mt-2 italic">Select the column you want to predict.</p>
+                    </div>
+
+                    <div class="pt-4 border-t border-outline-variant/5">
+                        <button id="btn-run" onclick="runAnalysis()" disabled class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">analytics</span>
+                            Generate Strategy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats / Meta Info -->
+                <div id="dataset-meta" class="hidden glass-card rounded-2xl p-6 border border-outline-variant/10 animate-fade-in space-y-4">
+                    <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest">Dataset Topology</h4>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
+                            <p class="text-[9px] text-outline uppercase mb-1">Task Identified</p>
+                            <p id="meta-task" class="text-xs font-bold text-primary truncate">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
+                            <p class="text-[9px] text-outline uppercase mb-1">Health Score</p>
+                            <p id="meta-health" class="text-xs font-bold text-white font-mono">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
+                            <p class="text-[9px] text-outline uppercase mb-1">Rows</p>
+                            <p id="meta-rows" class="text-xs font-bold text-white font-mono">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
+                            <p class="text-[9px] text-outline uppercase mb-1">Features</p>
+                            <p id="meta-cols" class="text-xs font-bold text-white font-mono">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations View -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Empty State -->
+                <div id="empty-state" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-outline-variant/10 rounded-3xl group">
+                    <div class="w-20 h-20 rounded-full bg-surface-container/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <span class="material-symbols-outlined text-4xl text-outline/30">monitoring</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Select a Dataset to Begin</h3>
+                    <p class="text-outline text-sm max-w-xs">Our AI will profile your data and suggest the top 3 high-performance architectures.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="hidden flex flex-col items-center justify-center py-20 px-6 space-y-8 animate-in fade-in zoom-in duration-500">
+                    <div class="relative">
+                        <div class="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-3xl animate-pulse">neurology</span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-widest shimmer bg-clip-text text-transparent">AI Reasoning in Progress</h3>
+                        <p id="loading-text" class="text-outline text-sm">Evaluating hyper-parameters and loss functions...</p>
+                    </div>
+                </div>
+
+                <!-- Result State -->
+                <div id="results-view" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">verified</span>
+                            Optimized Architectures
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono text-outline uppercase bg-surface-container px-2 py-1 rounded">Engine: Llama-3.3-70b</span>
+                            <span class="text-[10px] font-mono text-primary uppercase bg-primary/10 px-2 py-1 rounded">Confidence: High</span>
+                        </div>
+                    </div>
+
+                    <div id="recommendations-container" class="space-y-6">
+                        <!-- Cards injected here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedDatasetId = null;
+
+    // Load initial sessions
+    async function loadSessions() {
+        try {
+            const res = await fetch('/api/datasets');
+            const data = await res.json();
+            const list = document.getElementById('session-list');
+            
+            if (data.count === 0) {
+                list.innerHTML = `<div class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">No active datasets in current session.</div>`;
+                return;
+            }
+
+            list.innerHTML = data.dataset_ids.map(id => `
+                <div onclick="selectSession('${id}')" id="session-${id}" class="session-item p-4 rounded-xl border border-outline-variant/10 bg-surface-container/20 hover:bg-surface-container-high cursor-pointer transition-all flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-sm">description</span>
+                        </div>
+                        <span class="text-xs font-mono text-white truncate max-w-[150px]">${id}</span>
+                    </div>
+                    <span class="material-symbols-outlined text-outline group-hover:text-white text-sm opacity-0 group-hover:opacity-100 transition-all">chevron_right</span>
+                </div>
+            `).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    function selectSession(id) {
+        selectedDatasetId = id;
+        document.querySelectorAll('.session-item').forEach(el => {
+            el.classList.remove('border-primary/50', 'bg-primary/5');
+            el.querySelector('div').classList.remove('bg-primary/20');
+        });
+        const active = document.getElementById(`session-${id}`);
+        active.classList.add('border-primary/50', 'bg-primary/5');
+        active.querySelector('div').classList.add('bg-primary/20');
+        
+        document.getElementById('btn-run').disabled = false;
+        loadColumns(id);
+    }
+
+    async function loadColumns(id) {
+        try {
+            const res = await fetch(`/api/ml/columns?dataset_id=${id}`);
+            const data = await res.json();
+            const select = document.getElementById('target-column');
+            const targetArea = document.getElementById('target-selection-area');
+            
+            targetArea.classList.remove('hidden');
+            select.innerHTML = '<option value="">Auto-Detect (Last Column)</option>' + 
+                data.columns.map(c => `<option value="${c}">${c}</option>`).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const targetCol = document.getElementById('target-column').value;
+        if (targetCol) formData.append('target_column', targetCol);
+
+        showLoading();
+        try {
+            const res = await fetch('/api/ml/recommend', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                body: formData
+            });
+            const data = await res.json();
+            renderResults(data);
+            
+            // If it's a new upload, we might want to refresh sessions or just show columns
+            if (data.status === 'success') {
+                loadSessions();
+            }
+        } catch(e) { 
+            console.error(e); 
+            alert("Analysis failed.");
+            hideLoading();
+        }
+    }
+
+    async function runAnalysis() {
+        if (!selectedDatasetId) return;
+
+        showLoading();
+        try {
+            const fd = new FormData();
+            fd.append('dataset_id', selectedDatasetId);
+            
+            const targetCol = document.getElementById('target-column').value;
+            if (targetCol) fd.append('target_column', targetCol);
+
+            const res = await fetch('/api/ml/recommend', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                body: fd
+            });
+            const data = await res.json();
+            renderResults(data);
+        } catch(e) {
+            console.error(e);
+            alert("Reasoning engine failure.");
+            hideLoading();
+        }
+    }
+
+    function renderResults(data) {
+        hideLoading();
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('results-view').classList.remove('hidden');
+        document.getElementById('dataset-meta').classList.remove('hidden');
+
+        document.getElementById('meta-rows').textContent = data.dataset_info.rows.toLocaleString();
+        document.getElementById('meta-cols').textContent = data.dataset_info.columns;
+
+        const container = document.getElementById('recommendations-container');
+        container.innerHTML = data.recommendations.map((rec, idx) => `
+            <div class="glass-card rounded-2xl p-6 border-l-4 ${idx === 0 ? 'border-primary' : 'border-outline-variant/30'} animate-in slide-in-from-bottom-4 duration-500" style="animation-delay: ${idx * 150}ms">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined text-xl">${idx === 0 ? 'star' : 'model_training'}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">${rec.model}</h4>
+                            <p class="text-[10px] font-mono text-primary uppercase tracking-widest">${idx === 0 ? 'Top Recommendation' : 'Strong Match'}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-white">${rec.score}%</p>
+                        <p class="text-[9px] font-mono text-outline uppercase">Match Core</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">Key Advantages</p>
+                        <p class="text-sm text-on-surface-variant leading-relaxed italic border-l border-primary/20 pl-4">"${rec.pros}"</p>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">AI Reasoning</p>
+                        <p class="text-sm text-on-surface-variant leading-relaxed font-body">${rec.reasoning}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-outline-variant/5 flex gap-4">
+                    <button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-white text-[11px] font-bold transition-all">VIEW DOCUMENTATION</button>
+                    <button class="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 text-[11px] font-bold transition-all">INITIALIZE HYPER-TUNING</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showLoading() {
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('results-view').classList.add('hidden');
+        document.getElementById('loading-state').classList.remove('hidden');
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-state').classList.add('hidden');
+    }
+
+    // Init
+    window.onload = loadSessions;
+</script>
+{% endblock %}

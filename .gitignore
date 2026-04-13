@@ -1,0 +1,7 @@
+backend/data/*.db
+*.pyc
+__pycache__/
+.env
+*.zip
+*.rar
+.pytest_cache/

@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+# Database & Auth
+sqlalchemy
+passlib[bcrypt]
+python-jose
+# OCR Subsytem
+pytesseract
+PyMuPDF
+Pillow
+pandas

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SOL Data Agent | OCR Engine</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#bac3ff", "primary-container": "#4361ee", "secondary": "#5bd5fc", "secondary-container": "#00a3c8", "tertiary": "#d2bbff", "tertiary-container": "#8540ff", "surface": "#111220", "surface-dim": "#111220", "surface-bright": "#373847", "surface-container-lowest": "#0b0d1a", "surface-container-low": "#191b28", "surface-container": "#1d1f2c", "surface-container-high": "#272937", "surface-container-highest": "#323442", "surface-variant": "#323442", "on-surface": "#e1e1f4", "on-surface-variant": "#c4c5d7", "on-background": "#e1e1f4", "on-primary": "#00218d", "on-primary-container": "#f4f2ff", "on-secondary": "#003543", "on-tertiary": "#3e008e", "background": "#111220", "outline": "#8e8fa1", "outline-variant": "#444655", "error": "#ffb4ab",
+                    },
+                    fontFamily: { "headline": ["Inter"], "body": ["Inter"], "label": ["Space Grotesk"], "mono": ["JetBrains Mono"] },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .nav-active { background: rgba(67, 97, 238, 0.15); border-left: 2px solid #4361ee; }
+        .nav-active .material-symbols-outlined { color: #bac3ff; font-variation-settings: 'FILL' 1, 'wght' 400; }
+        .nav-active span.label { color: #bac3ff; }
+        .nav-inactive { border-left: 2px solid transparent; }
+        .sidebar-glow { box-shadow: inset -1px 0 0 rgba(186,195,255,0.06); }
+        .stat-box { background: linear-gradient(145deg, rgba(39, 41, 55, 0.8) 0%, rgba(29, 31, 44, 0.8) 100%); border: 1px solid rgba(186, 195, 255, 0.1); position: relative; }
+        .panel-bg { background: rgba(25, 27, 40, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(68, 70, 85, 0.3); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #444655; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body h-screen overflow-hidden flex">
+
+    <aside class="w-64 flex-shrink-0 h-screen bg-surface-container-lowest sidebar-glow flex flex-col z-40">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-outline-variant/10">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-white text-lg" style="font-variation-settings:'FILL' 1">hub</span>
+            </div>
+            <div>
+                <p class="font-headline font-black text-sm tracking-tighter text-white uppercase leading-none">SOL DATA</p>
+                <p class="font-mono text-[9px] text-outline tracking-widest uppercase">AGENT v2.4</p>
+            </div>
+        </div>
+        <nav class="flex-1 py-4 overflow-y-auto">
+            <p class="px-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">Core</p>
+            <a href="#" class="flex items-center gap-3 px-5 py-3 transition-all group nav-inactive">
+                <span class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">dashboard</span>
+                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-5 py-3 transition-all group nav-inactive">
+                <span class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">auto_fix_high</span>
+                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Cleaning Studio</span>
+            </a>
+            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">Modules</p>
+            <a href="#" class="flex items-center gap-3 px-5 py-3 transition-all group nav-active">
+                <span class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">document_scanner</span>
+                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">OCR Engine</span>
+            </a>
+        </nav>
+        <div class="border-t border-outline-variant/10 p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center text-xs font-bold text-white">DA</div>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-white truncate">Demo Admin</p>
+                <p class="text-[10px] text-outline truncate">Pro Plan</p>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-16 flex-shrink-0 bg-surface-container-lowest border-b border-outline-variant/10 flex items-center justify-between px-6 z-30">
+            <div class="flex items-center gap-3">
+                <h2 class="font-headline font-bold text-lg text-white">OCR Engine</h2>
+                <span class="font-mono text-[10px] text-outline bg-surface-container px-2 py-0.5 rounded">SOL / OCR</span>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 bg-surface-container-lowest">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="stat-box rounded-xl p-5 flex items-center justify-between">
+                    <div><p class="font-mono text-[10px] text-outline uppercase mb-1">Status</p><p class="text-white font-bold text-xl">System Ready</p></div>
+                </div>
+                <div class="stat-box rounded-xl p-5 flex items-center justify-between">
+                    <div><p class="font-mono text-[10px] text-outline uppercase mb-1">Extraction</p><p class="text-white font-bold text-xl">0 chars</p></div>
+                </div>
+                <div class="stat-box rounded-xl p-5 flex items-center justify-between">
+                    <div><p class="font-mono text-[10px] text-outline uppercase mb-1">Compute</p><p class="text-white font-bold text-xl">0.00s</p></div>
+                </div>
+            </div>
+
+            <div class="flex h-[500px] gap-6">
+                <div class="w-1/2 panel-bg rounded-2xl flex flex-col items-center justify-center p-12 text-center">
+                    <span class="material-symbols-outlined text-6xl text-primary mb-4">cloud_upload</span>
+                    <h3 class="text-white font-bold text-lg mb-2">Upload Source Document</h3>
+                    <p class="text-outline text-sm mb-6">Drag & drop PDF or Image files</p>
+                    <button onclick="alert('Demo: Uploading disabled in static view')" class="bg-primary-container text-white font-bold py-2 px-8 rounded-lg">Select File</button>
+                </div>
+                <div class="w-1/2 panel-bg rounded-2xl p-6 bg-[#0b0d1a] overflow-y-auto">
+                    <pre class="font-mono text-sm text-on-surface-variant whitespace-pre-wrap">System idle. Ready to deploy parallel Optical Character Recognition sequence.</pre>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

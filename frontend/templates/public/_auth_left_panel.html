@@ -1,0 +1,67 @@
+{#
+  ══════════════════════════════════════════════════════
+  Kinetic Observatory — Shared Auth Left Panel
+  Include with: {% include 'public/_auth_left_panel.html' %}
+  ══════════════════════════════════════════════════════
+#}
+<section class="hidden md:flex md:w-5/12 lg:w-[42%] relative flex-col justify-between p-12 bg-gradient-to-br from-[#09 0c28] via-[#0d1033] to-[#0b0d1a] border-r border-outline-variant/10 overflow-hidden flex-shrink-0"
+         style="background: linear-gradient(135deg, #090c28 0%, #0d1033 50%, #0b0d1a 100%);">
+    <!-- Ambient glow orbs -->
+    <div class="absolute -top-24 -right-24 w-[420px] h-[420px] bg-primary-container/12 rounded-full blur-[130px] pointer-events-none"></div>
+    <div class="absolute -bottom-16 -left-16 w-72 h-72 bg-secondary-container/10 rounded-full blur-[110px] pointer-events-none"></div>
+    <div class="absolute top-[45%] left-[20%] w-36 h-36 bg-tertiary-container/8 rounded-full blur-[70px] pointer-events-none"></div>
+
+    <!-- Logo -->
+    <a href="/" class="z-10 flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_24px_rgba(67,97,238,0.5)] group-hover:shadow-[0_0_36px_rgba(67,97,238,0.7)] transition-shadow duration-400">
+            <span class="material-symbols-outlined text-white text-[22px]" style="font-variation-settings:'FILL' 1">hub</span>
+        </div>
+        <h1 class="font-headline font-black text-xl tracking-tighter text-white uppercase group-hover:text-primary transition-colors duration-200">SOL DATA AGENT</h1>
+    </a>
+
+    <!-- Kinetic Visual -->
+    <div class="relative flex items-center justify-center flex-grow py-8 z-10">
+        <div class="relative w-[260px] h-[260px]">
+            <!-- Dot grid -->
+            <div class="absolute inset-0 rounded-2xl opacity-25"
+                 style="background-image:radial-gradient(circle at 2px 2px,#444655 1px,transparent 0);background-size:22px 22px;"></div>
+            <!-- Glass container -->
+            <div class="floating-squares-bg rounded-2xl absolute inset-0 overflow-hidden">
+                <!-- Animated squares -->
+                <div class="absolute bg-primary-container/22 rounded-xl backdrop-blur-md border border-primary-container/28 shadow-[0_0_22px_rgba(67,97,238,0.30)] animate-float"
+                     style="width:72px;height:72px;top:18%;left:10%;animation-delay:0s;"></div>
+                <div class="absolute bg-secondary-container/18 rounded-2xl backdrop-blur-lg border border-secondary-container/22 shadow-[0_0_22px_rgba(0,163,200,0.25)] animate-float"
+                     style="width:88px;height:88px;bottom:10%;right:8%;animation-delay:1.3s;"></div>
+                <div class="absolute bg-tertiary-container/15 rounded-xl backdrop-blur-md border border-tertiary-container/18 animate-float"
+                     style="width:44px;height:44px;top:52%;left:42%;animation-delay:0.7s;"></div>
+            </div>
+            <!-- Glowing dots -->
+            <div class="absolute top-3 right-6 w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_14px_4px_rgba(91,213,252,0.6)] animate-glow-pulse"></div>
+            <div class="absolute bottom-10 left-5 w-2 h-2 rounded-full bg-primary-container shadow-[0_0_14px_4px_rgba(67,97,238,0.6)] animate-glow-pulse" style="animation-delay:1.1s;"></div>
+            <div class="absolute top-1/2 right-3 w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_10px_3px_rgba(210,187,255,0.5)] animate-glow-pulse" style="animation-delay:0.5s;"></div>
+        </div>
+    </div>
+
+    <!-- Tagline + Stats -->
+    <div class="z-10 space-y-7">
+        <div class="space-y-0.5">
+            <p class="font-headline text-[36px] font-extrabold text-white tracking-tight leading-none">Clean Data.</p>
+            <p class="font-headline text-[36px] font-extrabold text-[#4cc9f0] tracking-tight leading-none">Clear Insights.</p>
+            <p class="font-headline text-[36px] font-extrabold text-white tracking-tight leading-none">Zero Effort.</p>
+        </div>
+        <div class="flex items-center gap-8 py-5 border-t border-white/6">
+            <div>
+                <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Free Storage</p>
+                <p class="font-headline font-bold text-base text-white">1GB</p>
+            </div>
+            <div>
+                <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Accuracy</p>
+                <p class="font-headline font-bold text-base text-white">99.9%</p>
+            </div>
+            <div>
+                <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Avg Latency</p>
+                <p class="font-headline font-bold text-base text-white">2.4ms</p>
+            </div>
+        </div>
+    </div>
+</section>

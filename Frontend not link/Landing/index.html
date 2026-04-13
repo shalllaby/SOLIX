@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SOL Data Agent | Kinetic Observatory Precision</title>
+    <meta name="description" content="Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary":                   "#bac3ff",
+                        "primary-container":         "#4361ee",
+                        "on-primary":                "#00218d",
+                        "on-primary-container":      "#f4f2ff",
+                        "secondary":                 "#5bd5fc",
+                        "secondary-container":       "#00a3c8",
+                        "on-secondary":              "#003543",
+                        "tertiary":                  "#d2bbff",
+                        "tertiary-container":        "#8540ff",
+                        "on-tertiary":               "#3e008e",
+                        "background":                "#111220",
+                        "surface":                   "#111220",
+                        "surface-dim":               "#111220",
+                        "surface-bright":            "#373847",
+                        "surface-container-lowest":  "#0b0d1a",
+                        "surface-container-low":     "#191b28",
+                        "surface-container":         "#1d1f2c",
+                        "surface-container-high":    "#272937",
+                        "surface-container-highest": "#323442",
+                        "surface-variant":           "#323442",
+                        "on-surface":                "#e1e1f4",
+                        "on-surface-variant":        "#c4c5d7",
+                        "on-background":             "#e1e1f4",
+                        "outline":                   "#8e8fa1",
+                        "outline-variant":           "#444655",
+                        "error":                     "#ffb4ab",
+                        "error-container":           "#93000a",
+                        "success":                   "#06d6a0",
+                        "inverse-primary":           "#2e4edc",
+                        "inverse-surface":           "#e1e1f4",
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body":     ["Inter"],
+                        "label":    ["Space Grotesk"],
+                        "mono":     ["JetBrains Mono"],
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel {
+            background: rgba(25, 27, 40, 0.55);
+            backdrop-filter: blur(16px) saturate(1.4);
+            border: 1px solid rgba(68, 70, 85, 0.25);
+        }
+        .glass-card {
+            background: rgba(19, 22, 40, 0.72);
+            backdrop-filter: blur(24px) saturate(1.5);
+            border: 1px solid rgba(67, 97, 238, 0.20);
+            box-shadow: 0 0 50px -12px rgba(67,97,238,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #4361ee 0%, #00a3c8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-border { position: relative; background: #191b28; background-clip: padding-box; border: 2px solid transparent; }
+        .gradient-border::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: linear-gradient(135deg, #4361ee, #7b2ff7); }
+        .pro-card-glow { box-shadow: 0 0 55px -10px rgba(67,97,238,0.40), 0 0 110px -20px rgba(67,97,238,0.18); }
+        .floating-squares-bg { background: linear-gradient(135deg, rgba(67,97,238,0.10), rgba(0,163,200,0.07)); border: 1px solid rgba(68,70,85,0.22); }
+        .nav-glow-link { position: relative; transition: color 0.2s; }
+        .nav-glow-link::after { content:''; position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); width:0; height:2px; background:linear-gradient(90deg,#4361ee,#00a3c8); border-radius:2px; transition:width 0.3s ease; }
+        .nav-glow-link:hover::after { width:70%; }
+        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #444655; border-radius: 4px; }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px); } }
+        .animate-shimmer { animation: shimmer 5s linear infinite; background-size: 200% 100%; }
+        .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-body selection:bg-primary-container/30 selection:text-white antialiased">
+
+<header class="fixed top-0 left-0 right-0 z-50 h-[56px] bg-surface-container-lowest/92 backdrop-blur-xl shadow-[0_1px_40px_rgba(0,0,0,0.5)]">
+    <div class="flex items-center justify-between h-full px-6 md:px-10 max-w-screen-2xl mx-auto">
+        <!-- Brand -->
+        <a href="#" class="flex items-center gap-2.5 group flex-shrink-0">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_16px_rgba(67,97,238,0.45)] group-hover:shadow-[0_0_26px_rgba(67,97,238,0.65)] transition-shadow duration-300">
+                <span class="text-white font-black text-sm leading-none select-none">S</span>
+            </div>
+            <span class="font-headline font-black text-[15px] tracking-tighter text-white uppercase group-hover:text-primary transition-colors duration-200">SOL Data Agent</span>
+        </a>
+        <!-- Nav Links -->
+        <nav class="hidden md:flex items-center gap-0.5">
+            <a href="#" class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200">Solutions</a>
+            <a href="#" class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200">Architecture</a>
+            <a href="#" class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200">Pricing</a>
+            <a href="#" class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200">Docs</a>
+        </nav>
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+            <a href="#" class="hidden md:inline-flex items-center px-4 py-1.5 text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/60 rounded-lg transition-all duration-200">Sign In</a>
+            <a href="#">
+                <button class="px-5 py-1.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white text-[13px] font-bold rounded-full shadow-[0_0_18px_rgba(67,97,238,0.35)] hover:shadow-[0_0_30px_rgba(67,97,238,0.55)] hover:brightness-110 active:scale-[0.97] transition-all duration-200">Get Started</button>
+            </a>
+            <button class="md:hidden p-2 text-on-surface-variant hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-[20px]">menu</span>
+            </button>
+        </div>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-container/22 to-transparent pointer-events-none"></div>
+</header>
+
+<div class="pt-[56px] min-h-screen flex flex-col">
+<main class="overflow-x-hidden">
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 md:py-28 flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+        <div class="w-full md:w-[48%] space-y-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20">
+                <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">System Status: Optimal</span>
+            </div>
+            <h1 class="font-headline font-black text-5xl md:text-[64px] leading-[1.04] tracking-tighter text-white">
+                CRYSTALLIZE YOUR <span class="text-gradient">MESSY DATA</span>
+            </h1>
+            <p class="text-on-surface/65 text-lg max-w-xl font-body leading-relaxed">
+                Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time. Precision engineering for the modern data stack.
+            </p>
+            <div class="flex flex-wrap gap-4 pt-2">
+                <a href="#">
+                    <button class="px-7 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,0.30)] hover:shadow-[0_0_48px_rgba(67,97,238,0.52)] hover:scale-[1.02] active:scale-[0.99] transition-all duration-200">
+                        Explore SOL Agent →
+                    </button>
+                </a>
+                <button class="px-7 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/50 transition-all duration-200">
+                    View Demo
+                </button>
+            </div>
+        </div>
+        <!-- Visualization -->
+        <div class="w-full md:w-[52%] relative min-h-[420px] md:min-h-[520px]">
+            <div class="relative w-full h-full rounded-2xl overflow-hidden border border-outline-variant/20 shadow-[0_0_60px_rgba(67,97,238,0.15)]" style="min-height:460px;">
+                <img alt="SOL Data Agent Visualization" class="w-full h-full object-cover"
+                     src="https://i.ibb.co/FqYk7RJp/unnamed-3.png">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
+                <!-- Accuracy badge -->
+                <div class="absolute top-4 right-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-primary-container/20">
+                    <div class="font-mono text-[9px] text-primary-container uppercase tracking-widest mb-1">Precision</div>
+                    <div class="font-headline font-bold text-2xl text-white">99.9%</div>
+                    <div class="text-[9px] text-on-surface/40">Accuracy Guarantee</div>
+                </div>
+                <!-- Latency badge -->
+                <div class="absolute bottom-4 left-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-secondary-container/20">
+                    <div class="font-mono text-[9px] text-secondary-container uppercase tracking-widest mb-1">Latency</div>
+                    <div class="font-headline font-bold text-2xl text-white">2.4ms</div>
+                    <div class="text-[9px] text-on-surface/40">Avg Processing Time</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ FEATURES GRID ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">cloud_download</span>
+                </div>
+                <h3 class="text-white font-headline font-bold text-lg mb-3">Universal Data Loader</h3>
+                <p class="text-on-surface/55 text-sm leading-relaxed">Connect to any SQL, NoSQL, or API endpoint with zero-configuration mapping and instant schema detection.</p>
+            </div>
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">psychology</span>
+                </div>
+                <h3 class="text-white font-headline font-bold text-lg mb-3">AI Strategy Hub</h3>
+                <p class="text-on-surface/55 text-sm leading-relaxed">Dynamic logic allocation using LLMs to clean, normalize, and enrich raw data streams on the fly.</p>
+            </div>
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">verified</span>
+                </div>
+                <h3 class="text-white font-headline font-bold text-lg mb-3">Validated Output</h3>
+                <p class="text-on-surface/55 text-sm leading-relaxed">Rigorous multi-stage validation ensures only clean, high-fidelity data reaches your production warehouses.</p>
+            </div>
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">assessment</span>
+                </div>
+                <h3 class="text-white font-headline font-bold text-lg mb-3">Audit & Reports</h3>
+                <p class="text-on-surface/55 text-sm leading-relaxed">Full lineage tracking and observability dashboards for compliance and system transparency.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ DATA TRANSFORMATION ═══════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20 bg-surface-container-lowest/50 rounded-3xl my-4">
+        <div class="text-center mb-14">
+            <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Specialized Data Transformation</h2>
+            <div class="w-20 h-0.5 bg-gradient-to-r from-primary-container to-secondary-container mx-auto mt-5 rounded-full"></div>
+        </div>
+        <div class="flex flex-col lg:flex-row items-stretch justify-center gap-8 lg:gap-10">
+            <!-- Before table -->
+            <div class="w-full lg:w-[42%]">
+                <h3 class="text-success font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-error inline-block"></span> Before
+                </h3>
+                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                    <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
+                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Error</th><th class="font-medium">Format</th><th class="font-medium">Status</th></tr></thead>
+                        <tbody class="text-white">
+                            <tr><td class="py-1">2026 01-55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026//01-55</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026-01d55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr><td class="py-1">2026-01??</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Center divider -->
+            <div class="hidden lg:flex flex-col items-center justify-center gap-3 pt-10">
+                <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-[0_0_40px_rgba(67,97,238,0.6)]">
+                    <span class="material-symbols-outlined text-white text-xl">memory</span>
+                </div>
+                <div class="w-px h-40 bg-gradient-to-b from-primary-container/50 to-transparent"></div>
+            </div>
+            <!-- After table -->
+            <div class="w-full lg:w-[42%]">
+                <h3 class="text-[#4cc9f0] font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-success inline-block"></span> After
+                </h3>
+                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                    <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
+                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Status</th><th class="font-medium">Format</th><th class="font-medium">Result</th></tr></thead>
+                        <tbody class="text-white">
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ BOTTOM CTA ═══════════ -->
+    <section class="mt-16 mb-0 relative overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-container via-[#6b48ff] to-secondary-container animate-shimmer py-16 px-6 text-center">
+            <div class="max-w-4xl mx-auto space-y-7 relative z-10">
+                <h2 class="font-headline font-black text-4xl md:text-6xl text-white tracking-[0.15em] uppercase leading-tight">EXPLORE SOL AGENT</h2>
+                <p class="text-white/80 font-medium text-lg max-w-2xl mx-auto">
+                    Ready to automate your engineering overhead? Deploy the agent to your stack in under 5 minutes.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#">
+                        <button class="bg-white text-primary-container font-black px-10 py-4 rounded-full hover:scale-105 transition-transform shadow-2xl">START FREE TRIAL</button>
+                    </a>
+                    <button class="border-2 border-white/40 text-white font-black px-10 py-4 rounded-full hover:bg-white/10 transition-colors">VIEW ARCHITECTURE</button>
+                </div>
+            </div>
+            <!-- Decorative blurs -->
+            <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+                <div class="absolute -top-24 -left-24 w-96 h-96 bg-white rounded-full blur-[100px]"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-white rounded-full blur-[100px]"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+<div class="flex-1"></div>
+<footer class="w-full py-10 bg-surface-container-lowest border-t border-outline-variant/15 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-px bg-gradient-to-r from-transparent via-primary-container/18 to-transparent pointer-events-none"></div>
+    <div class="max-w-screen-2xl mx-auto px-6 md:px-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <!-- Logo -->
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <div class="w-6 h-6 rounded bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center">
+                    <span class="text-white font-black text-[11px] select-none">S</span>
+                </div>
+                <span class="font-headline font-bold text-[13px] text-white uppercase tracking-widest">SOL DATA</span>
+            </div>
+            <!-- Links -->
+            <nav class="flex flex-wrap justify-center gap-x-7 gap-y-2">
+                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="#">Privacy Policy</a>
+                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="#">Terms of Service</a>
+                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="#">System Status</a>
+                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="#">Security</a>
+                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="#">Contact</a>
+            </nav>
+            <!-- Copyright -->
+            <p class="font-mono text-[10px] uppercase tracking-widest text-outline/55 text-center md:text-right flex-shrink-0 leading-relaxed">
+                &copy; 2026 SOL Data Engineering.<br class="hidden md:block"> Kinetic Observatory Precision.
+            </p>
+        </div>
+        <div class="mt-8 pt-5 border-t border-outline-variant/8 text-center">
+            <p class="font-mono text-[9px] tracking-[0.18em] uppercase text-outline/25">v2.6.0-STABLE &middot; Precision Engineering for the Modern Data Stack</p>
+        </div>
+    </div>
+</footer>
+</div>
+
+</body>
+</html>

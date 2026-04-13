@@ -1,0 +1,22 @@
+Based on the project's source code and configuration files, here is the technology stack used to build our website:
+
+### Backend & API
+- **FastAPI**: The core web framework used to build the backend and API endpoints.
+- **Uvicorn**: The ASGI web server used to run the FastAPI application.
+- **SQLAlchemy**: The Object Relational Mapper (ORM) used to manage database models and operations.
+- **Jinja2**: The templating engine used to render the frontend HTML views from the Python backend.
+
+### Authentication & Security
+- **OAuth2 with JWT (JSON Web Tokens)**: Handled via the `python-jose` library for secure authentication and session management.
+- **Passlib (bcrypt)**: Used for secure password hashing and verification.
+
+### OCR & Data Processing Subsystem
+- **PyTesseract**: Used for Optical Character Recognition (OCR) to extract text from images.
+- **PyMuPDF**: Used for PDF document manipulation and processing.
+- **Pillow (PIL)**: Used for handling and processing images.
+- **Pandas**: Used for data manipulation, analysis, and structuring.
+
+### Frontend
+- **HTML5 & Vanilla JavaScript**: Used to construct the pages and handle client-side logic (e.g., session handling, UI updates) without a heavy frontend framework.
+- **TailwindCSS**: Used via CDN for styling, responsive design, and maintaining the theme layout (including dark mode elements).
+- **Google Fonts & Material Symbols**: Using "Inter", "JetBrains Mono", and "Space Grotesk" for typography, alongside Material Symbols for scalable iconography.

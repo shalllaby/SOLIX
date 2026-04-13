@@ -1,0 +1,874 @@
+{% extends "app/_layout.html" %}
+{% block page_title %}Audit Report{% endblock %}
+{% block page_title_text %}Audit Report{% endblock %}
+{% block breadcrumb %}SOL / Audit{% endblock %}
+{% block nav_audit %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    /* ── Sci-Fi theme tokens ──────────────────────────────── */
+    :root {
+        --cyan:   #5bd5fc;
+        --blue:   #4361ee;
+        --purple: #8540ff;
+        --green:  #4ade80;
+        --amber:  #f59e0b;
+        --red:    #ff6b6b;
+        --dim:    rgba(68,70,85,0.25);
+    }
+
+    /* ── Animated SVG gauge ──────────────────────────────── */
+    .gauge-ring { transform-origin: 50% 50%; transform: rotate(-90deg); }
+    @keyframes drawRing {
+        from { stroke-dashoffset: var(--full); }
+        to   { stroke-dashoffset: var(--dash); }
+    }
+    .gauge-arc { animation: drawRing 1.4s cubic-bezier(.4,0,.2,1) forwards; stroke-linecap: round; }
+
+    /* ── Glowing cards ───────────────────────────────────── */
+    .sol-card {
+        background: rgba(19,22,40,0.80);
+        border: 1px solid rgba(68,70,85,0.25);
+        border-radius: 0.75rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .glow-blue   { box-shadow: 0 0 48px -12px rgba(67,97,238,0.38), inset 0 1px 0 rgba(255,255,255,0.04); }
+    .glow-cyan   { box-shadow: 0 0 48px -12px rgba(91,213,252,0.32), inset 0 1px 0 rgba(255,255,255,0.04); }
+    .glow-purple { box-shadow: 0 0 48px -12px rgba(133,64,255,0.32), inset 0 1px 0 rgba(255,255,255,0.04); }
+    .glow-green  { box-shadow: 0 0 48px -12px rgba(74,222,128,0.28), inset 0 1px 0 rgba(255,255,255,0.04); }
+
+    /* ── Operation breakdown bar ─────────────────────────── */
+    .op-bar-fill { transition: width 1.2s cubic-bezier(.4,0,.2,1); height: 100%; border-radius: 2px; }
+
+    /* ── Column table ────────────────────────────────────── */
+    .col-row { border-bottom: 1px solid rgba(68,70,85,0.18); transition: background .15s; cursor: pointer; }
+    .col-row:hover { background: rgba(67,97,238,0.06); }
+    .col-expand { display: none; background: rgba(11,13,26,0.6); border-bottom: 1px solid rgba(68,70,85,0.18); }
+    .col-expand.open { display: table-row; }
+
+    /* ── Confidence bar ──────────────────────────────────── */
+    .conf-track { height: 4px; background: rgba(68,70,85,.25); border-radius: 2px; overflow: hidden; width: 80px; }
+    .conf-fill   { height: 100%; border-radius: 2px; transition: width 1.2s .3s cubic-bezier(.4,0,.2,1); }
+
+    /* ── Status badges ───────────────────────────────────── */
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .08em; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .badge-fixed    { background: rgba(91,213,252,.12); color: #5bd5fc; border: 1px solid rgba(91,213,252,.25); }
+    .badge-clean    { background: rgba(74,222,128,.12); color: #4ade80; border: 1px solid rgba(74,222,128,.25); }
+    .badge-partial  { background: rgba(245,158,11,.12); color: #f59e0b; border: 1px solid rgba(245,158,11,.25); }
+    .badge-issue    { background: rgba(255,107,107,.12); color: #ff6b6b; border: 1px solid rgba(255,107,107,.25); }
+    .badge-modified { background: rgba(186,195,255,.12); color: #bac3ff; border: 1px solid rgba(186,195,255,.25); }
+
+    /* ── Strategy badges ─────────────────────────────────── */
+    .strat-alpha  { background: rgba(68,70,85,.2); color: #c4c5d7; border: 1px solid rgba(68,70,85,.4); }
+    .strat-beta   { background: rgba(67,97,238,.15); color: #bac3ff; border: 1px solid rgba(67,97,238,.3); }
+    .strat-gamma  { background: rgba(133,64,255,.15); color: #d2bbff; border: 1px solid rgba(133,64,255,.3); }
+
+    /* ── Certificate stamp ───────────────────────────────── */
+    @keyframes stampIn {
+        0% { transform: scale(2) rotate(-15deg); opacity: 0; }
+        70% { transform: scale(0.95) rotate(2deg); opacity: 1; }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .cert-stamp { animation: stampIn .8s .6s cubic-bezier(.36,.07,.19,.97) both; }
+
+    /* ── Scanline overlay ────────────────────────────────── */
+    .scanlines::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.04) 3px, rgba(0,0,0,.04) 4px);
+    }
+
+    /* ── Pulse dot ───────────────────────────────────────── */
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.25} }
+    .pulse { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+    /* ── Count-up number ─────────────────────────────────── */
+    .count-num { font-variant-numeric: tabular-nums; }
+
+    /* ── Sub-metric progress bar ─────────────────────────── */
+    .sub-bar { height: 3px; background: rgba(68,70,85,.3); border-radius: 2px; overflow: hidden; }
+    .sub-bar-fill { height: 100%; border-radius: 2px; transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+
+    /* ── Scrollable table wrapper ────────────────────────── */
+    .table-scroll { max-height: 580px; overflow-y: auto; }
+    .table-scroll::-webkit-scrollbar { width: 3px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: #444655; border-radius: 3px; }
+
+    /* ── Empty / loading states ──────────────────────────── */
+    @keyframes shimmer { from{background-position:-400px 0} to{background-position:400px 0} }
+    .shimmer { background: linear-gradient(90deg,rgba(50,52,66,.4) 25%,rgba(67,70,90,.5) 50%,rgba(50,52,66,.4) 75%); background-size: 400px 100%; animation: shimmer 1.4s infinite; border-radius: 4px; }
+
+    /* ── Timeline ────────────────────────────────────────── */
+    .timeline-line { position: absolute; left: 14px; top: 0; bottom: 0; width: 1px; background: rgba(68,70,85,.35); }
+    .timeline-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; border: 2px solid; position: relative; z-index: 1; }
+    @keyframes tl-pop { from{transform:scale(0)} to{transform:scale(1)} }
+    .tl-pop { animation: tl-pop .25s cubic-bezier(.36,.07,.19,.97) both; }
+
+    /* ── Mini sparkline bars ─────────────────────────────── */
+    .spark-bar { display: inline-flex; align-items: flex-end; gap: 1.5px; height: 20px; }
+    .spark-bar span { width: 3px; border-radius: 1px; display: block; }
+
+    /* ── Stat pill ───────────────────────────────────────── */
+    .stat-pill {
+        display: flex; align-items: center; gap: 8px;
+        padding: 8px 12px; border-radius: 10px;
+        background: rgba(11,13,26,.55); border: 1px solid rgba(68,70,85,.22);
+        transition: border-color .2s;
+    }
+    .stat-pill:hover { border-color: rgba(91,213,252,.25); }
+
+    /* ── Print ───────────────────────────────────────────── */
+    @media print {
+        .no-print { display: none !important; }
+        .sol-card  { border-color: #444 !important; }
+        body, html { background: white !important; color: black !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════
+     EMPTY STATE — shown when no dataset_id in URL
+═══════════════════════════════════════════════════════════ -->
+<div id="empty-state" class="hidden flex flex-col items-center justify-center h-[70vh] text-center gap-6">
+    <div class="w-20 h-20 rounded-2xl bg-surface-container border border-outline-variant/20 flex items-center justify-center">
+        <span class="material-symbols-outlined text-4xl text-outline" style="font-variation-settings:'FILL' 1">summarize</span>
+    </div>
+    <div>
+        <h2 class="text-xl font-headline font-bold text-white">No Report Selected</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Clean a dataset first, then click "View Audit Report" from the Cleaning Studio.</p>
+    </div>
+    <a href="/app/studio" class="px-6 py-2.5 rounded-xl text-sm font-label font-bold text-white bg-gradient-to-r from-[#4361ee] to-[#8540ff] hover:brightness-110 transition-all">
+        Go to Cleaning Studio
+    </a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOADING SKELETON
+═══════════════════════════════════════════════════════════ -->
+<div id="loading-state" class="space-y-6">
+    <div class="shimmer h-14 w-2/3"></div>
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="shimmer h-32"></div><div class="shimmer h-32"></div><div class="shimmer h-32"></div><div class="shimmer h-32"></div>
+    </div>
+    <div class="shimmer h-48"></div>
+    <div class="shimmer h-64"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN REPORT — hidden until data loads
+═══════════════════════════════════════════════════════════ -->
+<div id="report-root" class="hidden space-y-6">
+
+    <!-- ── Section 1: Mission Header ──────────────────────────── -->
+    <div class="sol-card glow-blue p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden scanlines">
+        <!-- Decorative grid bg -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(91,213,252,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(91,213,252,.8) 1px, transparent 1px); background-size:32px 32px;"></div>
+
+        <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-[#4ade80] pulse"></div>
+                <span class="font-mono text-[10px] text-[#4ade80] tracking-[.2em] uppercase">Audit Certified</span>
+            </div>
+            <h1 class="text-2xl font-headline font-black text-white" id="hdr-filename">—</h1>
+            <div class="flex flex-wrap items-center gap-2 mt-2">
+                <span id="hdr-strategy" class="badge badge font-mono text-[10px] strat-beta">BETA</span>
+                <span class="font-mono text-[10px] text-outline" id="hdr-ts">—</span>
+                <span id="hdr-goal-chip" class="hidden font-mono text-[10px] bg-purple-500/10 text-[#d2bbff] border border-purple-500/20 px-2 py-0.5 rounded-full"></span>
+            </div>
+        </div>
+
+        <div class="relative z-10 flex items-center gap-4 flex-shrink-0">
+            <!-- Audit ID chip -->
+            <div class="text-right">
+                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">Audit ID</p>
+                <p class="font-mono text-xs text-white" id="hdr-audit-id">—</p>
+            </div>
+            <!-- Export buttons -->
+            <div class="flex gap-2 no-print">
+                <button id="btn-export-json" onclick="exportCert('json')"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-label font-bold text-white hover:border-[#5bd5fc]/50 hover:text-[#5bd5fc] transition-all">
+                    <span class="material-symbols-outlined text-sm">download</span> JSON
+                </button>
+                <button id="btn-export-csv" onclick="exportCert('csv')"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-label font-bold text-white hover:border-[#4ade80]/50 hover:text-[#4ade80] transition-all">
+                    <span class="material-symbols-outlined text-sm">download</span> CSV
+                </button>
+                <button onclick="window.print()"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-label font-bold text-white hover:border-[#a48cf4]/50 hover:text-[#a48cf4] transition-all">
+                    <span class="material-symbols-outlined text-sm">print</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Section 2: Quality Score Observatory ───────────────── -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+        <!-- Gauge pair card -->
+        <div class="xl:col-span-2 sol-card glow-cyan p-6">
+            <p class="font-mono text-[10px] text-outline/70 tracking-[.2em] uppercase mb-4">Quality Score Observatory</p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-around gap-6">
+                <!-- BEFORE gauge -->
+                <div class="flex flex-col items-center gap-3">
+                    <p class="font-mono text-[10px] text-outline uppercase tracking-widest">Before</p>
+                    <div class="relative w-40 h-40">
+                        <svg viewBox="0 0 120 120" class="w-full h-full">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(68,70,85,.25)" stroke-width="8"/>
+                            <circle id="gauge-before-arc" cx="60" cy="60" r="50" fill="none"
+                                stroke="#ff6b6b" stroke-width="8" class="gauge-ring gauge-arc"
+                                stroke-dasharray="314" stroke-dashoffset="314"
+                                style="--full:314; --dash:314"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="gauge-before-val" class="count-num font-mono text-3xl font-black text-white">0</span>
+                            <span class="font-mono text-[9px] text-outline">/ 100</span>
+                        </div>
+                    </div>
+                    <!-- Sub metrics -->
+                    <div id="sub-before" class="w-40 space-y-2 text-xs"></div>
+                </div>
+
+                <!-- Delta display -->
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-14 h-14 rounded-full border-2 border-[#4ade80]/40 flex items-center justify-center bg-[#4ade80]/5">
+                        <span class="material-symbols-outlined text-[#4ade80] text-2xl">trending_up</span>
+                    </div>
+                    <p id="delta-val" class="font-mono text-2xl font-black text-[#4ade80]">+0</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-widest">pts gained</p>
+                </div>
+
+                <!-- AFTER gauge -->
+                <div class="flex flex-col items-center gap-3">
+                    <p class="font-mono text-[10px] text-[#4ade80] uppercase tracking-widest">After</p>
+                    <div class="relative w-40 h-40">
+                        <svg viewBox="0 0 120 120" class="w-full h-full">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(68,70,85,.25)" stroke-width="8"/>
+                            <circle id="gauge-after-arc" cx="60" cy="60" r="50" fill="none"
+                                stroke="#4ade80" stroke-width="8" class="gauge-ring gauge-arc"
+                                stroke-dasharray="314" stroke-dashoffset="314"
+                                style="--full:314; --dash:314"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="gauge-after-val" class="count-num font-mono text-3xl font-black text-white">0</span>
+                            <span class="font-mono text-[9px] text-outline">/ 100</span>
+                        </div>
+                    </div>
+                    <div id="sub-after" class="w-40 space-y-2 text-xs"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global stats card -->
+        <div class="sol-card p-5 flex flex-col gap-3">
+            <p class="font-mono text-[10px] text-outline/70 tracking-[.2em] uppercase">Global Statistics</p>
+            <div id="global-stats-list" class="flex-1 space-y-2.5"></div>
+        </div>
+    </div>
+
+    <!-- ── Section 3: Operation Breakdown Matrix ──────────────── -->
+    <div class="sol-card glow-purple p-5">
+        <p class="font-mono text-[10px] text-outline/70 tracking-[.2em] uppercase mb-4">Operation Breakdown Matrix</p>
+        <!-- Stacked bar -->
+        <div id="op-bar-container" class="h-5 flex rounded overflow-hidden mb-4 bg-surface-container-high gap-0.5"></div>
+        <!-- Legend -->
+        <div id="op-legend" class="flex flex-wrap gap-x-5 gap-y-2"></div>
+    </div>
+
+    <!-- ── Section 4: Column Intelligence Log ────────────────── -->
+    <div class="sol-card p-0 overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-outline-variant/15">
+            <div class="flex items-center gap-3">
+                <p class="font-headline font-bold text-white">Column Intelligence Log</p>
+                <span id="col-count-badge" class="font-mono text-[10px] bg-surface-container px-2 py-0.5 rounded text-outline">0 columns</span>
+            </div>
+            <!-- Filter -->
+            <div class="flex items-center gap-2 no-print">
+                <select id="col-filter" onchange="filterColumns()"
+                    class="bg-surface-container border border-outline-variant/30 text-xs text-on-surface-variant font-mono rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#4361ee]/60" style="color-scheme:dark;background:#0b0d1a">
+                    <option value="all">All Status</option>
+                    <option value="FIXED">Fixed</option>
+                    <option value="PARTIALLY FIXED">Partially Fixed</option>
+                    <option value="CLEAN">Clean</option>
+                    <option value="ISSUE REMAINS">Issue Remains</option>
+                </select>
+                <input id="col-search" oninput="filterColumns()" placeholder="Search column..."
+                    class="bg-surface-container border border-outline-variant/30 text-xs text-on-surface-variant font-mono rounded-lg px-2 py-1.5 w-36 focus:outline-none focus:border-[#4361ee]/60" style="color-scheme:dark;background:#0b0d1a"/>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table class="w-full text-sm">
+                <thead class="sticky top-0 z-10" style="background:#13141f;">
+                    <tr class="border-b border-outline-variant/15">
+                        <th class="text-left py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Column</th>
+                        <th class="text-left py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Type</th>
+                        <th class="text-left py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Status</th>
+                        <th class="text-left py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Operation</th>
+                        <th class="text-right py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Cells Fixed</th>
+                        <th class="text-right py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Confidence</th>
+                        <th class="text-right py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Missing ↑</th>
+                        <th class="text-center py-3 px-4 font-mono text-[9px] text-outline uppercase tracking-widest">Details</th>
+                    </tr>
+                </thead>
+                <tbody id="col-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Section 5: Data Cleaning Certificate ──────────────── -->
+    <div class="sol-card glow-green p-6 relative overflow-hidden scanlines">
+        <div class="absolute inset-0 opacity-[0.025]" style="background-image: radial-gradient(rgba(74,222,128,.8) 1px, transparent 1px); background-size:24px 24px;"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <!-- Left: cert info -->
+            <div class="flex items-center gap-5">
+                <!-- SOL logo mark -->
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#4361ee] to-[#8540ff] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#4361ee]/30">
+                    <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings:'FILL' 1">hub</span>
+                </div>
+                <div>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-[.25em] mb-1">Official Data Cleaning Certificate</p>
+                    <h3 id="cert-filename" class="font-headline font-black text-lg text-white">—</h3>
+                    <div class="flex flex-wrap gap-3 mt-1.5 font-mono text-[10px] text-outline">
+                        <span>Score: <span id="cert-score" class="text-[#4ade80] font-bold">—</span></span>
+                        <span>·</span>
+                        <span>Strategy: <span id="cert-strategy" class="text-[#bac3ff] font-bold">—</span></span>
+                        <span>·</span>
+                        <span>Cells Fixed: <span id="cert-cells" class="text-[#5bd5fc] font-bold">—</span></span>
+                        <span>·</span>
+                        <span id="cert-ts">—</span>
+                    </div>
+                    <p class="font-mono text-[10px] text-outline mt-1">ID: <span id="cert-id" class="text-on-surface-variant">—</span></p>
+                </div>
+            </div>
+
+            <!-- Right: stamp + export -->
+            <div class="flex items-center gap-4 flex-shrink-0">
+                <div class="cert-stamp w-24 h-24 rounded-full border-4 border-[#4ade80]/60 flex flex-col items-center justify-center text-center relative">
+                    <div class="absolute inset-1 rounded-full border border-[#4ade80]/25"></div>
+                    <span class="material-symbols-outlined text-[#4ade80] text-2xl" style="font-variation-settings:'FILL' 1">verified</span>
+                    <p class="font-mono text-[8px] text-[#4ade80] tracking-widest uppercase leading-tight">SOL<br/>CERTIFIED</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="exportCert('json')"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#4361ee] text-white font-label font-bold text-xs hover:brightness-110 active:scale-[.98] transition-all shadow-lg shadow-[#4361ee]/25">
+                        <span class="material-symbols-outlined text-sm">download</span> Download JSON
+                    </button>
+                    <button onclick="exportCert('csv')"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container border border-[#4ade80]/40 text-[#4ade80] font-label font-bold text-xs hover:bg-[#4ade80]/10 active:scale-[.98] transition-all">
+                        <span class="material-symbols-outlined text-sm">table_view</span> Download CSV
+                    </button>
+                    <button onclick="copySummary()"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container border border-outline-variant/30 text-on-surface-variant font-label font-bold text-xs hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-sm">content_copy</span> Copy Summary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /report-root -->
+
+<!-- ── Actions Log (collapsible) — now with Timeline view ───── -->
+<div id="actions-log-wrap" class="hidden mt-0">
+    <div class="sol-card p-5">
+        <button onclick="toggleActionsLog()" class="flex items-center justify-between w-full mb-3">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-outline" style="font-variation-settings:'FILL' 1">timeline</span>
+                <p class="font-mono text-[10px] text-outline/70 tracking-[.2em] uppercase">Operation Timeline</p>
+            </div>
+            <span id="actions-chevron" class="material-symbols-outlined text-sm text-outline transition-transform">expand_more</span>
+        </button>
+        <div id="actions-log-body" class="hidden relative pl-8 max-h-80 overflow-y-auto pr-1">
+            <div class="timeline-line"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TOAST
+───────────────────────────────────────────────────────── -->
+<div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+    <div class="bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 flex items-center gap-2 shadow-xl font-mono text-xs text-white">
+        <span id="toast-icon" class="material-symbols-outlined text-sm text-[#4ade80]">check_circle</span>
+        <span id="toast-msg">Done</span>
+    </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────
+   Globals
+───────────────────────────────────────────────────────── */
+let _auditData  = null;
+let _datasetId  = null;
+let _allColumns = [];
+
+const OP_COLORS = {
+    "Null Handling":    "#5bd5fc",
+    "Outlier Removal":  "#f59e0b",
+    "Standardization":  "#bac3ff",
+    "Type Casting":     "#d2bbff",
+    "Deduplication":    "#a78bfa",
+    "Pattern Cleaning": "#4ade80",
+    "General Cleaning": "#8e8fa1",
+};
+
+/* ─────────────────────────────────────────────────────────
+   Bootstrap
+───────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+    const params  = new URLSearchParams(window.location.search);
+    _datasetId    = params.get('id') || localStorage.getItem('sol_last_dataset_id');
+
+    if (!_datasetId) {
+        showEmpty();
+        return;
+    }
+    loadReport(_datasetId);
+});
+
+/* ─────────────────────────────────────────────────────────
+   API call
+───────────────────────────────────────────────────────── */
+async function loadReport(datasetId) {
+    showLoading();
+    const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+    try {
+        const resp = await fetch(`/api/audit/${datasetId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!resp.ok) {
+            if (resp.status === 404) { showEmpty(); return; }
+            throw new Error(`HTTP ${resp.status}`);
+        }
+        _auditData = await resp.json();
+        render(_auditData);
+    } catch (e) {
+        showEmpty();
+        console.error('Audit load error:', e);
+    }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Main render
+───────────────────────────────────────────────────────── */
+function render(d) {
+    // Header
+    const strat = (d.strategy_used || 'beta').toUpperCase();
+    document.getElementById('hdr-filename').textContent = d.filename || 'Unknown dataset';
+    document.getElementById('hdr-audit-id').textContent = (d.audit_id || '').slice(0, 16) + '…';
+    document.getElementById('hdr-ts').textContent = fmtDate(d.generated_at);
+    const stratBadge = document.getElementById('hdr-strategy');
+    stratBadge.textContent = strat;
+    stratBadge.className = `badge strat-${strat.toLowerCase()}`;
+    if (d.user_goal) {
+        const chip = document.getElementById('hdr-goal-chip');
+        chip.textContent = '✦ ' + d.user_goal;
+        chip.classList.remove('hidden');
+    }
+
+    // Quality Gauges
+    const qb = d.quality_scores?.before || {};
+    const qa = d.quality_scores?.after  || {};
+    const qd = d.quality_scores?.delta  || {};
+    renderGauge('before', qb.overall || 0, qb.overall < 60 ? '#ff6b6b' : '#f59e0b');
+    renderGauge('after',  qa.overall || 0, qa.overall >= 80 ? '#4ade80' : '#5bd5fc');
+    animateCount('gauge-before-val', qb.overall || 0, 1200);
+    animateCount('gauge-after-val',  qa.overall || 0, 1400);
+    document.getElementById('delta-val').textContent = `${qd.overall >= 0 ? '+' : ''}${qd.overall || 0}`;
+    renderSubMetrics('sub-before', qb);
+    renderSubMetrics('sub-after',  qa);
+
+    // Global stats
+    renderGlobalStats(d.global_stats || {});
+
+    // Operation breakdown
+    renderOpBreakdown(d.operation_breakdown || {});
+
+    // Column table
+    _allColumns = d.column_reports || [];
+    document.getElementById('col-count-badge').textContent = `${_allColumns.length} columns`;
+    renderColumnTable(_allColumns);
+
+    // Certificate
+    document.getElementById('cert-filename').textContent = d.filename || '—';
+    document.getElementById('cert-score').textContent    = `${qa.overall || 0}/100`;
+    document.getElementById('cert-strategy').textContent = strat;
+    document.getElementById('cert-cells').textContent    = (d.global_stats?.cells_changed || 0).toLocaleString();
+    document.getElementById('cert-ts').textContent       = fmtDate(d.generated_at);
+    document.getElementById('cert-id').textContent       = d.audit_id || '—';
+
+    // Actions log
+    renderActionsLog(d.actions_log || []);
+
+    // Show report
+    hideLoading();
+    document.getElementById('report-root').classList.remove('hidden');
+    document.getElementById('actions-log-wrap').classList.remove('hidden');
+}
+
+/* ─────────────────────────────────────────────────────────
+   Gauge animation
+───────────────────────────────────────────────────────── */
+function renderGauge(which, score, color) {
+    const circum = 314;  // 2π * 50
+    const dash = circum - (score / 100) * circum;
+    const el = document.getElementById(`gauge-${which}-arc`);
+    el.style.setProperty('--full', circum);
+    el.style.setProperty('--dash', dash);
+    el.style.stroke = color;
+    // Trigger reflow to restart animation
+    el.style.strokeDashoffset = circum;
+    requestAnimationFrame(() => { el.style.strokeDashoffset = dash; });
+}
+
+function renderSubMetrics(containerId, scores) {
+    const metrics = [
+        { key: 'completeness',   label: 'Completeness', color: '#5bd5fc' },
+        { key: 'outlier_safety', label: 'Outlier Safety', color: '#f59e0b' },
+        { key: 'consistency',    label: 'Consistency',  color: '#d2bbff' },
+    ];
+    const el = document.getElementById(containerId);
+    el.innerHTML = metrics.map(m => {
+        const v = scores[m.key] || 0;
+        return `<div>
+            <div class="flex justify-between mb-0.5">
+                <span class="font-mono text-[9px] text-outline">${m.label}</span>
+                <span class="font-mono text-[9px]" style="color:${m.color}">${v}%</span>
+            </div>
+            <div class="sub-bar"><div class="sub-bar-fill" style="width:0%;background:${m.color}" data-target="${v}"></div></div>
+        </div>`;
+    }).join('');
+    // Trigger bar animations
+    requestAnimationFrame(() => {
+        el.querySelectorAll('.sub-bar-fill').forEach(b => {
+            b.style.width = b.dataset.target + '%';
+        });
+    });
+}
+
+/* ─────────────────────────────────────────────────────────
+   Global stats list
+───────────────────────────────────────────────────────── */
+function renderGlobalStats(gs) {
+    const items = [
+        { label: 'Rows Before',       val: (gs.rows_before || 0).toLocaleString(),        icon: 'table_rows', color: '#bac3ff' },
+        { label: 'Rows After',        val: (gs.rows_after  || 0).toLocaleString(),        icon: 'table_rows', color: '#4ade80' },
+        { label: 'Total Cells',       val: (gs.total_cells || 0).toLocaleString(),        icon: 'grid_on',    color: '#8e8fa1' },
+        { label: 'Cells Changed',     val: (gs.cells_changed || 0).toLocaleString(),      icon: 'edit',       color: '#5bd5fc' },
+        { label: '% Data Corrected',  val: `${gs.pct_data_corrected || 0}%`,              icon: 'percent',    color: '#f59e0b' },
+        { label: 'Duplicates Removed',val: (gs.duplicates_removed || 0).toLocaleString(), icon: 'content_copy',color:'#d2bbff' },
+        { label: 'Missing Before',    val: (gs.missing_before || 0).toLocaleString(),     icon: 'warning',    color: '#ff6b6b' },
+        { label: 'Missing After',     val: (gs.missing_after  || 0).toLocaleString(),     icon: 'check_circle',color:'#4ade80' },
+    ];
+    document.getElementById('global-stats-list').innerHTML = items.map(i => `
+        <div class="flex items-center justify-between py-1 border-b border-outline-variant/10">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm" style="color:${i.color};font-variation-settings:'FILL' 1">${i.icon}</span>
+                <span class="font-mono text-[10px] text-outline">${i.label}</span>
+            </div>
+            <span class="font-mono text-xs font-bold text-white">${i.val}</span>
+        </div>`).join('');
+}
+
+/* ─────────────────────────────────────────────────────────
+   Operation Breakdown stacked bar
+───────────────────────────────────────────────────────── */
+function renderOpBreakdown(ops) {
+    const total = Object.values(ops).reduce((a, b) => a + b, 0) || 1;
+    const bar  = document.getElementById('op-bar-container');
+    const leg  = document.getElementById('op-legend');
+    bar.innerHTML = '';
+    leg.innerHTML = '';
+
+    Object.entries(ops).forEach(([op, count]) => {
+        if (count === 0) return;
+        const pct   = (count / total * 100).toFixed(1);
+        const color = OP_COLORS[op] || '#8e8fa1';
+        // bar segment
+        const seg = document.createElement('div');
+        seg.className = 'op-bar-fill';
+        seg.style.cssText = `width:0%;background:${color};`;
+        seg.title = `${op}: ${count} cells (${pct}%)`;
+        bar.appendChild(seg);
+        setTimeout(() => { seg.style.width = pct + '%'; }, 80);
+        // legend item
+        leg.innerHTML += `
+            <div class="flex items-center gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style="background:${color}"></div>
+                <span class="font-mono text-[10px] text-on-surface-variant">${op}</span>
+                <span class="font-mono text-[10px] font-bold text-white">${count.toLocaleString()}</span>
+            </div>`;
+    });
+}
+
+/* ─────────────────────────────────────────────────────────
+   Column Intelligence table
+───────────────────────────────────────────────────────── */
+function renderColumnTable(cols) {
+    const tbody = document.getElementById('col-table-body');
+    tbody.innerHTML = '';
+
+    if (!cols.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center font-mono text-xs text-outline">No columns match the filter.</td></tr>`;
+        return;
+    }
+
+    cols.forEach((r, i) => {
+        const bBadge = statusBadge(r.status);
+        const opColor = r.operation_color || OP_COLORS[r.operation_type] || '#8e8fa1';
+        const conf = r.confidence_score != null ? Math.round(r.confidence_score * 100) : null;
+        const confColor = conf == null ? '#8e8fa1' : conf >= 85 ? '#4ade80' : conf >= 60 ? '#f59e0b' : '#ff6b6b';
+
+        // Sparkline bars (random-ish based on cells_changed for visual richness)
+        const spark = Array.from({length:5}, (_,si) =>
+            `<span style="height:${8 + Math.abs(Math.sin((i+si)*1.7) * 12)}px;background:${opColor}60"></span>`
+        ).join('');
+
+        // Main row
+        const tr = document.createElement('tr');
+        tr.className = 'col-row';
+        tr.dataset.status = r.status;
+        tr.dataset.name   = (r.column || '').toLowerCase();
+        tr.innerHTML = `
+            <td class="py-3 px-4">
+                <span class="font-mono text-xs text-white">${r.column}</span>
+                <p class="font-mono text-[9px] text-outline mt-0.5">${r.dtype}</p>
+            </td>
+            <td class="py-3 px-4">
+                <div class="flex flex-col gap-1">
+                    <span class="font-mono text-[10px] text-on-surface-variant">${r.semantic_type}</span>
+                    <div class="spark-bar">${spark}</div>
+                </div>
+            </td>
+            <td class="py-3 px-4"><span class="${bBadge.cls} badge">${r.status}</span></td>
+            <td class="py-3 px-4">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:${opColor}"></div>
+                    <span class="font-mono text-[10px] text-on-surface-variant">${r.operation_type}</span>
+                </div>
+            </td>
+            <td class="py-3 px-4 text-right font-mono text-xs ${r.cells_changed > 0 ? 'text-[#5bd5fc]' : 'text-outline'}">${r.cells_changed.toLocaleString()}</td>
+            <td class="py-3 px-4 text-right">
+                ${conf != null ? `
+                <div class="flex items-center justify-end gap-2">
+                    <div class="conf-track"><div class="conf-fill" style="width:${conf}%;background:${confColor}" data-target="${conf}"></div></div>
+                    <span class="font-mono text-[10px]" style="color:${confColor}">${conf}%</span>
+                </div>` : '<span class="font-mono text-[10px] text-outline">—</span>'}
+            </td>
+            <td class="py-3 px-4 text-right font-mono text-[10px] text-outline">
+                <span class="${r.missing_before > 0 ? 'text-[#f59e0b]' : 'text-outline'}">${r.missing_before}</span>
+                → <span class="${r.missing_after > 0 ? 'text-[#ff6b6b]' : 'text-[#4ade80]'}">${r.missing_after}</span>
+            </td>
+            <td class="py-3 px-4 text-center">
+                <button onclick="toggleExpand(${i})"
+                    class="w-6 h-6 rounded-lg bg-surface-container border border-outline-variant/20 flex items-center justify-center mx-auto hover:border-[#4361ee]/50 transition-all">
+                    <span id="chevron-${i}" class="material-symbols-outlined text-xs text-outline transition-transform">expand_more</span>
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+
+        // Expand row
+        const exp = document.createElement('tr');
+        exp.id = `expand-${i}`;
+        exp.className = 'col-expand';
+        exp.innerHTML = `
+            <td colspan="8" class="px-4 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <p class="font-mono text-[9px] text-outline uppercase tracking-widest mb-2">AI Reasoning</p>
+                        <p class="text-xs text-on-surface-variant leading-relaxed font-body">${r.ai_reasoning || '—'}</p>
+                        ${conf != null ? `
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="font-mono text-[9px] text-outline uppercase tracking-widest">AI Confidence:</span>
+                            <div class="flex-1 conf-track" style="width:120px"><div class="conf-fill" style="width:${conf}%;background:${confColor}"></div></div>
+                            <span class="font-mono text-[10px] font-bold" style="color:${confColor}">${conf}%</span>
+                        </div>` : ''}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        ${renderStatBlock('Before', r.stats_before, r.unique_before)}
+                        ${renderStatBlock('After', r.stats_after, r.unique_after)}
+                    </div>
+                </div>
+            </td>`;
+        tbody.appendChild(exp);
+    });
+    // Trigger confidence bar animations
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.conf-fill').forEach(b => { b.style.width = b.style.width; });
+    });
+}
+
+function renderStatBlock(label, stats, unique) {
+    const isAfter = label === 'After';
+    const textColor = isAfter ? 'text-[#4ade80]' : 'text-outline';
+    if (!stats) {
+        return `<div>
+            <p class="font-mono text-[9px] ${textColor} uppercase tracking-widest mb-1">${label}</p>
+            <p class="font-mono text-[10px] text-outline">Unique values: ${unique ?? '—'}</p>
+        </div>`;
+    }
+    return `<div>
+        <p class="font-mono text-[9px] ${textColor} uppercase tracking-widest mb-1">${label}</p>
+        ${[['Mean', stats.mean], ['Std', stats.std], ['Min', stats.min], ['Max', stats.max]].map(([k,v]) =>
+            `<div class="flex justify-between font-mono text-[10px]">
+                <span class="text-outline">${k}</span>
+                <span class="text-on-surface-variant">${v ?? '—'}</span>
+            </div>`
+        ).join('')}
+    </div>`;
+}
+
+function toggleExpand(i) {
+    const row = document.getElementById(`expand-${i}`);
+    const chev = document.getElementById(`chevron-${i}`);
+    row.classList.toggle('open');
+    chev.style.transform = row.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function statusBadge(status) {
+    const map = {
+        'FIXED':           { cls: 'badge-fixed' },
+        'PARTIALLY FIXED': { cls: 'badge-partial' },
+        'CLEAN':           { cls: 'badge-clean' },
+        'ISSUE REMAINS':   { cls: 'badge-issue' },
+        'MODIFIED':        { cls: 'badge-modified' },
+    };
+    return map[status] || { cls: 'badge-modified' };
+}
+
+/* ─────────────────────────────────────────────────────────
+   Column filter / search
+───────────────────────────────────────────────────────── */
+function filterColumns() {
+    const filterVal  = document.getElementById('col-filter').value;
+    const searchVal  = document.getElementById('col-search').value.toLowerCase();
+    const filtered = _allColumns.filter(r => {
+        const statusOk  = filterVal === 'all' || r.status === filterVal;
+        const searchOk  = !searchVal || (r.column || '').toLowerCase().includes(searchVal);
+        return statusOk && searchOk;
+    });
+    renderColumnTable(filtered);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Actions log
+───────────────────────────────────────────────────────── */
+function renderActionsLog(actions) {
+    const body = document.getElementById('actions-log-body');
+    if (!actions.length) {
+        body.innerHTML = '<p class="font-mono text-xs text-outline">No actions recorded.</p>';
+        return;
+    }
+    body.innerHTML = actions.map((a, idx) => `
+        <div class="flex items-start gap-3 mb-4 tl-pop" style="animation-delay:${idx * 0.04}s">
+            <div class="timeline-dot" style="background:${a.color};border-color:${a.color}40"></div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-0.5">
+                    <span class="font-mono text-[10px] text-white">${a.action}</span>
+                    <span class="font-mono text-[9px] px-1.5 py-0.5 rounded flex-shrink-0" style="background:${a.color}18;color:${a.color}">${a.category}</span>
+                </div>
+                <span class="font-mono text-[9px] text-outline">Step ${a.step}</span>
+            </div>
+        </div>`).join('');
+}
+
+function toggleActionsLog() {
+    const body = document.getElementById('actions-log-body');
+    const chev = document.getElementById('actions-chevron');
+    body.classList.toggle('hidden');
+    chev.style.transform = body.classList.contains('hidden') ? '' : 'rotate(180deg)';
+}
+
+/* ─────────────────────────────────────────────────────────
+   Export
+───────────────────────────────────────────────────────── */
+async function exportCert(fmt) {
+    if (!_datasetId) return;
+    const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+    const url = `/api/audit/${_datasetId}/export?fmt=${fmt}`;
+    try {
+        const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!resp.ok) throw new Error('Export failed');
+        const blob = await resp.blob();
+        const disposition = resp.headers.get('Content-Disposition') || '';
+        const match = disposition.match(/filename="(.+?)"/);
+        const filename = match ? match[1] : `sol_audit.${fmt}`;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('Certificate downloaded!', 'check_circle', '#4ade80');
+    } catch(e) {
+        showToast('Export failed. Try again.', 'error', '#ff6b6b');
+    }
+}
+
+async function copySummary() {
+    if (!_auditData) return;
+    const d = _auditData;
+    const qa = d.quality_scores?.after || {};
+    const text = [
+        `SOL Data Agent — Cleaning Certificate`,
+        `File: ${d.filename}`,
+        `Strategy: ${(d.strategy_used||'').toUpperCase()}`,
+        `Quality Score: ${qa.overall}/100`,
+        `Cells Fixed: ${d.global_stats?.cells_changed || 0}`,
+        `Generated: ${fmtDate(d.generated_at)}`,
+        `Audit ID: ${d.audit_id}`,
+    ].join('\n');
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('Summary copied to clipboard!', 'check_circle', '#4ade80');
+    } catch(e) {
+        showToast('Copy failed.', 'error', '#ff6b6b');
+    }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Utils
+───────────────────────────────────────────────────────── */
+function animateCount(id, target, duration) {
+    const el = document.getElementById(id);
+    const start = performance.now();
+    function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+        el.textContent = Math.round(ease * target);
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+        return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+    } catch { return iso; }
+}
+
+function showToast(msg, icon, color) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent  = msg;
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-icon').style.color = color;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+function showEmpty()   { document.getElementById('loading-state').classList.add('hidden'); document.getElementById('empty-state').classList.remove('hidden'); }
+function showLoading() { document.getElementById('loading-state').classList.remove('hidden'); document.getElementById('empty-state').classList.add('hidden'); }
+function hideLoading() { document.getElementById('loading-state').classList.add('hidden'); }
+
+function getCookie(name) {
+    const v = `; ${document.cookie}`;
+    const p = v.split(`; ${name}=`);
+    if (p.length === 2) return p.pop().split(';').shift();
+    return null;
+}
+</script>
+{% endblock %}
