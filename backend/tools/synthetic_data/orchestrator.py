@@ -44,8 +44,8 @@ KAGGLE_AVAILABLE = False
 try:
     from kaggle.api.kaggle_api_extended import KaggleApi
     KAGGLE_AVAILABLE = True
-except ImportError:
-    logger.warning("Kaggle package not found in synthetic data orchestrator.")
+except Exception as e:
+    logger.warning("Kaggle package not found or credentials not configured in synthetic data orchestrator: %s", e)
 
 def retry_kaggle_call(func, *args, max_retries=3, initial_delay=2, backoff_factor=2, **kwargs):
     delay = initial_delay

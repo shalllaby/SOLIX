@@ -23,8 +23,8 @@ KAGGLE_AVAILABLE = False
 try:
     from kaggle.api.kaggle_api_extended import KaggleApi
     KAGGLE_AVAILABLE = True
-except ImportError:
-    logger.warning("Kaggle package not found. Attempting automatic installation via pip...")
+except Exception as e_import:
+    logger.warning("Kaggle package import failed or credentials not found: %s. Attempting automatic installation via pip...", e_import)
     import subprocess
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "kaggle"])
@@ -32,7 +32,7 @@ except ImportError:
         KAGGLE_AVAILABLE = True
         logger.info("Kaggle package successfully installed and imported.")
     except Exception as e:
-        logger.error("Failed to automatically install the Kaggle package: %s", str(e))
+        logger.error("Failed to automatically install or authenticate the Kaggle package: %s", str(e))
 
 
 def _update_db_job_status(task_id: str, status: str, error_msg: str = None, stats: dict = None, accuracy: float = None):
