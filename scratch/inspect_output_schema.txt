@@ -1,0 +1,27 @@
+1096:     if not encoded_parts:
+1097:         return np.array([])
+1098: 
+1099:     return np.hstack(encoded_parts)
+1100: 
+1101: 
+1102: def compute_dcr(original: pd.DataFrame, synthetic: pd.DataFrame, profile: dict, sample_size: int = 500) -> dict:
+1103:     from scipy.spatial.distance import cdist
+1104: 
+1105:     orig_matrix = _prepare_numeric_matrix(original, profile)
+1106:     synth_matrix = _prepare_numeric_matrix(synthetic, profile)
+1107: 
+1108:     if orig_matrix.size == 0 or synth_matrix.size == 0:
+1109:         return {
+1110:             "dcr_values": [],
+1111:             "mean_dcr": 0, "min_dcr": 0, "max_dcr": 0,
+1112:             "privacy_score": 0, "risk_level": "غير قابل للحساب",
+1113:             "at_risk_count": 0, "at_risk_pct": 0
+1114:         }
+1115: 
+1116:     if len(synth_matrix) > sample_size:
+1117:         idx = np.random.choice(len(synth_matrix), sample_size, replace=False)
+1118:         synth_sample = synth_matrix[id- NO LANGUAGE MIXING: If {target_language} is Arabic, under no circumstances should you return English words inside the 'categories', 'display_name', or 'description' fields.
+1119: - The ONLY exception is the programmatic 'name' field, which must always remain in English snake_case (e.g., 'car_color').
+1120: 
+1121: الأنواع المدعومة (type) التي يجب عليك الاختيار منها حصراً هي:
+1122: 1. "id": رقم تسلسلي أو معرّف فريد.

@@ -1,0 +1,16 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.4
+pydantic-settings>=2.2.1
+sqlalchemy>=2.0.28
+aiosqlite>=0.20.0
+groq>=0.4.2
+sentence-transformers>=2.6.1
+kaggle>=1.6.8
+python-dotenv>=1.0.1
+huggingface_hub>=0.21.4
+numpy>=1.26.4
+python-multipart>=0.0.9
+qdrant-client>=1.8.0
+streamlit>=1.31.0
+

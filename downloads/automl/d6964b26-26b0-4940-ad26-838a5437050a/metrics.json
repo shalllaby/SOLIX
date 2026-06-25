@@ -1,0 +1,275 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "GradientBoosting",
+            "fit_time": 0.11226963996887207,
+            "train_metrics": {
+                "rmse": 14.69802429372342,
+                "mae": 10.195631540658944,
+                "r2": 0.9999166164320804
+            },
+            "val_metrics": {
+                "rmse": 121.89731698395573,
+                "mae": 61.76530813382047,
+                "r2": 0.9948912303858855
+            },
+            "cv_mean": 0.9939738630681696,
+            "cv_std": 0.003485357597659308,
+            "generalization_gap": 0.005025386046194957,
+            "composite_score": 0.9770606797839628,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "Tuned_GradientBoosting",
+            "fit_time": 3.723137378692627,
+            "train_metrics": {
+                "rmse": 5.255602243148785,
+                "mae": 3.7432595209506285,
+                "r2": 0.9999893387646355
+            },
+            "val_metrics": {
+                "rmse": 160.528626535108,
+                "mae": 74.58273558860864,
+                "r2": 0.9911400146337681
+            },
+            "cv_mean": 0.9939468470974788,
+            "cv_std": 0.0036249463701769637,
+            "generalization_gap": 0.008849324130867364,
+            "composite_score": 0.9754097983223219,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "Tuned_CatBoost",
+            "fit_time": 1.8208611011505127,
+            "train_metrics": {
+                "rmse": 85.12805252018342,
+                "mae": 60.796340333783455,
+                "r2": 0.9972029002861005
+            },
+            "val_metrics": {
+                "rmse": 175.11824847016302,
+                "mae": 105.0609912613277,
+                "r2": 0.9894563535610654
+            },
+            "cv_mean": 0.9878462712094139,
+            "cv_std": 0.008173033458449563,
+            "generalization_gap": 0.007746546725035053,
+            "composite_score": 0.9677480164497422,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "CatBoost",
+            "fit_time": 0.2117166519165039,
+            "train_metrics": {
+                "rmse": 42.253792053898934,
+                "mae": 33.08070450653305,
+                "r2": 0.9993108814606322
+            },
+            "val_metrics": {
+                "rmse": 252.89089751536497,
+                "mae": 108.39295385593189,
+                "r2": 0.9780115599305482
+            },
+            "cv_mean": 0.9894273591636417,
+            "cv_std": 0.004519922974054686,
+            "generalization_gap": 0.02129932153008396,
+            "composite_score": 0.9674556446636212,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "KNN",
+            "fit_time": 0.005896091461181641,
+            "train_metrics": {
+                "rmse": 271.2064059551496,
+                "mae": 123.39516342045454,
+                "r2": 0.9716101930415343
+            },
+            "val_metrics": {
+                "rmse": 222.70800549952702,
+                "mae": 136.80660417688895,
+                "r2": 0.9829470435960483
+            },
+            "cv_mean": 0.9489261422131772,
+            "cv_std": 0.027425020184440443,
+            "generalization_gap": 0.0,
+            "composite_score": 0.9453242541392499,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "XGBoost",
+            "fit_time": 0.13606715202331543,
+            "train_metrics": {
+                "rmse": 166.23330882917432,
+                "mae": 38.83282363277089,
+                "r2": 0.9893340719048976
+            },
+            "val_metrics": {
+                "rmse": 281.32054942193,
+                "mae": 112.73892054285028,
+                "r2": 0.97278984983366
+            },
+            "cv_mean": 0.9743406631159404,
+            "cv_std": 0.02395500093551857,
+            "generalization_gap": 0.016544222071237624,
+            "composite_score": 0.9398972042443217,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "ExtraTrees",
+            "fit_time": 0.12053751945495605,
+            "train_metrics": {
+                "rmse": 255.78445433440135,
+                "mae": 66.83548098122036,
+                "r2": 0.9747471240858703
+            },
+            "val_metrics": {
+                "rmse": 113.22721007027646,
+                "mae": 62.35845386218019,
+                "r2": 0.9955921212717672
+            },
+            "cv_mean": 0.965072692651914,
+            "cv_std": 0.031178241685326676,
+            "generalization_gap": 0.0,
+            "composite_score": 0.9380876838841458,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "DecisionTree",
+            "fit_time": 0.0028171539306640625,
+            "train_metrics": {
+                "rmse": 275.30893905569246,
+                "mae": 77.26834842803031,
+                "r2": 0.9707447928103445
+            },
+            "val_metrics": {
+                "rmse": 371.1834063660353,
+                "mae": 136.48692351974597,
+                "r2": 0.9526298095626076
+            },
+            "cv_mean": 0.9631686594760595,
+            "cv_std": 0.030630800699658484,
+            "generalization_gap": 0.01811498324773697,
+            "composite_score": 0.9356885869158084,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "RandomForest",
+            "fit_time": 0.1936800479888916,
+            "train_metrics": {
+                "rmse": 284.969807414153,
+                "mae": 69.76085865452154,
+                "r2": 0.9686555791094857
+            },
+            "val_metrics": {
+                "rmse": 152.66353384736834,
+                "mae": 84.60715004486934,
+                "r2": 0.9919869353425016
+            },
+            "cv_mean": 0.9598203196871158,
+            "cv_std": 0.03915377497936087,
+            "generalization_gap": 0.0,
+            "composite_score": 0.9265691270324861,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "LightGBM",
+            "fit_time": 0.06296682357788086,
+            "train_metrics": {
+                "rmse": 394.71626748495225,
+                "mae": 100.45445721301935,
+                "r2": 0.939864267780218
+            },
+            "val_metrics": {
+                "rmse": 393.0085853615531,
+                "mae": 155.42502578351613,
+                "r2": 0.9468954051065793
+            },
+            "cv_mean": 0.9091240219956076,
+            "cv_std": 0.04514265336809816,
+            "generalization_gap": 0.0,
+            "composite_score": 0.8822651174727766,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "SVM",
+            "fit_time": 0.006150245666503906,
+            "train_metrics": {
+                "rmse": 1676.4273894217554,
+                "mae": 1123.594358566537,
+                "r2": -0.0847559675848173
+            },
+            "val_metrics": {
+                "rmse": 1724.1209006971578,
+                "mae": 1209.7792797122906,
+                "r2": -0.022029562251081325
+            },
+            "cv_mean": -0.1166783986875545,
+            "cv_std": 0.10884633209949042,
+            "generalization_gap": 0.0,
+            "composite_score": 0.0811536679005096,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "LogisticRegression": "failed",
+        "KNN": "completed",
+        "SVM": "completed",
+        "DecisionTree": "completed",
+        "RandomForest": "completed",
+        "ExtraTrees": "completed",
+        "GradientBoosting": "completed",
+        "XGBoost": "completed",
+        "LightGBM": "completed",
+        "CatBoost": "completed",
+        "Tuned_GradientBoosting": "completed",
+        "Tuned_CatBoost": "completed"
+    },
+    "model_errors": {
+        "LogisticRegression": "Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\nTraceback (most recent call last):\n  File \"/kaggle/src/script.py\", line 430, in <module>\n    model.fit(X_train, y_train)\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/base.py\", line 1389, in wrapper\n    return fit_method(estimator, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/linear_model/_logistic.py\", line 1231, in fit\n    check_classification_targets(y)\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/utils/multiclass.py\", line 222, in check_classification_targets\n    raise ValueError(\nValueError: Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\n"
+    }
+}

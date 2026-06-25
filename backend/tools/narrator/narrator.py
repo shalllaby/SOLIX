@@ -12,16 +12,17 @@ class DataNarrator:
     """
 
     def __init__(self, api_key: str = None):
-        self.api_key = (
-            api_key
-            or os.getenv("GROQ_API_KEY")
-            or "your_api_key_here"
-        )
+        key = api_key or os.getenv("GROQ_API_KEY")
+        if not key or key == "your_api_key_here":
+            key = ""
+        self.api_key = key
         self.endpoint = "https://api.groq.com/openai/v1/chat/completions"
         self.model = "llama-3.3-70b-versatile"
 
     # ──────────────────────────────────────────────────────────────────
     def _call_llm(self, system_prompt: str, user_message: str, max_tokens: int = 1200) -> Optional[str]:
+        if not self.api_key or self.api_key == "your_api_key_here":
+            raise ValueError("Groq API key is not configured.")
         payload = json.dumps({
             "model": self.model,
             "messages": [
@@ -45,6 +46,11 @@ class DataNarrator:
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
+                try:
+                    from backend.utils.llm_logger import log_groq_response
+                    log_groq_response(body, module_name="narrator")
+                except Exception as e_log:
+                    print(f"Failed to log narrator token usage: {e_log}")
                 return body["choices"][0]["message"]["content"].strip()
         except Exception as e:
             print(f"[Narrator LLM Error] {e}")

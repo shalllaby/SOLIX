@@ -1,0 +1,869 @@
+{% extends "app/_layout.html" %}
+
+{% block title %}{% if locale == 'ar' %}مستشار مجموعات البيانات — SOL Agent{% else %}Dataset Advisor — SOL Agent{% endif %}{% endblock %}
+
+{% block page_title_text %}{% if locale == 'ar' %}مستشار مجموعات البيانات بالذكاء الاصطناعي{% else %}AI Dataset Advisor{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / الأساسي / مستشار مجموعات البيانات{% else %}SOL / Core / Dataset Advisor{% endif %}{% endblock %}
+{% block nav_dataset_advisor %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+
+
+    /* Glassmorphic Cards */
+    .glass-card {
+        background: var(--surface-container-low);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        border: 1px solid var(--outline-variant);
+        box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.15);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 25px rgba(67, 97, 238, 0.12), 0 20px 45px -10px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Cybernetic Stat Card */
+    .stat-card {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-left: 3px solid #4361ee;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        border-left-color: #5bd5fc;
+        transform: scale(1.02);
+    }
+
+    /* Custom Scrollbar for Textarea & Cards */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Advanced Interactive Focus States with Sci-Fi Neon Glow */
+    .custom-textarea {
+        background: var(--surface-container-lowest) !important;
+        border: 1px solid var(--outline-variant) !important;
+        color: var(--on-surface) !important;
+        backdrop-filter: blur(8px);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .custom-textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px var(--primary-container) !important;
+        background: var(--surface-container-lowest) !important;
+        color: var(--on-surface) !important;
+    }
+
+    /* Custom Neon Border Effects */
+    .neon-glow-primary {
+        box-shadow: 0 0 12px rgba(67, 97, 238, 0.3);
+    }
+    .neon-glow-secondary {
+        box-shadow: 0 0 12px rgba(91, 213, 252, 0.3);
+    }
+
+    /* Text Gradient Styles */
+    .gradient-text {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--tertiary) 50%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .gradient-btn {
+        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 50%, #5bd5fc 100%);
+        background-size: 200% auto;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gradient-btn:hover {
+        background-position: right center;
+        box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        transform: translateY(-1px);
+    }
+
+    /* Pulsating Green Status Dot */
+    .status-dot-active {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #10b981;
+        box-shadow: 0 0 8px #10b981;
+        animation: pulseGreen 2s infinite alternate;
+    }
+    @keyframes pulseGreen {
+        0% { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #10b981; }
+    }
+
+    /* Suggested Pill Buttons */
+    .suggested-pill {
+        background: var(--surface-container-high);
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+        transition: all 0.25s ease;
+    }
+    .suggested-pill:hover {
+        background: var(--nav-hover-bg);
+        border-color: var(--primary);
+        color: var(--on-surface);
+        transform: translateY(-1px);
+    }
+
+    /* Shimmer Effect for Loading state */
+    .shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 1.8s infinite;
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    /* Language specific font-rules and alignments */
+    .rtl-text {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Radial Score Gauge Styling */
+    .relevance-ring {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: conic-gradient(#4361ee var(--percent), var(--outline-variant) 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .relevance-ring::after {
+        content: '';
+        position: absolute;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--surface-container-low);
+    }
+    .relevance-ring-text {
+        position: relative;
+        z-index: 10;
+        font-size: 11px;
+        font-weight: 800;
+        font-family: monospace;
+        color: var(--on-surface);
+    }
+
+    /* Sci-Fi Load More Button */
+    .btn-sci-fi-load {
+        background: var(--surface-container-low);
+        backdrop-filter: blur(12px) saturate(120%);
+        -webkit-backdrop-filter: blur(12px) saturate(120%);
+        border: 1px solid var(--outline-variant);
+        color: var(--primary);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-sci-fi-load:hover {
+        background: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--on-primary-container);
+        transform: translateY(-2px);
+    }
+    .btn-sci-fi-load:active {
+        transform: translateY(0);
+    }
+
+    /* Dataset Cards Show/Hide with Animations */
+    .dataset-card-item.card-hidden {
+        display: none !important;
+    }
+    .dataset-card-item.reveal-anim {
+        animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Sci-Fi Terminal Progress Loading */
+    .terminal-container {
+        font-family: 'Fira Code', 'Courier New', Courier, monospace;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        box-shadow: 0 0 30px rgba(67, 97, 238, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    .terminal-header {
+        background: var(--surface-container-high);
+        border-bottom: 1px solid var(--outline-variant);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .terminal-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .progress-bar-container {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #4361ee, #5bd5fc);
+        box-shadow: 0 0 12px #5bd5fc;
+        transition: width 0.15s ease-out;
+    }
+    .terminal-console {
+        max-height: 180px;
+        overflow-y: auto;
+        padding: 16px;
+        color: #a5b4fc;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+    .terminal-line {
+        margin-bottom: 6px;
+        white-space: pre-wrap;
+    }
+    .terminal-cursor {
+        display: inline-block;
+        width: 6px;
+        height: 12px;
+        background: #5bd5fc;
+        animation: terminalBlink 1s infinite steps(2, start);
+        vertical-align: middle;
+        margin-left: 4px;
+    }
+    @keyframes terminalBlink {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-6xl mx-auto space-y-8 mt-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-outline-variant/30 pb-6">
+            <div class="space-y-2.5">
+                <div class="flex items-center gap-2 text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
+                    <span class="material-symbols-outlined text-sm pulse-glow">travel_explore</span>
+                    {% if locale == 'ar' %}الاستكشاف الذاتي لمجموعات البيانات بالذكاء الاصطناعي{% else %}Autonomous AI Data Discovery{% endif %}
+                </div>
+                <h1 class="text-4xl font-extrabold text-on-background tracking-tight">{% if locale == 'ar' %}مستشار <span class="gradient-text">مجموعات البيانات</span>{% else %}Dataset <span class="gradient-text">Advisor</span>{% endif %}</h1>
+                <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed">
+                    {% if locale == 'ar' %}استعلم وحلّل وطابق مجموعات بيانات تعلم الآلة من Kaggle والفهارس المتجهة المحلية فورياً باستخدام استخلاص النوايا الدلالية المتقدم عبر Llama-3.3.{% else %}Instantly query, analyze, and match machine learning datasets from Kaggle & local vector indexes using advanced Llama-3.3 semantic intent extraction.{% endif %}
+                </p>
+            </div>
+
+            <!-- Stats Block -->
+            <div id="stats-panel" class="flex flex-wrap gap-4 w-full md:w-auto justify-start md:justify-end">
+                <div class="stat-card rounded-2xl p-4 min-w-[110px] text-xs">
+                    <p class="text-outline text-[9px] uppercase tracking-wider font-mono">{% if locale == 'ar' %}مفهرسة{% else %}Indexed{% endif %}</p>
+                    <p id="stat-datasets" class="font-black text-on-surface font-mono text-base mt-0.5">--</p>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="status-dot-active"></span>
+                        <span class="text-[9px] text-outline font-semibold">{% if locale == 'ar' %}المحرك نشط{% else %}Active Engine{% endif %}</span>
+                    </div>
+                </div>
+                <div class="stat-card rounded-2xl p-4 min-w-[120px] text-xs" style="border-left-color: #5bd5fc;">
+                    <p class="text-outline text-[9px] uppercase tracking-wider font-mono">Vector Store</p>
+                    <p id="stat-qdrant" class="font-black text-secondary font-mono text-sm mt-1 truncate max-w-[100px]">--</p>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="status-dot-active" style="background-color:#5bd5fc; box-shadow: 0 0 8px #5bd5fc;"></span>
+                        <span class="text-[9px] text-outline font-semibold">Qdrant Node</span>
+                    </div>
+                </div>
+                <div class="stat-card rounded-2xl p-4 min-w-[110px] text-xs" style="border-left-color: #d946ef;">
+                    <p class="text-outline text-[9px] uppercase tracking-wider font-mono">SQL Engine</p>
+                    <p id="stat-dialect" class="font-black text-tertiary font-mono text-base mt-0.5">--</p>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="status-dot-active" style="background-color:#d946ef; box-shadow: 0 0 8px #d946ef;"></span>
+                        <span class="text-[9px] text-outline font-semibold">{% if locale == 'ar' %}محسّن{% else %}Optimized{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Panel: Search & Controls -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card rounded-2xl p-6 space-y-5 relative overflow-hidden">
+                    <!-- Tech border line -->
+                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-secondary to-transparent"></div>
+                    
+                    <h3 class="text-on-surface font-bold text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-xl">saved_search</span>
+                        {% if locale == 'ar' %}معلمات البحث بالذكاء الاصطناعي{% else %}AI Search Parameters{% endif %}
+                    </h3>
+
+                    <!-- Search Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[10px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}صف هدف تعلم الآلة (ML) الخاص بك{% else %}Describe your ML Objective{% endif %}</label>
+                            <span class="text-[9px] text-outline/50 font-mono">{% if locale == 'ar' %}الوضع الدلالي{% else %}Semantic Mode{% endif %}</span>
+                        </div>
+                        <textarea id="search-query" rows="4" 
+                            class="w-full custom-textarea rounded-xl px-4 py-3 text-on-surface text-xs outline-none placeholder-outline/30"
+                            placeholder="{% if locale == 'ar' %}مثال: أحتاج إلى مجموعة بيانات جدولية باللغة العربية أقل من 50,000 صف للتنبؤ بأسعار المنازل، أو مجموعة بيانات صور للرؤية الحاسوبية لتصنيف سلالات الكلاب...{% else %}e.g. I need a tabular dataset in Arabic under 50000 rows to predict house prices, or a computer vision image dataset for dog breeds classification...{% endif %}"></textarea>
+                    </div>
+
+                    <!-- Suggestion Prompts -->
+                    <div class="space-y-2.5">
+                        <p class="text-[9px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}جرّب القوالب المحددة مسبقاً:{% else %}Try predefined templates:{% endif %}</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setQuery('Predict housing prices with a tabular dataset in Arabic under 10000 rows')" class="text-[10px] suggested-pill px-3 py-1.5 rounded-lg whitespace-normal text-start">
+                                {% if locale == 'ar' %}🏠 أسعار المنازل العربية{% else %}🏠 Arabic House Prices{% endif %}
+                            </button>
+                            <button onclick="setQuery('Image dataset for cancer cell classification')" class="text-[10px] suggested-pill px-3 py-1.5 rounded-lg whitespace-normal text-start">
+                                {% if locale == 'ar' %}🔬 صور خلايا السرطان{% else %}🔬 Cancer Cell Images{% endif %}
+                            </button>
+                            <button onclick="setQuery('Text classification dataset in Arabic for sentiment analysis')" class="text-[10px] suggested-pill px-3 py-1.5 rounded-lg whitespace-normal text-start">
+                                {% if locale == 'ar' %}📝 تحليل المشاعر العربية{% else %}📝 Arabic Sentiment{% endif %}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Button -->
+                    <button id="btn-search" onclick="triggerSearch()" 
+                        class="w-full py-3.5 rounded-xl gradient-btn text-white font-extrabold text-xs uppercase tracking-widest shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        {% if locale == 'ar' %}استشارة مستشار الذكاء الاصطناعي{% else %}Consult AI Advisor{% endif %}
+                    </button>
+                </div>
+
+                <!-- Intent Understanding Dashboard -->
+                <div id="intent-card" class="hidden glass-card rounded-2xl p-6 border-l-4 border-l-secondary animate-fade-in space-y-4">
+                    <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-secondary">psychology</span>
+                        {% if locale == 'ar' %}تشخيصات محلل النوايا LLM{% else %}LLM Intent Parser Diagnostics{% endif %}
+                    </h4>
+                    
+                    <div class="grid grid-cols-2 gap-3.5">
+                        <div class="p-3 rounded-xl bg-surface-container/20 border border-outline-variant/10">
+                            <p class="text-[9px] text-outline uppercase font-mono">{% if locale == 'ar' %}المهمة المكتشفة{% else %}Detected Task{% endif %}</p>
+                            <p id="intent-task" class="text-xs font-bold text-primary truncate mt-0.5">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/20 border border-outline-variant/10">
+                            <p class="text-[9px] text-outline uppercase font-mono">{% if locale == 'ar' %}النمط{% else %}Modality{% endif %}</p>
+                            <p id="intent-modality" class="text-xs font-bold text-secondary truncate mt-0.5">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/20 border border-outline-variant/10">
+                            <p class="text-[9px] text-outline uppercase font-mono">{% if locale == 'ar' %}اللغة{% else %}Language{% endif %}</p>
+                            <p id="intent-lang" class="text-xs font-bold text-on-surface uppercase truncate mt-0.5">--</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-surface-container/20 border border-outline-variant/10">
+                            <p class="text-[9px] text-outline uppercase font-mono">{% if locale == 'ar' %}قيود الصفوف{% else %}Row Constraints{% endif %}</p>
+                            <p id="intent-rows" class="text-xs font-bold text-tertiary truncate mt-0.5">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Recommendation Outputs -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Initial Empty State -->
+                <div id="empty-state" class="h-full min-h-[420px] flex flex-col items-center justify-center text-center p-12 border border-dashed border-outline-variant/20 rounded-2xl bg-surface-container/5 glass-card">
+                    <div class="w-16 h-16 rounded-full bg-surface-container/30 flex items-center justify-center mb-5 border border-white/5 shadow-inner">
+                        <span class="material-symbols-outlined text-3xl text-outline/40 animate-pulse">dataset</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-on-surface mb-2">{% if locale == 'ar' %}بانتظار استشارة الذكاء الاصطناعي{% else %}Awaiting AI Consultation{% endif %}</h3>
+                    <p class="text-outline text-xs max-w-sm leading-relaxed">
+                        {% if locale == 'ar' %}حدد تفضيلات البيانات أو هدف تعلم الآلة في اللوحة اليسرى. وسيقوم مستشار الذكاء الاصطناعي بجلب مجموعات البيانات المرشحة عالية الدقة وصياغة تقارير التبرير.{% else %}Specify your data preferences or machine learning objective in the left pane. The AI Advisor will fetch high-fidelity candidate sets and formulate reasoning reports.{% endif %}
+                    </p>
+                </div>
+
+                <!-- Terminal Progress Loading State -->
+                <div id="loading-state" class="hidden space-y-6">
+                    <div class="terminal-container rounded-2xl">
+                        <!-- Terminal Header -->
+                        <div class="terminal-header">
+                            <div class="flex items-center gap-1.5">
+                                <span class="terminal-dot bg-red-500/80"></span>
+                                <span class="terminal-dot bg-yellow-500/80"></span>
+                                <span class="terminal-dot bg-green-500/80"></span>
+                                <span class="text-[10px] text-outline font-mono ml-2">advisor_retrieval_agent.sh</span>
+                            </div>
+                            <span class="text-[9px] text-primary/80 font-mono tracking-wider">{% if locale == 'ar' %}اتصال آمن{% else %}SECURE CONNECTION{% endif %}</span>
+                        </div>
+                        
+                        <!-- Progress Monitor Area -->
+                        <div class="p-6 border-b border-outline-variant/30 space-y-4">
+                             <div class="flex justify-between items-center text-xs font-mono">
+                                 <span class="text-on-surface font-semibold flex items-center gap-2">
+                                     <span class="material-symbols-outlined text-sm text-secondary animate-spin">sync</span>
+                                     {% if locale == 'ar' %}جاري استكشاف مجموعات البيانات{% else %}DISCOVERING DATASETS{% endif %}
+                                 </span>
+                                 <span id="progress-percentage" class="text-secondary font-bold">0%</span>
+                             </div>
+                             <div class="progress-bar-container">
+                                 <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                             </div>
+                        </div>
+                        
+                        <!-- Console Log Output -->
+                        <div id="terminal-console" class="terminal-console font-mono">
+                            <!-- Log lines appended via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Output -->
+                <div id="results-area" class="hidden space-y-6">
+                    
+                    <!-- Datasets Header -->
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-2">
+                        <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}مجموعات البيانات الموصى بها{% else %}Recommended Datasets{% endif %}</h4>
+                        <span id="results-count" class="text-[10px] bg-primary/10 text-primary border border-primary/20 px-3 py-0.5 rounded-full font-mono">{% if locale == 'ar' %}0 تم العثور عليها{% else %}0 found{% endif %}</span>
+                    </div>
+
+                    <!-- Dataset Cards Container -->
+                    <div id="dataset-cards" class="space-y-4">
+                        <!-- Dynamic Cards go here -->
+                    </div>
+
+                    <!-- Load More Button -->
+                    <div id="load-more-container" class="hidden flex justify-center pt-4">
+                        <button id="btn-load-more" onclick="loadMoreCards()"
+                            class="btn-sci-fi-load px-8 py-3 rounded-xl font-extrabold text-xs uppercase tracking-widest flex items-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                            {% if locale == 'ar' %}تحميل المزيد من مجموعات البيانات{% else %}Load More Datasets{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+    const isAr = "{{ locale }}" === "ar";
+    window.lastApiData = null;
+
+    // ─── State Persistence ──────────────────────────────────────────────────────────
+    function saveState() {
+        try {
+            const state = {
+                query: document.getElementById('search-query')?.value || '',
+                apiData: window.lastApiData || null,
+                intentVisible: !document.getElementById('intent-card')?.classList.contains('hidden'),
+                resultsVisible: !document.getElementById('results-area')?.classList.contains('hidden'),
+                loadMoreHidden: document.getElementById('load-more-container')?.classList.contains('hidden')
+            };
+            sessionStorage.setItem('sol_dataset_advisor_state', JSON.stringify(state));
+        } catch(e) {
+            console.error("Failed to save dataset advisor state:", e);
+        }
+    }
+
+    function loadState() {
+        const raw = sessionStorage.getItem('sol_dataset_advisor_state');
+        if (!raw) return;
+        try {
+            const state = JSON.parse(raw);
+            if (state.query) {
+                document.getElementById('search-query').value = state.query;
+            }
+            if (state.apiData) {
+                window.lastApiData = state.apiData;
+                renderSearchResults(state.apiData);
+                
+                if (state.intentVisible) {
+                    document.getElementById('intent-card').classList.remove('hidden');
+                } else {
+                    document.getElementById('intent-card').classList.add('hidden');
+                }
+
+                if (state.resultsVisible) {
+                    document.getElementById('results-area').classList.remove('hidden');
+                    document.getElementById('empty-state').classList.add('hidden');
+                }
+
+                if (state.loadMoreHidden) {
+                    document.getElementById('load-more-container').classList.add('hidden');
+                } else {
+                    document.getElementById('load-more-container').classList.remove('hidden');
+                }
+            }
+        } catch(e) {
+            console.error("Failed to restore dataset advisor state:", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadSystemStats();
+        
+        // Listen to query input changes
+        const searchInput = document.getElementById('search-query');
+        if (searchInput) {
+            searchInput.addEventListener('input', saveState);
+        }
+
+        // Restore saved state
+        loadState();
+    });
+
+    async function loadSystemStats() {
+        try {
+            const response = await fetch('/api/dataset-advisor/stats');
+            if (response.ok) {
+                const stats = await response.json();
+                document.getElementById('stat-datasets').innerText = stats.datasets_count;
+                document.getElementById('stat-qdrant').innerText = stats.qdrant_status.includes('Connected') ? (isAr ? 'نشط' : 'Active') : (isAr ? 'احتياطي' : 'Fallback');
+                document.getElementById('stat-dialect').innerText = stats.engine_dialect.toUpperCase();
+            }
+        } catch (err) {
+            console.warn("Failed to load statistics:", err);
+        }
+    }
+
+    function setQuery(query) {
+        document.getElementById('search-query').value = query;
+        saveState();
+    }
+
+    let progressTimer = null;
+    let progressPct = 0;
+
+    function addTerminalLog(message) {
+        const consoleElem = document.getElementById('terminal-console');
+        if (!consoleElem) return;
+        
+        const now = new Date();
+        const ms = now.getMilliseconds().toString().padStart(3, '0').substring(0, 1);
+        const timeStr = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${ms}]`;
+        
+        // Remove cursor if exists
+        const oldCursor = consoleElem.querySelector('.terminal-cursor');
+        if (oldCursor) oldCursor.remove();
+        
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.innerHTML = `<span class="text-secondary/60">${timeStr}</span> <span class="text-primary font-bold">></span> ${message}`;
+        consoleElem.appendChild(line);
+        
+        // Add cursor to the end
+        const cursor = document.createElement('span');
+        cursor.className = 'terminal-cursor';
+        consoleElem.appendChild(cursor);
+        
+        // Auto scroll
+        consoleElem.scrollTop = consoleElem.scrollHeight;
+    }
+
+    async function triggerSearch() {
+        const queryText = document.getElementById('search-query').value.trim();
+        if (!queryText) return;
+
+        // Reset UI States
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('results-area').classList.add('hidden');
+        document.getElementById('intent-card').classList.add('hidden');
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('load-more-container').classList.add('hidden');
+        document.getElementById('btn-search').disabled = true;
+
+        // Reset Terminal Console & Progress Bar
+        document.getElementById('terminal-console').innerHTML = '';
+        document.getElementById('progress-bar-fill').style.width = '0%';
+        document.getElementById('progress-percentage').innerText = '0%';
+        progressPct = 0;
+
+        const terminalLogs = isAr ? [
+            { pct: 5, msg: "تهيئة محرك الاسترجاع العصبي لـ Solix..." },
+            { pct: 15, msg: "الاتصال بجلسة لهجة قاعدة البيانات النشطة..." },
+            { pct: 28, msg: "استخراج معلمات نية الاستعلام (Llama-3.3 NLP)..." },
+            { pct: 45, msg: "تحليل حدود الصفوف وأهداف مهام ML..." },
+            { pct: 60, msg: "الاستعلام عن واجهة برمجة تطبيقات Kaggle الخارجية المباشرة..." },
+            { pct: 72, msg: "استرجاع مجموعات البيانات المرشحة للمطابقة الدلالية..." },
+            { pct: 85, msg: "تنفيذ إعادة ترتيب الترميز المتبادل الهجين..." },
+            { pct: 92, msg: "توليد مصفوفات منطق مخطط الذكاء الاصطناعي..." }
+        ] : [
+            { pct: 5, msg: "Initializing Solix Neural Retrieval Engine..." },
+            { pct: 15, msg: "Connecting to active database dialect session..." },
+            { pct: 28, msg: "Extracting query intent parameters (Llama-3.3 NLP)..." },
+            { pct: 45, msg: "Analyzing row bounds and ML task targets..." },
+            { pct: 60, msg: "Querying live external Kaggle API..." },
+            { pct: 72, msg: "Retrieving semantic matching candidate datasets..." },
+            { pct: 85, msg: "Executing hybrid cross-encoder reranking..." },
+            { pct: 92, msg: "Generating AI strategist reasoning matrices..." }
+        ];
+
+        let logIndex = 0;
+        let apiResolved = false;
+        let apiError = null;
+        let apiData = null;
+
+        // Start Simulated Progress (stalls at 93%)
+        if (progressTimer) clearInterval(progressTimer);
+        progressTimer = setInterval(() => {
+            if (apiResolved) return; // Handled by acceleration loop
+            
+            if (progressPct < 93) {
+                progressPct += Math.floor(Math.random() * 3) + 1;
+                if (progressPct > 93) progressPct = 93;
+                
+                document.getElementById('progress-bar-fill').style.width = progressPct + '%';
+                document.getElementById('progress-percentage').innerText = progressPct + '%';
+
+                // Print logs matching current percentage threshold
+                while (logIndex < terminalLogs.length && progressPct >= terminalLogs[logIndex].pct) {
+                    addTerminalLog(terminalLogs[logIndex].msg);
+                    logIndex++;
+                }
+            }
+        }, 120);
+
+        // Fetch API request in background
+        fetch('/api/dataset-advisor/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: queryText,
+                session_id: sessionId
+            })
+        })
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error("Advisor response error: " + response.statusText);
+            }
+            apiData = await response.json();
+            apiResolved = true;
+        })
+        .catch(err => {
+            apiError = err;
+            apiResolved = true;
+        })
+        .finally(() => {
+            // Stop simulated timer
+            clearInterval(progressTimer);
+
+            // Acceleration Loop to 100%
+            let finalLogsAdded = false;
+            progressTimer = setInterval(() => {
+                if (progressPct < 100) {
+                    progressPct += 8;
+                    if (progressPct >= 100) {
+                        progressPct = 100;
+                    }
+                    document.getElementById('progress-bar-fill').style.width = progressPct + '%';
+                    document.getElementById('progress-percentage').innerText = progressPct + '%';
+
+                    // Catch up logs if any were missed
+                    while (logIndex < terminalLogs.length) {
+                        addTerminalLog(terminalLogs[logIndex].msg);
+                        logIndex++;
+                    }
+
+                    if (progressPct >= 96 && !finalLogsAdded && !apiError) {
+                        addTerminalLog(isAr ? "تم تحليل تدفق البيانات بنجاح. جاري مزامنة حمولة التشابك العصبي..." : "Data stream parsed successfully. Synchronizing synapse payload...");
+                        finalLogsAdded = true;
+                    }
+                } else {
+                    clearInterval(progressTimer);
+                    
+                    setTimeout(() => {
+                        document.getElementById('loading-state').classList.add('hidden');
+                        document.getElementById('btn-search').disabled = false;
+
+                        if (apiError) {
+                            alert((isAr ? "فشلت استشارة البحث: " : "Search Consultation Failed: ") + apiError.message);
+                            document.getElementById('empty-state').classList.remove('hidden');
+                        } else {
+                            addTerminalLog(isAr ? "اكتملت المهمة. جاري عرض مصفوفة دليل مجموعات البيانات." : "Task complete. Rendering dataset catalog matrix.");
+                            window.lastApiData = apiData;
+                            renderSearchResults(apiData);
+                            loadSystemStats(); // Update stats
+                        }
+                    }, 400); // Small delay for user satisfaction
+                }
+            }, 50);
+        });
+    }
+
+    function renderSearchResults(data) {
+        // 1. Fill Intent Understanding Panel
+        const qa = data.query_analysis || {};
+        document.getElementById('intent-task').innerText = qa.task_type || (isAr ? 'عام' : 'Generic');
+        document.getElementById('intent-modality').innerText = qa.modality || (isAr ? 'جدولي' : 'Tabular');
+        document.getElementById('intent-lang').innerText = qa.language || (isAr ? 'الإنجليزية' : 'English');
+        
+        let rowConstraint = isAr ? 'لا يوجد' : 'None';
+        if (qa.min_rows && qa.max_rows) {
+            rowConstraint = `${qa.min_rows.toLocaleString()} - ${qa.max_rows.toLocaleString()}`;
+        } else if (qa.min_rows) {
+            rowConstraint = `>= ${qa.min_rows.toLocaleString()}`;
+        } else if (qa.max_rows) {
+            rowConstraint = `<= ${qa.max_rows.toLocaleString()}`;
+        }
+        document.getElementById('intent-rows').innerText = rowConstraint;
+        document.getElementById('intent-card').classList.remove('hidden');
+
+        // 2. Render Cards
+        const container = document.getElementById('dataset-cards');
+        container.innerHTML = '';
+        
+        // Limit to maximum of 10 dataset cards
+        const datasetsToRender = data.datasets.slice(0, 10);
+        document.getElementById('results-count').innerText = isAr ? `${datasetsToRender.length} تم العثور عليها` : `${datasetsToRender.length} found`;
+
+        if (datasetsToRender.length === 0) {
+            container.innerHTML = `
+                <div class="p-8 text-center glass-card rounded-2xl text-outline italic text-xs">
+                    ${isAr ? 'لم يتم اكتشاف أي مجموعات بيانات ذات صلة بهذه النية.' : 'No relevant datasets were discovered for this intent.'}
+                </div>
+            `;
+        } else {
+            const isRtl = data.detected_language === 'arabic';
+            datasetsToRender.forEach((ds, index) => {
+                const isHidden = index >= 3;
+                const hiddenClass = isHidden ? 'card-hidden' : '';
+                const badgeColor = ds.relevance_score >= 80 ? 'text-secondary bg-secondary/10 border-secondary/20' : 'text-primary bg-primary/10 border-primary/20';
+                
+                // Formulate metadata line
+                const rowsStr = ds.row_count ? `+${ds.row_count.toLocaleString()} ${isAr ? 'صف' : 'rows'}` : `+0 ${isAr ? 'صف' : 'rows'}`;
+                const colsStr = ds.column_count ? `+${ds.column_count.toLocaleString()} ${isAr ? 'عمود' : 'columns'}` : `+0 ${isAr ? 'عمود' : 'columns'}`;
+                const sizeStr = ds.file_size || (isAr ? 'حجم غير معروف' : 'Unknown size');
+                const licenseStr = ds.license || (isAr ? 'بيانات مفتوحة' : 'Open Data');
+
+                // Build tags elements
+                const tagsHtml = (ds.tags || []).slice(0, 4).map(t => 
+                    `<span class="text-[9px] bg-surface-container-highest/60 text-outline px-2 py-0.5 rounded font-mono border border-white/5">${t}</span>`
+                ).join(' ');
+
+                const reasonTextClass = isRtl ? 'rtl-text' : '';
+
+                // Build modern visual ring score percentage
+                const ringStyle = `--percent: ${ds.relevance_score}%;`;
+
+                const taskLabel = isAr ? 'المهمة' : 'Task';
+                const langLabel = isAr ? 'اللغة' : 'Lang';
+                const viewKaggleLabel = isAr ? 'عرض على Kaggle' : 'View on Kaggle';
+
+                const cardHtml = `
+                    <div class="dataset-card-item glass-card rounded-2xl p-6 border border-outline-variant/10 space-y-4 hover:border-outline/20 ${hiddenClass}">
+                        <div class="flex justify-between items-start gap-4">
+                            <div class="space-y-1.5 flex-1">
+                                <h3 class="text-on-surface font-bold text-sm tracking-tight hover:text-primary transition-colors">
+                                    <a href="${ds.url}" target="_blank" class="inline-flex items-center gap-1.5 group">
+                                        ${ds.title}
+                                        <span class="material-symbols-outlined text-xs text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all">open_in_new</span>
+                                    </a>
+                                </h3>
+                                <div class="flex flex-wrap items-center gap-3 text-[10px] text-outline font-mono">
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">view_list</span>${rowsStr}</span>
+                                    <span class="text-outline-variant/30">|</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">view_column</span>${colsStr}</span>
+                                    <span class="text-outline-variant/30">|</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">database</span>${sizeStr}</span>
+                                    <span class="text-outline-variant/30">|</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">gavel</span>${licenseStr}</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="relevance-ring" style="${ringStyle}">
+                                    <div class="relevance-ring-text">${ds.relevance_score}%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-on-surface-variant text-xs leading-relaxed max-w-2xl line-clamp-2">${ds.description || (isAr ? 'لم يتم تقديم وصف.' : 'No description provided.')}</p>
+
+                        <div class="bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/5 space-y-2 relative">
+                            <div class="absolute right-3 top-3 text-[18px] text-on-surface/5 material-symbols-outlined select-none">format_quote</div>
+                            <p class="text-[9px] font-mono text-outline uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[12px] text-secondary">psychology</span>
+                                ${isAr ? 'استراتيجية ومنطق المستشار:' : 'Advisor Strategy & Reasoning:'}
+                            </p>
+                            <p class="text-on-surface text-xs leading-relaxed italic ${reasonTextClass}">${ds.reasoning}</p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pt-3.5 border-t border-outline-variant/30">
+                            <div class="flex flex-wrap gap-1.5">
+                                ${tagsHtml}
+                            </div>
+                            <div class="flex items-center gap-3 text-[10px] justify-between sm:justify-end">
+                                <div class="flex gap-3 text-outline">
+                                    <span>${taskLabel}: <strong class="text-on-surface font-semibold">${ds.task_type || 'Tabular'}</strong></span>
+                                    <span>${langLabel}: <strong class="text-on-surface font-semibold uppercase">${ds.language || 'EN'}</strong></span>
+                                </div>
+                                <a href="${ds.url}" target="_blank" class="px-3 py-1.5 rounded-lg bg-primary/20 border border-primary/40 text-primary hover:bg-primary hover:text-white transition-all font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+                                    ${viewKaggleLabel}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            // Show or hide the Load More button based on count
+            const loadMoreContainer = document.getElementById('load-more-container');
+            if (datasetsToRender.length > 3) {
+                loadMoreContainer.classList.remove('hidden');
+            } else {
+                loadMoreContainer.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('results-area').classList.remove('hidden');
+        saveState();
+    }
+
+    function loadMoreCards() {
+        const container = document.getElementById('dataset-cards');
+        const hiddenCards = container.querySelectorAll('.dataset-card-item.card-hidden');
+        hiddenCards.forEach((card, index) => {
+            card.classList.remove('card-hidden');
+            // Staggered slide/fade animation delay
+            card.style.animationDelay = `${index * 80}ms`;
+            card.classList.add('reveal-anim');
+        });
+        
+        // Hide Load More button since all cards are now visible
+        document.getElementById('load-more-container').classList.add('hidden');
+        saveState();
+    }
+</script>
+{% endblock %}
+

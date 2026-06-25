@@ -1,0 +1,201 @@
+Total lines: 1765
+1151:     def _call_llm():
+1152:         try:
+1153:             from groq import Groq
+1154:             key = os.getenv("GROQ_API_KEY", "").strip() or BACKUP_GROQ_API_KEY
+1155:             if not key.startswith("gsk"):
+1156:                 raise ValueError("No valid API key")
+1157:             client = Groq(api_key=key)
+1158:             try:
+1159:                 resp = client.chat.completions.create(
+1160:                     model="llama-3.3-70b-versatile",
+1161:                     messages=[{"role": "user", "content": prompt}],
+1162:                     temperature=0.2,
+1163:                     max_tokens=4096,
+1164:                     response_format={"type": "json_object"},
+1165:                 )
+1166:                 result_container["result"] = json.loads(resp.choices[0].message.content)
+1167:             except Exception as first_err:
+1168:                 err_msg = str(first_err)
+1169:                 if "429" in err_msg or "rate limit" in err_msg.lower() or "limit exceeded" in err_msg.lower() or "too many requests" in err_msg.lower():
+1170:                     # Output log exactly as requested
+1171:                     print('INFO:httpx:HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"')
+1172:                     backup_model = "meta-llama/llama-4-scout-17b-16e-instruct"
+1173:                     print(f"Switching automatically to backup model: {backup_model}")
+1174:                     resp = client.chat.completions.create(
+1175:                         model=backup_model,
+1176:                         messages=[{"role": "user", "content": prompt}],
+1177:                         temperature=0.2,
+1178:                         max_tokens=4096,
+1179:                         response_format={"type": "json_object"},
+1180:                     )
+1181:                     result_container["result"] = json.loads(resp.choices[0].message.content)
+1182:                 else:
+1183:                     raise first_err
+1184:         except Exception as e:
+1185:             result_container["error"] = str(e)
+1186: 
+1187:     # تشغيل في Thread مع Timeout 30 ثانية
+1188:     t = threading.Thread(target=_call_llm, daemon=True)
+1189:     t.start()
+1190:     t.join(timeout=30)
+1191: 
+1192:     # معالجة النتائج أو استخدام الفولباك
+1193:     columns = []
+1194:     if result_container["result"] is not None and "columns" in result_container["result"]:
+1195:         columns = result_container["result"]["columns"]
+1196:     else:
+1197:         # Fallback schema
+1198:         is_ar = locale.startswith("ar")
+1199:         if is_ar:
+1200:             columns = [
+1201:                 {"name": "id", "display_name": "المعرف", "type": "id", "description": "Serial ID"},
+1202:                 {"name": "name", "display_name": "الاسم الكامل", "type": "name", "description": "Full name"},
+1203:                 {"name": "email", "display_name": "البريد الإلكتروني", "type": "email", "description": "Email address"},
+1204:                 {"name": "phone", "display_name": "رقم الهاتف", "type": "phone", "description": "Phone number"},
+1205:                 {"name": "city", "display_name": "المدينة", "type": "category", "description": "City", "categories": ["الرياض", "جدة", "الدمام", "مكة"]},
+1206:                 {"name": "age", "display_name": "العمر", "type": "number", "description": "Age", "min": 18, "max": 65, "is_float": False}
+1207:             ]
+1208:         else:
+1209:             columns = [
+1210:                 {"name": "id", "display_name": "ID", "type": "id", "description": "Serial ID"},
+1211:                 {"name": "name", "display_name": "Name", "type": "name", "description": "Full name"},
+1212:                 {"name": "email", "display_name": "Email", "type": "email", "description": "Email address"},
+1213:                 {"name": "phone", "display_name": "Phone", "type": "phone", "description": "Phone number"},
+1214:                 {"name": "country", "display_name": "Country", "type": "category", "description": "Country category", "categories": ["USA", "UK", "Canada", "Germany"]},
+1215:                 {"name": "salary", "display_name": "Salary", "type": "number", "description": "Salary amount", "min": 3000, "max": 12000, "is_float": False}
+1216:             ]�ترك حقل "categories" فارغاً أو بدون قيم ملائمة لمجال البيانات الموصوف.
+1217: 
+1218: تعليمات صارمة جداً بشأن تطابق اللغة والمحلية (Locale & Language Consistency):
+1219: - The user requested the locale '{locale}'. Therefore, the target language for this dataset is {target_language}.
+1220: - You MUST generate all values for 'display_name', 'description', and 'categories' strictly and entirely in {target_language}.
+1221: - NO LANGUAGE MIXING: If {target_language} is Arabic, under no circumstances should you return English words inside the '    prompt = f"""أنت خبير علم بيانات ومبرمج بايثون محترف للغاية.
+1222: المطلوب منك هو كتابة كود بايثون لتوليد بيانات اصطناعية تحاكي وصف المستخدم التالي:
+1223: "{user_prompt}"
+1224: 
+1225: الهيكل المختار للجدول (Schema) هو:
+1226: {json.dumps(schema_columns, indent=2, ensure_ascii=False)}
+1227: 
+1228: اللغة/الدولة المستهدفة (locale): {locale}
+1229: 
+1230: يجب عليك كتابة دالة بايثون وحيدة بالاسم والتوقيع التالي:
+1231: `def generate_data(num_rows: int) -> pd.DataFrame:`
+1232: 
+1233: تعليمات هامة جداً وقواعد صارمة لا غنى عنها لضمان دقة البيانات للتعلم الآلي (Machine Learning) والحصول على R2 score أعلى من 0.90:
+1234: 1. شمولية الكود لجميع الأعمدة:
+1235:    يجب توليد كود لجميع الأعمدة المحددة في الهيكل (schema) بالكامل دون استثناء أي عمود (إجمالي الأعمدة المطلوب توليدها: {len(schema_columns)} عمود). لا تستخدم الاختصارات أو التوقف التلقائي أو تعليقات مثل '# الباقي هنا...' أو '# وهكذا...'. يجب كتابة الكود كاملاً لجميع الأعمدة الـ {len(schema_columns)} دون إغفال أي عمود.
+1236: 2. معالجة الأعمدة ذات التصنيفات المحددة (categories):
+1237:    إذا كان العمود يحتوي على قائمة "categories" محددة في الهيكل (schema)، يجب عليك توليد القيم الخاصة به حصراً من تلك القائمة باستخدام `random.choices(categories, k=num_rows)` أو `np.random.choice` وعدم استخدام أي قيم خارجها.
+1238: 3. بناء علاقات وارتباطات منطقية وإحصائية صارمة وجريئة (Strict Logical & Mathematical Correlations) باستخدام كود vectorized:
+1239:    - يجب ألا يتم توليد الأعمدة بشكل مستقل تماماً.
+1240:    - **علاقات متعددة المتغيرات (Multi-Variable Dependencies):** عند توليد الأعمدة الرقمية التابعة (مثل salary أو price أو sales)، يجب عليك استخدام صيغة رياضية تدمج **متغيرين أو ثلاثة متغيرات أخرى على الأقل** (مثل: القيمة الأساسية بناءً على القسم + علاوة بناءً على سنوات الخبرة/سنة التوظيف + تأثير الموقع أو المدينة).
+1241:    - **معالجة التواريخ حسابياً (Date Processing for Math):** إذا كان الهيكل (schema) يحتوي على حقول تواريخ (مثل hire_date أو manufacture_year)، فيجب عليك تحويلها إلى سنوات ماضية نسبية حسابياً، مثل:
+1242:      `years = 2026 - pd.to_datetime(hire_dates).dt.year`
+1243:      ومن ثم استخدام حقل السنوات الناتج في الصيغة الرياضية للعمود التابع.
+1244:    - **تقليل الضوضاء العشوائية لأقصى حد (Minimal Noise):** هام للغاية: حافظ على نسبة الضوضاء العشوائية منخفضة جداً! استخدم `np.random.normal` مع انحراف معياري صغير جداً (مثلاً من 1% إلى 3% فقط من قيمة المتغير التابع). تجنب التباين العشوائي الضخم الذي يخفي العلاقة الرياضية، وذلك لتمكين نماذج تعلم الآلة (Machine Learning) من التقاط النمط الرياضي بسهولة.
+1245:    - **مثال توضيحي لكود التوليد المستهدف:**
+1246:      `years = 2026 - pd.to_datetime(hire_dates).dt.year`
+1247:      `base = np.where(depts == 'IT', 80000, 60000)`
+1248:      `salaries = base + (years * 3000) + np.random.normal(0, 1500, size=num_rows)`
+1249:    - يجب أن يكون معامل الارتباط (Correlation Coefficient) بين المتغيرات المرتبطة منطقياً مرتفعاً جداً (أكبر من 0.6 أو أقل من -0.6 حسب طبيعة العلاقة).
+1250: 4. حماية القيم من التجاوز غير المنطقي (Safety Wrapping):
+1251:    عند إضافة التشويش الإحصائي (Noise) للأسعار أو الأرقام، تأكد من التفافها وحمايتها باستخدام `np.clip` لمنع حدوث قيم سالبة أو غير منطقية (مثلاً الأسعار أو الأعمار يجب ألا تقل عن 0 أو الحد الأدنى المسموح به).
+1252: 5. التطابق التام مع الـ Locale واللغة المطلوبة واستخدم مزودي Faker المناسبين:
+1253:    - يمنع منعاً باتاً توليد جمل طويلة (مثل `fake.sentence()`) للأعمدة القياسية القصيرة مثل أسماء المتاجر/الشركات أو المدن.
+1254:    - إذا كان العمود يمثل اسماً (مثل `store_name` أو `company_name`) استخدم `fake.company()`، وإذا كان يمثل مدينة استخدم `fake.city()`.
+1255:    - لا تستخدم `fake.sentence()` أو `fake.paragraph()` إلا إذا كان العمود مخصصاً صراحة للنصوص الطويلة (مثل `notes` أو `description`).
+1256:    - إذا كانت الـ locale المطلوبة تبدأ بـ "ar" (مثل ar_EG)، فيجب كتابة كافة المخرجات النصية المخصصة والتصنيفات (Categorical values) باللغة العربية حصراً داخل الكود (مثال: ["جديد", "مستعمل"] بدلاً من ["New", "Used"]).
+1257:    - يمنع منعاً باتاً خلط نصوص إنجليزية في الخيارات أو الشروط (مثال: استخدام `np.where(years >= 2022, 'جديد', 'مستعمل')` وليس `np.where(years >= 2022, 'New', 'Used')`).
+1258:    - بالنسبة للأعمدة القياسية (مثل الاسم، العنوان، البريد، التاريخ)، استخدم الكائن `fake` الممرر (وهو مهيأ مسبقاً بالـ locale المطلوبة) لإنشاء قيم متوافقة ومناسبة (مثل `[fake.name() for _ in range(num_rows)]`).
+1259: 6. يجب أن ترجع الدالة DataFrame يحتوي على عدد الصفوف المطلوب بالضبط (num_rows) وبأسماء الأعمدة المطابقة للهيكل تماماً.
+1260: 7. كتابة كود بايثون حقيقي وقابل للتنفيذ بالكامل (No Pseudo-code):
+1261:    - يجب أن يكون الكود المولد كود بايثون حقيقي تماماً، خالٍ من الأخطاء النحوية (syntax errors)، ومستعداً للتشغيل الفوري داخل exec().
+1262:    - يمنع تماماً كتابة كود وهمي (pseudo-code)، أو استدعاء دوال أو متغيرات غير معرفة أو غير مستوردة، أو استخدام نقاط الحذف (مثل `...` أو `# الباقي هنا`).
+1263:    - تأكد من أن جميع الكائنات والمكتبات المستخدمة (مثل `import pandas as pd`, `import numpy as np`, `import random`) مستوردة ومعرفة بشكل صحيح.
+1264: 8. أرجع كود البايثون فقط داخل وسم الكود البصري ```python ولا تكتب أي مقدمات أو شروحات إطلاقاً.
+1265: """ID"},
+1266:                 {"name": "name", "display_name": "Name", "type": "name", "description": "Full name"},
+1267:                 {"name": "email", "display_name": "Email", "type": "email", "description": "Email address"},
+1268:                 {"name": "phone", "display_name": "Phone", "type": "phone", "description": "Phone number"},
+1269:                 {"name": "country", "display_name": "Country", "type": "category", "description": "Country category", "categories": ["USA", "UK", "Canada", "Germany"]},
+1270:                 {"name": "salary", "display_name": "Salary", "type": "number", "description": "Salary amount", "min": 3000, "max": 12000, "is_float": False}
+1271:             ]
+1272: 
+1273:     # تعقيم وتأكيد تطابق الأنواع المدعومة
+1274:     allowed_types = {"id", "name", "email", "phone", "address", "number", "category", "date", "text"}
+1275:     sanitized_columns = []
+1276:     for col in columns:
+1277:         col_type = col.get("type", "text").lower()
+1278:         if col_type not in allowed_types:
+1279:             col_type = "text"
+1280:         col["type"] = col_type
+1281:         sanitized_columns.append(col)
+1282: 
+1283:     return sanitized_columns
+1284: 
+1285: 
+1286: def generate_data_via_code_agent(user_prompt: str, schema_columns: list, num_rows: int, locale: str = "en_US", model: str = "llama-3.3-70b-versatile", user_id: int = None) -> pd.DataFrame:
+1287:     """
+1288:     يستخدم Groq LLM لكتابة كود بايثون مخصص لتوليد البيانات مع الحفاظ على العلاقات والارتباطات الإحصائية.
+1289:     """
+1290:     import threading
+1291:     import json
+1292:     import os
+1293:     import re
+1294: 
+1295:     # تجهيز البرومبت
+1296:     prompt = f"""أنت خبير علم بيانات ومبرمج بايثون محترف للغاية.
+1297: المطلوب منك هو كتابة كود بايثون لتوليد بيانات اصطناعية تحاكي وصف المستخدم التالي:
+1298: "{user_prompt}"
+1299: 
+1300: الهيكل المختار للجدول (Schema) هو:
+1301: {json.dumps(schema_columns, indent=2, ensure_ascii=False)}
+1302: 
+1303: اللغة/الدولة المستهدفة (locale): {locale}
+1304: 
+1305: يجب عليك كتابة دالة بايثون وحيدة بالاسم والتوقيع التالي:
+1306: `def generate_data(num_rows: int) -> pd.DataFrame:`
+1307: 
+1308: تعليمات هامة جداً وقواعد صارمة لا غنى عنها لضمان دقة البيانات للتعلم الآلي (Machine Learning):
+1309: 1. شمولية الكود لجميع الأعمدة:
+1310:    يجب توليد كود لجميع الأعمدة المحددة في الهيكل (schema) بالكامل دون استثناء أي عمود (إجمالي الأعمدة المطلوب توليدها: {len(schema_columns)} عمود). لا تستخدم الاختصارات أو التوقف التلقائي أو تعليقات مثل '# الباقي هنا...' أو '# وهكذا...'. يجب كتابة الكود كاملاً لجميع الأعمدة الـ {len(schema_columns)} دون إغفال أي عمود.
+1311: 2. معالجة الأعمدة ذات التصنيفات المحددة (categories):
+1312:    إذا كان العمود يحتوي على قائمة "categories" محددة في الهيكل (schema)، يجب عليك توليد القيم الخاصة به حصراً من تلك القائمة باستخدام `random.choices(categories, k=num_rows)` أو `np.random.choice` وعدم استخدام أي قيم خارجها.
+1313: 3. بناء علاقات وارتباطات منطقية وإحصائية صارمة وجريئة (Strict Logical & Mathematical Correlations) باستخدام كود vectorized:
+1314:    - يجب ألا يتم توليد الأعمدة بشكل مستقل تماماً. يجب فرض علاقات رياضية ومنطقية صارمة ومترابطة ومفهومة بين الأعمدة (مثال: إذا كان نوع المتجر 'Supermarket' أو 'Hypermarket' فيجب أن تكون مبيعاته السنوية 'annual_sales' وعدد موظفيه 'number_of_employees' أعلى بكثير وبشكل قاطع ويقيني من نوع المتجر 'Convenience Store').
+1315:    - يجب دائماً بناء هذه العلاقات المتبادلة والارتباطات باستخدام عمليات NumPy المتجهة (Vectorized) السريعة جداً (مثل `np.where` أو `np.select` أو عمليات الضرب والجمع الجبري).
+1316:    - قم أولاً بتوليد الأعمدة المستقلة (مثل سنة الصنع، نوع المتجر، المساحة، أو العمر).
+1317:    - قم بتوليد الأعمدة التابعة بناءً على الأعمدة المستقلة لتعكس القواعد المنطقية (مثال: استخدام `np.where` لتحديد المبيعات السنوية أو عدد الموظفين بناءً على نوع المتجر:
+1318:      `sales = np.where(store_type == 'Supermarket', np.random.uniform(500000, 1000000, size=num_rows), np.random.uniform(50000, 150000, size=num_rows))`
+1319:      أو تحديد حالة السيارة بناءً على سنة الصنع).
+1320:    - يجب عليك صراحةً ربط المتغيرات الرقمية المترابطة (مثل سنة صنع السيارة 'car_year' وسعر السيارة 'car_price') ببعضها البعض بعلاقة رياضية قوية جداً ومترابطة (مثل: السعر يجب أن يعتمد خطياً أو أسياً على سنة الصنع، مثل:
+1321:      `base_price = (car_year - 2000) * 1500 + np.random.normal(0, 3000, size=num_rows)`
+1322:      أو `price = np.clip(np.where(car_year >= 2020, np.random.uniform(30000, 80000, size=num_rows), np.random.uniform(5000, 25000, size=num_rows)), 5000, 120000)`)
+1323:      يمنع منعاً باتاً توليد السعر وسنة الصنع أو أي أعمدة رقمية مترابطة بشكل مستقل تماماً مما يؤدي لـ 0 correlation بينهما. يجب أن يكون معامل الارتباط (Correlation Coefficient) بين المتغيرات المرتبطة منطقياً مرتفعاً جداً (أكبر من 0.6 أو أقل من -0.6 حسب طبيعة العلاقة).
+1324:    - أضف تشويشاً إحصائياً خفيفاً وواقعياً (Statistical Noise) بعد تحديد العلاقة الأساسية باستخدام `np.random.normal(0, std, size=num_rows)` مع ضمان عدم كسر العلاقة المنطقية الأساسية.
+1325: 4. حماية القيم من التجاوز غير المنطقي (Safety Wrapping):
+1326:    عند إضافة التشويش الإحصائي (Noise) للأسعار أو الأرقام، تأكد من التفافها وحمايتها باستخدام `np.clip` لمنع حدوث قيم سالبة أو غير منطقية (مثلاً الأسعار أو الأعمار يجب ألا تقل عن 0 أو الحد الأدنى المسموح به).
+1327: 5. التطابق التام مع الـ Locale واللغة المطلوبة واستخدم مزودي Faker المناسبين:
+1328:    - يمنع منعاً باتاً توليد جمل طويلة (مثل `fake.sentence()`) للأعمدة القياسية القصيرة مثل أسماء المتاجر/الشركات أو المدن.
+1329:    - إذا كان العمود يمثل اسماً (مثل `store_name` أو `company_name`) استخدم `fake.company()`، وإذا كان يمثل مدينة استخدم `fake.city()`.
+1330:    - لا تستخدم `fake.sentence()` أو `fake.paragraph()` إلا إذا كان العمود مخصصاً صراحة للنصوص الطويلة (مثل `notes` أو `description`).
+1331:    - إذا كانت الـ locale المطلوبة تبدأ بـ "ar" (مثل ar_EG)، فيجب كتابة كافة المخرجات النصية المخصصة والتصنيفات (Categorical values) باللغة العربية حصراً داخل الكود (مثال: ["جديد", "مستعمل"] بدلاً من ["New", "Used"]).
+1332:    - يمنع منعاً باتاً خلط نصوص إنجليزية في الخيارات أو الشروط (مثال: استخدام `np.where(years >= 2022, 'جديد', 'مستعمل')` وليس `np.where(years >= 2022, 'New', 'Used')`).
+1333:    - بالنسبة للأعمدة القياسية (مثل الاسم، العنوان، البريد، التاريخ)، استخدم الكائن `fake` الممرر (وهو مهيأ مسبقاً بالـ locale المطلوبة) لإنشاء قيم متوافقة ومناسبة (مثل `[fake.name() for _ in range(num_rows)]`).
+1334: 6. يجب أن ترجع الدالة DataFrame يحتوي على عدد الصفوف المطلوب بالضبط (num_rows) وبأسماء الأعمدة المطابقة للهيكل تماماً.
+1335: 7. كتابة كود بايثون حقيقي وقابل للتنفيذ بالكامل (No Pseudo-code):
+1336:    - يجب أن يكون الكود المولد كود بايثون حقيقي تماماً، خالٍ من الأخطاء النحوية (syntax errors)، ومستعداً للتشغيل الفوري داخل exec().
+1337:    - يمنع تماماً كتابة كود وهمي (pseudo-code)، أو استدعاء دوال أو متغيرات غير معرفة أو غير مستوردة، أو استخدام نقاط الحذف (مثل `...` أو `# الباقي هنا`).
+1338:    - تأكد من أن جميع الكائنات والمكتبات المستخدمة (مثل `import pandas as pd`, `import numpy as np`, `import random`) مستوردة ومعرفة بشكل صحيح.
+1339: 8. أرجع كود البايثون فقط داخل وسم الكود البصري ```python ولا تكتب أي مقدمات أو شروحات إطلاقاً.
+1340: """
+1341: 
+1342:     result_container = {"code": None, "error": None}
+1343: 
+1344:     def _call_llm():
+1345:         try:
+1346:             from groq import Groq
+1347:             key = os.getenv("GROQ_API_KEY", "").strip() or BACKUP_GROQ_API_KEY
+1348:             if not key.startswith("gsk"):
+1349:                 raise ValueError("No valid API key")
+1350:             client = Groq(api_key=key)

@@ -1,55 +1,79 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
+
 <head>
+    <script>
+        (function() {
+            document.documentElement.classList.add('dark');
+
+            let lang = localStorage.getItem('sol_pref_lang');
+            if (!lang) {
+                let match = document.cookie.match(new RegExp('(^| )sol_locale=([^;]+)'));
+                lang = match ? match[2] : 'en';
+            }
+            document.documentElement.setAttribute('lang', lang);
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+            }
+        })();
+    </script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>SOL Data Agent | {% block page_title %}Welcome{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}SOL Data Agent — Precision data engineering. Crystallize your messy data with kinetic AI-powered pipelines.{% endblock %}">
+    <title>SOLIX — Virtual Data Engineer | {% block page_title %}Welcome{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta name="description"
+        content="{% block meta_description %}SOLIX — Virtual Data Engineer. Precision data engineering. Crystallize your messy data with kinetic AI-powered pipelines.{% endblock %}">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&family=Cairo:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary":                   "#bac3ff",
-                        "primary-container":         "#4361ee",
-                        "on-primary":                "#00218d",
-                        "on-primary-container":      "#f4f2ff",
-                        "secondary":                 "#5bd5fc",
-                        "secondary-container":       "#00a3c8",
-                        "on-secondary":              "#003543",
-                        "tertiary":                  "#d2bbff",
-                        "tertiary-container":        "#8540ff",
-                        "on-tertiary":               "#3e008e",
-                        "background":                "#111220",
-                        "surface":                   "#111220",
-                        "surface-dim":               "#111220",
-                        "surface-bright":            "#373847",
-                        "surface-container-lowest":  "#0b0d1a",
-                        "surface-container-low":     "#191b28",
-                        "surface-container":         "#1d1f2c",
-                        "surface-container-high":    "#272937",
-                        "surface-container-highest": "#323442",
-                        "surface-variant":           "#323442",
-                        "on-surface":                "#e1e1f4",
-                        "on-surface-variant":        "#c4c5d7",
-                        "on-background":             "#e1e1f4",
-                        "outline":                   "#8e8fa1",
-                        "outline-variant":           "#444655",
-                        "error":                     "#ffb4ab",
-                        "error-container":           "#93000a",
-                        "success":                   "#06d6a0",
-                        "inverse-primary":           "#2e4edc",
-                        "inverse-surface":           "#e1e1f4",
+                        "primary": "rgb(var(--primary-rgb) / <alpha-value>)",
+                        "primary-container": "rgb(var(--primary-container-rgb) / <alpha-value>)",
+                        "on-primary": "rgb(var(--on-primary-rgb) / <alpha-value>)",
+                        "on-primary-container": "rgb(var(--on-primary-container-rgb) / <alpha-value>)",
+                        "secondary": "rgb(var(--secondary-rgb) / <alpha-value>)",
+                        "secondary-container": "rgb(var(--secondary-container-rgb) / <alpha-value>)",
+                        "on-secondary": "rgb(var(--on-secondary-rgb) / <alpha-value>)",
+                        "tertiary": "rgb(var(--tertiary-rgb) / <alpha-value>)",
+                        "tertiary-container": "rgb(var(--tertiary-container-rgb) / <alpha-value>)",
+                        "on-tertiary": "rgb(var(--on-tertiary-rgb) / <alpha-value>)",
+                        "background": "rgb(var(--background-rgb) / <alpha-value>)",
+                        "surface": "rgb(var(--surface-rgb) / <alpha-value>)",
+                        "surface-dim": "rgb(var(--surface-dim-rgb) / <alpha-value>)",
+                        "surface-bright": "rgb(var(--surface-bright-rgb) / <alpha-value>)",
+                        "surface-container-lowest": "rgb(var(--surface-container-lowest-rgb) / <alpha-value>)",
+                        "surface-container-low": "rgb(var(--surface-container-low-rgb) / <alpha-value>)",
+                        "surface-container": "rgb(var(--surface-container-rgb) / <alpha-value>)",
+                        "surface-container-high": "rgb(var(--surface-container-high-rgb) / <alpha-value>)",
+                        "surface-container-highest": "rgb(var(--surface-container-highest-rgb) / <alpha-value>)",
+                        "surface-variant": "rgb(var(--surface-variant-rgb) / <alpha-value>)",
+                        "on-surface": "rgb(var(--on-surface-rgb) / <alpha-value>)",
+                        "on-surface-variant": "rgb(var(--on-surface-variant-rgb) / <alpha-value>)",
+                        "on-background": "rgb(var(--on-background-rgb) / <alpha-value>)",
+                        "outline": "rgb(var(--outline-rgb) / <alpha-value>)",
+                        "outline-variant": "rgb(var(--outline-variant-rgb) / <alpha-value>)",
+                        "error": "rgb(var(--error-rgb) / <alpha-value>)",
+                        "error-container": "rgb(var(--error-container-rgb) / <alpha-value>)",
+                        "success": "rgb(var(--success-rgb) / <alpha-value>)",
+                        "inverse-primary": "rgb(var(--inverse-primary-rgb) / <alpha-value>)",
+                        "inverse-surface": "rgb(var(--inverse-surface-rgb) / <alpha-value>)",
                     },
                     fontFamily: {
                         "headline": ["Inter"],
-                        "body":     ["Inter"],
-                        "label":    ["Space Grotesk"],
-                        "mono":     ["JetBrains Mono"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"],
+                        "mono": ["JetBrains Mono"],
                     },
                     borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
                 },
@@ -57,115 +81,480 @@
         };
     </script>
     <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        html[lang="ar"], html[dir="rtl"] * {
+            font-family: 'Cairo', 'Inter', sans-serif !important;
+        }
+        html[lang="ar"] .font-mono, html[dir="rtl"] .font-mono, html[lang="ar"] code, html[dir="rtl"] code {
+            font-family: 'JetBrains Mono', 'Cairo', monospace !important;
+        }
+        :root {
+            /* Light mode palette (Professional grey/blue) */
+            --primary: #4361ee;
+            --primary-rgb: 67 97 238;
+            --primary-container: #e8ebff;
+            --primary-container-rgb: 232 235 255;
+            --on-primary: #ffffff;
+            --on-primary-rgb: 255 255 255;
+            --on-primary-container: #1e1b4b;
+            --on-primary-container-rgb: 30 27 75;
+            --secondary: #00a3c8;
+            --secondary-rgb: 0 163 200;
+            --secondary-container: #e0f7fc;
+            --secondary-container-rgb: 224 247 252;
+            --on-secondary: #ffffff;
+            --on-secondary-rgb: 255 255 255;
+            --tertiary: #7b2ff7;
+            --tertiary-rgb: 123 47 247;
+            --tertiary-container: #f3e8ff;
+            --tertiary-container-rgb: 243 232 255;
+            --on-tertiary: #ffffff;
+            --on-tertiary-rgb: 255 255 255;
+            --background: #f8fafc;
+            --background-rgb: 248 250 252;
+            --surface: #ffffff;
+            --surface-rgb: 255 255 255;
+            --surface-dim: #f1f5f9;
+            --surface-dim-rgb: 241 245 249;
+            --surface-bright: #ffffff;
+            --surface-bright-rgb: 255 255 255;
+            --surface-container-lowest: #ffffff;
+            --surface-container-lowest-rgb: 255 255 255;
+            --surface-container-low: #f8fafc;
+            --surface-container-low-rgb: 248 250 252;
+            --surface-container: #f1f5f9;
+            --surface-container-rgb: 241 245 249;
+            --surface-container-high: #e2e8f0;
+            --surface-container-high-rgb: 226 232 240;
+            --surface-container-highest: #cbd5e1;
+            --surface-container-highest-rgb: 203 213 225;
+            --surface-variant: #e2e8f0;
+            --surface-variant-rgb: 226 232 240;
+            --on-surface: #0f172a;
+            --on-surface-rgb: 15 23 42;
+            --on-surface-variant: #475569;
+            --on-surface-variant-rgb: 71 85 105;
+            --on-background: #0f172a;
+            --on-background-rgb: 15 23 42;
+            --outline: #64748b;
+            --outline-rgb: 100 116 139;
+            --outline-variant: #cbd5e1;
+            --outline-variant-rgb: 203 213 225;
+            --error: #b91c1c;
+            --error-rgb: 185 28 28;
+            --error-container: #ffdad6;
+            --error-container-rgb: 255 218 214;
+            --success: #00875a;
+            --success-rgb: 0 135 90;
+            --inverse-primary: #bac3ff;
+            --inverse-primary-rgb: 186 195 255;
+            --inverse-surface: #0f172a;
+            --inverse-surface-rgb: 15 23 42;
+            
+            --glass-panel-bg: rgba(255, 255, 255, 0.75);
+            --glass-panel-border: rgba(64, 70, 85, 0.12);
+            --glass-card-bg: rgba(255, 255, 255, 0.85);
+            --glass-card-border: rgba(67, 97, 238, 0.12);
+            --glass-card-shadow: rgba(67, 97, 238, 0.08);
+            
+            --logo-blend: multiply;
+            --logo-filter: invert(1) hue-rotate(180deg) contrast(1.2) drop-shadow(0 0 4px rgba(67, 97, 238, 0.15));
+            --scrollbar-thumb: #cbd5e1;
+        }
+
+        html.dark {
+            /* Dark mode palette (Original Sci-Fi) */
+            --primary: #bac3ff;
+            --primary-rgb: 186 195 255;
+            --primary-container: #4361ee;
+            --primary-container-rgb: 67 97 238;
+            --on-primary: #00218d;
+            --on-primary-rgb: 0 33 141;
+            --on-primary-container: #f4f2ff;
+            --on-primary-container-rgb: 244 242 255;
+            --secondary: #5bd5fc;
+            --secondary-rgb: 91 213 252;
+            --secondary-container: #00a3c8;
+            --secondary-container-rgb: 0 163 200;
+            --on-secondary: #003543;
+            --on-secondary-rgb: 0 53 67;
+            --tertiary: #d2bbff;
+            --tertiary-rgb: 210 187 255;
+            --tertiary-container: #8540ff;
+            --tertiary-container-rgb: 133 64 255;
+            --on-tertiary: #3e008e;
+            --on-tertiary-rgb: 62 0 142;
+            --background: #111220;
+            --background-rgb: 17 18 32;
+            --surface: #111220;
+            --surface-rgb: 17 18 32;
+            --surface-dim: #111220;
+            --surface-dim-rgb: 17 18 32;
+            --surface-bright: #373847;
+            --surface-bright-rgb: 55 56 71;
+            --surface-container-lowest: #0b0d1a;
+            --surface-container-lowest-rgb: 11 13 26;
+            --surface-container-low: #191b28;
+            --surface-container-low-rgb: 25 27 40;
+            --surface-container: #1d1f2c;
+            --surface-container-rgb: 29 31 44;
+            --surface-container-high: #272937;
+            --surface-container-high-rgb: 39 41 55;
+            --surface-container-highest: #323442;
+            --surface-container-highest-rgb: 50 52 66;
+            --surface-variant: #323442;
+            --surface-variant-rgb: 50 52 66;
+            --on-surface: #e1e1f4;
+            --on-surface-rgb: 225 225 244;
+            --on-surface-variant: #c4c5d7;
+            --on-surface-variant-rgb: 196 197 215;
+            --on-background: #e1e1f4;
+            --on-background-rgb: 225 225 244;
+            --outline: #8e8fa1;
+            --outline-rgb: 142 143 161;
+            --outline-variant: #444655;
+            --outline-variant-rgb: 68 70 85;
+            --error: #ffb4ab;
+            --error-rgb: 255 180 171;
+            --error-container: #93000a;
+            --error-container-rgb: 147 0 10;
+            --success: #06d6a0;
+            --success-rgb: 6 214 160;
+            --inverse-primary: #2e4edc;
+            --inverse-primary-rgb: 46 78 220;
+            --inverse-surface: #e1e1f4;
+            --inverse-surface-rgb: 225 225 244;
+            
+            --glass-panel-bg: rgba(25, 27, 40, 0.55);
+            --glass-panel-border: rgba(68, 70, 85, 0.25);
+            --glass-card-bg: rgba(19, 22, 40, 0.72);
+            --glass-card-border: rgba(67, 97, 238, 0.20);
+            --glass-card-shadow: rgba(67, 97, 238, 0.28);
+            
+            --logo-blend: screen;
+            --logo-filter: drop-shadow(0 0 6px rgba(91, 213, 252, 0.28));
+            --scrollbar-thumb: #444655;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
         .glass-panel {
-            background: rgba(25, 27, 40, 0.55);
+            background: var(--glass-panel-bg);
             backdrop-filter: blur(16px) saturate(1.4);
-            border: 1px solid rgba(68, 70, 85, 0.25);
+            border: 1px solid var(--glass-panel-border);
         }
+
         .glass-card {
-            background: rgba(19, 22, 40, 0.72);
+            background: var(--glass-card-bg);
             backdrop-filter: blur(24px) saturate(1.5);
-            border: 1px solid rgba(67, 97, 238, 0.20);
-            box-shadow: 0 0 50px -12px rgba(67,97,238,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+            border: 1px solid var(--glass-card-border);
+            box-shadow: 0 0 50px -12px var(--glass-card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
+
         .text-gradient {
-            background: linear-gradient(135deg, #4361ee 0%, #00a3c8 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .gradient-border { position: relative; background: #191b28; background-clip: padding-box; border: 2px solid transparent; }
-        .gradient-border::before { content: ''; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; background: linear-gradient(135deg, #4361ee, #7b2ff7); }
-        .pro-card-glow { box-shadow: 0 0 55px -10px rgba(67,97,238,0.40), 0 0 110px -20px rgba(67,97,238,0.18); }
-        .floating-squares-bg { background: linear-gradient(135deg, rgba(67,97,238,0.10), rgba(0,163,200,0.07)); border: 1px solid rgba(68,70,85,0.22); }
-        .nav-glow-link { position: relative; transition: color 0.2s; }
-        .nav-glow-link::after { content:''; position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); width:0; height:2px; background:linear-gradient(90deg,#4361ee,#00a3c8); border-radius:2px; transition:width 0.3s ease; }
-        .nav-glow-link:hover::after { width:70%; }
-        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #444655; border-radius: 4px; }
-        @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-        @keyframes glow-pulse { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px); } }
-        .animate-shimmer { animation: shimmer 5s linear infinite; background-size: 200% 100%; }
-        .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
-        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        .gradient-border {
+            position: relative;
+            background: var(--surface-container-low);
+            background-clip: padding-box;
+            border: 2px solid transparent;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            z-index: -1;
+            border-radius: inherit;
+            background: linear-gradient(135deg, var(--primary), var(--tertiary));
+        }
+
+        .pro-card-glow {
+            box-shadow: 0 0 55px -10px var(--glass-card-shadow), 0 0 110px -20px rgba(67, 97, 238, 0.08);
+        }
+
+        .floating-squares-bg {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(0, 163, 200, 0.03));
+            border: 1px solid var(--glass-panel-border);
+        }
+
+        .nav-glow-link {
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .nav-glow-link::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .nav-glow-link:hover::after {
+            width: 70%;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        @keyframes glow-pulse {
+
+            0%,
+            100% {
+                opacity: 0.65;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-9px);
+            }
+        }
+
+        .animate-shimmer {
+            animation: shimmer 5s linear infinite;
+            background-size: 200% 100%;
+        }
+
+        .animate-glow-pulse {
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* ── SOLIX Logo Utilities ── */
+        .solix-logo {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+            transition: filter 0.3s ease, transform 0.3s ease;
+            object-position: center;
+        }
+
+        .solix-logo:hover {
+            filter: var(--logo-filter) brightness(1.1);
+            transform: scale(1.02);
+        }
+
+        .solix-logo-sidebar {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+            transition: filter 0.4s ease;
+        }
+
+        .solix-logo-avatar {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+        }
+
+        /* Mobile Menu Drawer animation logic */
+        #mobile-menu-drawer {
+            transition: transform 0.3s ease-in-out;
+        }
+        html[dir="ltr"] #mobile-menu-drawer {
+            right: 0;
+            transform: translateX(100%);
+        }
+        html[dir="ltr"] #mobile-menu-drawer.open {
+            transform: translateX(0);
+        }
+        html[dir="rtl"] #mobile-menu-drawer {
+            left: 0;
+            transform: translateX(-100%);
+        }
+        html[dir="rtl"] #mobile-menu-drawer.open {
+            transform: translateX(0);
+        }
     </style>
     {% block head %}{% endblock %}
 </head>
-<body class="bg-surface-container-lowest text-on-background font-body selection:bg-primary-container/30 selection:text-white antialiased">
 
-{# ══════════════ NAVBAR — auth pages override with empty ══════════════ #}
-{% block navbar %}
-<header class="fixed top-0 left-0 right-0 z-50 h-[56px] bg-surface-container-lowest/92 backdrop-blur-xl shadow-[0_1px_40px_rgba(0,0,0,0.5)]">
-    <div class="flex items-center justify-between h-full px-6 md:px-10 max-w-screen-2xl mx-auto">
-        <!-- Brand -->
-        <a href="/" class="flex items-center gap-2.5 group flex-shrink-0">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_16px_rgba(67,97,238,0.45)] group-hover:shadow-[0_0_26px_rgba(67,97,238,0.65)] transition-shadow duration-300">
-                <span class="text-white font-black text-sm leading-none select-none">S</span>
+<body
+    class="bg-surface-container-lowest text-on-background font-body selection:bg-primary-container/30 selection:text-white antialiased">
+
+    {# ══════════════ NAVBAR — auth pages override with empty ══════════════ #}
+    {% block navbar %}
+    <header
+        class="fixed top-0 left-0 right-0 z-50 h-[56px] bg-surface-container-lowest/92 backdrop-blur-xl shadow-[0_1px_40px_rgba(0,0,0,0.5)]">
+        <div class="flex items-center justify-between h-full px-6 md:px-10 max-w-screen-2xl mx-auto">
+            <!-- Brand -->
+            <div class="flex-1 flex items-center justify-start">
+                <a href="/" class="flex items-center flex-shrink-0">
+                    <img src="/static/solix (2).png" alt="SOLIX" class="solix-logo h-[38px] w-auto object-contain">
+                </a>
             </div>
-            <span class="font-headline font-black text-[15px] tracking-tighter text-white uppercase group-hover:text-primary transition-colors duration-200">SOL Data Agent</span>
-        </a>
-        <!-- Nav Links -->
-        <nav class="hidden md:flex items-center gap-0.5">
-            <a href="/solutions"      class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200 {% block nav_solutions_active %}{% endblock %}">Solutions</a>
-            <a href="/architecture"   class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200 {% block nav_arch_active %}{% endblock %}">Architecture</a>
-            <a href="/pricing"        class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200 {% block nav_pricing_active %}{% endblock %}">Pricing</a>
-            <a href="/docs"           class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/50 transition-colors duration-200 {% block nav_docs_active %}{% endblock %}">Docs</a>
-        </nav>
-        <!-- Actions -->
-        <div class="flex items-center gap-2">
-            <a href="/login" class="hidden md:inline-flex items-center px-4 py-1.5 text-[13px] font-medium text-on-surface-variant hover:text-white hover:bg-surface-container/60 rounded-lg transition-all duration-200">Sign In</a>
-            <a href="/register">
-                <button class="px-5 py-1.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white text-[13px] font-bold rounded-full shadow-[0_0_18px_rgba(67,97,238,0.35)] hover:shadow-[0_0_30px_rgba(67,97,238,0.55)] hover:brightness-110 active:scale-[0.97] transition-all duration-200">Get Started</button>
-            </a>
-            <button class="md:hidden p-2 text-on-surface-variant hover:text-white rounded-lg transition-colors">
-                <span class="material-symbols-outlined text-[20px]">menu</span>
+            <!-- Nav Links -->
+            <nav class="hidden md:flex items-center gap-0.5">
+                <a href="/solutions" data-i18n="nav_solutions"
+                    class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container/50 transition-colors duration-200 {% block nav_solutions_active %}{% endblock %}">Solutions</a>
+                <a href="/pricing" data-i18n="nav_pricing"
+                    class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container/50 transition-colors duration-200 {% block nav_pricing_active %}{% endblock %}">Pricing</a>
+                <a href="/about-team" data-i18n="nav_about_team"
+                    class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container/50 transition-colors duration-200 {% block nav_about_team_active %}{% endblock %}">About Team</a>
+                <a href="/feedback" data-i18n="nav_feedback"
+                    class="nav-glow-link px-4 py-2 rounded-lg text-[13px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container/50 transition-colors duration-200 {% block nav_feedback_active %}{% endblock %}">Feedback</a>
+            </nav>
+            <!-- Actions -->
+            <div class="flex-1 flex items-center justify-end gap-2">
+                <!-- Switchers removed -->
+                <a href="/login" data-i18n="nav_signin"
+                    class="hidden md:inline-flex items-center px-4 py-1.5 text-[13px] font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container/60 rounded-lg transition-all duration-200">Sign
+                    In</a>
+                <a href="/register">
+                    <button data-i18n="nav_getstarted"
+                        class="px-5 py-1.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white text-[13px] font-bold rounded-full shadow-[0_0_18px_rgba(67,97,238,0.35)] hover:shadow-[0_0_30px_rgba(67,97,238,0.55)] hover:brightness-110 active:scale-[0.97] transition-all duration-200">Get
+                        Started</button>
+                </a>
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-on-surface-variant hover:text-on-surface rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">menu</span>
+                </button>
+            </div>
+        </div>
+        <div
+            class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-container/22 to-transparent pointer-events-none">
+        </div>
+    </header>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu-drawer" class="fixed inset-y-0 z-50 w-64 bg-surface-container-lowest p-6 flex flex-col gap-6 md:hidden shadow-2xl">
+        <div class="flex items-center justify-between">
+            <img src="/static/solix (2).png" alt="SOLIX" class="solix-logo h-[30px] w-auto object-contain">
+            <button onclick="toggleMobileMenu()" class="text-on-surface-variant hover:text-on-surface p-1">
+                <span class="material-symbols-outlined text-[22px]">close</span>
             </button>
         </div>
+        <nav class="flex flex-col gap-4 mt-4">
+            <a href="/solutions" class="text-sm font-medium text-on-surface-variant hover:text-on-surface" data-i18n="nav_solutions">Solutions</a>
+            <a href="/pricing" class="text-sm font-medium text-on-surface-variant hover:text-on-surface" data-i18n="nav_pricing">Pricing</a>
+            <a href="/about-team" class="text-sm font-medium text-on-surface-variant hover:text-on-surface" data-i18n="nav_about_team">About Team</a>
+            <a href="/feedback" class="text-sm font-medium text-on-surface-variant hover:text-on-surface" data-i18n="nav_feedback">Feedback</a>
+            <hr class="border-outline-variant/10 my-2">
+            <a href="/login" class="text-sm font-medium text-on-surface-variant hover:text-on-surface" data-i18n="nav_signin">Sign In</a>
+            <a href="/register" class="w-full text-center py-2.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white text-sm font-bold rounded-full shadow-[0_0_18px_rgba(67,97,238,0.35)]" data-i18n="nav_getstarted">Get Started</a>
+        </nav>
     </div>
-    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-container/22 to-transparent pointer-events-none"></div>
-</header>
-{% endblock %}
+    <!-- Mobile Menu Backdrop -->
+    <div id="mobile-menu-backdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 hidden md:hidden"></div>
+    {% endblock %}
 
-{# ══════════════ PAGE WRAPPER — auth pages override ══════════════ #}
-{% block page_wrapper_open %}<div class="pt-[56px] min-h-screen flex flex-col">{% endblock %}
-    {% block content %}{% endblock %}
-    {% block footer_spacer %}<div class="flex-1"></div>{% endblock %}
-{% block page_wrapper_close %}</div>{% endblock %}
+    {# ══════════════ PAGE WRAPPER — auth pages override ══════════════ #}
+    {% block page_wrapper_open %}<div class="pt-[56px] min-h-screen flex flex-col">{% endblock %}
+        {% block content %}{% endblock %}
+        {% block footer_spacer %}<div class="flex-1"></div>{% endblock %}
+        {% block page_wrapper_close %}</div>{% endblock %}
 
-{# ══════════════ FOOTER — auth pages override with empty ══════════════ #}
-{% block footer %}
-<footer class="w-full py-10 bg-surface-container-lowest border-t border-outline-variant/15 relative overflow-hidden">
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-px bg-gradient-to-r from-transparent via-primary-container/18 to-transparent pointer-events-none"></div>
-    <div class="max-w-screen-2xl mx-auto px-6 md:px-10">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-            <!-- Logo -->
-            <div class="flex items-center gap-2.5 flex-shrink-0">
-                <div class="w-6 h-6 rounded bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center">
-                    <span class="text-white font-black text-[11px] select-none">S</span>
+    {# ══════════════ FOOTER — auth pages override with empty ══════════════ #}
+    {% block footer %}
+    <footer
+        class="w-full py-10 bg-surface-container-lowest border-t border-outline-variant/15 relative overflow-hidden">
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-px bg-gradient-to-r from-transparent via-primary-container/18 to-transparent pointer-events-none">
+        </div>
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0">
+                    <img src="/static/solix (2).png" alt="SOLIX" class="solix-logo h-[34px] w-auto object-contain">
                 </div>
-                <span class="font-headline font-bold text-[13px] text-white uppercase tracking-widest">SOL DATA</span>
+                <!-- Links -->
+                <nav class="flex flex-wrap justify-center gap-x-7 gap-y-2">
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/terms" data-i18n="footer_terms">Terms of Service</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/status" data-i18n="footer_status">System Status</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/solutions" data-i18n="footer_security">Security</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/pricing" data-i18n="footer_contact">Contact</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200"
+                        href="/feedback" data-i18n="footer_feedback">Feedback</a>
+                </nav>
+                <!-- Copyright -->
+                <p data-i18n="footer_copy"
+                    class="font-mono text-[10px] uppercase tracking-widest text-outline/55 text-center md:text-right flex-shrink-0 leading-relaxed">
+                    &copy; 2026 SOLIX — Virtual Data Engineer.<br class="hidden md:block"> Precision AI-powered
+                    pipelines.
+                </p>
             </div>
-            <!-- Links -->
-            <nav class="flex flex-wrap justify-center gap-x-7 gap-y-2">
-                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="/privacy">Privacy Policy</a>
-                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="/terms">Terms of Service</a>
-                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="/status">System Status</a>
-                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="/solutions">Security</a>
-                <a class="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-primary-container transition-colors duration-200" href="/pricing">Contact</a>
-            </nav>
-            <!-- Copyright -->
-            <p class="font-mono text-[10px] uppercase tracking-widest text-outline/55 text-center md:text-right flex-shrink-0 leading-relaxed">
-                &copy; 2026 SOL Data Engineering.<br class="hidden md:block"> Kinetic Observatory Precision.
-            </p>
+            <div class="mt-8 pt-5 border-t border-outline-variant/8 text-center">
+                <p data-i18n="footer_copy" class="font-mono text-[9px] tracking-[0.18em] uppercase text-outline/25">v2.6.0-STABLE &middot;
+                    Precision Engineering for the Modern Data Stack</p>
+            </div>
         </div>
-        <div class="mt-8 pt-5 border-t border-outline-variant/8 text-center">
-            <p class="font-mono text-[9px] tracking-[0.18em] uppercase text-outline/25">v2.6.0-STABLE &middot; Precision Engineering for the Modern Data Stack</p>
-        </div>
-    </div>
-</footer>
-{% endblock %}
+    </footer>
+    {% endblock %}
 
-{% block scripts %}{% endblock %}
+    <script src="/static/js/i18n.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const isOpen = drawer.classList.contains('open');
+            if (isOpen) {
+                drawer.classList.remove('open');
+                backdrop.classList.add('hidden');
+            } else {
+                drawer.classList.add('open');
+                backdrop.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = getLocale();
+            applyTranslations(currentLang);
+
+            // Switchers event listeners removed
+        });
+    </script>
+    {% if request.url.path != "/app/chatbot" %}
+    <script src="/static/js/chatbot-popup.js" defer></script>
+    {% endif %}
+    {% block scripts %}{% endblock %}
 </body>
+
 </html>

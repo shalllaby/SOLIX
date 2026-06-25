@@ -1,0 +1,50 @@
+[{"stream_name":"stdout","time":13.450378288,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":13.450459446,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":13.450464406,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":13.450467466,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":13.450470448,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1781038102'], Files: []\n"}
+,{"stream_name":"stdout","time":13.456116217,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.458096186,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102/X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.458124713,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781038102\n"}
+,{"stream_name":"stdout","time":13.495937873,"data":"Class distribution: {np.int64(0): np.int64(39), np.int64(1): np.int64(40), np.int64(2): np.int64(39)} | Imbalance ratio: 1.03x | Balancing active: False | Weights: {k: round(v, 4) for k, v in CLASS_WEIGHT_DICT.items()}\n"}
+,{"stream_name":"stdout","time":13.496005285,"data":"Train Shape: (118, 4) | Task: multiclass | Classes: 3\n"}
+,{"stream_name":"stdout","time":13.496012883,"data":"Models scheduled for training: ['LogisticRegression', 'DecisionTree', 'RandomForest', 'ExtraTrees', 'GradientBoosting', 'KNN', 'SVM', 'XGBoost', 'LightGBM', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":13.496019269,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":13.661374213,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.9299\n"}
+,{"stream_name":"stdout","time":13.80010224,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":13.88235299,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.9429\n"}
+,{"stream_name":"stdout","time":14.004959248,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":15.990656778,"data":"  --\u003e RandomForest Completed | Composite Score: 0.9278\n"}
+,{"stream_name":"stdout","time":16.112322165,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":17.71189273,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.9278\n"}
+,{"stream_name":"stdout","time":17.841916794,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":19.817448201,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9271\n"}
+,{"stream_name":"stdout","time":19.940507715,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":20.245681496,"data":"  --\u003e KNN Completed | Composite Score: 0.9105\n"}
+,{"stream_name":"stdout","time":20.366771491,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":20.467798245,"data":"  --\u003e SVM Completed | Composite Score: 0.9591\n"}
+,{"stream_name":"stdout","time":20.591926075,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":21.042071915,"data":"  --\u003e XGBoost Completed | Composite Score: 0.9404\n"}
+,{"stream_name":"stdout","time":21.185362171,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":21.695776121,"data":"  --\u003e LightGBM Completed | Composite Score: 0.9018\n"}
+,{"stream_name":"stdout","time":21.824947828,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":22.579823485,"data":"  --\u003e CatBoost Completed | Composite Score: 0.8765\n"}
+,{"stream_name":"stdout","time":22.704897798,"data":"Top 3 baseline models selected for deep tuning: ['SVM', 'DecisionTree', 'XGBoost']\n"}
+,{"stream_name":"stdout","time":22.70494735,"data":"Executing deep tuning sweep for: SVM...\n"}
+,{"stream_name":"stdout","time":25.525131533,"data":"  Tuning complete for SVM. Best params: {'gamma': 'auto', 'C': 10.0}\n"}
+,{"stream_name":"stdout","time":25.623902428,"data":"  --\u003e Tuned_SVM Completed | Composite Score: 0.9595\n"}
+,{"stream_name":"stdout","time":25.623961108,"data":"Executing deep tuning sweep for: DecisionTree...\n"}
+,{"stream_name":"stdout","time":25.765612591,"data":"  Tuning complete for DecisionTree. Best params: {'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 6}\n"}
+,{"stream_name":"stdout","time":25.851732659,"data":"  --\u003e Tuned_DecisionTree Completed | Composite Score: 0.9429\n"}
+,{"stream_name":"stdout","time":25.851787819,"data":"Executing deep tuning sweep for: XGBoost...\n"}
+,{"stream_name":"stdout","time":26.358338593,"data":"  Tuning complete for XGBoost. Best params: {'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.01}\n"}
+,{"stream_name":"stdout","time":26.744575157,"data":"  --\u003e Tuned_XGBoost Completed | Composite Score: 0.9404\n"}
+,{"stream_name":"stdout","time":26.746498208,"data":"Ultimate Champion model 'Tuned_SVM' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":26.747610411,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":30.547056507,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":30.547185525,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":30.863606887,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":30.863672972,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":31.737490868,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":32.882815665,"data":"[NbConvertApp] Writing 381780 bytes to __results__.html\n"}
+]

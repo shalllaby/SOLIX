@@ -11,3 +11,15 @@ pytesseract
 PyMuPDF
 Pillow
 pandas
+openai
+elevenlabs
+groq
+edge-tts
+gtts
+scikit-learn
+polars
+pyarrow
+sentence-transformers
+qdrant-client
+aiosqlite
+pydantic-settings

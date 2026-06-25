@@ -1,0 +1,27 @@
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.0.0), please consider upgrading to the latest version (2.2.2)
+[Copilot Router] Copied professional logo to E:\run-20260221T125607Z-1-001\run\frontend\static\sol_logo.png
+RAG Pipeline: Indexed 27 document chunks.
+Connecting to database at E:\run-20260221T125607Z-1-001\run\backend\data\sol.db...
+Existing users columns: ['id', 'first_name', 'last_name', 'email', 'hashed_password', 'created_at', 'username', 'status', 'job_title', 'organization', 'avatar_url']
+Existing auth_logs columns: ['id', 'email', 'ip_address', 'user_agent', 'action', 'status', 'details', 'timestamp', 'event_type']
+Database schema migration precheck completed successfully.
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.0.0), please consider upgrading to the latest version (2.2.2)
+[Copilot Router] Copied professional logo to E:\run-20260221T125607Z-1-001\run\frontend\static\sol_logo.png
+RAG Pipeline: Indexed 27 document chunks.
+Connecting to database at E:\run-20260221T125607Z-1-001\run\backend\data\sol.db...
+Existing users columns: ['id', 'first_name', 'last_name', 'email', 'hashed_password', 'created_at', 'username', 'status', 'job_title', 'organization', 'avatar_url']
+Existing auth_logs columns: ['id', 'email', 'ip_address', 'user_agent', 'action', 'status', 'details', 'timestamp', 'event_type']
+Database schema migration precheck completed successfully.
+ Connecting to database at E:\run-20260221T125607Z-1-001\run\backend\data\sol.db...
+Existing users columns: ['id', 'first_name', 'last_name', 'email', 'hashed_password', 'created_at', 'username', 'status', 'job_title', 'organization', 'avatar_url']
+Existing auth_logs columns: ['id', 'email', 'ip_address', 'user_agent', 'action', 'status', 'details', 'timestamp', 'event_type']
+Database schema migration precheck completed successfully.
+Startup: Initializing Dataset Advisor database and vectors...
+Database initialized with 153 pre-existing datasets. Skipping auto-seeding.
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.0.0), please consider upgrading to the latest version (2.2.2)
+[Copilot Router] Copied professional logo to E:\run-20260221T125607Z-1-001\run\frontend\static\sol_logo.png
+RAG Pipeline: Indexed 27 document chunks.
+Connecting to database at E:\run-20260221T125607Z-1-001\run\backend\data\sol.db...
+Existing users columns: ['id', 'first_name', 'last_name', 'email', 'hashed_password', 'created_at', 'username', 'status', 'job_title', 'organization', 'avatar_url']
+Existing auth_logs columns: ['id', 'email', 'ip_address', 'user_agent', 'action', 'status', 'details', 'timestamp', 'event_type']
+Database schema migration precheck completed successfully.

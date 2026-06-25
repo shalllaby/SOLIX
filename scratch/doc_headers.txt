@@ -1,0 +1,192 @@
+--- SCANNING DOCUMENTATION FILES ---
+File: README.md | Size: 6639 bytes
+  Headers (13):
+    # 🧬 نظام SOL Data Agent (وكيل بيانات SOL)
+    ## 📌 الفكرة العامة
+    ## 🚀 المميزات الرئيسية ونظام المساعد الصوتي (SOL Voice Copilot)
+    ### 🎙️ المساعد الصوتي SOL (Voice Copilot)
+    ### ⚡ محرك الاستدلال Cerebras (Cerebras Inference Integration)
+    ### 🍃 تحسين استهلاك التوكينز (Zero-Token File Upload)
+    ### 🛡️ حماية واستقرار النظام (Stability & Throttling)
+    ## 🧩 الأنظمة الفرعية والأدوات المدمجة (Subsystems & Tools)
+    ## 🛠️ التثبيت وطريقة التشغيل (Installation & Usage)
+    ### 1. ضبط المتغيرات البيئية
+    ### 2. تثبيت الحزم والمتطلبات
+    ### 3. تشغيل النظام الخلفي والواجهات
+    ### 4. تشغيل الاختبارات
+--------------------------------------------------
+File: SOLIX_DOCUMENTATION.md | Size: 25004 bytes
+  Error reading headers: 'utf-8' codec can't decode byte 0x8a in position 6740: invalid start byte
+--------------------------------------------------
+File: PROJECT_ARCHITECTURE_DEEP_DIVE.md | Size: 26145 bytes
+  Headers (59):
+    # SOL Data Agent — Enterprise Data Factory
+    ## Senior Engineer Onboarding & Technical Architecture Deep-Dive
+    ## 1. Project Overview
+    ### 1.1 Project Name
+    ### 1.2 Purpose and Vision
+    ### 1.3 Main Problem Being Solved
+    ### 1.4 Target Users and Customers
+    ### 1.5 Key Business Goals
+    ## 2. Core Features
+    ## 3. System Architecture
+    ### 3.1 High-Level Architecture Diagram
+    ### 3.2 Frontend Components
+    ### 3.3 Backend Components
+    ### 3.4 Storage & Databases
+    ### 3.5 Third-Party Services
+    ## 4. Technical Stack
+    ## 5. Data Flow
+    ## 6. Core Business Logic & Algorithms
+    ### 6.1 Polars Streaming Profiler (`MetadataAnalyzer`)
+    # Streaming nulls and cardinality check using Polars
+    ### 6.2 AI Imputer Engine (`AIImputer`)
+    ### 6.4 Copilot ReAct Routing Loop
+    # Feed back mutation warning, force ReAct loop to retry
+    ## 7. Database Schema & Data Persistence
+    ### 7.1 Database Table Details
+    #### Table: `users`
+    #### Table: `otp_sessions`
+    #### Table: `auth_logs`
+    #### Table: `forms`
+    #### Table: `responses`
+    ## 8. API Design & Integration Points
+    ### 8.1 Key API Endpoints
+    #### Authentication & Verification
+    #### AutoML Studio
+    #### Voice Copilot (SOL)
+    ## 9. Security & Access Control
+    ### 9.1 Authentication & Cookies
+    ### 9.2 Rate Limiting Middleware (`SimpleRateLimiter`)
+    ### 9.3 Sandbox Code Execution Safety
+    ### 9.4 Replay Protection & Security Hardening
+    ## 10. UI/UX Design & User Experience
+    ### 10.1 Theme & Styling
+    ### 10.2 Voice Feedback Animations
+    ## 11. Performance & Scalability
+    ### 11.1 Polars vs. Pandas Strategy
+    ### 11.2 Parallel Task Offloading
+    # Run CPU-bound processing/generation without blocking the main event loop
+    ## 12. Third-Party Integrations
+    ### 12.1 Cerebras API Integration
+    ### 12.2 ElevenLabs TTS Integration
+    ## 13. Edge Cases & Safeguards
+    ### 13.3 ReAct Loop Safeguards
+    ## 14. Future Roadmap
+    ## 15. Setup & Onboarding Guide
+    ### 15.1 Prerequisites
+    ### 15.2 Step-by-Step Installation
+    # LLM Providers (Cerebras, Groq, or OpenAI)
+    # Voice Synthesis
+    # Application Settings
+--------------------------------------------------
+File: DATASET_ADVISOR.md | Size: 16426 bytes
+  Headers (18):
+    # 🔍 دليل مشروع مستشار البيانات الذكي (AI Dataset Advisor)
+    ## 📌 الفكرة العامة وسير العمل (Workflow)
+    ## ⚡ المميزات الرئيسية
+    ### 1. فهم الاستعلامات وتحليل النية (Query Understanding)
+    ### 2. البحث متعدد المصادر والتخزين المؤقت (Multi-Source Retrieval)
+    ### 3. محرك التصنيف وإعادة الترتيب الهجين (Hybrid Reranking & Scoring)
+    ### 4. التبرير الذكي وتوليد التوصيات (AI Strategy & Reasoning)
+    ## 🛠️ البنية البرمجية وهيكل الملفات
+    ## ⚙️ التفاصيل التقنية وعينات الكود
+    ### 1. إعدادات المتغيرات البيئية والتخزين (`config.py`)
+    ### 2. محرك فهم وتفكيك الاستعلام (`query_understanding.py`)
+    ### 3. الحساب التلقائي لنقاط الملاءمة وعقوبات الحجم (`retrieval_pipeline.py`)
+    # احتساب التوافق مع حجم البيانات الأقصى (عقوبة تدريجية مستمرة)
+    ## 🗄️ تفاصيل وهيكل قاعدة البيانات (SQL Schema)
+    ## 🌐 واجهة برمجة التطبيقات (API Endpoints)
+    ### 1. البحث الدلالي الشامل
+    ### 2. إحصائيات النظام والمراقبة
+    ## 🎨 واجهة المستخدم الرسومية (UI Design)
+--------------------------------------------------
+File: FRONTEND_DOCUMENTATION.md | Size: 5875 bytes
+  Headers (8):
+    # 🚀 توثيق تصميم وتطوير الواجهة الأمامية (Frontend)
+    ## 🛠️ التقنيات الأساسية المستخدمة (Tech Stack)
+    ## 🎨 استراتيجية التصميم (Design System)
+    ## 📂 هندسة الملفات والمجلدات
+    ### 1. مجلد (`app/`) وهو للوحة التحكم المحمية:
+    ### 2. مجلد (`public/`) للزوار والمصادقة:
+    ## 🔐 نظام المصادقة الداخلي للواجهة (Auth & Sessions)
+    ## 💡 الملخص والقيمة المضافة:
+--------------------------------------------------
+File: RAG_REFERENCE.md | Size: 17523 bytes
+  Headers (41):
+    # SOL Data Agent — Comprehensive Technical Reference Manual (RAG Knowledge Base)
+    ## 📌 1. Project Overview & Business Case
+    ### 1.1 Project Identity
+    ### 1.2 Purpose and System Vision
+    ### 1.3 Target Users & Business Goals
+    ## 🛠️ 2. Technology Stack & Directory Structure
+    ### 2.1 Core Technology Stack
+    ### 2.2 Directory Map
+    ## ⚡ 3. Detailed Features & Subsystems
+    ### 3.1 Universal Loader
+    ### 3.2 Smart Data Cleaner
+    ### 3.3 AI Imputer Engine (`AIImputer`)
+    ### 3.4 SOL Voice Copilot
+    ### 3.5 AutoML Studio
+    ### 3.6 AI Dataset Advisor
+    ### 3.7 Visualizer, Auditor, & Chaos Engine
+    ### 3.8 OCR & SOL Forms
+    ## 🗺️ 4. Data Flows & Execution Lifecycles
+    ### 4.1 Zero-Token Ingestion Flow
+    ### 4.2 ReAct Sandbox Code Execution Loop
+    ## 🗄️ 5. Database Schema (SQLite)
+    ### 5.1 Platform Core Schema (`sol.db`)
+    #### Table: `users`
+    #### Table: `otp_sessions`
+    #### Table: `auth_logs`
+    #### Table: `forms`
+    #### Table: `responses`
+    ### 5.2 Dataset Advisor Schema (`advisor.db`)
+    #### Table: `datasets`
+    #### Table: `search_logs`
+    #### Table: `recommendations`
+    ## 🔗 6. Core REST & SSE API Endpoints
+    ### 6.1 Authentication
+    ### 6.2 AutoML Studio
+    ### 6.3 Voice Copilot (SOL)
+    ### 6.4 Dataset Advisor
+    ## 🛡️ 7. Security, Sandboxing, & Safeguards
+    ### 7.1 JWT & Cookie Security
+    ### 7.2 Rate Limiting
+    ### 7.3 Code Execution Sandboxing
+    ### 7.4 Downstream API Safeguards
+--------------------------------------------------
+File: BACKEND.md | Size: 4191 bytes
+  Headers (10):
+    # ⚙️ توثيق الباكاند (Backend Documentation) — SOL Data Agent
+    ## 🚀 نظرة عامة (Overview)
+    ### 🧠 المهام الأساسية (Core Responsibilities)
+    ## 🛠️ المكونات التقنية (Technical Components)
+    ### 1. خادم الـ API (FastAPI Server)
+    ### 2. محرك تنظيف البيانات (Data Cleaning Subsystem)
+    ### 3. نظام التعرف على النصوص (OCR Engine)
+    ### 3. إدارة قواعد البيانات (Database Manager)
+    ## 🔗 آلية الترابط (The Connection)
+    ## 📊 حالة التطوير الحالية (Current Progress)
+--------------------------------------------------
+File: SYNTHETIC_STUDIO_GUIDE.md | Size: 6032 bytes
+  Headers (8):
+    # دليل ميزة استوديو البيانات الاصطناعية (Synthetic Data Studio Guide)
+    ## 1. بنية الملفات والوظائف الرئيسية (File Map & Architecture)
+    ### أ. الواجهة الأمامية (Frontend HTML/JS)
+    ### ب. مسارات الباكيند والمنافذ (API Routes)
+    ### ج. محرك التوليد والذكاء الاصطناعي (Core Engine)
+    ## 2. آلية عمل قواعد الربط والاعتماديات المنطقية (Logical Connections Flow)
+    ### أنواع القواعد المدعومة:
+    ## 3. معالجة وتصدير البيانات لـ Excel ونماذج الذكاء الاصطناعي
+--------------------------------------------------
+File: WORKFLOW.md | Size: 4880 bytes
+  Headers (7):
+    # 🔄 سير العمل البرمجي (WORKFLOW.md)
+    ## 🗺️ المخطط العام لسير العمل (Architecture Diagram)
+    ## 🛠️ تفاصيل مراحل معالجة البيانات
+    ### 1️⃣ مرحلة رفع الملف وتجنب التوكينز (Zero-Token Upload Stage)
+    ### 2️⃣ معالجة المدخلات وحارس البوابة (Gatekeeper & Intent Classification)
+    ### 3️⃣ تشغيل حلقة التفكير والتعديل (ReAct & Sandbox Execution)
+    ### 4️⃣ الصياغة النهائية والتحويل الصوتي (Synthesis & ElevenLabs TTS)
+--------------------------------------------------

@@ -6,12 +6,16 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Tuple, List, Any, Optional
 import warnings
+import logging
 from groq import Groq
+from backend.utils.llm_logger import log_groq_response
 import mimetypes
 import re
 import io
 
 warnings.filterwarnings('ignore')
+
+logger = logging.getLogger("SOL.SemanticProcessor")
 
 class SemanticProcessor:
     """
@@ -19,11 +23,8 @@ class SemanticProcessor:
     Converts categorical/binary columns to numeric based on LLM understanding.
     """
     
-    def __init__(self, model: str = "llama-3.3-70b-versatile", cache_enabled: bool = True):
-        api_key = os.getenv('GROQ_API_KEY')
-        # Dummy key for development if not provided
-        self.api_key = api_key or "gsk_XpIqZ0Z8j0Z8j0Z8j0Z8j0Z8j0Z8j0Z8j0Z8j0Z8j0Z8j0Z8"
-        self.client = Groq(api_key=self.api_key)
+    def __init__(self, model: str = "llama-3.3-70b-versatile", cache_enabled: bool = True, api_key: Optional[str] = None):
+        self.api_key = api_key
         self.model = model
         self.cache_enabled = cache_enabled
         self.decision_cache: Dict[str, Dict] = {}
@@ -70,8 +71,13 @@ class SemanticProcessor:
                     multiclass_cols.append(col)
         return multiclass_cols
 
-    def _get_llm_decision(self, val1: str, val2: str, col_name: str) -> Dict:
+    def _get_llm_decision(self, val1: str, val2: str, col_name: str, api_key: Optional[str] = None) -> Dict:
         try:
+            resolved_key = api_key or self.api_key or os.getenv('GROQ_API_KEY')
+            if not resolved_key:
+                raise ValueError("Groq API Key is not configured.")
+            client_to_use = Groq(api_key=resolved_key, max_retries=0)
+
             prompt = f"""Analyze these two values from column '{col_name}':
 Value 1: {val1}
 Value 2: {val2}
@@ -86,13 +92,57 @@ Respond ONLY with valid JSON:
   "confidence": 0.95
 }}"""
             
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=200,
-                temperature=0.2
-            )
+            response = None
+            last_err = None
             
+            models = [
+                self.model,
+                "meta-llama/llama-4-scout-17b-16e-instruct",
+                "llama-3.3-70b-versatile"
+            ]
+            seen = set()
+            fallback_models = []
+            for m in models:
+                if m not in seen:
+                    seen.add(m)
+                    fallback_models.append(m)
+
+            for i, model_name in enumerate(fallback_models):
+                try:
+                    response = client_to_use.chat.completions.create(
+                        model=model_name,
+                        messages=[{"role": "user", "content": prompt}],
+                        max_tokens=200,
+                        temperature=0.2
+                    )
+                    break
+                except Exception as e:
+                    last_err = e
+                    is_rate_limit = False
+                    if hasattr(e, "status_code") and e.status_code == 429:
+                        is_rate_limit = True
+                    elif "RateLimit" in type(e).__name__:
+                        is_rate_limit = True
+                        
+                    if is_rate_limit and i < len(fallback_models) - 1:
+                        next_model = fallback_models[i + 1]
+                        logger.warning(f"Model {model_name} hit rate limit, falling back to Model {next_model}...")
+                        continue
+                    else:
+                        raise e
+            
+            if response is None:
+                if last_err:
+                    raise last_err
+                else:
+                    raise RuntimeError("All LLM models failed to respond.")
+            
+            # Log Groq token usage
+            try:
+                log_groq_response(response, module_name="semantic")
+            except Exception as e_log:
+                logger.warning(f"Failed to log token usage: {e_log}")
+
             response_text = response.choices[0].message.content
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
             if json_match:
@@ -109,7 +159,7 @@ Respond ONLY with valid JSON:
                 "confidence": 0.5
             }
 
-    def process_dataframe(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
+    def process_dataframe(self, df: pd.DataFrame, api_key: Optional[str] = None) -> Tuple[pd.DataFrame, Dict]:
         df_converted = df.copy()
         self.results['total_columns'] = len(df.columns)
         
@@ -130,7 +180,7 @@ Respond ONLY with valid JSON:
                     if self.cache_enabled and cache_key in self.decision_cache:
                         decision = self.decision_cache[cache_key]
                     else:
-                        decision = self._get_llm_decision(val1, val2, col)
+                        decision = self._get_llm_decision(val1, val2, col, api_key=api_key)
                         if self.cache_enabled:
                             self.decision_cache[cache_key] = decision
                     

@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="dark" lang="{{ locale_lang|default('en') }}" dir="{{ locale_dir|default('ltr') }}">
 
 <head>
+    <script src="/static/js/i18n.js"></script>
+    <script>
+        (function () {
+            const darkPref = localStorage.getItem('sol_pref_pref-dark');
+            if (darkPref === 'false') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>SOL Data Agent | {% block page_title %}App{% endblock %}</title>
+    <title>SOLIX — Virtual Data Engineer | {% block page_title %}App{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="shortcut icon" href="/static/favicon.ico">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -19,34 +30,34 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#bac3ff",
-                        "primary-container": "#4361ee",
-                        "secondary": "#5bd5fc",
-                        "secondary-container": "#00a3c8",
-                        "tertiary": "#d2bbff",
-                        "tertiary-container": "#8540ff",
-                        "surface": "#111220",
-                        "surface-dim": "#111220",
-                        "surface-bright": "#373847",
-                        "surface-container-lowest": "#0b0d1a",
-                        "surface-container-low": "#191b28",
-                        "surface-container": "#1d1f2c",
-                        "surface-container-high": "#272937",
-                        "surface-container-highest": "#323442",
-                        "surface-variant": "#323442",
-                        "on-surface": "#e1e1f4",
-                        "on-surface-variant": "#c4c5d7",
-                        "on-background": "#e1e1f4",
-                        "on-primary": "#00218d",
-                        "on-primary-container": "#f4f2ff",
-                        "on-secondary": "#003543",
-                        "on-tertiary": "#3e008e",
-                        "background": "#111220",
-                        "outline": "#8e8fa1",
-                        "outline-variant": "#444655",
-                        "error": "#ffb4ab",
-                        "inverse-primary": "#2e4edc",
-                        "inverse-surface": "#e1e1f4",
+                        "primary": "rgb(var(--primary-rgb) / <alpha-value>)",
+                        "primary-container": "rgb(var(--primary-container-rgb) / <alpha-value>)",
+                        "secondary": "rgb(var(--secondary-rgb) / <alpha-value>)",
+                        "secondary-container": "rgb(var(--secondary-container-rgb) / <alpha-value>)",
+                        "tertiary": "rgb(var(--tertiary-rgb) / <alpha-value>)",
+                        "tertiary-container": "rgb(var(--tertiary-container-rgb) / <alpha-value>)",
+                        "surface": "rgb(var(--surface-rgb) / <alpha-value>)",
+                        "surface-dim": "rgb(var(--surface-dim-rgb) / <alpha-value>)",
+                        "surface-bright": "rgb(var(--surface-bright-rgb) / <alpha-value>)",
+                        "surface-container-lowest": "rgb(var(--surface-container-lowest-rgb) / <alpha-value>)",
+                        "surface-container-low": "rgb(var(--surface-container-low-rgb) / <alpha-value>)",
+                        "surface-container": "rgb(var(--surface-container-rgb) / <alpha-value>)",
+                        "surface-container-high": "rgb(var(--surface-container-high-rgb) / <alpha-value>)",
+                        "surface-container-highest": "rgb(var(--surface-container-highest-rgb) / <alpha-value>)",
+                        "surface-variant": "rgb(var(--surface-variant-rgb) / <alpha-value>)",
+                        "on-surface": "rgb(var(--on-surface-rgb) / <alpha-value>)",
+                        "on-surface-variant": "rgb(var(--on-surface-variant-rgb) / <alpha-value>)",
+                        "on-background": "rgb(var(--on-background-rgb) / <alpha-value>)",
+                        "on-primary": "rgb(var(--on-primary-rgb) / <alpha-value>)",
+                        "on-primary-container": "rgb(var(--on-primary-container-rgb) / <alpha-value>)",
+                        "on-secondary": "rgb(var(--on-secondary-rgb) / <alpha-value>)",
+                        "on-tertiary": "rgb(var(--on-tertiary-rgb) / <alpha-value>)",
+                        "background": "rgb(var(--background-rgb) / <alpha-value>)",
+                        "outline": "rgb(var(--outline-rgb) / <alpha-value>)",
+                        "outline-variant": "rgb(var(--outline-variant-rgb) / <alpha-value>)",
+                        "error": "rgb(var(--error-rgb) / <alpha-value>)",
+                        "inverse-primary": "rgb(var(--inverse-primary-rgb) / <alpha-value>)",
+                        "inverse-surface": "rgb(var(--inverse-surface-rgb) / <alpha-value>)",
                     },
                     fontFamily: {
                         "headline": ["Inter"],
@@ -60,38 +71,180 @@
         }
     </script>
     <style>
+        :root {
+            /* Light mode palette (Professional grey/blue) */
+            --primary: #4361ee;
+            --primary-rgb: 67 97 238;
+            --primary-container: #e8ebff;
+            --primary-container-rgb: 232 235 255;
+            --on-primary: #ffffff;
+            --on-primary-rgb: 255 255 255;
+            --on-primary-container: #1e1b4b;
+            --on-primary-container-rgb: 30 27 75;
+            --secondary: #00a3c8;
+            --secondary-rgb: 0 163 200;
+            --secondary-container: #e0f7fc;
+            --secondary-container-rgb: 224 247 252;
+            --on-secondary: #ffffff;
+            --on-secondary-rgb: 255 255 255;
+            --tertiary: #7b2ff7;
+            --tertiary-rgb: 123 47 247;
+            --tertiary-container: #f3e8ff;
+            --tertiary-container-rgb: 243 232 255;
+            --on-tertiary: #ffffff;
+            --on-tertiary-rgb: 255 255 255;
+            --background: #f8fafc;
+            --background-rgb: 248 250 252;
+            --surface: #ffffff;
+            --surface-rgb: 255 255 255;
+            --surface-dim: #f1f5f9;
+            --surface-dim-rgb: 241 245 249;
+            --surface-bright: #ffffff;
+            --surface-bright-rgb: 255 255 255;
+            --surface-container-lowest: #ffffff;
+            --surface-container-lowest-rgb: 255 255 255;
+            --surface-container-low: #f8fafc;
+            --surface-container-low-rgb: 248 250 252;
+            --surface-container: #f1f5f9;
+            --surface-container-rgb: 241 245 249;
+            --surface-container-high: #e2e8f0;
+            --surface-container-high-rgb: 226 232 240;
+            --surface-container-highest: #cbd5e1;
+            --surface-container-highest-rgb: 203 213 225;
+            --surface-variant: #e2e8f0;
+            --surface-variant-rgb: 226 232 240;
+            --on-surface: #0f172a;
+            --on-surface-rgb: 15 23 42;
+            --on-surface-variant: #475569;
+            --on-surface-variant-rgb: 71 85 105;
+            --on-background: #0f172a;
+            --on-background-rgb: 15 23 42;
+            --outline: #64748b;
+            --outline-rgb: 100 116 139;
+            --outline-variant: #cbd5e1;
+            --outline-variant-rgb: 203 213 225;
+            --error: #b91c1c;
+            --error-rgb: 185 28 28;
+            --inverse-primary: #bac3ff;
+            --inverse-primary-rgb: 186 195 255;
+            --inverse-surface: #0f172a;
+            --inverse-surface-rgb: 15 23 42;
+
+            --nav-active-bg: rgba(67, 97, 238, 0.08);
+            --nav-hover-bg: rgba(67, 97, 238, 0.04);
+            --sidebar-border: rgba(0, 0, 0, 0.08);
+            --coming-soon-bg: rgba(0, 0, 0, 0.05);
+            --coming-soon-color: #64748b;
+            --logo-blend: multiply;
+            --logo-filter: invert(1) hue-rotate(180deg) contrast(1.2) drop-shadow(0 0 4px rgba(67, 97, 238, 0.15));
+            --scrollbar-thumb: #cbd5e1;
+        }
+
+        html.dark {
+            /* Dark mode palette (Original Sci-Fi) */
+            --primary: #bac3ff;
+            --primary-rgb: 186 195 255;
+            --primary-container: #4361ee;
+            --primary-container-rgb: 67 97 238;
+            --on-primary: #00218d;
+            --on-primary-rgb: 0 33 141;
+            --on-primary-container: #f4f2ff;
+            --on-primary-container-rgb: 244 242 255;
+            --secondary: #5bd5fc;
+            --secondary-rgb: 91 213 252;
+            --secondary-container: #00a3c8;
+            --secondary-container-rgb: 0 163 200;
+            --on-secondary: #003543;
+            --on-secondary-rgb: 0 53 67;
+            --tertiary: #d2bbff;
+            --tertiary-rgb: 210 187 255;
+            --tertiary-container: #8540ff;
+            --tertiary-container-rgb: 133 64 255;
+            --on-tertiary: #3e008e;
+            --on-tertiary-rgb: 62 0 142;
+            --background: #111220;
+            --background-rgb: 17 18 32;
+            --surface: #111220;
+            --surface-rgb: 17 18 32;
+            --surface-dim: #111220;
+            --surface-dim-rgb: 17 18 32;
+            --surface-bright: #373847;
+            --surface-bright-rgb: 55 56 71;
+            --surface-container-lowest: #0b0d1a;
+            --surface-container-lowest-rgb: 11 13 26;
+            --surface-container-low: #191b28;
+            --surface-container-low-rgb: 25 27 40;
+            --surface-container: #1d1f2c;
+            --surface-container-rgb: 29 31 44;
+            --surface-container-high: #272937;
+            --surface-container-high-rgb: 39 41 55;
+            --surface-container-highest: #323442;
+            --surface-container-highest-rgb: 50 52 66;
+            --surface-variant: #323442;
+            --surface-variant-rgb: 50 52 66;
+            --on-surface: #e1e1f4;
+            --on-surface-rgb: 225 225 244;
+            --on-surface-variant: #c4c5d7;
+            --on-surface-variant-rgb: 196 197 215;
+            --on-background: #e1e1f4;
+            --on-background-rgb: 225 225 244;
+            --outline: #8e8fa1;
+            --outline-rgb: 142 143 161;
+            --outline-variant: #444655;
+            --outline-variant-rgb: 68 70 85;
+            --error: #ffb4ab;
+            --error-rgb: 255 180 171;
+            --inverse-primary: #2e4edc;
+            --inverse-primary-rgb: 46 78 220;
+            --inverse-surface: #e1e1f4;
+            --inverse-surface-rgb: 225 225 244;
+
+            --nav-active-bg: rgba(67, 97, 238, 0.15);
+            --nav-hover-bg: rgba(67, 97, 238, 0.08);
+            --sidebar-border: rgba(186, 195, 255, 0.06);
+            --coming-soon-bg: rgba(68, 70, 85, 0.4);
+            --coming-soon-color: #8e8fa1;
+            --logo-blend: screen;
+            --logo-filter: drop-shadow(0 0 6px rgba(91, 213, 252, 0.28));
+            --scrollbar-thumb: #444655;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
+        .nav-link:hover {
+            background: var(--nav-hover-bg);
+        }
+
         .nav-active {
-            background: rgba(67, 97, 238, 0.15);
-            border-left: 2px solid #4361ee;
+            background: var(--nav-active-bg);
+            border-inline-start: 2px solid var(--primary);
         }
 
         .nav-active .material-symbols-outlined {
-            color: #bac3ff;
+            color: var(--primary);
             font-variation-settings: 'FILL' 1, 'wght' 400;
         }
 
         .nav-active span.label {
-            color: #bac3ff;
+            color: var(--primary);
         }
 
         .nav-inactive {
-            border-left: 2px solid transparent;
+            border-inline-start: 2px solid transparent;
         }
 
         .sidebar-glow {
-            box-shadow: inset -1px 0 0 rgba(186, 195, 255, 0.06);
+            box-shadow: inset -1px 0 0 var(--sidebar-border);
         }
 
         .coming-soon-pill {
             font-size: 9px;
             padding: 1px 5px;
             border-radius: 4px;
-            background: rgba(68, 70, 85, 0.4);
-            color: #8e8fa1;
+            background: var(--coming-soon-bg);
+            color: var(--coming-soon-color);
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: 0.05em;
         }
@@ -105,8 +258,69 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #444655;
+            background: var(--scrollbar-thumb);
             border-radius: 4px;
+        }
+
+        /* ── SOLIX Logo Utilities ── */
+        .solix-logo {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        .solix-logo:hover {
+            filter: var(--logo-filter) brightness(1.1);
+            transform: scale(1.02);
+        }
+
+        .solix-logo-sidebar {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+            transition: filter 0.4s ease, transform 0.3s ease;
+            object-position: center;
+        }
+
+        .solix-logo-sidebar:hover {
+            filter: var(--logo-filter) brightness(1.1);
+            transform: scale(1.03);
+        }
+
+        .solix-logo-avatar {
+            mix-blend-mode: var(--logo-blend);
+            filter: var(--logo-filter);
+        }
+
+        /* Sidebar styling for mobile responsiveness */
+        #app-sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Mobile off-screen positioning based on text direction */
+        @media (max-width: 1023px) {
+            html[dir="ltr"] #app-sidebar {
+                left: 0;
+                transform: translateX(-100%);
+            }
+            html[dir="ltr"] #app-sidebar.open {
+                transform: translateX(0);
+            }
+            html[dir="rtl"] #app-sidebar {
+                right: 0;
+                transform: translateX(100%);
+            }
+            html[dir="rtl"] #app-sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Desktop reset */
+        @media (min-width: 1024px) {
+            #app-sidebar {
+                position: static !important;
+                transform: none !important;
+                box-shadow: none !important;
+            }
         }
     </style>
     {% block head %}{% endblock %}
@@ -114,111 +328,171 @@
 
 <body class="bg-surface-container-lowest text-on-background font-body h-screen overflow-hidden flex">
 
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" onclick="toggleAppSidebar()" class="fixed inset-0 bg-background/60 backdrop-blur-sm z-35 hidden lg:hidden"></div>
+
     <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
-    <aside class="w-64 flex-shrink-0 h-screen bg-surface-container-lowest sidebar-glow flex flex-col z-40">
+    <aside id="app-sidebar" class="w-56 flex-shrink-0 h-screen bg-surface-container-lowest sidebar-glow flex flex-col z-40 fixed lg:static inset-y-0 shadow-2xl lg:shadow-none">
         <!-- Logo -->
-        <div class="flex items-center gap-3 px-5 py-5 border-b border-outline-variant/10">
-            <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center flex-shrink-0">
-                <span class="material-symbols-outlined text-white text-lg"
-                    style="font-variation-settings:'FILL' 1">hub</span>
-            </div>
-            <div>
-                <p class="font-headline font-black text-sm tracking-tighter text-white uppercase leading-none">SOL DATA
-                </p>
-                <p class="font-mono text-[9px] text-outline tracking-widest uppercase">AGENT v2.4</p>
-            </div>
+        <div class="flex items-center justify-center px-5 py-3.5 border-b border-outline-variant/10"
+            style="background: linear-gradient(180deg, rgba(67,97,238,0.05) 0%, transparent 100%);">
+            <a href="/app/dashboard" class="flex items-center justify-center">
+                <img src="/static/solix (2).png" alt="SOLIX" class="solix-logo-sidebar h-14 w-auto object-contain">
+            </a>
         </div>
 
         <!-- Nav Links -->
         <nav class="flex-1 py-4 overflow-y-auto">
-            <p class="px-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">Core</p>
+            <p class="px-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale == 'ar'
+                %}نظرة عامة{% else %}Overview{% endif %}</p>
 
             <a href="/app/dashboard" id="nav-dashboard"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_dashboard %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">dashboard</span>
-                <span
-                    class="label font-label text-sm text-outline group-hover:text-white transition-colors">Dashboard</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">dashboard</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}لوحة التحكم{% else %}Dashboard{% endif %}</span>
             </a>
+
+            <a href="/app/chatbot" id="nav-chatbot"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_chatbot %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">smart_toy</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}المساعد الذكي SOL{% else %}SOL AI Assistant{% endif %}</span>
+            </a>
+
+            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale ==
+                'ar' %}الذكاء والتحليلات{% else %}AI & Analytics{% endif %}</p>
 
             <a href="/app/studio" id="nav-studio"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_studio %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">auto_fix_high</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Cleaning
-                    Studio</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">auto_fix_high</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}استوديو التنظيف{% else %}Cleaning Studio{% endif %}</span>
             </a>
 
-            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">Modules</p>
-
-            <!-- Placeholder links -->
-            <a href="/app/connectors" id="nav-connectors"
-                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_connectors %}nav-inactive{% endblock %}">
+            <a href="/app/chat-with-data" id="nav-chat-with-data"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_chat_with_data %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">cable</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">DB Connectors</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">chat</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}الدردشة مع البيانات{% else %}Chat with Data{% endif %}</span>
+            </a>
+
+            <a href="/app/automl-studio" id="nav-automl"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_automl %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">model_training</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}استوديو التعلم الآلي{% else %}AutoML Studio{% endif %}</span>
+            </a>
+
+            <a href="/app/dataset-advisor" id="nav-dataset-advisor"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_dataset_advisor %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">travel_explore</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}مستشار مجموعات البيانات{% else %}Dataset Advisor{% endif %}</span>
+            </a>
+
+            <a href="/app/synthetic-studio" id="nav-synthetic"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_synthetic %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">precision_manufacturing</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}استوديو البيانات الاصطناعية{% else %}Synthetic Studio{% endif %}</span>
+            </a>
+
+            <a href="/app/data-noise" id="nav-data-noise"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_data_noise %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">science</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}مختبر تنقية الضوضاء{% else %}Data Noise Lab{% endif %}</span>
+            </a>
+
+            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale ==
+                'ar' %}خدمات البيانات{% else %}Data Services{% endif %}</p>
+
+            <a href="/app/forms" id="nav-forms"
+                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_forms %}nav-inactive{% endblock %}">
+                <span
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">dynamic_form</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}النماذج الذكية{% else %}Forms{% endif %}</span>
             </a>
             <a href="/app/ocr" id="nav-ocr"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_ocr %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">document_scanner</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">OCR
-                    Engine</span>
-            </a>
-            <a href="/app/forms" id="nav-forms"
-                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_forms %}nav-inactive{% endblock %}">
-                <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">dynamic_form</span>
-                <span
-                    class="label font-label text-sm text-outline group-hover:text-white transition-colors">Forms</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">document_scanner</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}محرك الـ OCR{% else %}OCR Engine{% endif %}</span>
             </a>
             <a href="/app/semantic-mapper" id="nav-semantic"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_semantic %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">schema</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Semantic
-                    Mapper</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">schema</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}المخطط الدلالي للبيانات{% else %}Semantic Mapper{% endif %}</span>
             </a>
             <a href="/app/ml-advisor" id="nav-ml"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_ml %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">psychology</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">ML Advisor</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">psychology</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}مستشار التعلم الآلي{% else %}ML Advisor{% endif %}</span>
             </a>
-            <a href="/app/data-noise" id="nav-data-noise"
-                class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_data_noise %}nav-inactive{% endblock %}">
-                <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">science</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Data Noise Lab</span>
-            </a>
+
+            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale ==
+                'ar' %}الحوكمة والتدقيق{% else %}Governance{% endif %}</p>
+
             <a href="/app/audit" id="nav-audit"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_audit %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">summarize</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Audit
-                    Reports</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">summarize</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}تقارير المراجعة{% else %}Audit Reports{% endif %}</span>
             </a>
 
-            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">System</p>
+            <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale ==
+                'ar' %}النظام{% else %}System{% endif %}</p>
+
             <a href="/app/settings" id="nav-settings"
                 class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_settings %}nav-inactive{% endblock %}">
                 <span
-                    class="material-symbols-outlined text-xl text-outline group-hover:text-white transition-colors">settings</span>
-                <span class="label font-label text-sm text-outline group-hover:text-white transition-colors">Settings</span>
+                    class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">settings</span>
+                <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                    locale == 'ar' %}الإعدادات{% else %}Settings{% endif %}</span>
             </a>
+
+            <!-- Admin Section (Only shown to admins via JS) -->
+            <div id="sidebar-admin-section" class="hidden">
+                <p class="px-5 mt-5 mb-2 font-mono text-[9px] text-outline/60 tracking-[0.2em] uppercase">{% if locale == 'ar' %}الإدارة{% else %}Administration{% endif %}</p>
+                <a href="/app/admin" id="nav-admin"
+                    class="flex items-center gap-3 px-5 py-3 transition-all group nav-link {% block nav_admin %}nav-inactive{% endblock %}">
+                    <span
+                        class="material-symbols-outlined text-xl text-outline group-hover:text-on-surface transition-colors">admin_panel_settings</span>
+                    <span class="label font-label text-sm text-outline group-hover:text-on-surface transition-colors">{% if
+                        locale == 'ar' %}لوحة تحكم المسؤول{% else %}Admin Portal{% endif %}</span>
+                </a>
+            </div>
         </nav>
 
         <!-- User Footer -->
         <div class="border-t border-outline-variant/10 p-4 flex items-center gap-3">
             <div id="sidebar-initials"
-                class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">
+                class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center flex-shrink-0 text-on-primary-container text-xs font-bold">
                 --</div>
             <div class="flex-1 min-w-0">
-                <p id="sidebar-name" class="text-xs font-bold text-white truncate">Loading...</p>
-                <p class="text-[10px] text-outline truncate">Pro Plan</p>
+                <p id="sidebar-name" class="text-xs font-bold text-on-surface truncate">{% if locale == 'ar' %}جاري
+                    التحميل...{% else %}Loading...{% endif %}</p>
+                <p class="text-[10px] text-outline truncate">{% if locale == 'ar' %}الخطة الاحترافية{% else %}Pro Plan{%
+                    endif %}</p>
             </div>
-            <button onclick="handleLogout()" class="text-outline hover:text-white transition-colors cursor-pointer">
+            <button onclick="handleLogout()"
+                class="text-outline hover:text-on-surface transition-colors cursor-pointer">
                 <span class="material-symbols-outlined text-lg">logout</span>
             </button>
         </div>
@@ -231,34 +505,98 @@
         <header
             class="h-16 flex-shrink-0 bg-surface-container-lowest border-b border-outline-variant/10 flex items-center justify-between px-6 z-30">
             <div class="flex items-center gap-3">
-                <h2 class="font-headline font-bold text-lg text-white">{% block topbar_title %}{% block page_title_text
+                <button onclick="toggleAppSidebar()" class="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-all">
+                    <span class="material-symbols-outlined text-xl">menu</span>
+                </button>
+                <h2 class="font-headline font-bold text-base sm:text-lg text-on-surface truncate max-w-[180px] sm:max-w-none">{% block topbar_title %}{% block
+                    page_title_text
                     %}Dashboard{% endblock %}{% endblock %}</h2>
-                <span class="font-mono text-[10px] text-outline bg-surface-container px-2 py-0.5 rounded">{% block
+                <span class="hidden md:inline-block font-mono text-[10px] text-outline bg-surface-container px-2 py-0.5 rounded">{% block
                     breadcrumb %}SOL / App{% endblock %}</span>
             </div>
             <div class="flex items-center gap-3">
-                <button
-                    class="w-8 h-8 flex items-center justify-center text-outline hover:text-white hover:bg-surface-container rounded-lg transition-all">
-                    <span class="material-symbols-outlined text-lg">notifications</span>
+                <!-- Language Toggle Button -->
+                <button onclick="toggleLanguage()"
+                    class="relative h-8 flex items-center justify-center gap-1.5 text-outline hover:text-on-surface hover:bg-surface-container rounded-lg border border-outline-variant/10 hover:border-outline-variant/30 transition-all focus:outline-none px-2 sm:px-2.5"
+                    title="{% if locale == 'ar' %}Switch to English{% else %}تغيير اللغة إلى العربية{% endif %}">
+                    <span class="material-symbols-outlined text-base">language</span>
+                    <span class="font-mono text-xs font-bold hidden sm:inline">{% if locale == 'ar' %}EN{% else %}AR{% endif %}</span>
                 </button>
-                <button
-                    class="w-8 h-8 flex items-center justify-center text-outline hover:text-white hover:bg-surface-container rounded-lg transition-all">
-                    <span class="material-symbols-outlined text-lg">search</span>
+
+                <!-- Notifications dropdown wrapper -->
+                <div class="relative inline-block text-left">
+                    <button id="notif-btn" onclick="toggleNotifDropdown(event)"
+                        class="relative w-8 h-8 flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-all focus:outline-none">
+                        <span class="material-symbols-outlined text-lg">notifications</span>
+                        <!-- Notification badge (dot) -->
+                        <span id="notif-badge"
+                            class="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#ff6b6b] border border-surface-container-lowest hidden"></span>
+                    </button>
+                    <div id="notif-dropdown"
+                        class="absolute {% if locale == 'ar' %}left-0{% else %}right-0{% endif %} mt-2 w-80 bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-2xl p-4 hidden z-50 flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+                            <span class="text-xs font-mono text-outline uppercase tracking-wider">{% if locale == 'ar'
+                                %}الإشعارات{% else %}Notifications{% endif %}</span>
+                            <button onclick="markAllNotificationsAsRead(event)"
+                                class="text-[10px] text-primary hover:text-on-surface hover:underline font-mono">{% if
+                                locale == 'ar' %}تحديد الكل كمقروء{% else %}Mark all read{% endif %}</button>
+                        </div>
+                        <div id="notif-list" class="max-h-60 overflow-y-auto flex flex-col gap-2 custom-scroll pr-1">
+                            <p class="text-xs text-outline text-center py-4 font-mono">{% if locale == 'ar' %}لا توجد
+                                إشعارات{% else %}No notifications{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleTheme()" id="theme-toggle-btn"
+                    class="w-8 h-8 flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-all"
+                    title="Toggle Theme">
+                    <span class="material-symbols-outlined text-lg" id="theme-toggle-icon">dark_mode</span>
                 </button>
                 <div id="topbar-initials"
-                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center text-white text-xs font-bold cursor-pointer">
+                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center text-on-primary-container text-xs font-bold cursor-pointer">
                     --</div>
             </div>
         </header>
 
+        <!-- Workspace Tabs Bar -->
+        <div id="workspace-tabs-container"
+            class="hidden bg-surface-container border-b border-outline-variant/10 px-6 py-2.5 flex items-center justify-between z-20">
+            <div class="flex items-center gap-2 overflow-x-auto pr-4 select-none" id="workspace-tabs-list">
+                <!-- Tab items will be injected here by JS -->
+            </div>
+            <!-- Undo / Redo controls on the right of the tabs bar -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button id="btn-undo" onclick="triggerUndo()"
+                    class="w-8 h-8 flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-all"
+                    title="Undo (Ctrl+Z)">
+                    <span class="material-symbols-outlined text-lg">undo</span>
+                </button>
+                <button id="btn-redo" onclick="triggerRedo()"
+                    class="w-8 h-8 flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-all"
+                    title="Redo (Ctrl+Y)">
+                    <span class="material-symbols-outlined text-lg">redo</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Scrollable Page Content -->
-        <main class="flex-1 overflow-y-auto p-6 bg-surface-container-lowest">
+        <main class="flex-1 overflow-y-auto p-6 pb-24 lg:pb-6 bg-surface-container-lowest">
             {% block content %}{% endblock %}
         </main>
     </div>
 
+
+
     <!-- ═══ SESSION MANAGEMENT SCRIPT ═══ -->
     <script>
+        function toggleLanguage() {
+            const currentLocale = "{{ locale|default('en') }}";
+            const nextLocale = currentLocale === 'ar' ? 'en' : 'ar';
+            document.cookie = `sol_locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+            localStorage.setItem('sol_locale', nextLocale);
+            window.location.reload();
+        }
+
         function handleLogout() {
             localStorage.removeItem('sol_auth_token');
             // Remove the cookie manually if possible, or just let backend overwrite on next login.
@@ -288,11 +626,31 @@
 
                 // Hydrate UI
                 const fullName = `${user.first_name} ${user.last_name}`;
-                const initials = (user.first_name[0] + user.last_name[0]).toUpperCase();
+
+                // Show admin section if user is admin
+                if (user.is_admin) {
+                    const adminSection = document.getElementById('sidebar-admin-section');
+                    if (adminSection) {
+                        adminSection.classList.remove('hidden');
+                    }
+                }
+                const initials = ((user.first_name?.[0] || '') + (user.last_name?.[0] || '')).toUpperCase() || 'U';
 
                 document.getElementById('sidebar-name').textContent = fullName;
-                document.getElementById('sidebar-initials').textContent = initials;
-                document.getElementById('topbar-initials').textContent = initials;
+                
+                const sidebarInitials = document.getElementById('sidebar-initials');
+                if (user.avatar_url) {
+                    sidebarInitials.innerHTML = `<img src="${user.avatar_url}" class="w-full h-full rounded-full object-cover">`;
+                } else {
+                    sidebarInitials.textContent = initials;
+                }
+
+                const topbarInitials = document.getElementById('topbar-initials');
+                if (user.avatar_url) {
+                    topbarInitials.innerHTML = `<img src="${user.avatar_url}" class="w-full h-full rounded-full object-cover">`;
+                } else {
+                    topbarInitials.textContent = initials;
+                }
 
             } catch (e) {
                 console.error("Session verification failed", e);
@@ -307,9 +665,801 @@
             return null;
         }
 
+        async function fetchNotifications() {
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/notifications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const notifs = await res.json();
+
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-list');
+                if (!badge || !list) return;
+
+                // Show badge if there are unread notifications
+                const hasUnread = notifs.some(n => !n.is_read);
+                if (hasUnread) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                if (notifs.length === 0) {
+                    list.innerHTML = `<p class="text-xs text-outline text-center py-4 font-mono">${getLocale() === 'ar' ? 'لا توجد إشعارات' : 'No notifications'}</p>`;
+                    return;
+                }
+
+                list.innerHTML = notifs.map(n => {
+                    const bgClass = n.type === 'warning' ? 'bg-[#ff6b6b]/10 border-[#ff6b6b]/20' : 'bg-surface-container border-outline-variant/10';
+                    const titleColor = n.type === 'warning' ? 'text-[#ff6b6b]' : 'text-on-surface';
+                    const readIndicator = n.is_read ? '' : '<span class="w-1.5 h-1.5 rounded-full bg-[#bac3ff] flex-shrink-0"></span>';
+                    const dismissText = getLocale() === 'ar' ? 'إخفاء' : 'Dismiss';
+
+                    return `
+                        <div class="p-2.5 rounded-lg border ${bgClass} flex flex-col gap-1 transition-all hover:bg-surface-container-high relative group">
+                            <div class="flex items-start justify-between gap-1">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    ${readIndicator}
+                                    <span class="text-xs font-headline font-bold ${titleColor} truncate">${n.title}</span>
+                                </div>
+                                <button onclick="markNotificationRead(event, ${n.id})" class="text-[10px] text-outline hover:text-on-surface font-mono opacity-0 group-hover:opacity-100 transition-opacity">${dismissText}</button>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant font-body leading-relaxed whitespace-pre-wrap">${n.message}</p>
+                            <span class="text-[9px] text-outline font-mono mt-1 text-right">${new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("Failed to fetch notifications", e);
+            }
+        }
+
+        function toggleNotifDropdown(e) {
+            if (e) e.stopPropagation();
+            const dropdown = document.getElementById('notif-dropdown');
+            if (!dropdown) return;
+            dropdown.classList.toggle('hidden');
+            if (!dropdown.classList.contains('hidden')) {
+                fetchNotifications();
+            }
+        }
+
+        async function markNotificationRead(e, id) {
+            if (e) e.stopPropagation();
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+            try {
+                await fetch(`/api/notifications/${id}/read`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                fetchNotifications();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+            try {
+                await fetch('/api/notifications/read-all', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                fetchNotifications();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            const dropdown = document.getElementById('notif-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Prevent dropdown click from closing it
+        document.getElementById('notif-dropdown')?.addEventListener('click', (e) => e.stopPropagation());
+
+        // ─────────────────────────────────────────────────────────
+        //  Multi-Task Concurrent Workspace System Implementation
+        // ─────────────────────────────────────────────────────────
+        const routeLabels = {
+            "/app/dashboard": { en: "Dashboard", ar: "لوحة التحكم" },
+            "/app/studio": { en: "Cleaning Studio", ar: "استوديو التنظيف" },
+            "/app/chat-with-data": { en: "Chat with Data", ar: "الدردشة مع البيانات" },
+            "/app/automl-studio": { en: "AutoML Studio", ar: "استوديو التعلم الآلي" },
+            "/app/dataset-advisor": { en: "Dataset Advisor", ar: "مستشار مجموعات البيانات" },
+            "/app/synthetic-studio": { en: "Synthetic Studio", ar: "استوديو البيانات الاصطناعية" },
+            "/app/ocr": { en: "OCR Engine", ar: "محرك الـ OCR" },
+            "/app/forms": { en: "Forms", ar: "النماذج الذكية" },
+            "/app/semantic-mapper": { en: "Semantic Mapper", ar: "المخطط الدلالي للبيانات" },
+            "/app/ml-advisor": { en: "ML Advisor", ar: "مستشار التعلم الآلي" },
+            "/app/data-noise": { en: "Data Noise Lab", ar: "مختبر تنقية الضوضاء" },
+            "/app/audit": { en: "Audit Reports", ar: "تقارير المراجعة" },
+            "/app/settings": { en: "Settings", ar: "الإعدادات" },
+            "/app/admin": { en: "Admin Portal", ar: "لوحة تحكم المسؤول" }
+        };
+
+        function getLocale() {
+            return "{{ locale|default('en') }}";
+        }
+
+        // --- Workspace Tabs Management ---
+        function renderWorkspaceTabs() {
+            const locale = getLocale();
+            const currentPath = window.location.pathname;
+            let tabs = [];
+            try {
+                tabs = JSON.parse(localStorage.getItem('sol_open_tabs')) || [];
+            } catch (e) { }
+
+            // Ensure dashboard is always present
+            if (!tabs.some(t => t.path === "/app/dashboard")) {
+                tabs.unshift({ path: "/app/dashboard" });
+            }
+
+            // Ensure current path is in the tabs if it is a valid app route
+            if (routeLabels[currentPath] && !tabs.some(t => t.path === currentPath)) {
+                tabs.push({ path: currentPath });
+            }
+
+            // Set active status
+            tabs.forEach(t => {
+                t.active = (t.path === currentPath);
+            });
+
+            localStorage.setItem('sol_open_tabs', JSON.stringify(tabs));
+
+            const listElement = document.getElementById('workspace-tabs-list');
+            if (!listElement) return;
+
+            listElement.innerHTML = tabs.map(t => {
+                const info = routeLabels[t.path] || { en: "Workspace", ar: "مساحة العمل" };
+                const label = locale === 'ar' ? info.ar : info.en;
+                const activeClass = t.active
+                    ? 'bg-primary-container text-on-primary-container font-semibold border-primary/20 shadow-sm'
+                    : 'bg-surface-container-low text-outline hover:text-on-surface border-outline-variant/10 hover:bg-surface-container-high';
+
+                const closeBtn = t.path !== "/app/dashboard"
+                    ? `<button onclick="closeWorkspaceTab(event, '${t.path}')" class="hover:bg-primary-container/20 rounded p-0.5 flex items-center justify-center transition-colors ml-1.5"><span class="material-symbols-outlined text-[14px]">close</span></button>`
+                    : '';
+
+                return `
+                    <div onclick="switchWorkspaceTab('${t.path}')" class="flex items-center px-3.5 py-1.5 rounded-lg border text-xs cursor-pointer transition-all duration-200 select-none ${activeClass}">
+                        <span>${label}</span>
+                        ${closeBtn}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchWorkspaceTab(path) {
+            if (path === window.location.pathname) return;
+            saveCurrentPageState();
+            window.location.href = path;
+        }
+
+        function closeWorkspaceTab(e, path) {
+            if (e) e.stopPropagation();
+            let tabs = [];
+            try {
+                tabs = JSON.parse(localStorage.getItem('sol_open_tabs')) || [];
+            } catch (e) { }
+
+            tabs = tabs.filter(t => t.path !== path);
+            localStorage.setItem('sol_open_tabs', JSON.stringify(tabs));
+
+            if (window.location.pathname === path) {
+                const nextTab = tabs[tabs.length - 1] || { path: "/app/dashboard" };
+                window.location.href = nextTab.path;
+            } else {
+                renderWorkspaceTabs();
+            }
+        }
+
+        // --- Input State Serialization & OCC ---
+        let backendTaskId = null;
+        let backendTaskVersion = 1;
+        let lastSyncedStateString = "";
+
+        function saveCurrentPageState() {
+            const currentPath = window.location.pathname;
+            if (currentPath === "/app/dashboard" || currentPath === "/app/settings") return null;
+
+            const state = {};
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(el => {
+                if (!el.id && !el.name) return;
+                const key = el.id || el.name;
+                if (el.type === 'checkbox') {
+                    state[key] = el.checked;
+                } else if (el.type === 'radio') {
+                    if (el.checked) state[key] = el.value;
+                } else {
+                    state[key] = el.value;
+                }
+            });
+
+            localStorage.setItem(`sol_state_path_${currentPath}`, JSON.stringify(state));
+            return state;
+        }
+
+        function restoreCurrentPageState() {
+            const currentPath = window.location.pathname;
+            if (currentPath === "/app/dashboard" || currentPath === "/app/settings") return;
+
+            let state = null;
+            try {
+                state = JSON.parse(localStorage.getItem(`sol_state_path_${currentPath}`));
+            } catch (e) { }
+
+            if (!state) return;
+
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(el => {
+                if (!el.id && !el.name) return;
+                const key = el.id || el.name;
+                if (state[key] === undefined) return;
+
+                if (el.type === 'checkbox') {
+                    el.checked = state[key];
+                } else if (el.type === 'radio') {
+                    el.checked = (el.value === state[key]);
+                } else {
+                    el.value = state[key];
+                }
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+
+        async function initBackendTaskSync() {
+            const currentPath = window.location.pathname;
+            if (currentPath === "/app/dashboard" || currentPath === "/app/settings") return;
+
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+
+            const toolName = routeLabels[currentPath]?.en || "Workspace Tool";
+
+            try {
+                const res = await fetch('/api/tasks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const tasks = await res.json();
+
+                let task = tasks.find(t => t.name === toolName);
+                if (!task) {
+                    const createRes = await fetch('/api/tasks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            name: toolName,
+                            state_data: saveCurrentPageState() || {}
+                        })
+                    });
+                    if (createRes.ok) {
+                        task = await createRes.json();
+                    }
+                }
+
+                if (task) {
+                    backendTaskId = task.id;
+                    backendTaskVersion = task.version_id;
+
+                    if (task.state_data && Object.keys(task.state_data).length > 0) {
+                        localStorage.setItem(`sol_state_path_${currentPath}`, JSON.stringify(task.state_data));
+                        restoreCurrentPageState();
+                    }
+                    lastSyncedStateString = JSON.stringify(task.state_data || {});
+                }
+            } catch (e) {
+                console.error("Backend sync init failed:", e);
+            }
+        }
+
+        async function syncStateToBackend() {
+            if (!backendTaskId) return;
+
+            const currentPath = window.location.pathname;
+            const currentState = saveCurrentPageState() || {};
+            const currentStateString = JSON.stringify(currentState);
+
+            if (currentStateString === lastSyncedStateString) return;
+
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`/api/tasks/${backendTaskId}/state`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        state_data: currentState,
+                        version_id: backendTaskVersion
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    backendTaskVersion = data.version_id;
+                    lastSyncedStateString = currentStateString;
+                    clearSyncConflictUI();
+                    const syncEl = document.getElementById('floating-sync-status');
+                    if (syncEl) syncEl.textContent = 'SYNCED';
+                } else if (res.status === 409) {
+                    showSyncConflictUI();
+                }
+            } catch (e) {
+                console.error("Error syncing state to backend:", e);
+            }
+        }
+
+        function showSyncConflictUI() {
+            const syncEl = document.getElementById('floating-sync-status');
+            if (syncEl) syncEl.textContent = 'CONFLICT';
+            let badge = document.getElementById('sync-conflict-badge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'sync-conflict-badge';
+                badge.className = 'flex items-center gap-1 text-[11px] text-[#ff6b6b] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 px-2 py-0.5 rounded cursor-pointer animate-pulse font-mono';
+                badge.onclick = resolveSyncConflict;
+                badge.innerHTML = `<span class="material-symbols-outlined text-[12px]">sync_problem</span> <span>Sync Conflict</span>`;
+                const header = document.querySelector('header .flex.items-center.gap-3');
+                if (header) {
+                    header.appendChild(badge);
+                }
+            }
+        }
+
+        function clearSyncConflictUI() {
+            const badge = document.getElementById('sync-conflict-badge');
+            if (badge) badge.remove();
+        }
+
+        async function resolveSyncConflict() {
+            const currentPath = window.location.pathname;
+            const choice = confirm("Conflict detected: Another session modified this workspace state. \n\nClick OK to OVERWRITE backend with your local changes.\nClick CANCEL to RESTORE local workspace from backend state.");
+
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/tasks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const tasks = await res.json();
+                const toolName = routeLabels[currentPath]?.en || "Workspace Tool";
+                const task = tasks.find(t => t.name === toolName);
+
+                if (!task) return;
+
+                if (choice) {
+                    backendTaskVersion = task.version_id;
+                    lastSyncedStateString = "";
+                    await syncStateToBackend();
+                } else {
+                    backendTaskVersion = task.version_id;
+                    localStorage.setItem(`sol_state_path_${currentPath}`, JSON.stringify(task.state_data || {}));
+                    restoreCurrentPageState();
+                    lastSyncedStateString = JSON.stringify(task.state_data || {});
+                    clearSyncConflictUI();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- Undo / Redo Manager ---
+        const undoStack = [];
+        const redoStack = [];
+        let isUndoingOrRedoing = false;
+
+        function saveUndoState() {
+            if (isUndoingOrRedoing) return;
+            const currentState = saveCurrentPageState();
+            if (!currentState) return;
+
+            const stateStr = JSON.stringify(currentState);
+            if (undoStack.length > 0 && undoStack[undoStack.length - 1] === stateStr) return;
+
+            undoStack.push(stateStr);
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack.length = 0;
+            updateUndoRedoButtons();
+        }
+
+        function triggerUndo() {
+            if (undoStack.length <= 1) return;
+            isUndoingOrRedoing = true;
+
+            const currentState = undoStack.pop();
+            redoStack.push(currentState);
+
+            const pastStateStr = undoStack[undoStack.length - 1];
+            localStorage.setItem(`sol_state_path_${window.location.pathname}`, pastStateStr);
+            restoreCurrentPageState();
+
+            isUndoingOrRedoing = false;
+            updateUndoRedoButtons();
+        }
+
+        function triggerRedo() {
+            if (redoStack.length === 0) return;
+            isUndoingOrRedoing = true;
+
+            const targetStateStr = redoStack.pop();
+            undoStack.push(targetStateStr);
+
+            localStorage.setItem(`sol_state_path_${window.location.pathname}`, targetStateStr);
+            restoreCurrentPageState();
+
+            isUndoingOrRedoing = false;
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const btnUndo = document.getElementById('btn-undo');
+            const btnRedo = document.getElementById('btn-redo');
+            if (btnUndo) {
+                if (undoStack.length > 1) {
+                    btnUndo.classList.remove('opacity-40');
+                    btnUndo.disabled = false;
+                } else {
+                    btnUndo.classList.add('opacity-40');
+                    btnUndo.disabled = true;
+                }
+            }
+            if (btnRedo) {
+                if (redoStack.length > 0) {
+                    btnRedo.classList.remove('opacity-40');
+                    btnRedo.disabled = false;
+                } else {
+                    btnRedo.classList.add('opacity-40');
+                    btnRedo.disabled = true;
+                }
+            }
+        }
+
+        function initUndoRedoListeners() {
+            let timeout = null;
+            document.addEventListener('input', (e) => {
+                if (e.target.matches('input, textarea, select')) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        saveUndoState();
+                    }, 300);
+                }
+            });
+
+            document.addEventListener('change', (e) => {
+                if (e.target.matches('input, textarea, select')) {
+                    saveUndoState();
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    triggerUndo();
+                }
+                if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+                    e.preventDefault();
+                    triggerRedo();
+                }
+            });
+        }
+
+        // --- WebSocket Connections & Real-time Task Progress ---
+        let ws = null;
+        let activeTasksList = [];
+
+        function connectWebSocket() {
+            const loc = window.location;
+            const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${loc.host}/ws/tasks`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log("WebSocket connected.");
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    handleWebSocketMessage(msg);
+                } catch (e) {
+                    console.error("Error parsing WS message:", e);
+                }
+            };
+
+            ws.onclose = () => {
+                console.warn("WebSocket closed. Reconnecting in 5 seconds...");
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket error:", err);
+            };
+        }
+
+        function handleWebSocketMessage(msg) {
+            if (msg.type === "task_progress") {
+                const { task_id, status, progress, error } = msg.data;
+                updateTaskProgressInUI(task_id, status, progress, error);
+                if (status === "COMPLETED") {
+                    playCompletionAlert();
+                    showLocalToast("Task Completed", `Your concurrent background task has finished successfully!`);
+                    showPushNotification("Task Completed", `Your concurrent background task has finished successfully!`);
+                }
+            } else if (msg.type === "notification") {
+                showLocalToast(msg.data.title, msg.data.message);
+                showPushNotification(msg.data.title, msg.data.message);
+                fetchNotifications();
+            }
+        }
+
+        function playCompletionAlert() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const playNote = (frequency, startTime, duration) => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = frequency;
+                    gainNode.gain.setValueAtTime(0, startTime);
+                    gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + duration);
+                };
+                const now = audioCtx.currentTime;
+                playNote(523.25, now, 0.4);      // C5
+                playNote(659.25, now + 0.15, 0.6); // E5
+            } catch (e) {
+                console.warn("Failed to play audio alert:", e);
+            }
+        }
+
+        function showLocalToast(title, message) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed bottom-6 left-6 z-50 flex flex-col gap-3 max-w-sm w-full';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'bg-surface-container-high border border-outline-variant/30 text-on-surface shadow-2xl rounded-xl p-4 flex gap-3 transform translate-y-2 opacity-0 transition-all duration-300 backdrop-blur-md bg-opacity-95';
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-primary text-xl flex-shrink-0">check_circle</span>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-headline font-bold text-on-surface truncate">${title}</h4>
+                    <p class="text-[11px] text-on-surface-variant leading-relaxed mt-1 font-body">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-outline hover:text-on-surface self-start"><span class="material-symbols-outlined text-sm">close</span></button>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-1');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function showPushNotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: '/static/favicon.svg'
+                });
+            }
+        }
+
+        async function loadFloatingTasks() {
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/tasks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const tasks = await res.json();
+
+                activeTasksList = tasks;
+                renderFloatingTasks();
+            } catch (e) {
+                console.error("Failed to load floating tasks:", e);
+            }
+        }
+
+        function renderFloatingTasks() {
+            const list = document.getElementById('floating-task-list') || document.getElementById('settings-task-list');
+            const badge = document.getElementById('active-tasks-badge');
+            if (!list) return;
+
+            const runningTasks = activeTasksList.filter(t => t.status === 'RUNNING');
+            if (badge) {
+                if (runningTasks.length > 0) {
+                    badge.textContent = runningTasks.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            if (activeTasksList.length === 0) {
+                list.innerHTML = `<p class="text-xs text-outline text-center py-6 font-mono">${getLocale() === 'ar' ? 'لا توجد مهام نشطة' : 'No active tasks'}</p>`;
+                return;
+            }
+
+            list.innerHTML = activeTasksList.map(t => {
+                const progress = t.progress_percentage || 0;
+                const isRunning = t.status === 'RUNNING';
+                const isCompleted = t.status === 'COMPLETED';
+                const isPaused = t.status === 'PAUSED';
+                const isFailed = t.status === 'FAILED';
+
+                let statusBadgeClass = 'bg-surface-container-high text-outline';
+                if (isRunning) statusBadgeClass = 'bg-primary/10 text-primary border border-primary/20';
+                if (isCompleted) statusBadgeClass = 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20';
+                if (isPaused) statusBadgeClass = 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20';
+                if (isFailed) statusBadgeClass = 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20';
+
+                const runActionBtn = isRunning
+                    ? `<button onclick="controlTask(event, '${t.id}', 'pause')" class="w-7 h-7 flex items-center justify-center rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-[#f59e0b] transition-all"><span class="material-symbols-outlined text-[16px]">pause</span></button>`
+                    : `<button onclick="controlTask(event, '${t.id}', 'start')" class="w-7 h-7 flex items-center justify-center rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-[#10b981] transition-all"><span class="material-symbols-outlined text-[16px]">play_arrow</span></button>`;
+
+                let toolRoute = "/app/dashboard";
+                for (const [route, info] of Object.entries(routeLabels)) {
+                    if (info.en === t.name) {
+                        toolRoute = route;
+                        break;
+                    }
+                }
+
+                const jumpBtn = `<button onclick="switchWorkspaceTab('${toolRoute}')" class="w-7 h-7 flex items-center justify-center rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary transition-all" title="${getLocale() === 'ar' ? 'انتقال لمساحة العمل' : 'Jump to workspace'}"><span class="material-symbols-outlined text-[16px]">open_in_new</span></button>`;
+
+                return `
+                    <div class="bg-surface-container-low border border-outline-variant/10 rounded-xl p-3 flex flex-col gap-2 relative">
+                        <div class="flex items-center justify-between gap-1.5">
+                            <span class="text-xs font-headline font-bold text-on-surface">${t.name}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${statusBadgeClass}">${t.status}</span>
+                                ${runActionBtn}
+                                ${jumpBtn}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                                <div id="prog-bar-${t.id}" class="h-full bg-primary transition-all duration-500 rounded-full" style="width: ${progress}%"></div>
+                            </div>
+                            <span id="prog-text-${t.id}" class="text-[10px] font-mono text-outline w-8 text-right">${progress}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function controlTask(e, taskId, action) {
+            if (e) e.stopPropagation();
+            const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`/api/tasks/${taskId}/${action}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    loadFloatingTasks();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function updateTaskProgressInUI(taskId, status, progress, error) {
+            const task = activeTasksList.find(t => t.id === taskId);
+            if (task) {
+                task.status = status;
+                task.progress_percentage = progress;
+            }
+            const bar = document.getElementById(`prog-bar-${taskId}`);
+            const text = document.getElementById(`prog-text-${taskId}`);
+            if (bar) bar.style.width = `${progress}%`;
+            if (text) text.textContent = `${progress}%`;
+            renderFloatingTasks();
+        }
+
+        function toggleAppSidebar() {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar || !backdrop) return;
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                sidebar.classList.remove('open');
+                backdrop.classList.add('hidden');
+            } else {
+                sidebar.classList.add('open');
+                backdrop.classList.remove('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('sol_pref_pref-dark', 'false');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('sol_pref_pref-dark', 'true');
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-toggle-icon');
+            if (!icon) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        }
+
         // Run immediately
-        verifySessionAndHydrate();
+        verifySessionAndHydrate().then(() => {
+            fetchNotifications();
+            setInterval(fetchNotifications, 15000);
+
+            renderWorkspaceTabs();
+            connectWebSocket();
+            initBackendTaskSync().then(() => {
+                restoreCurrentPageState();
+                saveUndoState();
+                initUndoRedoListeners();
+                setInterval(syncStateToBackend, 5000);
+            });
+            loadFloatingTasks();
+            requestNotificationPermission();
+            updateThemeIcon();
+        });
     </script>
+    {% if request.url.path != "/app/chatbot" %}
+    <script src="/static/js/chatbot-popup.js" defer></script>
+    {% endif %}
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

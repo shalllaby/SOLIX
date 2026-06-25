@@ -1,0 +1,47 @@
+[{"stream_name":"stdout","time":12.963435047,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":12.963518157,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":12.963524291,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":12.96352719,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":12.963529858,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-ae950ac9b4c14e18bc70'], Files: []\n"}
+,{"stream_name":"stdout","time":12.968141145,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":12.970157691,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70/X_train.csv']\n"}
+,{"stream_name":"stdout","time":12.970201218,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-ae950ac9b4c14e18bc70\n"}
+,{"stream_name":"stdout","time":12.993422106,"data":"Train Shape: (800, 5) | Task: regression | Classes: 2\n"}
+,{"stream_name":"stdout","time":12.993477431,"data":"Models scheduled for training: ['LogisticRegression', 'KNN', 'SVM', 'DecisionTree', 'RandomForest', 'ExtraTrees', 'GradientBoosting', 'LightGBM', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":12.993484075,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":13.639174771,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.7901\n"}
+,{"stream_name":"stdout","time":13.813404301,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":13.890113354,"data":"  --\u003e KNN Completed | Composite Score: 0.9930\n"}
+,{"stream_name":"stdout","time":14.007137684,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":14.165503809,"data":"  --\u003e SVM Completed | Composite Score: 0.1876\n"}
+,{"stream_name":"stdout","time":14.284346093,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":14.322543726,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.9941\n"}
+,{"stream_name":"stdout","time":14.440495074,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":15.764613737,"data":"  --\u003e RandomForest Completed | Composite Score: 0.9789\n"}
+,{"stream_name":"stdout","time":15.887404308,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":16.763849658,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.9791\n"}
+,{"stream_name":"stdout","time":16.881124448,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":17.545148609,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9791\n"}
+,{"stream_name":"stdout","time":17.665290748,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":17.842603406,"data":"  --\u003e LightGBM Completed | Composite Score: 0.9791\n"}
+,{"stream_name":"stdout","time":17.96248065,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":18.280380957,"data":"  --\u003e CatBoost Completed | Composite Score: 0.9791\n"}
+,{"stream_name":"stdout","time":18.399772837,"data":"Top 3 baseline models selected for deep tuning: ['DecisionTree', 'KNN', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":18.399826531,"data":"Executing deep tuning sweep for: DecisionTree...\n"}
+,{"stream_name":"stdout","time":21.086643535,"data":"  Tuning complete for DecisionTree. Best params: {'min_samples_split': 5, 'min_samples_leaf': 2, 'max_depth': 10}\n"}
+,{"stream_name":"stdout","time":21.130313385,"data":"  --\u003e Tuned_DecisionTree Completed | Composite Score: 0.9941\n"}
+,{"stream_name":"stdout","time":21.130492895,"data":"Executing deep tuning sweep for: KNN...\n"}
+,{"stream_name":"stdout","time":21.130503735,"data":"Executing deep tuning sweep for: CatBoost...\n"}
+,{"stream_name":"stderr","time":21.135704379,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_search.py:317: UserWarning: The total space of parameters 4 is smaller than n_iter=5. Running 4 iterations. For exhaustive searches, use GridSearchCV.\n"}
+,{"stream_name":"stderr","time":21.13576897,"data":"  warnings.warn(\n"}
+,{"stream_name":"stdout","time":22.628972657,"data":"  Tuning complete for CatBoost. Best params: {'learning_rate': 0.1, 'iterations': 100}\n"}
+,{"stream_name":"stdout","time":22.752211093,"data":"  --\u003e Tuned_CatBoost Completed | Composite Score: 0.9792\n"}
+,{"stream_name":"stdout","time":22.753501854,"data":"Ultimate Champion model 'DecisionTree' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":22.754307649,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":26.459363722,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":26.459418876,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":26.752307445,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":26.752342483,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":27.502924332,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":28.611391844,"data":"[NbConvertApp] Writing 388211 bytes to __results__.html\n"}
+]

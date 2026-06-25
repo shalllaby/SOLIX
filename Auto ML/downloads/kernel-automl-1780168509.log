@@ -1,0 +1,40 @@
+[{"stream_name":"stdout","time":12.03548194,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":12.035664667,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":12.0356778,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":12.035682547,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":12.035687789,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1780168509'], Files: []\n"}
+,{"stream_name":"stdout","time":12.041954093,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":12.044195533,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509/X_train.csv']\n"}
+,{"stream_name":"stdout","time":12.044227452,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780168509\n"}
+,{"stream_name":"stdout","time":12.088537404,"data":"Class distribution: {np.int64(0): np.int64(46), np.int64(1): np.int64(34)} | Imbalance ratio: 1.35x | Balancing active: False | Weights: {k: round(v, 4) for k, v in CLASS_WEIGHT_DICT.items()}\n"}
+,{"stream_name":"stdout","time":12.088598529,"data":"Train Shape: (80, 20) | Task: binary | Classes: 2\n"}
+,{"stream_name":"stdout","time":12.088607551,"data":"Models scheduled for training: ['LogisticRegression', 'DecisionTree', 'RandomForest', 'ExtraTrees', 'XGBoost', 'LightGBM', 'CatBoost', 'GradientBoosting', 'KNN', 'SVM']\n"}
+,{"stream_name":"stdout","time":12.088612815,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":12.233661792,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.9131\n"}
+,{"stream_name":"stdout","time":12.425824578,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":12.504105642,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.9500\n"}
+,{"stream_name":"stdout","time":12.670615,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":14.195983337,"data":"  --\u003e RandomForest Completed | Composite Score: 0.8981\n"}
+,{"stream_name":"stdout","time":14.366270583,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":15.631265516,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.8981\n"}
+,{"stream_name":"stdout","time":15.804663356,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":16.162248647,"data":"  --\u003e XGBoost Completed | Composite Score: 0.7706\n"}
+,{"stream_name":"stdout","time":16.332138027,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":16.51368806,"data":"  --\u003e LightGBM Completed | Composite Score: 0.1850\n"}
+,{"stream_name":"stdout","time":16.683714504,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":17.312809947,"data":"  --\u003e CatBoost Completed | Composite Score: 0.8981\n"}
+,{"stream_name":"stdout","time":17.479334669,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":18.09027488,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9350\n"}
+,{"stream_name":"stdout","time":18.257512738,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":18.391257929,"data":"  --\u003e KNN Completed | Composite Score: 0.5856\n"}
+,{"stream_name":"stdout","time":18.560468129,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":18.650681662,"data":"  --\u003e SVM Completed | Composite Score: 0.8852\n"}
+,{"stream_name":"stdout","time":18.822380872,"data":"Winning model 'DecisionTree' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":18.823076881,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":22.230348818,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":22.230428696,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":22.493625257,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":22.493669308,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":23.255788402,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":24.402761082,"data":"[NbConvertApp] Writing 353232 bytes to __results__.html\n"}
+]

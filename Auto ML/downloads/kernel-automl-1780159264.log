@@ -1,0 +1,39 @@
+[{"stream_name":"stdout","time":13.209978639,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":13.210044219,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":13.210048889,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":13.210051509,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":13.210053569,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1780159264'], Files: []\n"}
+,{"stream_name":"stdout","time":13.21607597,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.217592071,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264/X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.21763157,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780159264\n"}
+,{"stream_name":"stdout","time":13.232733244,"data":"Train Shape: (80, 8) | Task: regression\n"}
+,{"stream_name":"stdout","time":13.232770483,"data":"Models scheduled for training: ['LinearRegression', 'DecisionTree', 'RandomForest', 'ExtraTrees', 'XGBoost', 'LightGBM', 'CatBoost', 'GradientBoosting', 'KNN', 'SVM']\n"}
+,{"stream_name":"stdout","time":13.232776443,"data":"Training LinearRegression...\n"}
+,{"stream_name":"stdout","time":13.283686534,"data":"  --\u003e LinearRegression Completed | Composite Score: 0.9484\n"}
+,{"stream_name":"stdout","time":13.394406955000001,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":13.41445721,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.8824\n"}
+,{"stream_name":"stdout","time":13.527112562,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":14.61867498,"data":"  --\u003e RandomForest Completed | Composite Score: 0.9048\n"}
+,{"stream_name":"stdout","time":14.732314052,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":15.556970986,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.9172\n"}
+,{"stream_name":"stdout","time":15.669101129,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":15.963422767,"data":"  --\u003e XGBoost Completed | Composite Score: 0.8812\n"}
+,{"stream_name":"stdout","time":16.074220199,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":16.172141868,"data":"  --\u003e LightGBM Completed | Composite Score: 0.6235\n"}
+,{"stream_name":"stdout","time":16.28203317,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":16.692439192,"data":"  --\u003e CatBoost Completed | Composite Score: 0.9346\n"}
+,{"stream_name":"stdout","time":16.805610255,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":17.089226271,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9071\n"}
+,{"stream_name":"stdout","time":17.197772903,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":17.320541937,"data":"  --\u003e KNN Completed | Composite Score: 0.9211\n"}
+,{"stream_name":"stdout","time":17.43550067,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":17.457531914,"data":"  --\u003e SVM Completed | Composite Score: 0.9471\n"}
+,{"stream_name":"stdout","time":17.574661788,"data":"Winning model 'LinearRegression' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":17.575287848,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":20.40111438,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":20.401190121,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":20.707772821,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":20.707808332,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":21.466093123,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":22.30460631,"data":"[NbConvertApp] Writing 333391 bytes to __results__.html\n"}
+]

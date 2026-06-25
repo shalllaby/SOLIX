@@ -63,6 +63,24 @@ async def process_data_noise(
             
         corrupted_df = corruptor.get_dataframe()
     except Exception as e:
+        # Log failure
+        try:
+            from backend.database import SessionLocal
+            from backend.utils.job_logger import log_job
+            db_sess = SessionLocal()
+            try:
+                log_job(
+                    db=db_sess,
+                    user_id=current_user.id,
+                    task_type="noise",
+                    filename=_store_filename.get(dataset_id, "dataset.csv"),
+                    status="failed",
+                    error_message=str(e)
+                )
+            finally:
+                db_sess.close()
+        except Exception as log_err:
+            print(f"[Data Noise Log Error]: {log_err}")
         raise HTTPException(status_code=400, detail=str(e))
         
     corrupted_id = str(uuid.uuid4())
@@ -76,6 +94,30 @@ async def process_data_noise(
         _store_filename[corrupted_id] = "dirty_" + _store_filename[dataset_id]
 
     nan_map = _build_nan_map(corrupted_df)
+    
+    # Log success
+    try:
+        from backend.database import SessionLocal
+        from backend.utils.job_logger import log_job
+        db_sess = SessionLocal()
+        try:
+            # Determine average noise ratio or rule count
+            total_ratio = sum(float(r.get('ratio', 10)) for r in rules)
+            avg_ratio = total_ratio / len(rules) if rules else 10.0
+            log_job(
+                db=db_sess,
+                user_id=current_user.id,
+                task_type="noise",
+                filename=_store_filename.get(corrupted_id, "dirty_dataset.csv"),
+                status="completed",
+                row_count=len(corrupted_df),
+                col_count=len(corrupted_df.columns),
+                accuracy_rate=float(max(0.0, min(100.0, 100.0 - avg_ratio)))
+            )
+        finally:
+            db_sess.close()
+    except Exception as log_err:
+        print(f"[Data Noise Log Error]: {log_err}")
     
     return JSONResponse({
         "dataset_id": dataset_id,

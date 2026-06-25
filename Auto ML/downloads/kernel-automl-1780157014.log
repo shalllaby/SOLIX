@@ -1,0 +1,21 @@
+**Role:** Senior AI Backend Engineer & Python Expert.
+
+**Context:** We are working on the `engine.py` file for the "Synthetic Data Studio" within the Solix platform. We use Groq LLM to suggest a dataset schema, and then use Python's `Faker` library locally to generate the rows (to maintain high speed for 10k+ rows).
+
+**The Problem:** Currently, the generator produces garbage, repetitive text (e.g., "updates stores requests reports notes") for custom or domain-specific columns like `car_features` or `customer_notes`. This happens because when the engine doesn't find a direct, standard Faker provider (like `name` or `email`), it falls back to raw word generators like `fake.words()`, which ruins the data quality.
+
+**My Proposed Solution:**
+I want to implement a "Strict Mapping & Categorical Handling" approach:
+1. We modify the LLM system prompt so that if a column is custom or categorical (e.g., `car_features`, `car_category`), the LLM MUST return a `"categories": ["Value 1", "Value 2", "Value 3"]` array inside the schema JSON.
+2. In the Python generation loop, if a column has `"categories"`, we bypass Faker entirely and use Python's `random.choices()` to pick from the LLM's suggested list.
+3. For actual long text columns (like `notes`), we strictly map them to `fake.sentence()` instead of random words.
+
+**My Questions for You:**
+1. What do you think of this proposed solution? 
+2. Is this the most efficient, performant, and robust way to handle this without slowing down the generation of large datasets (10k+ rows), or do you suggest a better architecture/library approach?
+
+**Workflow & Constraints (CRITICAL):**
+1. DO NOT WRITE ANY CODE YET.
+2. First, answer my questions briefly.
+3. Then, provide a detailed **Implementation Plan** structured as a Markdown list, explaining how you will refactor `engine.py` (specifically the LLM prompt and the generation loop) based on our agreed approach.
+4. Stop and wait for my explicit "Approved" before writing the actual Python code.

@@ -1,0 +1,99 @@
+{
+  "enterprise_reliability_score": 75.63,
+  "pipeline_metrics": {
+    "exact_match_accuracy": 42.62295081967213,
+    "over_cleaning_rate": 0.1273723092599669,
+    "corruption_rate": 0.0,
+    "semantic_integrity_score": 100.0,
+    "realism_preservation_score": 100.0,
+    "rollback_safety": 0.0,
+    "determinism_score": 100.0,
+    "threading_stability": 100.0
+  },
+  "precision_by_corruption_type": {
+    "missing_numeric": 56.37860082304527,
+    "outlier_replacement": 20.689655172413794,
+    "broken_dates": 73.80952380952381,
+    "currency_noise": 98.10126582278481,
+    "arabic_typos": 100.0
+  },
+  "llm_mock_evaluation": {
+    "valid": {
+      "hrs": 90.0,
+      "passed_gate": true,
+      "reasons": [
+        "Type mismatch: 'remove_outliers' recommended on non-numeric column 'salary'."
+      ],
+      "pending_review_count": 0
+    },
+    "invalid_json": {
+      "hrs": 85.0,
+      "passed_gate": true,
+      "reasons": [
+        "Reasoning explanation is missing or too short."
+      ],
+      "pending_review_count": 0
+    },
+    "missing_keys": {
+      "hrs": 85.0,
+      "passed_gate": true,
+      "reasons": [
+        "Reasoning explanation is missing or too short."
+      ],
+      "pending_review_count": 0
+    },
+    "hallucinated_actions": {
+      "hrs": 60.0,
+      "passed_gate": false,
+      "reasons": [
+        "Hallucinated/unsupported action 'truncate_column' on column 'age'.",
+        "Hallucinated/unsupported action 'obliterate_outliers' on column 'salary'."
+      ],
+      "pending_review_count": 0
+    },
+    "contradictory_instructions": {
+      "hrs": 70.0,
+      "passed_gate": false,
+      "reasons": [
+        "Safety breach: Destructive action 'drop' recommended on sensitive column 'user_id'."
+      ],
+      "pending_review_count": 1
+    }
+  },
+  "scalability_benchmarks": [
+    {
+      "dataset_size": 1000,
+      "execution_time_seconds": 1.6889,
+      "peak_memory_kb": 770.72,
+      "rows_per_second": 592.11
+    },
+    {
+      "dataset_size": 10000,
+      "execution_time_seconds": 1.9826,
+      "peak_memory_kb": 4919.69,
+      "rows_per_second": 5043.81
+    },
+    {
+      "dataset_size": 25000,
+      "execution_time_seconds": 2.9006,
+      "peak_memory_kb": 12239.06,
+      "rows_per_second": 8619.0
+    }
+  ],
+  "real_dataset_comparison": [
+    {
+      "dataset_name": "titanic",
+      "rows": 1000,
+      "columns": 7,
+      "pandas_time_seconds": 0.0152,
+      "sol_time_seconds": 0.0111
+    },
+    {
+      "dataset_name": "adult",
+      "rows": 1000,
+      "columns": 7,
+      "pandas_time_seconds": 0.0151,
+      "sol_time_seconds": 0.0112
+    }
+  ]
+}

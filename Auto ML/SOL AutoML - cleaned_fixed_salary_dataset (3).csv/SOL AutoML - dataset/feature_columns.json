@@ -1,0 +1,13 @@
+{
+    "numerical": [
+        "Age",
+        "Salary"
+    ],
+    "categorical": [
+        "Name",
+        "Country",
+        "Job_Title"
+    ],
+    "datetime": [],
+    "target": "Salary"
+}

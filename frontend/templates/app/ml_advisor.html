@@ -1,9 +1,12 @@
 {% extends "app/_layout.html" %}
 
-{% block title %}ML Advisor — SOL Agent{% endblock %}
+{% block title %}{% if locale == 'ar' %}المستشار الذكي لتعلم الآلة — SOL Agent{% else %}ML Advisor — SOL Agent{% endif
+%}{% endblock %}
 
-{% block page_title_text %}AI Strategic Advisor{% endblock %}
-{% block breadcrumb %}SOL / Smart Modules / ML Advisor{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}المستشار الاستراتيجي الذكي{% else %}AI Strategic Advisor{% endif %}{%
+endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / الوحدات الذكية / مستشار تعلم الآلة{% else %}SOL / Smart Modules / ML
+Advisor{% endif %}{% endblock %}
 {% block nav_ml %}nav-active{% endblock %}
 
 {% block head %}
@@ -12,15 +15,19 @@
         background: radial-gradient(circle at 50% 50%, rgba(67, 97, 238, 0.05) 0%, transparent 70%);
         pointer-events: none;
     }
+
     .glass-card {
-        background: rgba(23, 25, 35, 0.4);
+        background: var(--md-sys-color-surface-container-lowest);
         backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        box-shadow: var(--md-sys-elevation-1);
     }
+
     .neon-border {
         position: relative;
         overflow: hidden;
     }
+
     .neon-border::after {
         content: '';
         position: absolute;
@@ -28,24 +35,32 @@
         left: 0;
         width: 100%;
         height: 2px;
-        background: linear-gradient(90deg, transparent, #4361ee, #5bd5fc, transparent);
+        background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), var(--md-sys-color-secondary), transparent);
         opacity: 0.5;
         filter: blur(4px);
     }
+
     .gradient-text {
-        background: linear-gradient(90deg, #bac3ff, #5bd5fc);
+        background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+
     .shimmer {
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
         background-size: 200% 100%;
         animation: shimmer 3s infinite;
     }
+
     @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
+        0% {
+            background-position: -200% 0;
+        }
+
+        100% {
+            background-position: 200% 0;
+        }
     }
 </style>
 {% endblock %}
@@ -55,84 +70,104 @@
     <div class="absolute inset-0 neural-bg"></div>
 
     <div class="max-w-6xl mx-auto relative z-10 space-y-8">
-        
+
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div class="space-y-2">
                 <div class="flex items-center gap-2 text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
                     <span class="material-symbols-outlined text-sm">psychology</span>
-                    Strategic Reasoning Engine
+                    {% if locale == 'ar' %}محرك الاستدلال الاستراتيجي{% else %}Strategic Reasoning Engine{% endif %}
                 </div>
-                <h1 class="text-4xl font-black text-white tracking-tight">Model <span class="gradient-text">Architect</span></h1>
+                <h1 class="text-4xl font-black text-on-surface tracking-tight">{% if locale == 'ar' %}مهندس <span
+                        class="gradient-text">النماذج</span>{% else %}Model <span
+                        class="gradient-text">Architect</span>{% endif %}</h1>
                 <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed">
-                    Automatically analyze dataset topology to determine optimal training architectures. 
-                    Leveraging Llama-3.3-70b for high-fidelity strategic selection.
+                    {% if locale == 'ar' %}قم بتحليل هيكلية مجموعات البيانات تلقائياً لتحديد بنيات التدريب المثلى.
+                    بالاعتماد على نموذج Llama-3.3-70b للاختيار الاستراتيجي عالي الدقة.{% else %}Automatically analyze
+                    dataset topology to determine optimal training architectures. Leveraging Llama-3.3-70b for
+                    high-fidelity strategic selection.{% endif %}
                 </p>
             </div>
-            
+
             <div class="flex gap-3">
-                <button onclick="document.getElementById('file-input').click()" class="px-6 py-3 rounded-xl bg-surface-container border border-outline-variant/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all flex items-center gap-2">
+                <button onclick="document.getElementById('file-input').click()"
+                    class="px-6 py-3 rounded-xl bg-surface-container border border-outline-variant/20 text-on-surface font-bold text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm">upload_file</span>
-                    Analyze New File
+                    {% if locale == 'ar' %}تحليل ملف جديد{% else %}Analyze New File{% endif %}
                 </button>
-                <input type="file" id="file-input" class="hidden" accept=".csv,.xlsx,.xls,.json,.parquet" onchange="handleFileUpload(event)">
+                <input type="file" id="file-input" class="hidden" accept=".csv,.xlsx,.xls,.json,.parquet"
+                    onchange="handleFileUpload(event)">
             </div>
         </div>
 
         <!-- Main Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             <!-- Analysis Control & Session Selection -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-card neon-border rounded-2xl p-6 space-y-6">
                     <div>
-                        <h3 class="text-white font-bold text-sm mb-4 flex items-center gap-2">
+                        <h3 class="text-on-surface font-bold text-sm mb-4 flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary text-lg">database</span>
-                            Active Sessions
+                            {% if locale == 'ar' %}الجلسات النشطة{% else %}Active Sessions{% endif %}
                         </h3>
                         <div id="session-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                            <div class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">
-                                Loading active datasets...
+                            <div
+                                class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">
+                                {% if locale == 'ar' %}جاري تحميل مجموعات البيانات النشطة...{% else %}Loading active
+                                datasets...{% endif %}
                             </div>
                         </div>
                     </div>
 
-                    <div id="target-selection-area" class="hidden pt-4 border-t border-outline-variant/5 animate-in slide-in-from-top-2">
-                        <h4 class="text-[10px] font-mono text-outline uppercase tracking-widest mb-3">Prediction Target</h4>
-                        <select id="target-column" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs focus:ring-2 focus:ring-primary outline-none transition-all">
-                            <option value="">Auto-Detect Target</option>
+                    <div id="target-selection-area"
+                        class="hidden pt-4 border-t border-outline-variant/5 animate-in slide-in-from-top-2">
+                        <h4 class="text-[10px] font-mono text-outline uppercase tracking-widest mb-3">{% if locale ==
+                            'ar' %}الهدف المتوقع{% else %}Prediction Target{% endif %}</h4>
+                        <select id="target-column"
+                            class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface text-xs focus:ring-2 focus:ring-primary outline-none transition-all">
+                            <option value="">{% if locale == 'ar' %}كشف تلقائي للمستهدف{% else %}Auto-Detect Target{%
+                                endif %}</option>
                         </select>
-                        <p class="text-[10px] text-outline mt-2 italic">Select the column you want to predict.</p>
+                        <p class="text-[10px] text-outline mt-2 italic">{% if locale == 'ar' %}اختر العمود الذي تريد
+                            التنبؤ به.{% else %}Select the column you want to predict.{% endif %}</p>
                     </div>
 
                     <div class="pt-4 border-t border-outline-variant/5">
-                        <button id="btn-run" onclick="runAnalysis()" disabled class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <button id="btn-run" onclick="runAnalysis()" disabled
+                            class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-on-primary font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">analytics</span>
-                            Generate Strategy
+                            {% if locale == 'ar' %}إنشاء الاستراتيجية{% else %}Generate Strategy{% endif %}
                         </button>
                     </div>
                 </div>
 
                 <!-- Stats / Meta Info -->
-                <div id="dataset-meta" class="hidden glass-card rounded-2xl p-6 border border-outline-variant/10 animate-fade-in space-y-4">
-                    <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest">Dataset Topology</h4>
-                    
+                <div id="dataset-meta"
+                    class="hidden glass-card rounded-2xl p-6 border border-outline-variant/10 animate-fade-in space-y-4">
+                    <h4 class="font-mono text-[10px] text-outline uppercase tracking-widest">{% if locale == 'ar'
+                        %}طوبولوجيا مجموعة البيانات{% else %}Dataset Topology{% endif %}</h4>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
-                            <p class="text-[9px] text-outline uppercase mb-1">Task Identified</p>
+                            <p class="text-[9px] text-outline uppercase mb-1">{% if locale == 'ar' %}المهمة المحددة{%
+                                else %}Task Identified{% endif %}</p>
                             <p id="meta-task" class="text-xs font-bold text-primary truncate">--</p>
                         </div>
                         <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
-                            <p class="text-[9px] text-outline uppercase mb-1">Health Score</p>
-                            <p id="meta-health" class="text-xs font-bold text-white font-mono">--</p>
+                            <p class="text-[9px] text-outline uppercase mb-1">{% if locale == 'ar' %}مؤشر الصحة{% else
+                                %}Health Score{% endif %}</p>
+                            <p id="meta-health" class="text-xs font-bold text-on-surface font-mono">--</p>
                         </div>
                         <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
-                            <p class="text-[9px] text-outline uppercase mb-1">Rows</p>
-                            <p id="meta-rows" class="text-xs font-bold text-white font-mono">--</p>
+                            <p class="text-[9px] text-outline uppercase mb-1">{% if locale == 'ar' %}الصفوف{% else
+                                %}Rows{% endif %}</p>
+                            <p id="meta-rows" class="text-xs font-bold text-on-surface font-mono">--</p>
                         </div>
                         <div class="p-3 rounded-xl bg-surface-container/30 border border-outline-variant/5">
-                            <p class="text-[9px] text-outline uppercase mb-1">Features</p>
-                            <p id="meta-cols" class="text-xs font-bold text-white font-mono">--</p>
+                            <p class="text-[9px] text-outline uppercase mb-1">{% if locale == 'ar' %}السمات / الأعمدة{%
+                                else %}Features{% endif %}</p>
+                            <p id="meta-cols" class="text-xs font-bold text-on-surface font-mono">--</p>
                         </div>
                     </div>
                 </div>
@@ -141,38 +176,69 @@
             <!-- Recommendations View -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Empty State -->
-                <div id="empty-state" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-outline-variant/10 rounded-3xl group">
-                    <div class="w-20 h-20 rounded-full bg-surface-container/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                <div id="empty-state"
+                    class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-outline-variant/10 rounded-3xl group">
+                    <div
+                        class="w-20 h-20 rounded-full bg-surface-container/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                         <span class="material-symbols-outlined text-4xl text-outline/30">monitoring</span>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Select a Dataset to Begin</h3>
-                    <p class="text-outline text-sm max-w-xs">Our AI will profile your data and suggest the top 3 high-performance architectures.</p>
+                    <h3 class="text-xl font-bold text-on-surface mb-2">{% if locale == 'ar' %}اختر مجموعة بيانات للبدء{%
+                        else %}Select a Dataset to Begin{% endif %}</h3>
+                    <p class="text-outline text-sm max-w-xs">{% if locale == 'ar' %}سيقوم الذكاء الاصطناعي الخاص بنا
+                        بتحليل بياناتك واقتراح أفضل 3 بنيات تشغيلية عالية الأداء.{% else %}Our AI will profile your data
+                        and suggest the top 3 high-performance architectures.{% endif %}</p>
                 </div>
 
                 <!-- Loading State -->
-                <div id="loading-state" class="hidden flex flex-col items-center justify-center py-20 px-6 space-y-8 animate-in fade-in zoom-in duration-500">
+                <div id="loading-state"
+                    class="hidden flex flex-col items-center justify-center py-20 px-6 space-y-8 animate-in fade-in zoom-in duration-500">
                     <div class="relative">
-                        <div class="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                        <div class="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin">
+                        </div>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span class="material-symbols-outlined text-primary text-3xl animate-pulse">neurology</span>
                         </div>
                     </div>
                     <div class="text-center">
-                        <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-widest shimmer bg-clip-text text-transparent">AI Reasoning in Progress</h3>
-                        <p id="loading-text" class="text-outline text-sm">Evaluating hyper-parameters and loss functions...</p>
+                        <h3
+                            class="text-xl font-bold text-on-surface mb-2 uppercase tracking-widest shimmer bg-clip-text text-transparent">
+                            {% if locale == 'ar' %}جاري عمل محرك الاستدلال الذكي{% else %}AI Reasoning in Progress{%
+                            endif %}</h3>
+                        <p id="loading-text" class="text-outline text-sm">{% if locale == 'ar' %}جاري تقييم المعلمات
+                            الفائقة ودوال الخسارة...{% else %}Evaluating hyper-parameters and loss functions...{% endif
+                            %}</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-state"
+                    class="hidden glass-card rounded-3xl p-8 border border-red-500/20 bg-red-500/5 text-center space-y-6 animate-in fade-in duration-300">
+                    <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto text-red-500">
+                        <span class="material-symbols-outlined text-3xl">warning</span>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 id="error-title" class="text-lg font-bold text-on-surface"></h3>
+                        <p id="error-message" class="text-sm text-on-surface-variant max-w-md mx-auto"></p>
+                    </div>
+                    <div id="error-action-container" class="flex justify-center gap-4">
                     </div>
                 </div>
 
                 <!-- Result State -->
                 <div id="results-view" class="hidden space-y-6">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <h3 class="text-on-surface font-bold text-lg flex items-center gap-2">
                             <span class="material-symbols-outlined text-secondary">verified</span>
-                            Optimized Architectures
+                            {% if locale == 'ar' %}البنيات المحسنة{% else %}Optimized Architectures{% endif %}
                         </h3>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-mono text-outline uppercase bg-surface-container px-2 py-1 rounded">Engine: Llama-3.3-70b</span>
-                            <span class="text-[10px] font-mono text-primary uppercase bg-primary/10 px-2 py-1 rounded">Confidence: High</span>
+                            <span
+                                class="text-[10px] font-mono text-outline uppercase bg-surface-container px-2 py-1 rounded">{%
+                                if locale == 'ar' %}المحرك: Llama-3.3-70b{% else %}Engine: Llama-3.3-70b{% endif
+                                %}</span>
+                            <span
+                                class="text-[10px] font-mono text-primary uppercase bg-primary/10 px-2 py-1 rounded">{%
+                                if locale == 'ar' %}الثقة: عالية{% else %}Confidence: High{% endif %}</span>
                         </div>
                     </div>
 
@@ -187,32 +253,69 @@
 </div>
 
 <script>
+    const STORAGE_KEY = 'sol_ml_advisor_state';
     let selectedDatasetId = null;
+
+    function saveState() {
+        const select = document.getElementById('target-column');
+        const state = {
+            selectedDatasetId: selectedDatasetId,
+            targetColumnValue: select ? select.value : "",
+            resultsData: window.lastResultsData || null
+        };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+            const state = JSON.parse(saved);
+            if (state.resultsData) {
+                window.lastResultsData = state.resultsData;
+                renderResults(state.resultsData);
+            }
+        } catch (e) { console.error(e); }
+    }
 
     // Load initial sessions
     async function loadSessions() {
+        const isAr = getLocale() === 'ar';
         try {
             const res = await fetch('/api/datasets');
             const data = await res.json();
             const list = document.getElementById('session-list');
-            
+
             if (data.count === 0) {
-                list.innerHTML = `<div class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">No active datasets in current session.</div>`;
+                list.innerHTML = `<div class="p-4 rounded-xl border border-outline-variant/10 text-center italic text-outline text-xs">${isAr ? 'لا توجد مجموعات بيانات نشطة في الجلسة الحالية.' : 'No active datasets in current session.'}</div>`;
                 return;
             }
 
-            list.innerHTML = data.dataset_ids.map(id => `
-                <div onclick="selectSession('${id}')" id="session-${id}" class="session-item p-4 rounded-xl border border-outline-variant/10 bg-surface-container/20 hover:bg-surface-container-high cursor-pointer transition-all flex items-center justify-between group">
+            const datasets = data.datasets || data.dataset_ids.map(id => ({id: id, filename: id}));
+
+            list.innerHTML = datasets.map(ds => `
+                <div onclick="selectSession('${ds.id}')" id="session-${ds.id}" class="session-item p-4 rounded-xl border border-outline-variant/10 bg-surface-container/20 hover:bg-surface-container-high cursor-pointer transition-all flex items-center justify-between group">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-outline group-hover:text-primary transition-colors">
                             <span class="material-symbols-outlined text-sm">description</span>
                         </div>
-                        <span class="text-xs font-mono text-white truncate max-w-[150px]">${id}</span>
+                        <span class="text-xs font-mono text-on-surface truncate max-w-[150px]">${ds.filename || ds.id}</span>
                     </div>
-                    <span class="material-symbols-outlined text-outline group-hover:text-white text-sm opacity-0 group-hover:opacity-100 transition-all">chevron_right</span>
+                    <span class="material-symbols-outlined text-outline group-hover:text-on-surface text-sm opacity-0 group-hover:opacity-100 transition-all">chevron_right</span>
                 </div>
             `).join('');
-        } catch(e) { console.error(e); }
+
+            // Restore state if any
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const stateObj = JSON.parse(saved);
+                    if (stateObj.selectedDatasetId && data.dataset_ids.includes(stateObj.selectedDatasetId)) {
+                        selectSession(stateObj.selectedDatasetId);
+                    }
+                } catch (e) { }
+            }
+        } catch (e) { console.error(e); }
     }
 
     function selectSession(id) {
@@ -222,37 +325,56 @@
             el.querySelector('div').classList.remove('bg-primary/20');
         });
         const active = document.getElementById(`session-${id}`);
-        active.classList.add('border-primary/50', 'bg-primary/5');
-        active.querySelector('div').classList.add('bg-primary/20');
-        
+        if (active) {
+            active.classList.add('border-primary/50', 'bg-primary/5');
+            const innerDiv = active.querySelector('div');
+            if (innerDiv) innerDiv.classList.add('bg-primary/20');
+        }
+
         document.getElementById('btn-run').disabled = false;
         loadColumns(id);
+        saveState();
     }
 
     async function loadColumns(id) {
+        const isAr = getLocale() === 'ar';
         try {
             const res = await fetch(`/api/ml/columns?dataset_id=${id}`);
             const data = await res.json();
             const select = document.getElementById('target-column');
             const targetArea = document.getElementById('target-selection-area');
-            
+
             targetArea.classList.remove('hidden');
-            select.innerHTML = '<option value="">Auto-Detect (Last Column)</option>' + 
+            select.innerHTML = `<option value="">${isAr ? 'كشف تلقائي (العمود الأخير)' : 'Auto-Detect (Last Column)'}</option>` +
                 data.columns.map(c => `<option value="${c}">${c}</option>`).join('');
-        } catch(e) { console.error(e); }
+
+            // Restore target column selection if saved
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const stateObj = JSON.parse(saved);
+                    if (stateObj.targetColumnValue && data.columns.includes(stateObj.targetColumnValue)) {
+                        select.value = stateObj.targetColumnValue;
+                    }
+                } catch (e) { }
+            }
+        } catch (e) { console.error(e); }
     }
 
     async function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
 
+        const isAr = getLocale() === 'ar';
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const targetCol = document.getElementById('target-column').value;
         if (targetCol) formData.append('target_column', targetCol);
 
         showLoading();
+        document.getElementById('loading-text').textContent = isAr ? 'جاري رفع الملف وتحليله...' : 'Uploading and analyzing file...';
+
         try {
             const res = await fetch('/api/ml/recommend', {
                 method: 'POST',
@@ -260,27 +382,40 @@
                 body: formData
             });
             const data = await res.json();
+            if (!res.ok) {
+                const errMsg = data.detail || (isAr ? "حدث خطأ أثناء الاتصال بالخادم." : "An error occurred while communicating with the server.");
+                const isKeyError = errMsg.includes("Groq API Key") || errMsg.includes("API Key") || errMsg.includes("settings") || errMsg.includes("Settings");
+                showError(
+                    isAr ? "فشل محرك الاستدلال" : "Reasoning Engine Failure",
+                    errMsg,
+                    isKeyError
+                );
+                return;
+            }
             renderResults(data);
-            
+
             // If it's a new upload, we might want to refresh sessions or just show columns
             if (data.status === 'success') {
                 loadSessions();
             }
-        } catch(e) { 
-            console.error(e); 
-            alert("Analysis failed.");
-            hideLoading();
+        } catch (e) {
+            console.error(e);
+            showError(
+                isAr ? "فشل معالجة البيانات" : "Data Processing Failure",
+                e.message || (isAr ? "فشل التحليل بسبب عطل في الاتصال بالخادم." : "Analysis failed due to a server connection error.")
+            );
         }
     }
 
     async function runAnalysis() {
         if (!selectedDatasetId) return;
 
+        const isAr = getLocale() === 'ar';
         showLoading();
         try {
             const fd = new FormData();
             fd.append('dataset_id', selectedDatasetId);
-            
+
             const targetCol = document.getElementById('target-column').value;
             if (targetCol) fd.append('target_column', targetCol);
 
@@ -290,16 +425,31 @@
                 body: fd
             });
             const data = await res.json();
+            if (!res.ok) {
+                const errMsg = data.detail || (isAr ? "حدث خطأ أثناء الاستدلال." : "An error occurred during inference.");
+                const isKeyError = errMsg.includes("Groq API Key") || errMsg.includes("API Key") || errMsg.includes("settings") || errMsg.includes("Settings");
+                showError(
+                    isAr ? "فشل محرك الاستدلال" : "Reasoning Engine Failure",
+                    errMsg,
+                    isKeyError
+                );
+                return;
+            }
             renderResults(data);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
-            alert("Reasoning engine failure.");
-            hideLoading();
+            showError(
+                isAr ? "فشل معالجة الاستدلال" : "Inference Processing Failure",
+                e.message || (isAr ? "فشل محرك الاستدلال بسبب عطل في الاتصال بالخادم." : "Reasoning engine failed due to a server connection error.")
+            );
         }
     }
 
     function renderResults(data) {
         hideLoading();
+        window.lastResultsData = data;
+        saveState();
+        const isAr = getLocale() === 'ar';
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('results-view').classList.remove('hidden');
         document.getElementById('dataset-meta').classList.remove('hidden');
@@ -307,39 +457,51 @@
         document.getElementById('meta-rows').textContent = data.dataset_info.rows.toLocaleString();
         document.getElementById('meta-cols').textContent = data.dataset_info.columns;
 
+        // Update task and health dynamically
+        if (data.metadata) {
+            if (data.metadata.target_anatomy && data.metadata.target_anatomy.task_type) {
+                document.getElementById('meta-task').textContent = data.metadata.target_anatomy.task_type;
+            }
+            if (data.metadata.health_metrics && typeof data.metadata.health_metrics.overall_missing_pct === 'number') {
+                const missingPct = data.metadata.health_metrics.overall_missing_pct;
+                const healthScore = Math.max(0, Math.min(100, Math.round(100 - missingPct)));
+                document.getElementById('meta-health').textContent = healthScore + '%';
+            }
+        }
+
         const container = document.getElementById('recommendations-container');
         container.innerHTML = data.recommendations.map((rec, idx) => `
             <div class="glass-card rounded-2xl p-6 border-l-4 ${idx === 0 ? 'border-primary' : 'border-outline-variant/30'} animate-in slide-in-from-bottom-4 duration-500" style="animation-delay: ${idx * 150}ms">
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-white">
+                        <div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface">
                             <span class="material-symbols-outlined text-xl">${idx === 0 ? 'star' : 'model_training'}</span>
                         </div>
                         <div>
-                            <h4 class="font-bold text-white text-lg">${rec.model}</h4>
-                            <p class="text-[10px] font-mono text-primary uppercase tracking-widest">${idx === 0 ? 'Top Recommendation' : 'Strong Match'}</p>
+                            <h4 class="font-bold text-on-surface text-lg">${rec.model}</h4>
+                            <p class="text-[10px] font-mono text-primary uppercase tracking-widest">${idx === 0 ? (isAr ? 'أفضل توصية' : 'Top Recommendation') : (isAr ? 'توافق قوي' : 'Strong Match')}</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-2xl font-black text-white">${rec.score}%</p>
-                        <p class="text-[9px] font-mono text-outline uppercase">Match Core</p>
+                        <p class="text-2xl font-black text-on-surface">${rec.score}%</p>
+                        <p class="text-[9px] font-mono text-outline uppercase">${isAr ? 'درجة التوافق' : 'Match Core'}</p>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">Key Advantages</p>
+                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">${isAr ? 'المزايا الرئيسية' : 'Key Advantages'}</p>
                         <p class="text-sm text-on-surface-variant leading-relaxed italic border-l border-primary/20 pl-4">"${rec.pros}"</p>
                     </div>
                     <div class="space-y-2">
-                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">AI Reasoning</p>
+                        <p class="text-[10px] font-mono text-outline uppercase tracking-widest">${isAr ? 'تفسير الذكاء الاصطناعي' : 'AI Reasoning'}</p>
                         <p class="text-sm text-on-surface-variant leading-relaxed font-body">${rec.reasoning}</p>
                     </div>
                 </div>
 
                 <div class="mt-6 pt-4 border-t border-outline-variant/5 flex gap-4">
-                    <button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-white text-[11px] font-bold transition-all">VIEW DOCUMENTATION</button>
-                    <button class="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 text-[11px] font-bold transition-all">INITIALIZE HYPER-TUNING</button>
+                    <button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-bold transition-all">${isAr ? 'عرض الوثائق' : 'VIEW DOCUMENTATION'}</button>
+                    <button class="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 text-[11px] font-bold transition-all">${isAr ? 'بدء ضبط المعلمات الفائقة' : 'INITIALIZE HYPER-TUNING'}</button>
                 </div>
             </div>
         `).join('');
@@ -348,6 +510,7 @@
     function showLoading() {
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('results-view').classList.add('hidden');
+        document.getElementById('error-state').classList.add('hidden');
         document.getElementById('loading-state').classList.remove('hidden');
     }
 
@@ -355,7 +518,37 @@
         document.getElementById('loading-state').classList.add('hidden');
     }
 
+    function showError(title, message, showSettingsButton = false) {
+        hideLoading();
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('results-view').classList.add('hidden');
+        document.getElementById('loading-state').classList.add('hidden');
+        
+        const errState = document.getElementById('error-state');
+        errState.classList.remove('hidden');
+        
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-message').textContent = message;
+        
+        const isAr = getLocale() === 'ar';
+        const actionContainer = document.getElementById('error-action-container');
+        if (showSettingsButton) {
+            actionContainer.innerHTML = `
+                <a href="/app/settings" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">settings</span>
+                    ${isAr ? 'الذهاب إلى الإعدادات' : 'Go to Settings'}
+                </a>
+            `;
+        } else {
+            actionContainer.innerHTML = '';
+        }
+    }
+
     // Init
-    window.onload = loadSessions;
+    window.onload = async () => {
+        await loadSessions();
+        loadState();
+        document.getElementById('target-column').addEventListener('change', saveState);
+    };
 </script>
 {% endblock %}

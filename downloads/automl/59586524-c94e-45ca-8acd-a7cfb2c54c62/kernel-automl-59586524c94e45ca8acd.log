@@ -1,0 +1,59 @@
+[{"stream_name":"stdout","time":13.508494105,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":13.508603375,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":13.508613485,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":13.508617575,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":13.508621065,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-59586524c94e45ca8acd'], Files: []\n"}
+,{"stream_name":"stdout","time":13.515835065,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.518688055,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd/X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.518755475,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-59586524c94e45ca8acd\n"}
+,{"stream_name":"stdout","time":13.548976863,"data":"Train Shape: (800, 4) | Task: regression | Classes: 2\n"}
+,{"stream_name":"stdout","time":13.549067443,"data":"Models scheduled for training: ['LogisticRegression', 'KNN', 'SVM', 'DecisionTree', 'RandomForest', 'ExtraTrees', 'GradientBoosting', 'LightGBM', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":13.549075003,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":13.567626223,"data":"  --\u003e LogisticRegression Failed: Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\n"}
+,{"stream_name":"stdout","time":13.567711203,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":13.567715743,"data":"  File \"/kaggle/src/script.py\", line 430, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":13.567719492,"data":"    model.fit(X_train, y_train)\n"}
+,{"stream_name":"stdout","time":13.567723272,"data":"  File \"/usr/local/lib/python3.12/dist-packages/sklearn/base.py\", line 1389, in wrapper\n"}
+,{"stream_name":"stdout","time":13.567726943,"data":"    return fit_method(estimator, *args, **kwargs)\n"}
+,{"stream_name":"stdout","time":13.567731072,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":13.567734272,"data":"  File \"/usr/local/lib/python3.12/dist-packages/sklearn/linear_model/_logistic.py\", line 1231, in fit\n"}
+,{"stream_name":"stdout","time":13.567737752,"data":"    check_classification_targets(y)\n"}
+,{"stream_name":"stdout","time":13.567740383,"data":"  File \"/usr/local/lib/python3.12/dist-packages/sklearn/utils/multiclass.py\", line 222, in check_classification_targets\n"}
+,{"stream_name":"stdout","time":13.567744223,"data":"    raise ValueError(\n"}
+,{"stream_name":"stdout","time":13.567747383,"data":"ValueError: Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\n"}
+,{"stream_name":"stdout","time":13.567751612,"data":"\n"}
+,{"stream_name":"stdout","time":13.748895895,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":13.843148491,"data":"  --\u003e KNN Completed | Composite Score: 0.0994\n"}
+,{"stream_name":"stdout","time":13.949533807,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":14.057408772,"data":"  --\u003e SVM Completed | Composite Score: 0.1809\n"}
+,{"stream_name":"stdout","time":14.169430977,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":14.204462756,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.1849\n"}
+,{"stream_name":"stdout","time":14.388411787999999,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":15.827032158,"data":"  --\u003e RandomForest Completed | Composite Score: 0.1714\n"}
+,{"stream_name":"stdout","time":15.937559494,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":16.770018169,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.1699\n"}
+,{"stream_name":"stdout","time":16.881106224,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":17.786857336,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.1699\n"}
+,{"stream_name":"stdout","time":17.971099299,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":18.094816013,"data":"  --\u003e LightGBM Completed | Composite Score: 0.1699\n"}
+,{"stream_name":"stdout","time":18.243085147,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":18.532620444,"data":"  --\u003e CatBoost Completed | Composite Score: 0.1699\n"}
+,{"stream_name":"stdout","time":18.720268806,"data":"Top 3 baseline models selected for deep tuning: ['DecisionTree', 'SVM', 'RandomForest']\n"}
+,{"stream_name":"stdout","time":18.720311286,"data":"Executing deep tuning sweep for: DecisionTree...\n"}
+,{"stream_name":"stdout","time":20.674402614999998,"data":"  Tuning complete for DecisionTree. Best params: {'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 6}\n"}
+,{"stream_name":"stdout","time":20.711540343,"data":"  --\u003e Tuned_DecisionTree Completed | Composite Score: 0.1849\n"}
+,{"stream_name":"stdout","time":20.711635293,"data":"Executing deep tuning sweep for: SVM...\n"}
+,{"stream_name":"stdout","time":20.979415722,"data":"  Tuning complete for SVM. Best params: {'gamma': 'auto', 'C': 0.1}\n"}
+,{"stream_name":"stdout","time":21.072276208,"data":"  --\u003e Tuned_SVM Completed | Composite Score: 0.1809\n"}
+,{"stream_name":"stdout","time":21.072379118,"data":"Executing deep tuning sweep for: RandomForest...\n"}
+,{"stream_name":"stdout","time":22.976140638,"data":"  Tuning complete for RandomForest. Best params: {'n_estimators': 50, 'min_samples_split': 5, 'min_samples_leaf': 8, 'max_depth': 15}\n"}
+,{"stream_name":"stdout","time":23.578711443,"data":"  --\u003e Tuned_RandomForest Completed | Composite Score: 0.1710\n"}
+,{"stream_name":"stdout","time":23.580285643,"data":"Ultimate Champion model 'DecisionTree' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":23.581035483,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":27.016929718,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":27.017056478,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":27.294746766,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":27.294782066,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":27.93271297,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":28.754757315,"data":"[NbConvertApp] Writing 388211 bytes to __results__.html\n"}
+]

@@ -1,0 +1,67 @@
+# فريق SOL (Space Of Learning)
+
+## نظرة عامة عن الفريق (من نحن)
+فريق SOL (Space Of Learning) هو فريق ذكاء اصطناعي تنافسي متخصص، يقود الابتكار ويحقق مراكز متقدمة في أكبر الهاكاثونات المحلية والدولية. تأسس الفريق برؤية واضحة لبناء حلول تقنية مبتكرة قائمة على الذكاء الاصطناعي، قادرة على المنافسة محليًا ودوليًا. 
+خلال فترة قصيرة، استطاع فريق SOL إثبات مكانته بتحقيق مراكز متقدمة في كبرى الهاكاثونات وسط مئات المشاركين من مختلف المؤسسات، معتمداً على البحث العميق، والعمل الجماعي عالي الأداء، والسعي المستمر للتميز. 
+
+## قيادة ومؤسسي فريق SOL
+يُدار فريق SOL بقيادة طموحة ذات رؤية عالمية، وتتكون من:
+* **محمد أحمد أحمد رمضان شلبي:** مؤسس مشارك وقائد الفريق (Co-Founder & Team Lead). مصري الجنسية، وطالب بالفرقة الثانية في جامعة حلوان التكنولوجية الدولية.
+* **محمد بابكر عز الدين عبد الباسط:** مؤسس مشارك وقائد فريق الذكاء الاصطناعي (Co-Founder & AI Lead). سوداني الجنسية، وطالب بالفرقة الرابعة في كلية الذكاء الاصطناعي بجامعة المنوفية.
+
+## ملخص إحصائيات وجوائز فريق SOL
+* **المركز الأول:** مرة واحدة.
+* **المركز الثالث:** مرة واحدة.
+* **المركز الرابع:** مرتين.
+* **المركز الخامس:** مرة واحدة.
+* **الترشح العالمي:** حصل الفريق على لقب مرشح عالمي (Global Nominee) مرة واحدة.
+* **إجمالي الجوائز المالية:** حصد الفريق جوائز مالية ودعم مالي بإجمالي 65,000 جنيه مصري.
+
+## السجل الموثق لإنجازات فريق SOL في الهاكاثونات
+* **هاكاثون NASA Space Apps Challenge – Shebeen El-Kom (4 - 6 أكتوبر 2025):** حقق فريق SOL المركز الأول (TOP 1) وتم اختياره كمرشح عالمي (Global Nominee) لتمثيل مصر دوليًا، وسط منافسة ضمت أكثر من 100 فريق.
+* **هاكاثون Cairo ICT Intersection (17 - 19 نوفمبر 2025):** حقق فريق SOL المركز الرابع (TOP 4).
+* **هاكاثون EVA AI Hackathon (31 يناير – 5 فبراير 2026):** حقق فريق SOL المركز الرابع (TOP 4) وحصل على دعم مالي بقيمة 40,000 جنيه مصري.
+* **هاكاثون Biggest Google Egypt Hackathon – GDG Delta (14 - 16 فبراير 2026):** حقق فريق SOL المركز الخامس (TOP 5) وسط منافسة ضخمة ضمت أكثر من 610 مشارك.
+* **هاكاثون Data Pill (أبريل 2026):** حقق فريق SOL المركز الثالث (TOP 3) بمشروع SANAD، وحصل على جائزة مالية بقيمة 10,000 جنيه مصري.
+
+## رؤية فريق SOL
+نسعى في فريق SOL إلى تمثيل المنطقة عربيًا وعالميًا في مسابقات الذكاء الاصطناعي، وإطلاق منتجات قائمة على تقنيات متقدمة تُحدث تأثيرًا حقيقيًا. يطمح الفريق لبناء منظومة تعلم مستمرة، وتوسيع نطاق البحث والتطوير، وتحويل الأفكار المبتكرة إلى حلول قابلة للتطبيق.
+
+
+تفاصيل فريق الكليه SOL Team HITU
+جامعه حلوان التكنلوجية الدوليه
+الكليه التكنلوجيا بلقاهره 
+
+الدكتور المشرف Dr.Simon Ezzat  
+المعيد / المهندس المشرف Eng.Naglaa Saeed  
+
+
+قائد الفريق 
+محمد شلبي 
+
+
+ادوار الفريق 
+
+Mohamed Shalaby : Head Of AI / BACKEND / Head Of AUTOMATION / UI/UX / documentation / Frontend - Team Lead
+Mohsen Hassan :  AI / BACKEND / documentation / Frontend
+Mohamed Elassal : AI
+Abdelrhman Gharieb : AI / Small Frontend
+Mohamed Mokhtar: BACKEND / AI
+Assem Hatem : UI/UX / BACKEND 
+Amr Omar : Head Of Frontend
+Mohamed Khaled : Head Of Documentation
+Ashrakat khaild : Frontend / Head Of documentation
+Fatma Hussein  : Frontend  
+Fatma Mahmoud : Head Of Frontend / Small BACKEND
+Malak elsayd : Frontend
+Safaa Mohamed : Head Of UI/UX / Frontend / AUTOMATION / Small BACKEND
+Mayar Mamdouh : AI / AUTOMATION / Small BACKEND 
+Menna Mahmoud : AI / AUTOMATION / Small BACKEND
+Habiba Mohamed : AI / AUTOMATION  / Small BACKEND
+
+
+
+
+
+             
+

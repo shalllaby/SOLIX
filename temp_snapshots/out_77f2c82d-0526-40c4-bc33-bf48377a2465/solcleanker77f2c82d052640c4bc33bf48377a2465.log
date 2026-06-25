@@ -1,0 +1,25 @@
+[{"stream_name":"stdout","time":0.760832937,"data":"[2026-05-31 02:37:24] [INFO] [SOL.KaggleKernel] === REMOTE KAGGLE CLEANING KERNEL STARTING (AUTO-UNZIP MODE) ===\n"}
+,{"stream_name":"stdout","time":0.760977917,"data":"[2026-05-31 02:37:24] [INFO] [SOL.KaggleKernel] Waiting for mounted dataset (raw.parquet) under /kaggle/input/...\n"}
+,{"stream_name":"stdout","time":0.763673118,"data":"[2026-05-31 02:37:24] [INFO] [SOL.KaggleKernel] Dataset found instantly at: /kaggle/input/datasets/mohamedshalaby11/solcleanin77f2c82d052640c4bc33bf48377a2465\n"}
+,{"stream_name":"stdout","time":0.763702107,"data":"[2026-05-31 02:37:24] [INFO] [SOL.KaggleKernel] [SUCCESS] Appended paths from: '/kaggle/input/datasets/mohamedshalaby11/solcleanin77f2c82d052640c4bc33bf48377a2465/studio_core' to sys.path.\n"}
+,{"stream_name":"stdout","time":0.763712558,"data":"[2026-05-31 02:37:24] [INFO] [SOL.KaggleKernel] Loading raw dataset and strategy configurations...\n"}
+,{"stream_name":"stdout","time":2.602444161,"data":"[2026-05-31 02:37:26] [INFO] [SOL.KaggleKernel] [SUCCESS] Loaded raw dataset: Shape = (29604, 7)\n"}
+,{"stream_name":"stdout","time":2.6024781409999997,"data":"[2026-05-31 02:37:26] [INFO] [SOL.KaggleKernel] Importing SmartDataCleaner engine...\n"}
+,{"stream_name":"stdout","time":5.130223402,"data":"[2026-05-31 02:37:28] [INFO] [SOL.KaggleKernel] Injecting GROQ_API_KEY into remote runtime environment.\n"}
+,{"stream_name":"stdout","time":5.130256402,"data":"[2026-05-31 02:37:28] [INFO] [SOL.KaggleKernel] Starting data cleaning execution...\n"}
+,{"stream_name":"stderr","time":5.288324806,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2732: UserWarning: X has feature names, but OrdinalEncoder was fitted without feature names\n"}
+,{"stream_name":"stderr","time":5.288384496,"data":"  warnings.warn(\n"}
+,{"stream_name":"stderr","time":5.300521077,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2732: UserWarning: X has feature names, but OrdinalEncoder was fitted without feature names\n"}
+,{"stream_name":"stderr","time":5.300559947,"data":"  warnings.warn(\n"}
+,{"stream_name":"stderr","time":5.310735738,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2732: UserWarning: X has feature names, but OrdinalEncoder was fitted without feature names\n"}
+,{"stream_name":"stderr","time":5.310775458,"data":"  warnings.warn(\n"}
+,{"stream_name":"stderr","time":5.321206989,"data":"/kaggle/input/datasets/mohamedshalaby11/solcleanin77f2c82d052640c4bc33bf48377a2465/studio_core/utils/ai_imputer.py:125: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`\n"}
+,{"stream_name":"stderr","time":5.321241029,"data":"  X_train = X_train.fillna(0).astype(np.float32)\n"}
+,{"stream_name":"stderr","time":26.438075846,"data":"Killed\n"}
+,{"stream_name":"stderr","time":29.130923153,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":29.130967463,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":29.558687581,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":29.558745061,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":31.139024607,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":32.55030369,"data":"[NbConvertApp] Writing 304668 bytes to __results__.html\n"}
+]

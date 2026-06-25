@@ -1,0 +1,56 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "Tuned_LogisticRegression",
+            "fit_time": 3.278141498565674,
+            "train_metrics": {
+                "rmse": 96324.40447214039,
+                "mae": 57340.1375,
+                "r2": 0.921290023982186
+            },
+            "val_metrics": {
+                "rmse": 74904.19948641064,
+                "mae": 47360.5,
+                "r2": 0.9494773369684973
+            },
+            "cv_mean": 0.9066155524571734,
+            "cv_std": 0.03063110548734539,
+            "generalization_gap": 0.0,
+            "composite_score": 0.9118060502829228,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "LogisticRegression",
+            "fit_time": 0.059557199478149414,
+            "train_metrics": {
+                "rmse": 243870.8891406988,
+                "mae": 160264.5,
+                "r2": 0.49548156704076274
+            },
+            "val_metrics": {
+                "rmse": 295137.849242858,
+                "mae": 196471.2,
+                "r2": 0.21562504862963217
+            },
+            "cv_mean": 0.44908830557331125,
+            "cv_std": 0.3012293859160571,
+            "generalization_gap": 0.2798565184111306,
+            "composite_score": 0.0,
+            "status_indicator": "Heavy Overfitting",
+            "labels": [
+                "Heavy Overfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "LogisticRegression": "completed",
+        "Tuned_LogisticRegression": "completed"
+    },
+    "model_errors": {}
+}

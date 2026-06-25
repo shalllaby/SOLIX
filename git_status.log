@@ -1,0 +1,142 @@
+STDOUT:
+On branch main
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+  (commit or discard the untracked or modified content in submodules)
+	modified:   README -.txt
+	modified:   README.md
+	modified:   SOL form (modified content, untracked content)
+	modified:   backend/auth.py
+	deleted:    backend/database_utils.py
+	modified:   backend/main.py
+	modified:   backend/models.py
+	modified:   backend/store.py
+	modified:   backend/tools/audit/engine.py
+	modified:   backend/tools/audit/router.py
+	modified:   backend/tools/data_noise/router.py
+	modified:   backend/tools/forms/router.py
+	modified:   backend/tools/ml_advisor/processor.py
+	modified:   backend/tools/ml_advisor/router.py
+	modified:   backend/tools/narrator/narrator.py
+	modified:   backend/tools/ocr/router.py
+	modified:   backend/tools/semantic_mapper/processor.py
+	modified:   backend/tools/semantic_mapper/router.py
+	modified:   core/analyzer.py
+	modified:   core/cleaner.py
+	modified:   core/strategist.py
+	modified:   frontend/static/favicon.svg
+	modified:   frontend/templates/app/_layout.html
+	modified:   frontend/templates/app/audit_report.html
+	modified:   frontend/templates/app/cleaning_studio.html
+	modified:   frontend/templates/app/dashboard.html
+	modified:   frontend/templates/app/data_noise.html
+	deleted:    frontend/templates/app/db_connectors.html
+	modified:   frontend/templates/app/forms_dashboard.html
+	modified:   frontend/templates/app/ml_advisor.html
+	modified:   frontend/templates/app/ocr_engine.html
+	modified:   frontend/templates/app/semantic_mapper.html
+	modified:   frontend/templates/app/settings.html
+	modified:   frontend/templates/public/_auth_left_panel.html
+	modified:   frontend/templates/public/_public_layout.html
+	modified:   frontend/templates/public/docs.html
+	modified:   frontend/templates/public/forgot_password.html
+	modified:   frontend/templates/public/form_fill.html
+	modified:   frontend/templates/public/landing.html
+	modified:   frontend/templates/public/login.html
+	modified:   frontend/templates/public/register.html
+	modified:   frontend/templates/public/reset_password.html
+	modified:   frontend/templates/public/solutions.html
+	modified:   requirements.txt
+	modified:   utils/ai_imputer.py
+	modified:   utils/logger.py
+	modified:   utils/numeric_cleaner.py
+	modified:   utils/text_normalizer.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.vscode/
+	Auto ML/
+	DATASET_ADVISOR.md
+	Genreted data safaa/
+	PROJECT_ARCHITECTURE_DEEP_DIVE.md
+	RAG_REFERENCE.md
+	RFC-002_hybrid_profiling_engine_upgrade.md
+	SOLIX_DOCUMENTATION.md
+	SYNTHETIC_STUDIO_GUIDE.md
+	WORKFLOW.md
+	backend/auth_routes.py
+	backend/data/api_temp/0bd4ec7d-49c9-471a-a29a-8c974781ed84_input.pdf
+	backend/data/api_temp/0bd4ec7d-49c9-471a-a29a-8c974781ed84_ocr_done.pdf
+	backend/data/api_temp/9e89e614-4f5e-4625-ad61-74cb35c4e656_input.pdf
+	backend/data/api_temp/9e89e614-4f5e-4625-ad61-74cb35c4e656_ocr_done.pdf
+	backend/data/qdrant_storage/
+	backend/diag.py
+	backend/middleware/
+	backend/migrate_db.py
+	backend/tools/automl/
+	backend/tools/copilot/
+	backend/tools/dashboard/
+	backend/tools/dataset_advisor/
+	backend/tools/synthetic_data/
+	backend/tools/viz_engine/
+	backend/utils/
+	backend/workers/
+	benchmark_summary.csv
+	catboost_info/
+	core/automl/
+	core/copilot/
+	downloads/
+	evaluate_cleaner.py
+	force_download.py
+	frontend/static/js/
+	frontend/static/sol_logo.png
+	frontend/static/solix (2).png
+	frontend/static/solix.png
+	frontend/static/solix_ultra.png
+	frontend/templates/app/automl_studio.html
+	frontend/templates/app/chat_with_data.html
+	frontend/templates/app/dataset_advisor.html
+	frontend/templates/app/synthetic_studio.html
+	frontend/templates/app/viz_report.html
+	frontend/templates/public/verify_otp.html
+	git_restore.log
+	kaggle_cleaning_kernel.py
+	kaggle_synthetic_kernel.py
+	logs/
+	migration_log.txt
+	otp_debug.txt
+	pages/
+	run_project.bat
+	scratch/
+	serche engin task/
+	solix.png
+	solix.svg
+	studio.py
+	temp_snapshots/
+	temp_test.txt
+	test_auth.db
+	test_data.csv
+	test_out.txt
+	test_tts_output.mp3
+	tests/benchmark_cleaner.py
+	tests/corruption_detector.py
+	tests/llm_strategy_validator.py
+	tests/semantic_validator.py
+	tests/synthetic_data_factory.py
+	tests/test_automl_router.py
+	tests/test_dataset_advisor.py
+	tests/test_large_scale_imputer.py
+	tests/test_otp_auth.py
+	tests/test_predict_robustness.py
+	tests/test_predictive_imputation.py
+	tests/test_tier_cleaners.py
+	utils/automl/
+	utils/missingness_intelligence.py
+	utils/policy_engine.py
+	utils/temporal_validator.py
+	validation_report.json
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+STDERR:

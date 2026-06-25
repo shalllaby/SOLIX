@@ -1,0 +1,28 @@
+[{"stream_name":"stdout","time":3.040279201,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stderr","time":3.051691727,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":3.051773876,"data":"  File \"/kaggle/src/script.py\", line 11, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":3.051783405,"data":"    X_train = pd.read_csv(os.path.join(input_dir, \"X_train.csv\"))\n"}
+,{"stream_name":"stderr","time":3.05205038,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":3.052070895,"data":"  File \"/usr/local/lib/python3.12/dist-packages/pandas/io/parsers/readers.py\", line 1026, in read_csv\n"}
+,{"stream_name":"stderr","time":3.054673511,"data":"    return _read(filepath_or_buffer, kwds)\n"}
+,{"stream_name":"stderr","time":3.054735005,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":3.054744434,"data":"  File \"/usr/local/lib/python3.12/dist-packages/pandas/io/parsers/readers.py\", line 620, in _read\n"}
+,{"stream_name":"stderr","time":3.055064773,"data":"    parser = TextFileReader(filepath_or_buffer, **kwds)\n"}
+,{"stream_name":"stderr","time":3.055152412,"data":"             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":3.055251595,"data":"  File \"/usr/local/lib/python3.12/dist-packages/pandas/io/parsers/readers.py\", line 1620, in __init__\n"}
+,{"stream_name":"stderr","time":3.055742262,"data":"    self._engine = self._make_engine(f, self.engine)\n"}
+,{"stream_name":"stderr","time":3.05587568,"data":"                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":3.055894232,"data":"  File \"/usr/local/lib/python3.12/dist-packages/pandas/io/parsers/readers.py\", line 1880, in _make_engine\n"}
+,{"stream_name":"stderr","time":3.056510945,"data":"    self.handles = get_handle(\n"}
+,{"stream_name":"stderr","time":3.056525659,"data":"                   ^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":3.056530389,"data":"  File \"/usr/local/lib/python3.12/dist-packages/pandas/io/common.py\", line 873, in get_handle\n"}
+,{"stream_name":"stderr","time":3.05847976,"data":"    handle = open(\n"}
+,{"stream_name":"stderr","time":3.058512918,"data":"             ^^^^^\n"}
+,{"stream_name":"stderr","time":3.058517994,"data":"FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/input/dataset-automl-1780156022/X_train.csv'\n"}
+,{"stream_name":"stderr","time":6.195200287,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":6.195261615,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":6.585107323,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":6.585150099,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":8.379615473,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":10.146340303,"data":"[NbConvertApp] Writing 285351 bytes to __results__.html\n"}
+]

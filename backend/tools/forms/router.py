@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Request
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import csv
 import io
 from fastapi.responses import StreamingResponse
 
 from backend.database import get_db
 from backend.models import Form, FormResponse, User
-from backend.auth import get_current_user
+from backend.auth import get_current_user, get_optional_current_user
 
 router = APIRouter(prefix="/api/forms", tags=["forms"])
 
@@ -22,17 +22,33 @@ def create_form(
     new_form = Form(
         title=title,
         description=description,
-        questions=questions
+        questions=questions,
+        user_id=current_user.id
     )
     db.add(new_form)
     db.commit()
     db.refresh(new_form)
+
+    # Log the form creation job
+    try:
+        from backend.utils.job_logger import log_job
+        log_job(
+            db=db,
+            user_id=current_user.id,
+            task_type="forms",
+            filename=f"Form: {title}",
+            status="completed",
+            accuracy_rate=100.0
+        )
+    except Exception as log_err:
+        print(f"[Forms Log Error]: {log_err}")
+
     return {"status": "success", "form_id": new_form.id, "message": "Form created successfully!"}
 
 @router.get("")
 def list_forms(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Get answers count for each form too
-    forms = db.query(Form).order_by(Form.id.desc()).all()
+    forms = db.query(Form).filter(Form.user_id == current_user.id).order_by(Form.id.desc()).all()
     results = []
     for f in forms:
         count = db.query(FormResponse).filter(FormResponse.form_id == f.id).count()
@@ -59,21 +75,48 @@ def get_form(form_id: int, db: Session = Depends(get_db)): # No auth required fo
     }
 
 @router.post("/{form_id}/responses")
-def submit_response(form_id: int, answers: Dict[str, Any] = Body(...), db: Session = Depends(get_db)):
+def submit_response(
+    form_id: int,
+    answers: Dict[str, Any] = Body(...),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user)
+):
     form = db.query(Form).filter(Form.id == form_id).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
     
     new_response = FormResponse(
         form_id=form_id,
-        answers=answers
+        answers=answers,
+        user_id=current_user.id if current_user else None
     )
     db.add(new_response)
     db.commit()
+
+    # Log the response submission job
+    try:
+        from backend.utils.job_logger import log_job
+        log_job(
+            db=db,
+            user_id=form.user_id,
+            task_type="forms",
+            filename=f"Submission: {form.title}",
+            status="completed",
+            accuracy_rate=88.0
+        )
+    except Exception as log_err:
+        print(f"[Forms Log Error]: {log_err}")
+
     return {"status": "success", "message": "Response recorded successfully."}
 
 @router.get("/{form_id}/responses")
 def get_form_responses(form_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    form = db.query(Form).filter(Form.id == form_id).first()
+    if not form:
+        raise HTTPException(status_code=404, detail="Form not found")
+    if form.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this form")
+        
     responses = db.query(FormResponse).filter(FormResponse.form_id == form_id).order_by(FormResponse.id.desc()).all()
     return {
         "responses": [{"id": r.id, "answers": r.answers, "timestamp": r.timestamp} for r in responses]
@@ -84,6 +127,8 @@ def export_form_responses(form_id: int, db: Session = Depends(get_db), current_u
     form = db.query(Form).filter(Form.id == form_id).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
+    if form.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this form")
         
     responses = db.query(FormResponse).filter(FormResponse.form_id == form_id).all()
     
@@ -117,6 +162,8 @@ def delete_form(form_id: int, db: Session = Depends(get_db), current_user: User 
     form = db.query(Form).filter(Form.id == form_id).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
+    if form.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this form")
     
     # Delete associated responses first
     db.query(FormResponse).filter(FormResponse.form_id == form_id).delete()
@@ -138,6 +185,8 @@ def update_form(
     form = db.query(Form).filter(Form.id == form_id).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
+    if form.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this form")
     
     form.title = title
     form.description = description

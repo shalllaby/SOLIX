@@ -1,52 +1,179 @@
 {% extends 'public/_public_layout.html' %}
 
-{% block page_title %}Kinetic Observatory Precision{% endblock %}
-{% block meta_description %}Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time.{% endblock %}
+{% block page_title %}SOLIX | Your Virtual Data Engineer{% endblock %}
+{% block meta_description %}Deploy SOLIX — a virtual data engineer that autonomously designs, optimizes, and repairs ingestion pipelines in real-time.{% endblock %}
+
+{% block head %}
+<style>
+    /* Gradient Text Animation */
+    .text-gradient {
+        background: linear-gradient(135deg, #5bd5fc 0%, #b276ff 50%, #4cc9f0 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textShimmer 4s linear infinite;
+    }
+    @keyframes textShimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Holographic glow for the visualization card */
+    .holo-card {
+        position: relative;
+        background: rgba(19, 22, 40, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 0 45px rgba(107, 72, 255, 0.15);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .holo-card:hover {
+        border-color: rgba(91, 213, 252, 0.3) !important;
+        box-shadow: 0 0 60px rgba(91, 213, 252, 0.25), inset 0 0 20px rgba(255, 255, 255, 0.02);
+        transform: translateY(-4px) scale(1.01);
+    }
+
+    /* Glowing badge animation */
+    .glow-badge {
+        background: rgba(19, 22, 40, 0.8) !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        transition: all 0.3s ease;
+    }
+    .glow-badge:hover {
+        border-color: rgba(91, 213, 252, 0.4) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(91, 213, 252, 0.2);
+    }
+
+    /* Animated SVG flow lines */
+    .stream-line {
+        stroke-dasharray: 100;
+        animation: flow 4s linear infinite;
+    }
+    @keyframes flow {
+        from { stroke-dashoffset: 200; }
+        to { stroke-dashoffset: 0; }
+    }
+
+    /* Floating particles */
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(91, 213, 252, 0.6);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .particle-purple {
+        background: rgba(178, 118, 255, 0.6);
+    }
+
+    /* CTA button shimmer */
+    .shimmer-btn {
+        position: relative;
+        overflow: hidden;
+    }
+    .shimmer-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -60%;
+        width: 30%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.18);
+        transform: rotate(30deg);
+        transition: none;
+    }
+    .shimmer-btn:hover::after {
+        left: 140%;
+        transition: all 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <main class="overflow-x-hidden">
 
     <!-- ═══════════ HERO ═══════════ -->
-    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 md:py-28 flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+    <section
+        class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 md:py-28 flex flex-col md:flex-row items-center gap-12 lg:gap-20">
         <div class="w-full md:w-[48%] space-y-8">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20">
                 <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-                <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">System Status: Optimal</span>
+                <span data-i18n="system_status" class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">System Status:
+                    Optimal</span>
             </div>
-            <h1 class="font-headline font-black text-5xl md:text-[64px] leading-[1.04] tracking-tighter text-white">
-                CRYSTALLIZE YOUR <span class="text-gradient">MESSY DATA</span>
+            <h1 data-i18n="hero_title" class="font-headline font-black text-5xl md:text-[64px] leading-[1.04] tracking-tighter text-white uppercase">
+                THE AGENTIC <span class="text-gradient">VIRTUAL DATA ENGINEER</span>
             </h1>
-            <p class="text-on-surface/65 text-lg max-w-xl font-body leading-relaxed">
-                Automate complex data ingestion pipelines with a kinetic agent that observes, transforms, and validates every byte in real-time. Precision engineering for the modern data stack.
+            <p data-i18n="hero_desc" class="text-on-surface/65 text-lg max-w-xl font-body leading-relaxed">
+                Meet SOLIX — an autonomous virtual data engineer that designs, optimizes, and repairs ingestion pipelines in real-time. Zero manual code, zero pipeline downtime.
             </p>
             <div class="flex flex-wrap gap-4 pt-2">
                 <a href="/register">
-                    <button class="px-7 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,0.30)] hover:shadow-[0_0_48px_rgba(67,97,238,0.52)] hover:scale-[1.02] active:scale-[0.99] transition-all duration-200">
-                        Explore SOL Agent →
+                    <button data-i18n="hero_get_started"
+                        class="px-7 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,0.30)] hover:shadow-[0_0_48px_rgba(67,97,238,0.52)] hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 shimmer-btn">
+                        Explore SOLIX Agent →
                     </button>
                 </a>
-                <button class="px-7 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/50 transition-all duration-200">
+                <button data-i18n="hero_view_demo"
+                    class="px-7 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/50 transition-all duration-200">
                     View Demo
                 </button>
             </div>
         </div>
         <!-- Visualization -->
-        <div class="w-full md:w-[52%] relative min-h-[420px] md:min-h-[520px]">
-            <div class="relative w-full h-full rounded-2xl overflow-hidden border border-outline-variant/20 shadow-[0_0_60px_rgba(67,97,238,0.15)]" style="min-height:460px;">
-                <img alt="SOL Data Agent Visualization" class="w-full h-full object-cover"
-                     src="https://i.ibb.co/FqYk7RJp/unnamed-3.png">
-                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40"></div>
-                <!-- Accuracy badge -->
-                <div class="absolute top-4 right-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-primary-container/20">
-                    <div class="font-mono text-[9px] text-primary-container uppercase tracking-widest mb-1">Precision</div>
-                    <div class="font-headline font-bold text-2xl text-white">99.9%</div>
-                    <div class="text-[9px] text-on-surface/40">Accuracy Guarantee</div>
+        <div class="w-full md:w-[52%] relative min-h-[420px] md:min-h-[520px] flex items-center justify-center">
+            <!-- Floating Particles Container -->
+            <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden" id="particles-container"></div>
+            
+            <div class="relative w-full h-full holo-card" style="min-height:460px;">
+                <!-- Animated SVG Data Stream lines -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-70" xmlns="http://www.w3.org/2000/svg">
+                    <path class="stream-line" d="M -20,100 C 100,50 150,300 300,100 C 450,-100 500,200 700,150" fill="none" stroke="url(#gradient-blue)" stroke-width="2" />
+                    <path class="stream-line" d="M -20,300 C 120,400 200,100 350,250 C 500,400 550,50 700,200" fill="none" stroke="url(#gradient-purple)" stroke-dashoffset="50" stroke-width="1.5" />
+                    
+                    <defs>
+                        <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#5bd5fc" stop-opacity="0" />
+                            <stop offset="50%" stop-color="#5bd5fc" stop-opacity="1" />
+                            <stop offset="100%" stop-color="#4cc9f0" stop-opacity="0" />
+                        </linearGradient>
+                        <linearGradient id="gradient-purple" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#b276ff" stop-opacity="0" />
+                            <stop offset="50%" stop-color="#b276ff" stop-opacity="1" />
+                            <stop offset="100%" stop-color="#6840f7" stop-opacity="0" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <img alt="SOL Data Agent Visualization" class="w-full h-full object-cover transform hover:scale-[1.03] transition-all duration-700 ease-out"
+                    src="https://i.ibb.co/FqYk7RJp/unnamed-3.png">
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40">
+                </div>
+                
+                <!-- Core Modules badge -->
+                <div
+                    class="absolute top-4 right-4 glow-badge px-5 py-3.5 rounded-xl z-20">
+                    <div data-i18n="core_modules" class="font-mono text-[9px] text-primary-container uppercase tracking-widest mb-1">Core Modules</div>
+                    <div class="font-headline font-bold text-2xl text-white tracking-tight flex items-center gap-1">
+                        <span id="features-counter">0</span>
+                    </div>
+                    <div data-i18n="ready_modules_desc" class="text-[9px] text-on-surface/40">Ready-to-Use Modules</div>
                 </div>
                 <!-- Latency badge -->
-                <div class="absolute bottom-4 left-4 glass-panel px-5 py-3.5 rounded-xl z-20 border border-secondary-container/20">
-                    <div class="font-mono text-[9px] text-secondary-container uppercase tracking-widest mb-1">Latency</div>
-                    <div class="font-headline font-bold text-2xl text-white">2.4ms</div>
-                    <div class="text-[9px] text-on-surface/40">Avg Processing Time</div>
+                <div
+                    class="absolute bottom-4 left-4 glow-badge px-5 py-3.5 rounded-xl z-20">
+                    <div data-i18n="latency_badge_label" class="font-mono text-[9px] text-secondary-container uppercase tracking-widest mb-1">Latency</div>
+                    <div class="font-headline font-bold text-2xl text-white tracking-tight flex items-center gap-1">
+                        <span id="latency-counter">2.4</span>ms
+                    </div>
+                    <div data-i18n="latency_badge_desc" class="text-[9px] text-on-surface/40">Avg Processing Time</div>
                 </div>
             </div>
         </div>
@@ -55,50 +182,99 @@
     <!-- ═══════════ FEATURES GRID ═══════════ -->
     <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {% for feat in [
-                ("cloud_download", "Universal Data Loader",  "Connect to any SQL, NoSQL, or API endpoint with zero-configuration mapping and instant schema detection."),
-                ("psychology",      "AI Strategy Hub",        "Dynamic logic allocation using LLMs to clean, normalize, and enrich raw data streams on the fly."),
-                ("verified",        "Validated Output",       "Rigorous multi-stage validation ensures only clean, high-fidelity data reaches your production warehouses."),
-                ("assessment",      "Audit & Reports",        "Full lineage tracking and observability dashboards for compliance and system transparency.")
-            ] %}
+            <!-- Feature 1 -->
             <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
                 <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
-                    <span class="material-symbols-outlined text-primary-container">{{ feat[0] }}</span>
+                    <span class="material-symbols-outlined text-primary-container">memory</span>
                 </div>
-                <h3 class="text-white font-headline font-bold text-lg mb-3">{{ feat[1] }}</h3>
-                <p class="text-on-surface/55 text-sm leading-relaxed">{{ feat[2] }}</p>
+                <h3 data-i18n="feat_orch_title" class="text-white font-headline font-bold text-lg mb-3">Autonomic Orchestration</h3>
+                <p data-i18n="feat_orch_desc" class="text-on-surface/55 text-sm leading-relaxed">Deploys ingestion pipelines dynamically. Translates business intent into robust data pipelines automatically.</p>
             </div>
-            {% endfor %}
+            <!-- Feature 2 -->
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">healing</span>
+                </div>
+                <h3 data-i18n="feat_healing_title" class="text-white font-headline font-bold text-lg mb-3">Self-Healing Workflows</h3>
+                <p data-i18n="feat_healing_desc" class="text-on-surface/55 text-sm leading-relaxed">Constantly monitors execution quality and automatically recovers from source schema mutations and connection dropouts.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">psychology</span>
+                </div>
+                <h3 data-i18n="feat_schema_title" class="text-white font-headline font-bold text-lg mb-3">Semantic Schema Mapping</h3>
+                <p data-i18n="feat_schema_desc" class="text-on-surface/55 text-sm leading-relaxed">LLM-powered semantic parsing immediately maps, refines, and validates unstructured payloads on the fly.</p>
+            </div>
+            <!-- Feature 4 -->
+            <div class="bg-[#131628] p-7 rounded-xl border border-outline-variant/10 hover:border-primary-container/35 hover:shadow-[0_0_30px_rgba(67,97,238,0.10)] transition-all duration-300 group">
+                <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center mb-5 group-hover:bg-primary-container/12 transition-colors duration-300">
+                    <span class="material-symbols-outlined text-primary-container">verified_user</span>
+                </div>
+                <h3 data-i18n="feat_gov_title" class="text-white font-headline font-bold text-lg mb-3">Zero-Ops Governance</h3>
+                <p data-i18n="feat_gov_desc" class="text-on-surface/55 text-sm leading-relaxed">Integrated lineage logs and full visibility analytics guarantee clean data, regulatory compliance, and total transparency.</p>
+            </div>
         </div>
     </section>
 
     <!-- ═══════════ DATA TRANSFORMATION ═══════════ -->
     <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-20 bg-surface-container-lowest/50 rounded-3xl my-4">
         <div class="text-center mb-14">
-            <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Specialized Data Transformation</h2>
-            <div class="w-20 h-0.5 bg-gradient-to-r from-primary-container to-secondary-container mx-auto mt-5 rounded-full"></div>
+            <h2 data-i18n="spec_data_trans" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Specialized Data Transformation</h2>
+            <div
+                class="w-20 h-0.5 bg-gradient-to-r from-primary-container to-secondary-container mx-auto mt-5 rounded-full">
+            </div>
         </div>
         <div class="flex flex-col lg:flex-row items-stretch justify-center gap-8 lg:gap-10">
             <!-- Before table -->
             <div class="w-full lg:w-[42%]">
                 <h3 class="text-success font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-error inline-block"></span> Before
+                    <span class="w-2 h-2 rounded-full bg-error inline-block"></span> <span data-i18n="before">Before</span>
                 </h3>
-                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                <div
+                    class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
                     <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
-                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Error</th><th class="font-medium">Format</th><th class="font-medium">Status</th></tr></thead>
+                        <thead>
+                            <tr class="text-on-surface/35 uppercase tracking-tighter">
+                                <th class="font-medium" data-i18n="th_date">Date</th>
+                                <th class="font-medium" data-i18n="th_error">Error</th>
+                                <th class="font-medium" data-i18n="th_format">Format</th>
+                                <th class="font-medium" data-i18n="th_status">Status</th>
+                            </tr>
+                        </thead>
                         <tbody class="text-white">
-                            <tr><td class="py-1">2026 01-55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
-                            <tr><td class="py-1">2026//01-55</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
-                            <tr><td class="py-1">2026-01d55</td><td class="py-1 text-error">Missing Value</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
-                            <tr><td class="py-1">2026-01??</td><td class="py-1 text-error">Wrong Type</td><td class="py-1 text-on-surface/40">Inconsistent</td><td class="py-1 text-error">Failed</td></tr>
+                            <tr>
+                                <td class="py-1">2026 01-55</td>
+                                <td class="py-1 text-error" data-i18n="missing_value">Missing Value</td>
+                                <td class="py-1 text-on-surface/40" data-i18n="inconsistent">Inconsistent</td>
+                                <td class="py-1 text-error" data-i18n="failed">Failed</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026//01-55</td>
+                                <td class="py-1 text-error" data-i18n="wrong_type">Wrong Type</td>
+                                <td class="py-1 text-on-surface/40" data-i18n="inconsistent">Inconsistent</td>
+                                <td class="py-1 text-error" data-i18n="failed">Failed</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026-01d55</td>
+                                <td class="py-1 text-error" data-i18n="missing_value">Missing Value</td>
+                                <td class="py-1 text-on-surface/40" data-i18n="inconsistent">Inconsistent</td>
+                                <td class="py-1 text-error" data-i18n="failed">Failed</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026-01??</td>
+                                <td class="py-1 text-error" data-i18n="wrong_type">Wrong Type</td>
+                                <td class="py-1 text-on-surface/40" data-i18n="inconsistent">Inconsistent</td>
+                                <td class="py-1 text-error" data-i18n="failed">Failed</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <!-- Center divider -->
             <div class="hidden lg:flex flex-col items-center justify-center gap-3 pt-10">
-                <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-[0_0_40px_rgba(67,97,238,0.6)]">
+                <div
+                    class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-[0_0_40px_rgba(67,97,238,0.6)]">
                     <span class="material-symbols-outlined text-white text-xl">memory</span>
                 </div>
                 <div class="w-px h-40 bg-gradient-to-b from-primary-container/50 to-transparent"></div>
@@ -106,16 +282,44 @@
             <!-- After table -->
             <div class="w-full lg:w-[42%]">
                 <h3 class="text-[#4cc9f0] font-headline font-bold text-base mb-4 pl-1 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-success inline-block"></span> After
+                    <span class="w-2 h-2 rounded-full bg-success inline-block"></span> <span data-i18n="after">After</span>
                 </h3>
-                <div class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
+                <div
+                    class="w-full bg-[#131628] rounded-xl overflow-hidden border border-outline-variant/10 shadow-2xl p-5">
                     <table class="w-full text-left font-mono text-[11px] border-separate border-spacing-y-3">
-                        <thead><tr class="text-on-surface/35 uppercase tracking-tighter"><th class="font-medium">Date</th><th class="font-medium">Status</th><th class="font-medium">Format</th><th class="font-medium">Result</th></tr></thead>
+                        <thead>
+                            <tr class="text-on-surface/35 uppercase tracking-tighter">
+                                <th class="font-medium" data-i18n="th_date">Date</th>
+                                <th class="font-medium" data-i18n="th_status">Status</th>
+                                <th class="font-medium" data-i18n="th_format">Format</th>
+                                <th class="font-medium" data-i18n="th_result">Result</th>
+                            </tr>
+                        </thead>
                         <tbody class="text-white">
-                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
-                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
-                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
-                            <tr><td class="py-1">2026-01-25</td><td class="py-1 text-success">Validated</td><td class="py-1 text-on-surface/40">ISO 8601</td><td class="py-1 text-success">Success</td></tr>
+                            <tr>
+                                <td class="py-1">2026-01-25</td>
+                                <td class="py-1 text-success" data-i18n="validated">Validated</td>
+                                <td class="py-1 text-on-surface/40">ISO 8601</td>
+                                <td class="py-1 text-success" data-i18n="success">Success</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026-01-25</td>
+                                <td class="py-1 text-success" data-i18n="validated">Validated</td>
+                                <td class="py-1 text-on-surface/40">ISO 8601</td>
+                                <td class="py-1 text-success" data-i18n="success">Success</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026-01-25</td>
+                                <td class="py-1 text-success" data-i18n="validated">Validated</td>
+                                <td class="py-1 text-on-surface/40">ISO 8601</td>
+                                <td class="py-1 text-success" data-i18n="success">Success</td>
+                            </tr>
+                            <tr>
+                                <td class="py-1">2026-01-25</td>
+                                <td class="py-1 text-success" data-i18n="validated">Validated</td>
+                                <td class="py-1 text-on-surface/40">ISO 8601</td>
+                                <td class="py-1 text-success" data-i18n="success">Success</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -125,17 +329,25 @@
 
     <!-- ═══════════ BOTTOM CTA ═══════════ -->
     <section class="mt-16 mb-0 relative overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-container via-[#6b48ff] to-secondary-container animate-shimmer py-16 px-6 text-center">
+        <div
+            class="bg-gradient-to-r from-primary-container via-[#6b48ff] to-secondary-container animate-shimmer py-16 px-6 text-center">
             <div class="max-w-4xl mx-auto space-y-7 relative z-10">
-                <h2 class="font-headline font-black text-4xl md:text-6xl text-white tracking-[0.15em] uppercase leading-tight">EXPLORE SOL AGENT</h2>
-                <p class="text-white/80 font-medium text-lg max-w-2xl mx-auto">
+                <h2 data-i18n="explore_solix_agent_cta"
+                    class="font-headline font-black text-4xl md:text-6xl text-white tracking-[0.15em] uppercase leading-tight">
+                    EXPLORE SOLIX AGENT</h2>
+                <p data-i18n="explore_solix_agent_cta_desc" class="text-white/80 font-medium text-lg max-w-2xl mx-auto">
                     Ready to automate your engineering overhead? Deploy the agent to your stack in under 5 minutes.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="/register">
-                        <button class="bg-white text-primary-container font-black px-10 py-4 rounded-full hover:scale-105 transition-transform shadow-2xl">START FREE TRIAL</button>
+                        <button data-i18n="start_free_trial"
+                            class="bg-white text-primary-container font-black px-10 py-4 rounded-full hover:scale-105 transition-transform shadow-2xl">START
+                            FREE TRIAL</button>
                     </a>
-                    <button class="border-2 border-white/40 text-white font-black px-10 py-4 rounded-full hover:bg-white/10 transition-colors">VIEW ARCHITECTURE</button>
+                    <a href="/solutions">
+                        <button data-i18n="view_solutions_cta"
+                            class="border-2 border-white/40 text-white font-black px-10 py-4 rounded-full hover:bg-white/10 transition-colors">VIEW SOLUTIONS</button>
+                    </a>
                 </div>
             </div>
             <!-- Decorative blurs -->
@@ -147,4 +359,76 @@
     </section>
 
 </main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- Counter Tickers ---
+        const featuresEl = document.getElementById("features-counter");
+        const latencyEl = document.getElementById("latency-counter");
+
+        if (featuresEl) {
+            let count = 0;
+            const target = 10;
+            const duration = 1200; // ms
+            const stepTime = Math.abs(Math.floor(duration / target));
+            const timer = setInterval(() => {
+                count += 1;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                    featuresEl.textContent = count;
+                } else {
+                    featuresEl.textContent = count;
+                }
+            }, stepTime);
+        }
+
+        if (latencyEl) {
+            setInterval(() => {
+                // Fluctuate latency between 2.1 and 2.7
+                const currentVal = parseFloat(latencyEl.textContent);
+                const delta = (Math.random() - 0.5) * 0.3;
+                let newVal = (currentVal + delta);
+                if (newVal < 2.1) newVal = 2.1;
+                if (newVal > 2.7) newVal = 2.7;
+                latencyEl.textContent = newVal.toFixed(1);
+            }, 2500);
+        }
+
+        // --- Floating Particles ---
+        const particlesContainer = document.getElementById("particles-container");
+        if (particlesContainer) {
+            function createParticle() {
+                const particle = document.createElement("div");
+                const isPurple = Math.random() > 0.5;
+                particle.className = `particle ${isPurple ? 'particle-purple' : ''}`;
+                
+                // Random position & styling
+                const startX = Math.random() * 100; // percent
+                const size = Math.random() * 4 + 2; // px
+                const duration = Math.random() * 4 + 4; // seconds
+                
+                particle.style.left = `${startX}%`;
+                particle.style.bottom = `-10px`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.animation = `floatUp ${duration}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // Remove particle when animation completes
+                setTimeout(() => {
+                    particle.remove();
+                }, duration * 1000);
+            }
+
+            // Spawn particles
+            setInterval(createParticle, 600);
+            // Pre-spawn some particles for immediate effect
+            for(let i = 0; i < 6; i++) {
+                setTimeout(createParticle, Math.random() * 2000);
+            }
+        }
+    });
+</script>
 {% endblock %}

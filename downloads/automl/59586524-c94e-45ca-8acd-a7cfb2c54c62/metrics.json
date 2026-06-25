@@ -1,0 +1,275 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "DecisionTree",
+            "fit_time": 0.0019712448120117188,
+            "train_metrics": {
+                "rmse": 59256.631602024325,
+                "mae": 51220.694399625754,
+                "r2": 0.0011793646137316927
+            },
+            "val_metrics": {
+                "rmse": 57132.31773484656,
+                "mae": 49396.7783329824,
+                "r2": -0.0026422472513791817
+            },
+            "cv_mean": -0.018239667516214107,
+            "cv_std": 0.015058795950161647,
+            "generalization_gap": 0.0011793646137316927,
+            "composite_score": 0.18494120404983838,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_DecisionTree",
+            "fit_time": 1.9560048580169678,
+            "train_metrics": {
+                "rmse": 59256.631602024325,
+                "mae": 51220.694399625754,
+                "r2": 0.0011793646137316927
+            },
+            "val_metrics": {
+                "rmse": 57132.31773484656,
+                "mae": 49396.7783329824,
+                "r2": -0.0026422472513791817
+            },
+            "cv_mean": -0.018239667516214107,
+            "cv_std": 0.015058795950161647,
+            "generalization_gap": 0.0011793646137316927,
+            "composite_score": 0.18494120404983838,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_SVM",
+            "fit_time": 0.29012370109558105,
+            "train_metrics": {
+                "rmse": 59309.79039985357,
+                "mae": 51234.97439469457,
+                "r2": -0.0006135121968258161
+            },
+            "val_metrics": {
+                "rmse": 57066.453966189285,
+                "mae": 49370.92836938681,
+                "r2": -0.0003318305028257029
+            },
+            "cv_mean": -0.007630847287726628,
+            "cv_std": 0.009079294693046958,
+            "generalization_gap": 0.0,
+            "composite_score": 0.18092070530695303,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "SVM",
+            "fit_time": 0.022655010223388672,
+            "train_metrics": {
+                "rmse": 59309.66281913478,
+                "mae": 51234.845175100425,
+                "r2": -0.0006092073812815624
+            },
+            "val_metrics": {
+                "rmse": 57066.76638990797,
+                "mae": 49371.10660330975,
+                "r2": -0.0003427836363809611
+            },
+            "cv_mean": -0.007672483803989705,
+            "cv_std": 0.009107096570253862,
+            "generalization_gap": 0.0,
+            "composite_score": 0.18089290342974615,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "RandomForest",
+            "fit_time": 0.22364354133605957,
+            "train_metrics": {
+                "rmse": 59258.04077352011,
+                "mae": 51226.96302829813,
+                "r2": 0.001131858494446747
+            },
+            "val_metrics": {
+                "rmse": 57133.20796692883,
+                "mae": 49405.71532096705,
+                "r2": -0.002673493708202024
+            },
+            "cv_mean": -0.018545849135538896,
+            "cv_std": 0.013638637687043981,
+            "generalization_gap": 0.001131858494446747,
+            "composite_score": 0.171361362312956,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_RandomForest",
+            "fit_time": 2.1273481845855713,
+            "train_metrics": {
+                "rmse": 59258.79148125833,
+                "mae": 51224.61992058114,
+                "r2": 0.0011065501047908821
+            },
+            "val_metrics": {
+                "rmse": 57120.03285950156,
+                "mae": 49398.75206261994,
+                "r2": -0.0022111073556403404
+            },
+            "cv_mean": -0.017952009565103476,
+            "cv_std": 0.013980797310733024,
+            "generalization_gap": 0.0011065501047908821,
+            "composite_score": 0.17101920268926696,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "LightGBM",
+            "fit_time": 0.06325101852416992,
+            "train_metrics": {
+                "rmse": 59256.63160204899,
+                "mae": 51220.694468200374,
+                "r2": 0.0011793646128999136
+            },
+            "val_metrics": {
+                "rmse": 57132.31625681845,
+                "mae": 49396.776553870666,
+                "r2": -0.002642195374141787
+            },
+            "cv_mean": -0.018239248001277762,
+            "cv_std": 0.015058451250285317,
+            "generalization_gap": 0.0011793646128999136,
+            "composite_score": 0.16994154874971468,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "GradientBoosting",
+            "fit_time": 0.05719709396362305,
+            "train_metrics": {
+                "rmse": 59256.631602049,
+                "mae": 51220.694467152636,
+                "r2": 0.0011793646128996915
+            },
+            "val_metrics": {
+                "rmse": 57132.31627745074,
+                "mae": 49396.77656501139,
+                "r2": -0.0026421960983133985
+            },
+            "cv_mean": -0.01823924806676578,
+            "cv_std": 0.015058451342823178,
+            "generalization_gap": 0.0011793646128996915,
+            "composite_score": 0.1699415486571768,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "ExtraTrees",
+            "fit_time": 0.1404895782470703,
+            "train_metrics": {
+                "rmse": 59256.631602024325,
+                "mae": 51220.694399625754,
+                "r2": 0.0011793646137316927
+            },
+            "val_metrics": {
+                "rmse": 57132.317734846576,
+                "mae": 49396.7783329824,
+                "r2": -0.002642247251379848
+            },
+            "cv_mean": -0.0182396675162138,
+            "cv_std": 0.015058795950161383,
+            "generalization_gap": 0.0011793646137316927,
+            "composite_score": 0.16994120404983865,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "CatBoost",
+            "fit_time": 0.1751091480255127,
+            "train_metrics": {
+                "rmse": 59256.631602024325,
+                "mae": 51220.69440117484,
+                "r2": 0.0011793646137316927
+            },
+            "val_metrics": {
+                "rmse": 57132.3177245556,
+                "mae": 49396.77832719628,
+                "r2": -0.0026422468901772245
+            },
+            "cv_mean": -0.01823966747623862,
+            "cv_std": 0.015058795955451633,
+            "generalization_gap": 0.0011793646137316927,
+            "composite_score": 0.16994120404454838,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "KNN",
+            "fit_time": 0.0070269107818603516,
+            "train_metrics": {
+                "rmse": 61205.85219829449,
+                "mae": 52332.695555000006,
+                "r2": -0.06561293405300006
+            },
+            "val_metrics": {
+                "rmse": 61157.477972858826,
+                "mae": 52523.18633999999,
+                "r2": -0.14889793692500852
+            },
+            "cv_mean": -0.13873539779680494,
+            "cv_std": 0.10062448870206682,
+            "generalization_gap": 0.0,
+            "composite_score": 0.09937551129793319,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "LogisticRegression": "failed",
+        "KNN": "completed",
+        "SVM": "completed",
+        "DecisionTree": "completed",
+        "RandomForest": "completed",
+        "ExtraTrees": "completed",
+        "GradientBoosting": "completed",
+        "LightGBM": "completed",
+        "CatBoost": "completed",
+        "Tuned_DecisionTree": "completed",
+        "Tuned_SVM": "completed",
+        "Tuned_RandomForest": "completed"
+    },
+    "model_errors": {
+        "LogisticRegression": "Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\nTraceback (most recent call last):\n  File \"/kaggle/src/script.py\", line 430, in <module>\n    model.fit(X_train, y_train)\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/base.py\", line 1389, in wrapper\n    return fit_method(estimator, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/linear_model/_logistic.py\", line 1231, in fit\n    check_classification_targets(y)\n  File \"/usr/local/lib/python3.12/dist-packages/sklearn/utils/multiclass.py\", line 222, in check_classification_targets\n    raise ValueError(\nValueError: Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.\n"
+    }
+}

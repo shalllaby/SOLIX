@@ -1,0 +1,178 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "ExtraTrees",
+            "fit_time": 10.637971878051758,
+            "train_metrics": {
+                "rmse": 829438.0451275248,
+                "mae": 349009.0628525152,
+                "r2": 0.21489216827446567
+            },
+            "val_metrics": {
+                "rmse": 565071.8839579897,
+                "mae": 356870.16355197283,
+                "r2": 0.21254294953793895
+            },
+            "cv_mean": 0.09512600512814688,
+            "cv_std": 0.03716689370120338,
+            "generalization_gap": 0.0023492187365267148,
+            "composite_score": 0.27090068816523094,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_ExtraTrees",
+            "fit_time": 127.24235725402832,
+            "train_metrics": {
+                "rmse": 884269.6672773681,
+                "mae": 375853.3183373785,
+                "r2": 0.10765897194927398
+            },
+            "val_metrics": {
+                "rmse": 571236.1053103615,
+                "mae": 364297.10418147995,
+                "r2": 0.19526891578739136
+            },
+            "cv_mean": 0.12844887532526428,
+            "cv_std": 0.05754340278804741,
+            "generalization_gap": 0.0,
+            "composite_score": 0.25694371365701485,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_RandomForest",
+            "fit_time": 172.11525464057922,
+            "train_metrics": {
+                "rmse": 861699.8612937032,
+                "mae": 372155.46456995106,
+                "r2": 0.1526292829932453
+            },
+            "val_metrics": {
+                "rmse": 570112.2851255677,
+                "mae": 362784.2382591575,
+                "r2": 0.1984321732185933
+            },
+            "cv_mean": 0.08171868983756088,
+            "cv_std": 0.042489233843208546,
+            "generalization_gap": 0.0,
+            "composite_score": 0.25457111137925315,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_DecisionTree",
+            "fit_time": 2.460834503173828,
+            "train_metrics": {
+                "rmse": 895365.134397024,
+                "mae": 386558.8503934772,
+                "r2": 0.08512499288404396
+            },
+            "val_metrics": {
+                "rmse": 585629.608439605,
+                "mae": 375983.070690795,
+                "r2": 0.1542041892873861
+            },
+            "cv_mean": 0.10342619868255372,
+            "cv_std": 0.04939703776556302,
+            "generalization_gap": 0.0,
+            "composite_score": 0.2536551174224129,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "RandomForest",
+            "fit_time": 15.457100629806519,
+            "train_metrics": {
+                "rmse": 795594.6721150242,
+                "mae": 338798.06127553305,
+                "r2": 0.2776542233355853
+            },
+            "val_metrics": {
+                "rmse": 567919.4193166042,
+                "mae": 357169.3617527594,
+                "r2": 0.20458657571351402
+            },
+            "cv_mean": -0.01460732958421059,
+            "cv_std": 0.13217162945516606,
+            "generalization_gap": 0.0730676476220713,
+            "composite_score": 0.12312917701920391,
+            "status_indicator": "Slight Overfitting",
+            "labels": [
+                "Slight Overfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "DecisionTree",
+            "fit_time": 0.3963339328765869,
+            "train_metrics": {
+                "rmse": 812118.6428316899,
+                "mae": 367896.41106308013,
+                "r2": 0.24733734848532551
+            },
+            "val_metrics": {
+                "rmse": 590324.7156657573,
+                "mae": 375669.59248888097,
+                "r2": 0.14058800418861273
+            },
+            "cv_mean": -0.3708413915530042,
+            "cv_std": 0.44972938025096826,
+            "generalization_gap": 0.10674934429671279,
+            "composite_score": 0.0278605295270887,
+            "status_indicator": "Slight Overfitting",
+            "labels": [
+                "Slight Overfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "CatBoost",
+            "fit_time": 1.8595690727233887,
+            "train_metrics": {
+                "rmse": 734528.4308317835,
+                "mae": 350819.1164186079,
+                "r2": 0.3842865701792074
+            },
+            "val_metrics": {
+                "rmse": 572423.7132024715,
+                "mae": 360064.4552159953,
+                "r2": 0.19191934302826896
+            },
+            "cv_mean": -0.5180931031282285,
+            "cv_std": 0.8723927356421284,
+            "generalization_gap": 0.19236722715093846,
+            "composite_score": 0.0,
+            "status_indicator": "Heavy Overfitting",
+            "labels": [
+                "Heavy Overfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "DecisionTree": "completed",
+        "RandomForest": "completed",
+        "ExtraTrees": "completed",
+        "CatBoost": "completed",
+        "Tuned_ExtraTrees": "completed",
+        "Tuned_RandomForest": "completed",
+        "Tuned_DecisionTree": "completed"
+    },
+    "model_errors": {}
+}

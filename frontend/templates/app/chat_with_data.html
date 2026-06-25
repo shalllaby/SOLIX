@@ -1,0 +1,2291 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}{% if locale == 'ar' %}الدردشة مع البيانات{% else %}Chat with Data{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}الدردشة مع البيانات{% else %}Chat with Data{% endif %}{% endblock %}
+{% block breadcrumb %}SOL / App / Chat with Data{% endblock %}
+{% block nav_chat_with_data %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* Global RTL support for Arabised parts */
+    .rtl-text {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .ltr-text {
+        font-family: 'Inter', sans-serif;
+        direction: ltr;
+        text-align: left;
+    }
+
+    /* Split-screen wrapper */
+    .split-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        height: calc(100vh - 7rem);
+        gap: 1.5rem;
+        overflow: hidden;
+    }
+
+    @media (max-width: 1024px) {
+        .split-container {
+            display: block !important;
+            height: calc(100vh - 12rem) !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-pane,
+        .data-pane {
+            position: absolute;
+            inset: 0;
+            height: 100% !important;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+            transform: scale(0.98);
+        }
+
+        .chat-pane.active-tab,
+        .data-pane.active-tab {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+            z-index: 10;
+        }
+    }
+
+    /* Left pane styling (Chat Room) */
+    .chat-pane {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1.25rem;
+        backdrop-filter: blur(25px);
+        overflow: hidden;
+        position: relative;
+        min-width: 0;
+        height: 100%;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .chat-pane:hover {
+        border-color: var(--primary);
+        box-shadow: 0 16px 48px rgba(67, 97, 238, 0.08);
+    }
+
+    /* Right pane styling (Data View) */
+    .data-pane {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1.25rem;
+        backdrop-filter: blur(25px);
+        overflow: hidden;
+        padding: 1.5rem;
+        min-width: 0;
+        height: 100%;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .data-pane:hover {
+        border-color: var(--primary);
+        box-shadow: 0 16px 48px rgba(67, 97, 238, 0.08);
+    }
+
+    /* Chat bubble container */
+    .chat-history {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Message Bubbles */
+    .msg-wrap {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        max-width: 85%;
+        opacity: 0;
+        transform: translateY(12px);
+        animation: bubble-appear 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes bubble-appear {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .msg-user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .msg-assistant {
+        align-self: flex-start;
+    }
+
+    .bubble {
+        padding: 0.9rem 1.25rem;
+        border-radius: 1.25rem;
+        font-size: 0.925rem;
+        line-height: 1.6;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    .bubble-user {
+        background: linear-gradient(135deg, #4361ee 0%, #2e4edc 100%);
+        color: #ffffff;
+        border-bottom-right-radius: 0.25rem;
+        text-align: left;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bubble-user:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+    }
+
+    .bubble-assistant {
+        background: var(--surface-container-high);
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface);
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    html[dir="rtl"] .bubble-assistant {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+        text-align: right;
+    }
+
+    html[dir="ltr"] .bubble-assistant {
+        font-family: 'Inter', sans-serif;
+        direction: ltr;
+        text-align: left;
+    }
+
+    .bubble-assistant:hover {
+        transform: translateY(-1px);
+        border-color: var(--outline);
+    }
+
+    .bubble-assistant ul {
+        list-style-type: disc;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding-inline-start: 1.25rem;
+    }
+
+    .bubble-assistant li {
+        margin-bottom: 0.25rem;
+        line-height: 1.5;
+    }
+
+    .bubble-assistant p {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .bubble-assistant code {
+        font-family: monospace;
+        font-size: 0.85em;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* AI Avatar initials */
+    .avatar {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1.5px solid var(--outline-variant);
+    }
+
+    .avatar-user {
+        background: linear-gradient(135deg, #bac3ff 0%, #4361ee 100%);
+        color: #ffffff;
+    }
+
+    .avatar-assistant {
+        background: var(--surface-container-highest);
+        color: var(--on-surface);
+        border-color: var(--primary);
+    }
+
+    html[dir="rtl"] .avatar-assistant {
+        font-family: 'Cairo', sans-serif;
+    }
+
+    html[dir="ltr"] .avatar-assistant {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Glowing Orb Container */
+    .orb-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid var(--outline-variant);
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* CSS AI Orb */
+    .ai-orb {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        transition: all 0.5s ease-in-out;
+    }
+
+    /* Idle / Waiting state */
+    .orb-idle {
+        background: radial-gradient(circle, #4361ee 0%, #1d4ed8 70%, #0b0d1a 100%);
+        box-shadow: 0 0 14px rgba(67, 97, 238, 0.5),
+            inset 0 0 6px rgba(255, 255, 255, 0.2);
+        animation: pulse-calm 3s infinite ease-in-out;
+    }
+
+    /* Recording / Listening state */
+    .orb-listening {
+        background: radial-gradient(circle, #ef4444 0%, #b91c1c 70%, #7f1d1d 100%);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.8),
+            inset 0 0 8px rgba(255, 255, 255, 0.3);
+        animation: pulse-recording 1s infinite ease-in-out;
+    }
+
+    /* Processing / Thinking state */
+    .orb-thinking {
+        background: radial-gradient(circle, #ec4899 0%, #d946ef 60%, #8b5cf6 100%);
+        box-shadow: 0 0 22px rgba(217, 70, 239, 0.85),
+            inset 0 0 10px rgba(255, 255, 255, 0.4);
+        animation: pulse-active 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-calm {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.85;
+        }
+
+        50% {
+            transform: scale(1.06);
+            opacity: 1;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.75);
+        }
+    }
+
+    @keyframes pulse-recording {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.12);
+            box-shadow: 0 0 28px rgba(239, 68, 68, 0.95);
+        }
+    }
+
+    @keyframes pulse-active {
+
+        0%,
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+
+        50% {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 0 26px rgba(217, 70, 239, 0.9);
+        }
+    }
+
+    /* Bottom Input Panel */
+    .chat-input-panel {
+        padding: 1.25rem;
+        background: var(--surface-container-low);
+        border-top: 1px solid var(--outline-variant);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .text-input-field {
+        flex: 1;
+        background-color: var(--surface-container-lowest) !important;
+        background: var(--surface-container-lowest) !important;
+        border: 1px solid var(--outline-variant) !important;
+        border-radius: 0.85rem;
+        padding: 0.8rem 1.1rem;
+        color: var(--on-surface) !important;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .text-input-field:focus {
+        border-color: var(--primary) !important;
+        background-color: var(--surface-container-lowest) !important;
+        background: var(--surface-container-lowest) !important;
+        box-shadow: 0 0 14px rgba(67, 97, 238, 0.15) !important;
+    }
+
+    .text-input-field::placeholder {
+        color: var(--outline) !important;
+    }
+
+    /* Round voice/control buttons */
+    .btn-circle {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .btn-circle:active {
+        transform: scale(0.92);
+    }
+
+    .btn-mic-idle {
+        background: var(--surface-container-high);
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+    }
+
+    .btn-mic-idle:hover {
+        background: var(--surface-container-highest);
+        color: var(--on-surface);
+        border-color: var(--outline);
+    }
+
+    .btn-mic-recording {
+        background: #ef4444;
+        color: #ffffff;
+        box-shadow: 0 0 18px rgba(239, 68, 68, 0.5);
+        animation: pulse-recording 1.5s infinite;
+    }
+
+    .btn-send {
+        background: linear-gradient(135deg, #4361ee 0%, #2e4edc 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    }
+
+    .btn-send:hover {
+        background: linear-gradient(135deg, #5b76fc 0%, #3e5df0 100%);
+        box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+        transform: translateY(-1px);
+    }
+
+    /* Live Data view elements */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .metric-card {
+        background: var(--surface-container-lowest);
+        border: 1px solid var(--outline-variant);
+        border-radius: 0.75rem;
+        padding: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .table-container {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 70vh;
+        border: 1px solid var(--outline-variant);
+        border-radius: 0.75rem;
+        background: var(--surface-container-lowest);
+    }
+
+    /* Custom Table Style */
+    table.fancy-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    table.fancy-table th {
+        background: var(--surface-container-high);
+        color: var(--on-surface);
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 2px solid var(--outline-variant);
+    }
+
+    table.fancy-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 200px;
+        overflow: hidden;
+    }
+
+    table.fancy-table tbody tr:hover {
+        background: var(--surface-container-high);
+    }
+
+    /* Cell Modification Highlights */
+    table.fancy-table tbody tr.row-anomaly {
+        background-color: rgba(239, 68, 68, 0.06) !important;
+        border-right: 4px solid #ef4444 !important;
+    }
+
+    table.fancy-table tbody tr.row-anomaly:hover {
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    table.fancy-table td.cell-imputed {
+        background-color: rgba(59, 130, 246, 0.15) !important;
+        border-bottom: 2px dashed rgba(59, 130, 246, 0.5) !important;
+    }
+
+    table.fancy-table td.cell-fuzzy {
+        background-color: rgba(245, 158, 11, 0.15) !important;
+        border-bottom: 2px dashed rgba(245, 158, 11, 0.5) !important;
+    }
+
+    table.fancy-table td.cell-coerced {
+        background-color: rgba(168, 85, 247, 0.15) !important;
+        border-bottom: 2px dashed rgba(168, 85, 247, 0.5) !important;
+    }
+
+    table.fancy-table td.cell-changed {
+        background-color: rgba(59, 130, 246, 0.08) !important;
+        border-bottom: 2px dashed rgba(59, 130, 246, 0.3) !important;
+    }
+
+    .cell-tooltip {
+        cursor: help;
+    }
+
+    .flash-highlight {
+        animation: flash-animation 1s ease;
+    }
+
+    @keyframes flash-animation {
+
+        0%,
+        100% {
+            background-color: transparent;
+        }
+
+        50% {
+            background-color: rgba(16, 185, 129, 0.15);
+        }
+    }
+
+    /* Large Voice AI Orb (Live Voice Mode) */
+    .voice-ai-orb {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Idle / Start State */
+    .voice-ai-orb.orb-idle {
+        background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 70%, #1e3a8a 100%);
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.2);
+        animation: voice-pulse-calm 3s infinite ease-in-out;
+    }
+
+    /* Recording / Listening State */
+    .voice-ai-orb.orb-listening {
+        background: radial-gradient(circle, #00f2fe 0%, #4f46e5 70%, #0b0f19 100%);
+        box-shadow: 0 0 45px rgba(0, 242, 254, 0.6),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+        animation: voice-pulse-listening 1.8s infinite ease-in-out;
+    }
+
+    /* Processing / Thinking State */
+    .voice-ai-orb.orb-thinking {
+        background: radial-gradient(circle, #ec4899 0%, #d946ef 60%, #8b5cf6 100%);
+        box-shadow: 0 0 50px rgba(217, 70, 239, 0.8),
+            inset 0 0 20px rgba(255, 255, 255, 0.4);
+        animation: voice-pulse-processing 1.2s infinite ease-in-out;
+    }
+
+    /* Speaking / Voice Reactive State */
+    .voice-ai-orb.orb-speaking {
+        background: radial-gradient(circle, #34d399 0%, #059669 70%, #064e3b 100%);
+        box-shadow: 0 0 45px rgba(52, 211, 153, 0.7),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+        animation: voice-pulse-speaking 1.5s infinite ease-in-out;
+    }
+
+    @keyframes voice-pulse-calm {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.85;
+        }
+
+        50% {
+            transform: scale(1.05);
+            opacity: 1;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.7);
+        }
+    }
+
+    @keyframes voice-pulse-listening {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.9;
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.5);
+        }
+
+        50% {
+            transform: scale(1.08);
+            opacity: 1;
+            box-shadow: 0 0 55px rgba(0, 242, 254, 0.8);
+        }
+    }
+
+    @keyframes voice-pulse-processing {
+
+        0%,
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+
+        50% {
+            transform: scale(1.15) rotate(180deg);
+            box-shadow: 0 0 60px rgba(217, 70, 239, 0.9);
+        }
+    }
+
+    @keyframes voice-pulse-speaking {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(52, 211, 153, 0.6);
+        }
+    }
+
+    #voice-mode-screen.hidden {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Mobile Tab Switcher (Visible only < 1024px) -->
+    <div class="lg:hidden flex border border-outline-variant/10 mb-3 bg-surface-container-low rounded-xl p-1 gap-1">
+        <button id="tab-chat-btn" onclick="switchMobileTab('chat')" class="flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all bg-primary text-white shadow-sm">
+            {% if locale == 'ar' %}غرفة الدردشة{% else %}Chat Room{% endif %}
+        </button>
+        <button id="tab-preview-btn" onclick="switchMobileTab('preview')" class="flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all text-outline hover:text-on-surface">
+            {% if locale == 'ar' %}معاينة البيانات{% else %}Data Preview{% endif %}
+        </button>
+    </div>
+
+<div class="split-container">
+
+    <!-- LEFT PANE: AI Chat Room (SOL) -->
+    <div class="chat-pane active-tab">
+
+        <!-- Interactive Model & Settings Bar -->
+        <div
+            class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10 bg-surface-container-high/40">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                    style="background:var(--surface-container-lowest); box-shadow:0 0 0 1px rgba(91,213,252,0.30), 0 0 12px rgba(91,213,252,0.35);">
+                    <img src="/static/favicon.svg" alt="SOLIX" class="solix-logo-avatar w-full h-full object-cover">
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-on-surface leading-tight">SOLIX</h3>
+                    <p class="text-[10px] text-emerald-400 font-medium">{% if locale == 'ar' %}مهندس بيانات متصل{% else %}Connected Data Engineer{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-3 flex-wrap justify-end">
+                <!-- Model select -->
+                <select id="model-select"
+                    class="bg-surface-container border border-outline-variant text-on-surface-variant text-xs rounded-lg px-2 py-1 outline-none max-w-[80px] xs:max-w-[120px] sm:max-w-none">
+                    <option value="meta-llama/llama-4-scout-17b-16e-instruct" selected>SOL Core</option>
+                </select>
+
+                <!-- Voice / Speaker Toggle -->
+                <button id="tts-toggle"
+                    class="flex items-center gap-1 bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary px-2.5 py-1 rounded-lg text-xs transition-colors">
+                    <span id="speaker-icon" class="material-symbols-outlined text-sm">volume_up</span>
+                    <span id="speaker-label" class="font-medium hidden xs:inline">{% if locale == 'ar' %}صوت مفعل{% else %}Voice On{% endif %}</span>
+                </button>
+
+                <!-- Live Voice Mode Toggle -->
+                <button id="mode-toggle"
+                    class="flex items-center gap-1 bg-surface-container border border-outline-variant hover:bg-surface-container-high text-on-surface px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs transition-colors"
+                    title="{% if locale == 'ar' %}التحويل للوضع المباشر{% else %}Switch to Live Mode{% endif %}">
+                    <span id="mode-icon" class="material-symbols-outlined text-sm">settings_voice</span>
+                    <span id="mode-label" class="font-medium hidden xs:inline">{% if locale == 'ar' %}الوضع المباشر{% else %}Live Mode{% endif %}</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="small-orb-container" class="orb-container">
+            <div id="ai-orb" class="ai-orb orb-idle"></div>
+            <div class="rtl-text mr-4">
+                <span id="orb-status" class="text-xs text-slate-400">SOLIX مستمع وجاهز...</span>
+            </div>
+        </div>
+
+        <!-- Live Voice Mode Screen (hidden by default) -->
+        <div id="voice-mode-screen"
+            class="hidden flex-1 flex flex-col items-center justify-center p-6 relative bg-surface-container-lowest/90 backdrop-blur-md">
+            <!-- Large Voice Orb -->
+            <div class="voice-orb-wrapper flex flex-col items-center justify-center gap-8 my-auto">
+                <div id="voice-ai-orb" class="voice-ai-orb orb-idle"></div>
+                <div class="text-center">
+                    <h4 id="voice-status" class="text-lg font-bold text-on-surface mb-2">اضغط على الزر للبدء</h4>
+                    <p id="voice-substatus" class="text-sm text-outline">SOLIX مستعد للحديث معك بالوضع المباشر</p>
+                </div>
+            </div>
+
+
+            <!-- Control bar inside Live Voice Mode -->
+            <div class="flex items-center justify-center gap-6 mt-auto pb-4 w-full">
+                <!-- Mute / Pause Mic Button -->
+                <button id="voice-mic-btn"
+                    class="w-14 h-14 rounded-full flex items-center justify-center bg-primary/20 border border-primary/45 hover:bg-primary/30 text-primary transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.15)]">
+                    <span id="voice-mic-icon" class="material-symbols-outlined text-2xl">mic</span>
+                </button>
+                <!-- Exit Voice Mode -->
+                <button id="exit-voice-btn"
+                    class="w-14 h-14 rounded-full flex items-center justify-center bg-error/10 border border-error/30 hover:bg-error/20 text-error transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat History -->
+        <div id="chat-history" class="chat-history">
+            <!-- Initial Greeting -->
+            <div class="msg-wrap msg-assistant">
+                <div class="avatar avatar-assistant" title="SOLIX"
+                    style="background:var(--surface-container-lowest); box-shadow:0 0 0 1px rgba(91,213,252,0.28), 0 0 10px rgba(91,213,252,0.30); border-radius:50%; overflow:hidden;">
+                    <img src="/static/favicon.svg" alt="SOLIX" class="solix-logo-avatar w-full h-full object-cover">
+                </div>
+                <div class="bubble bubble-assistant">
+                    يا هلا يا هندسة! منور. أنا SOLIX، مهندس البيانات الافتراضي بتاعك. تحب نعمل إيه في البيانات النهارده؟
+                </div>
+            </div>
+        </div>
+
+        <!-- Sound playback element -->
+        <audio id="audio-playback" style="display:none;" autoplay></audio>
+
+        <!-- Chat Input Panel -->
+        <div class="chat-input-panel">
+            <!-- Mic Record Button -->
+            <button id="mic-btn" class="btn-circle btn-mic-idle"
+                title="سجل طلبك بالصوت">
+                <span id="mic-icon" class="material-symbols-outlined">mic</span>
+            </button>
+
+            <!-- Text area -->
+            <input type="text" id="chat-input"
+                class="text-input-field rtl-text"
+                placeholder="اكتب سؤالك أو دوس على المايك وتكلم..."
+                autocomplete="off">
+
+            <!-- Send button -->
+            <button id="send-btn" class="btn-circle btn-send">
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANE: Live Data View & Metrics -->
+    <div class="data-pane">
+
+        <!-- Top Bar: Dataset Selector -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-outline-variant/10">
+            <div>
+                <h3 class="text-base font-bold text-on-surface">{% if locale == 'ar' %}معاينة البيانات الحية{% else
+                    %}Live Data Preview{% endif %}</h3>
+                <p class="text-xs text-outline">{% if locale == 'ar' %}تابع العمليات والتعديلات التي ينفذها SOLIX{% else
+                    %}Monitor operations and edits performed by SOLIX{% endif %}</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Undo Button -->
+                <button id="undo-btn" disabled
+                    class="disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-outline-variant transition-all"
+                    title="{% if locale == 'ar' %}تراجع عن آخر خطوة تعديل{% else %}Undo last modification step{% endif %}">
+                    <span class="material-symbols-outlined text-sm">undo</span>
+                    <span>{% if locale == 'ar' %}تراجع{% else %}Undo{% endif %}</span>
+                </button>
+
+                <!-- Download CSV Button -->
+                <button id="download-btn" disabled
+                    class="disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all"
+                    title="{% if locale == 'ar' %}تحميل البيانات الحالية بصيغة CSV{% else %}Download current data as CSV{% endif %}">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    <span>{% if locale == 'ar' %}تحميل CSV{% else %}Download CSV{% endif %}</span>
+                </button>
+
+                <div class="flex items-center gap-1.5">
+                    <label class="text-xs text-outline" for="dataset-select">{% if locale == 'ar' %}الملف النشط:{% else
+                        %}Active File:{% endif %}</label>
+                    <select id="dataset-select"
+                        class="bg-surface-container border border-outline-variant text-on-surface text-xs rounded-lg px-2.5 py-1.5 outline-none max-w-[160px] truncate">
+                        <option value="" disabled selected>{% if locale == 'ar' %}تحميل الملفات...{% else %}Loading
+                            files...{% endif %}</option>
+                    </select>
+                    <!-- Bulk Delete Button -->
+                    <button id="delete-all-btn" disabled
+                        class="disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center bg-red-600/20 hover:bg-red-600 border border-red-500/30 hover:border-red-600 text-red-200 hover:text-white p-1.5 rounded-lg transition-all w-8 h-8"
+                        title="{% if locale == 'ar' %}حذف جميع الملفات المرفقة وتصفير المحادثة{% else %}Delete all attached files and reset chat{% endif %}">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                </div>
+
+
+                <label
+                    class="cursor-pointer flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all"
+                    title="{% if locale == 'ar' %}رفع ملف بيانات جديد{% else %}Upload new data file{% endif %}">
+                    <span class="material-symbols-outlined text-sm">upload_file</span>
+                    <span>{% if locale == 'ar' %}رفع ملف{% else %}Upload File{% endif %}</span>
+                    <input type="file" id="dataset-file-input" accept=".csv,.xlsx,.xls,.json,.parquet" class="hidden">
+                </label>
+            </div>
+        </div>
+
+        <div class="metrics-grid" id="metrics-container">
+            <div class="metric-card">
+                <p class="text-[10px] uppercase tracking-wider text-outline">{% if locale == 'ar' %}الأبعاد{% else
+                    %}Shape{% endif %}</p>
+                <p id="metric-shape" class="text-lg font-bold text-on-surface">--</p>
+            </div>
+            <div class="metric-card">
+                <p class="text-[10px] uppercase tracking-wider text-outline">{% if locale == 'ar' %}القيم الفارغة{% else
+                    %}Null Values{% endif %}</p>
+                <p id="metric-nulls" class="text-lg font-bold text-red-500">--</p>
+            </div>
+            <div class="metric-card">
+                <p class="text-[10px] uppercase tracking-wider text-outline">{% if locale == 'ar' %}الصفوف المكررة{%
+                    else %}Duplicate Rows{% endif %}</p>
+                <p id="metric-dups" class="text-lg font-bold text-amber-500">--</p>
+            </div>
+        </div>
+
+        <!-- Audit Log Console (Initially Hidden) -->
+        <div id="audit-log-panel"
+            class="hidden bg-surface-container-high/60 border border-outline-variant rounded-xl p-4 mb-3 transition-all">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-400 text-sm">assignment_turned_in</span>
+                    <h4 class="text-xs font-bold text-on-surface uppercase tracking-wider">{% if locale == 'ar' %}سجل
+                        تعديلات البيانات (Audit Log){% else %}Audit Log{% endif %}</h4>
+                </div>
+                <button id="toggle-audit-btn"
+                    class="text-outline hover:text-on-surface text-[11px] font-semibold flex items-center gap-1 transition-all">
+                    <span>{% if locale == 'ar' %}إخفاء{% else %}Hide{% endif %}</span>
+                    <span class="material-symbols-outlined text-xs">expand_less</span>
+                </button>
+            </div>
+            <div id="audit-log-list"
+                class="max-h-[150px] overflow-y-auto overflow-x-auto pr-2 custom-scrollbar text-xs text-on-surface-variant">
+                <!-- Log entries will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Live table view -->
+        <div class="table-container flex-1" id="table-container">
+            <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-2">
+                <span class="material-symbols-outlined text-4xl">table_chart</span>
+                <p class="text-sm">{% if locale == 'ar' %}لا يوجد ملف بيانات نشط حالياً.{% else %}No active data file at
+                    the moment.{% endif %}</p>
+                <p class="text-xs">{% if locale == 'ar' %}ارفع ملفاً من خلال لوحة التحكم أو اختر ملفاً من القائمة أعلاه
+                    للبدء.{% else %}Upload a file or select one from the dropdown menu above to start.{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Deletion Confirmation Modal -->
+<div id="confirm-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-surface-container-low border border-outline-variant rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300">
+        <div class="flex items-center gap-3 text-red-500 mb-4">
+            <span class="material-symbols-outlined text-3xl">warning</span>
+            <h3 class="text-lg font-Cairo font-bold">{% if locale == 'ar' %}تأكيد الحذف{% else %}Confirm Deletion{% endif %}</h3>
+        </div>
+        <p class="text-sm text-outline mb-6 leading-relaxed">
+            {% if locale == 'ar' %}هل أنت متأكد من حذف جميع الملفات المرفقة وتصفير المحادثة؟ لا يمكن التراجع عن هذه العملية وسيتم تفريغ مساحة العمل.{% else %}Are you sure you want to delete all attached files and reset the chat? This action cannot be undone and will clear the workspace.{% endif %}
+        </p>
+        <div class="flex justify-end gap-3">
+            <button id="cancel-delete-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-all">
+                {% if locale == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+            </button>
+            <button id="confirm-delete-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition-all shadow-lg shadow-red-600/20">
+                {% if locale == 'ar' %}تأكيد الحذف{% else %}Confirm Delete{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // System-wide auth token validation
+    const token = localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+
+    // UI elements references
+    const chatHistory = document.getElementById('chat-history');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const micIcon = document.getElementById('mic-icon');
+    const aiOrb = document.getElementById('ai-orb');
+    const orbStatus = document.getElementById('orb-status');
+    const ttsToggle = document.getElementById('tts-toggle');
+    const speakerIcon = document.getElementById('speaker-icon');
+    const speakerLabel = document.getElementById('speaker-label');
+    const audioPlayback = document.getElementById('audio-playback');
+    const datasetSelect = document.getElementById('dataset-select');
+    const modelSelect = document.getElementById('model-select');
+    const datasetFileInput = document.getElementById('dataset-file-input');
+    const undoBtn = document.getElementById('undo-btn');
+    const downloadBtn = document.getElementById('download-btn');
+    const deleteAllBtn = document.getElementById('delete-all-btn');
+    const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const toggleAuditBtn = document.getElementById('toggle-audit-btn');
+
+
+    // Live Voice Mode Selector references
+    const modeToggle = document.getElementById('mode-toggle');
+    const modeIcon = document.getElementById('mode-icon');
+    const modeLabel = document.getElementById('mode-label');
+    const voiceModeScreen = document.getElementById('voice-mode-screen');
+    const voiceAiOrb = document.getElementById('voice-ai-orb');
+    const voiceStatus = document.getElementById('voice-status');
+    const voiceSubstatus = document.getElementById('voice-substatus');
+    const voiceMicBtn = document.getElementById('voice-mic-btn');
+    const voiceMicIcon = document.getElementById('voice-mic-icon');
+    const exitVoiceBtn = document.getElementById('exit-voice-btn');
+    const smallOrbContainer = document.getElementById('small-orb-container');
+    const chatInputPanel = document.querySelector('.chat-input-panel');
+
+    // Live Voice Mode State variables
+    let isLiveVoiceMode = false;
+    let isVoiceMicMuted = false;
+    let voiceAudioPlaybackSource = null;
+    let playbackAnalyser = null;
+    let playbackAnimationId = null;
+    let liveStream = null;
+    let liveMediaRecorder = null;
+    let liveAudioChunks = [];
+    let liveSilenceLoopId = null;
+
+    // Metrics elements
+    const metricShape = document.getElementById('metric-shape');
+    const metricNulls = document.getElementById('metric-nulls');
+    const metricDups = document.getElementById('metric-dups');
+    const metricsContainer = document.getElementById('metrics-container');
+    const tableContainer = document.getElementById('table-container');
+
+    // Session State variables
+    let datasetsList = [];
+    let selectedDatasetId = "";
+    let chatMessages = [
+        { role: "assistant", content: "يا هلا يا هندسة! منور. أنا SOLIX، مهندس البيانات الافتراضي بتاعك. تحب نعمل إيه في البيانات النهارده؟" }
+    ];
+    let ttsEnabled = true;
+
+    // Recording & Speech Recognition variables
+    let recognition = null;
+    let liveRecognition = null;
+    let isRecording = false;
+    let micSilenceTimer = null;
+    let accumulatedTranscript = '';
+    let liveSilenceTimer = null;
+    let liveAccumulatedTranscript = '';
+    let programmaticLiveStop = false;
+
+    // Silence detection variables
+    let audioContext = null;
+    let analyser = null;
+    const SILENCE_THRESHOLD = -45; // Silence threshold in dB
+    const SILENCE_DURATION = 3500;  // 3.5 seconds of silence to auto-stop (3500ms)
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'ar-EG';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        liveRecognition = new SpeechRecognition();
+        liveRecognition.lang = 'ar-EG';
+        liveRecognition.continuous = true;
+        liveRecognition.interimResults = true;
+    }
+
+    // Helper to get cookies
+    function getCookie(name) {
+        let value = "; " + document.cookie;
+        let parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    // ─── State Persistence ──────────────────────────────────────────────────────────
+    function saveState() {
+        try {
+            const state = {
+                selectedDatasetId,
+                chatMessages,
+                ttsEnabled
+            };
+            sessionStorage.setItem('sol_chat_with_data_state', JSON.stringify(state));
+        } catch (e) {
+            console.error("Failed to save state:", e);
+        }
+    }
+
+    function loadState() {
+        const raw = sessionStorage.getItem('sol_chat_with_data_state');
+        if (!raw) return;
+        try {
+            const state = JSON.parse(raw);
+            selectedDatasetId = state.selectedDatasetId || "";
+            chatMessages = state.chatMessages || [
+                { role: "assistant", content: "يا هلا يا هندسة! منور. أنا SOLIX، مهندس البيانات الافتراضي بتاعك. تحب نعمل إيه في البيانات النهارده؟" }
+            ];
+            // Sanitize potential legacy English welcome messages in state
+            if (chatMessages && chatMessages.length > 0) {
+                chatMessages.forEach(msg => {
+                    if (msg.role === "assistant" && (msg.content.includes("Hello engineer") || msg.content.includes("virtual data engineer"))) {
+                        msg.content = "يا هلا يا هندسة! منور. أنا SOLIX، مهندس البيانات الافتراضي بتاعك. تحب نعمل إيه في البيانات النهارده؟";
+                    }
+                });
+            }
+            ttsEnabled = state.ttsEnabled !== undefined ? state.ttsEnabled : true;
+
+            // Re-render TTS button UI
+            if (ttsEnabled) {
+                speakerIcon.textContent = "volume_up";
+                speakerLabel.textContent = "صوت مفعل";
+                ttsToggle.classList.remove('bg-red-950/30', 'border-red-700/50', 'text-red-300');
+                ttsToggle.classList.add('bg-indigo-900/30', 'border-indigo-700/50', 'text-indigo-300');
+            } else {
+                speakerIcon.textContent = "volume_off";
+                speakerLabel.textContent = "صوت مكتوم";
+                ttsToggle.classList.remove('bg-indigo-900/30', 'border-indigo-700/50', 'text-indigo-300');
+                ttsToggle.classList.add('bg-red-950/30', 'border-red-700/50', 'text-red-300');
+            }
+
+            // Restore chat message history
+            chatHistory.innerHTML = "";
+            chatMessages.forEach(msg => {
+                appendMessage(msg.role, msg.content);
+            });
+        } catch (e) {
+            console.error("Failed to load state:", e);
+        }
+    }
+
+    // Sound toggle function
+    ttsToggle.addEventListener('click', () => {
+        ttsEnabled = !ttsEnabled;
+        if (ttsEnabled) {
+            speakerIcon.textContent = "volume_up";
+            speakerLabel.textContent = "صوت مفعل";
+            ttsToggle.classList.remove('bg-red-950/30', 'border-red-700/50', 'text-red-300');
+            ttsToggle.classList.add('bg-indigo-900/30', 'border-indigo-700/50', 'text-indigo-300');
+        } else {
+            speakerIcon.textContent = "volume_off";
+            speakerLabel.textContent = "صوت مكتوم";
+            ttsToggle.classList.remove('bg-indigo-900/30', 'border-indigo-700/50', 'text-indigo-300');
+            ttsToggle.classList.add('bg-red-950/30', 'border-red-700/50', 'text-red-300');
+            audioPlayback.pause();
+        }
+
+        saveState();
+    });
+
+    // Toggle Audit Log List View
+    if (toggleAuditBtn) {
+        toggleAuditBtn.addEventListener('click', () => {
+            const list = document.getElementById('audit-log-list');
+            const spanText = toggleAuditBtn.querySelector('span:first-child');
+            const spanIcon = toggleAuditBtn.querySelector('span:last-child');
+            if (list.classList.contains('hidden')) {
+                list.classList.remove('hidden');
+                spanText.textContent = getLocale() === 'ar' ? "إخفاء" : "Hide";
+                spanIcon.textContent = "expand_less";
+            } else {
+                list.classList.add('hidden');
+                spanText.textContent = getLocale() === 'ar' ? "عرض" : "Show";
+                spanIcon.textContent = "expand_more";
+            }
+        });
+    }
+
+    // Populate active datasets dropdown
+    async function loadDatasets() {
+        try {
+            const res = await fetch('/api/copilot/datasets', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            datasetsList = data;
+
+            // Build options list
+            datasetSelect.innerHTML = "";
+            if (data.length === 0) {
+                datasetSelect.innerHTML = `<option value="" disabled selected>${getLocale() === 'ar' ? 'لا توجد ملفات مرفوعة' : 'No uploaded files'}</option>`;
+                deleteAllBtn.disabled = true;
+                return;
+            }
+            deleteAllBtn.disabled = false;
+
+
+            let found = data.some(d => d.dataset_id === selectedDatasetId);
+            if (!found && data.length > 0) {
+                selectedDatasetId = data[0].dataset_id;
+            }
+
+            data.forEach((ds) => {
+                const opt = document.createElement('option');
+                opt.value = ds.dataset_id;
+                opt.textContent = getLocale() === 'ar' ? `${ds.filename} (${ds.rows} صف)` : `${ds.filename} (${ds.rows} rows)`;
+                if (ds.dataset_id === selectedDatasetId) {
+                    opt.selected = true;
+                }
+                datasetSelect.appendChild(opt);
+            });
+
+            // Trigger loading dataset preview
+            if (selectedDatasetId) {
+                loadDatasetPreview(selectedDatasetId);
+            }
+        } catch (e) {
+            console.error("Error loading datasets", e);
+        }
+    }
+
+    // Switch dataset select handler
+    datasetSelect.addEventListener('change', (e) => {
+        selectedDatasetId = e.target.value;
+        loadDatasetPreview(selectedDatasetId);
+        saveState();
+    });
+
+    // Load and render active dataset preview and metrics
+    async function loadDatasetPreview(dsId) {
+        if (!dsId) {
+            undoBtn.disabled = true;
+            downloadBtn.disabled = true;
+            return;
+        }
+        try {
+            const res = await fetch(`/api/copilot/schema/${dsId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.schema) {
+                renderSchemaAndTable(data.schema, data.records || [], data.audit_log || null, data.diff_map || null);
+            }
+
+            // Set button state
+            undoBtn.disabled = !data.has_undo;
+            downloadBtn.disabled = false;
+        } catch (e) {
+            console.error("Error previewing dataset", e);
+        }
+    }
+
+
+    // Render schema metrics and preview table HTML
+    function renderSchemaAndTable(schema, records, auditLog = null, diffMap = null) {
+        if (!schema) return;
+
+        // Shape
+        const rows = schema.shape[0];
+        const cols = schema.shape[1];
+        metricShape.textContent = getLocale() === 'ar' ? `${rows} صف × ${cols} عمود` : `${rows} rows × ${cols} columns`;
+
+        // Nulls
+        let totalNulls = 0;
+        schema.columns.forEach(c => { totalNulls += c.null_count; });
+        metricNulls.textContent = totalNulls.toLocaleString();
+
+        // Duplicates
+        metricDups.textContent = (schema.duplicate_rows || 0).toLocaleString();
+
+        // Highlighting animation
+        metricsContainer.classList.add('flash-highlight');
+        setTimeout(() => metricsContainer.classList.remove('flash-highlight'), 1000);
+
+        // Populate Audit Log Panel
+        const auditLogPanel = document.getElementById('audit-log-panel');
+        const auditLogList = document.getElementById('audit-log-list');
+
+        if (auditLog && Array.isArray(auditLog) && auditLog.length > 0) {
+            auditLogPanel.classList.remove('hidden');
+            auditLogList.innerHTML = `
+                <table class="w-full text-xs text-left border-collapse font-sans mt-2">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 text-[10px] uppercase tracking-wider bg-slate-950/40">
+                            <th class="py-2 px-2.5 font-semibold">العمود / Column</th>
+                            <th class="py-2 px-2.5 font-semibold">المشكلة / Issue</th>
+                            <th class="py-2 px-2.5 font-semibold">طريقة المعالجة / Resolution</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/40 text-slate-300">
+                        ${auditLog.map(entry => `
+                            <tr class="hover:bg-slate-800/20 transition-colors">
+                                <td class="py-2 px-2.5 font-semibold text-white">${entry.column || "Dataset-wide"}</td>
+                                <td class="py-2 px-2.5 font-mono text-[10px] text-amber-400/90">${entry.issue || "N/A"}</td>
+                                <td class="py-2 px-2.5 text-slate-400">${entry.resolution || "N/A"}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            auditLogPanel.classList.add('hidden');
+            auditLogList.innerHTML = '';
+        }
+
+        // Render preview table
+        if (!records || records.length === 0) {
+            records = schema.sample_rows || [];
+        }
+
+        if (records.length === 0) {
+            tableContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-slate-500">
+                    <p class="text-sm">${getLocale() === 'ar' ? 'لا تتوفر صفوف للمعاينة.' : 'No rows available for preview.'}</p>
+                </div>`;
+            return;
+        }
+
+        // Build headers
+        const columns = Object.keys(records[0]);
+        let ths = columns.map(c => `<th class="ltr-text">${c}</th>`).join('');
+
+        // Map audit log for fast lookup during row/cell building
+        let isAnomalyColumnPresent = columns.includes('is_anomaly');
+
+        // Build rows
+        let trs = records.slice(0, 500).map((row, rIdx) => {
+            let trClass = "";
+            if (isAnomalyColumnPresent && (row['is_anomaly'] === 1 || row['is_anomaly'] === '1')) {
+                trClass = 'class="row-anomaly"';
+            }
+
+            let tds = columns.map(col => {
+                let val = row[col];
+                if (val === null || val === undefined) val = `<span class="text-red-500/50">NULL</span>`;
+
+                let cellClass = "ltr-text";
+                let cellTitle = "";
+
+                if (diffMap && diffMap[col] && diffMap[col].includes(rIdx)) {
+                    let strat = "changed";
+                    if (auditLog && Array.isArray(auditLog)) {
+                        const colLog = auditLog.find(entry => entry.column === col);
+                        if (colLog) {
+                            const res = (colLog.resolution || "").toLowerCase();
+                            if (res.includes("impute") || res.includes("fill")) strat = "imputed";
+                            else if (res.includes("fuzzy") || res.includes("spelling")) strat = "fuzzy";
+                            else if (res.includes("standard") || res.includes("format") || res.includes("type")) strat = "coerced";
+                        }
+                    }
+
+                    if (strat === "imputed") {
+                        cellClass += " cell-imputed cell-tooltip";
+                        cellTitle = getLocale() === 'ar' ? `تم إكمال القيمة الفارغة تلقائياً` : `Null value auto-imputed`;
+                    } else if (strat === "fuzzy") {
+                        cellClass += " cell-fuzzy cell-tooltip";
+                        cellTitle = getLocale() === 'ar' ? `تم دمج وتصحيح النص تلقائياً` : `Fuzzy text spelling corrected`;
+                    } else if (strat === "coerced") {
+                        cellClass += " cell-coerced cell-tooltip";
+                        cellTitle = getLocale() === 'ar' ? `تم توحيد صيغة أو نوع البيانات` : `Data format coerced`;
+                    } else {
+                        cellClass += " cell-changed cell-tooltip";
+                        cellTitle = getLocale() === 'ar' ? `تم تعديل القيمة` : `Value modified`;
+                    }
+                }
+
+                const titleAttr = cellTitle ? `title="${cellTitle}"` : "";
+                return `<td class="${cellClass}" ${titleAttr}>${val}</td>`;
+            }).join('');
+            return `<tr ${trClass}>${tds}</tr>`;
+        }).join('');
+
+        tableContainer.innerHTML = `
+            <table class="fancy-table">
+                <thead><tr>${ths}</tr></thead>
+                <tbody>${trs}</tbody>
+            </table>
+        `;
+    }
+
+    // Format assistant messages to support basic markdown rendering (bold, lists, code tags) without raw syntax characters
+    function formatAssistantMessage(text) {
+        if (!text) return "";
+
+        // Remove lines that contain tool calls or code execution
+        let cleanLines = text.split('\n').filter(line => {
+            let t = line.trim();
+            if (t.includes("run_python_code") || t.includes("smart_impute_column_tool") || t.includes("clean_column_outliers_tool") || t.includes("standardize_column_date_tool") || t.includes("fuzzy_fix_column_tool")) {
+                return false;
+            }
+            if (t.startsWith("import ") || t.startsWith("print(") || t.startsWith("df = ") || t.startsWith("df[") || t.startsWith("pd.") || t.startsWith("np.")) {
+                return false;
+            }
+            return true;
+        });
+        text = cleanLines.join('\n').trim();
+
+        if (text.startsWith(':')) {
+            text = text.substring(1).trim();
+        }
+
+        // HTML escape first to prevent XSS
+        let escaped = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // Convert bold **text**
+        escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        // Convert inline code blocks: `code`
+        escaped = escaped.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+        // Parse list items. We look for lines starting with * or - followed by a space
+        let lines = escaped.split('\n');
+        let inList = false;
+        let resultLines = [];
+
+        for (let line of lines) {
+            let trimmed = line.trim();
+            // Check if line is a list item
+            if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+                let itemContent = trimmed.substring(2);
+                if (!inList) {
+                    resultLines.push('<ul>');
+                    inList = true;
+                }
+                resultLines.push(`<li>${itemContent}</li>`);
+            } else {
+                if (inList) {
+                    resultLines.push('</ul>');
+                    inList = false;
+                }
+                // For regular lines, if empty, add a vertical gap, otherwise normal paragraph
+                if (trimmed === '') {
+                    resultLines.push('<p class="h-2"></p>');
+                } else {
+                    resultLines.push(`<p>${line}</p>`);
+                }
+            }
+        }
+        if (inList) {
+            resultLines.push('</ul>');
+        }
+
+        return resultLines.join('\n');
+    }
+
+    // Append new bubble to the chat feed
+    function appendMessage(role, content, audioUrl = null) {
+        const wrap = document.createElement('div');
+        wrap.className = `msg-wrap ${role === 'user' ? 'msg-user' : 'msg-assistant'}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `avatar avatar-${role === 'user' ? 'user' : 'assistant'}`;
+
+        if (role === 'user') {
+            avatar.textContent = 'أ';
+        } else {
+            // NOTE: To swap this inline SVG with your own PNG logo, replace the innerHTML below with:
+            // avatar.innerHTML = `<img src="/static/favicon.svg" class="w-full h-full object-cover" alt="سول Logo">`;
+            avatar.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full p-0.5">
+                <defs>
+                    <linearGradient id="sol-grad-svg-bubble" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00f2fe" />
+                        <stop offset="50%" stop-color="#4f46e5" />
+                        <stop offset="100%" stop-color="#9b51e0" />
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="46" fill="#0b0f19" stroke="url(#sol-grad-svg-bubble)" stroke-width="2"/>
+                <circle cx="50" cy="50" r="36" stroke="url(#sol-grad-svg-bubble)" stroke-width="1.2" fill="none" stroke-dasharray="6 4" opacity="0.6"/>
+                <line x1="50" y1="14" x2="50" y2="86" stroke="url(#sol-grad-svg-bubble)" stroke-width="1" opacity="0.3"/>
+                <line x1="14" y1="50" x2="86" y2="50" stroke="url(#sol-grad-svg-bubble)" stroke-width="1" opacity="0.3"/>
+                <circle cx="50" cy="14" r="3.5" fill="#00f2fe"/>
+                <circle cx="86" cy="50" r="3.5" fill="#9b51e0"/>
+                <circle cx="50" cy="86" r="3.5" fill="#00f2fe"/>
+                <circle cx="14" cy="50" r="3.5" fill="#4f46e5"/>
+                <path d="M38,36 C48,28 62,34 58,45 C54,54 46,46 42,55 C38,64 52,72 62,64" stroke="url(#sol-grad-svg-bubble)" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+                <circle cx="50%" cy="50%" r="4.5" fill="#ffffff" style="filter: drop-shadow(0 0 5px #00f2fe);"/>
+            </svg>`;
+        }
+
+        const bubble = document.createElement('div');
+        bubble.className = `bubble bubble-${role === 'user' ? 'user' : 'assistant'}`;
+        if (role === 'assistant') {
+            bubble.innerHTML = formatAssistantMessage(content);
+        } else {
+            bubble.textContent = content;
+        }
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+
+        // Render 'Play my voice' button next to user's message if recorded audio exists
+        if (role === 'user' && audioUrl) {
+            const playBtn = document.createElement('button');
+            playBtn.className = 'play-voice-btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 bg-white/10 hover:bg-white/20 border border-white/15 text-indigo-200 hover:text-white shadow-md cursor-pointer hover:scale-105 active:scale-95 self-center mr-2';
+            playBtn.title = "اسمع تسجيلي الصوتي";
+            playBtn.innerHTML = '<span class="material-symbols-outlined text-lg leading-none">play_arrow</span>';
+
+            const localAudio = new Audio(audioUrl);
+            localAudio.addEventListener('ended', () => {
+                playBtn.innerHTML = '<span class="material-symbols-outlined text-lg leading-none">play_arrow</span>';
+                playBtn.classList.remove('bg-indigo-600/30', 'border-indigo-500/50', 'text-white');
+                playBtn.classList.add('bg-white/10', 'border-white/15', 'text-indigo-200');
+            });
+
+            playBtn.addEventListener('click', () => {
+                // Pause assistant TTS audio playback if playing
+                if (audioPlayback && !audioPlayback.paused) {
+                    audioPlayback.pause();
+                }
+
+                // Pause other active recording playbacks
+                document.querySelectorAll('audio').forEach(aud => {
+                    if (aud !== localAudio && !aud.paused) {
+                        aud.pause();
+                    }
+                });
+
+                // Find and reset all other play buttons in the chat list
+                document.querySelectorAll('.play-voice-btn').forEach(btn => {
+                    if (btn !== playBtn) {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-lg leading-none">play_arrow</span>';
+                        btn.classList.remove('bg-indigo-600/30', 'border-indigo-500/50', 'text-white');
+                        btn.classList.add('bg-white/10', 'border-white/15', 'text-indigo-200');
+                    }
+                });
+
+                if (localAudio.paused) {
+                    localAudio.play()
+                        .then(() => {
+                            playBtn.innerHTML = '<span class="material-symbols-outlined text-lg leading-none">pause</span>';
+                            playBtn.classList.remove('bg-white/10', 'border-white/15', 'text-indigo-200');
+                            playBtn.classList.add('bg-indigo-600/30', 'border-indigo-500/50', 'text-white');
+                        })
+                        .catch(err => console.error("Error playing recording:", err));
+                } else {
+                    localAudio.pause();
+                    playBtn.innerHTML = '<span class="material-symbols-outlined text-lg leading-none">play_arrow</span>';
+                    playBtn.classList.remove('bg-indigo-600/30', 'border-indigo-500/50', 'text-white');
+                    playBtn.classList.add('bg-white/10', 'border-white/15', 'text-indigo-200');
+                }
+            });
+
+            wrap.appendChild(playBtn);
+        }
+
+        chatHistory.appendChild(wrap);
+
+        // Auto scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        return bubble;
+    }
+
+    function setOrbState(state, text) {
+        aiOrb.className = "ai-orb";
+        if (state === 'listening') {
+            aiOrb.classList.add('orb-listening');
+            orbStatus.textContent = text || "SOLIX بيسمعك...";
+        } else if (state === 'thinking') {
+            aiOrb.classList.add('orb-thinking');
+            orbStatus.textContent = text || "SOLIX بيفكر...";
+        } else {
+            aiOrb.classList.add('orb-idle');
+            orbStatus.textContent = text || "SOLIX مستمع وجاهز...";
+        }
+    }
+
+    // Playback base64 encoded audio
+    function playAudioResponse(base64Data) {
+        if (!ttsEnabled || !base64Data) return;
+        try {
+            audioPlayback.src = `data:audio/mp3;base64,${base64Data}`;
+            audioPlayback.play().catch(e => console.error("Audio autoplay blocked or failed", e));
+        } catch (err) {
+            console.error("Audio playback failure", err);
+        }
+    }
+
+    // Send a message to SOL
+    async function sendMessage(text, audioUrl = null) {
+        if (!text || !text.trim()) return;
+
+        // Append user bubble
+        appendMessage('user', text, audioUrl);
+        chatInput.value = "";
+
+        // Add to history
+        chatMessages.push({ role: "user", content: text });
+        saveState();
+
+        // Set state to thinking
+        setOrbState('thinking', 'SOLIX شغال على طلبك...');
+
+        try {
+            const chatReq = {
+                dataset_id: selectedDatasetId || null,
+                messages: chatMessages,
+                model: modelSelect.value,
+                tts_enabled: ttsEnabled
+            };
+
+            const res = await fetch('/api/copilot/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(chatReq)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                appendMessage('assistant', `معلش يا هندسة حصل مشكلة: ${errData.detail || 'خطأ غير معروف'}`);
+                setOrbState('idle');
+                return;
+            }
+
+            const data = await res.json();
+
+            // Append assistant bubble
+            appendMessage('assistant', data.reply);
+            chatMessages.push({ role: "assistant", content: data.reply });
+            saveState();
+
+            // Handle voice audio playback
+            if (data.audio) {
+                playAudioResponse(data.audio);
+            }
+
+            // Handle reactive table mutation
+            if (data.mutated && data.schema) {
+                renderSchemaAndTable(data.schema, data.records || [], data.audit_log || null, data.diff_map || null);
+                // Add a visual chat notification that data changed
+                const alertBanner = document.createElement('div');
+                alertBanner.className = "text-[10px] text-emerald-400 bg-emerald-950/35 border border-emerald-800/40 rounded px-3 py-1.5 self-center my-1";
+                alertBanner.textContent = "⚡ تم تحديث معاينة البيانات بنجاح!";
+                chatHistory.appendChild(alertBanner);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            // Set button state
+            if (selectedDatasetId) {
+                undoBtn.disabled = !data.has_undo;
+                downloadBtn.disabled = false;
+            } else {
+                undoBtn.disabled = true;
+                downloadBtn.disabled = true;
+            }
+
+            setOrbState('idle');
+
+        } catch (e) {
+            console.error("Chat request failed", e);
+            appendMessage('assistant', "معلش يا هندسة، مش قادر أوصل للسيرفر دلوقتي.");
+            setOrbState('idle');
+        }
+    }
+
+    // Trigger Send
+    sendBtn.addEventListener('click', () => {
+        const text = chatInput.value;
+        sendMessage(text);
+    });
+
+    chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const text = chatInput.value;
+            sendMessage(text);
+        }
+    });
+
+    // Trigger Undo Action
+    undoBtn.addEventListener('click', async () => {
+        if (!selectedDatasetId || undoBtn.disabled) return;
+
+        setOrbState('thinking', 'جاري التراجع عن آخر تعديل...');
+        try {
+            const res = await fetch(`/api/copilot/undo/${selectedDatasetId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                appendMessage('assistant', `معلش يا هندسة حصل مشكلة أثناء التراجع: ${errData.detail || 'خطأ غير معروف'}`);
+                setOrbState('idle');
+                return;
+            }
+
+            const data = await res.json();
+            if (data.schema) {
+                renderSchemaAndTable(data.schema, data.records || [], data.audit_log || null, data.diff_map || null);
+
+                // Add alert banner in chat
+                const alertBanner = document.createElement('div');
+                alertBanner.className = "text-[10px] text-amber-400 bg-amber-950/35 border border-amber-800/40 rounded px-3 py-1.5 self-center my-1";
+                alertBanner.textContent = "↩️ تم التراجع عن التعديل الأخير واسترجاع الحالة السابقة!";
+                chatHistory.appendChild(alertBanner);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                const undoReply = data.message || "تمام يا هندسة، رجعتلك الداتا زي ما كانت قبل التعديل الأخير.";
+                appendMessage('assistant', undoReply);
+                chatMessages.push({ role: "assistant", content: undoReply });
+                saveState();
+            }
+
+            // Disable undo after use (single-step)
+            undoBtn.disabled = true;
+            setOrbState('idle');
+        } catch (e) {
+            console.error("Undo request failed", e);
+            appendMessage('assistant', "معلش يا هندسة، مش قادر أوصل للسيرفر دلوقتي لتنفيذ التراجع.");
+            setOrbState('idle');
+        }
+    });
+
+    // Trigger Download CSV Action
+    downloadBtn.addEventListener('click', async () => {
+        if (!selectedDatasetId || downloadBtn.disabled) return;
+
+        setOrbState('thinking', 'جاري تحضير ملف الـ CSV للتحميل...');
+        try {
+            const res = await fetch(`/api/export/${selectedDatasetId}?fmt=csv`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                appendMessage('assistant', "معلش يا هندسة حصل مشكلة أثناء تحميل ملف البيانات.");
+                setOrbState('idle');
+                return;
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dataset_${selectedDatasetId.substring(0, 8)}_modified.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            setOrbState('idle');
+
+            // Add alert banner in chat
+            const alertBanner = document.createElement('div');
+            alertBanner.className = "text-[10px] text-emerald-400 bg-emerald-950/35 border border-emerald-800/40 rounded px-3 py-1.5 self-center my-1";
+            alertBanner.textContent = "📥 تم تحميل ملف البيانات بصيغة CSV بنجاح!";
+            chatHistory.appendChild(alertBanner);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        } catch (e) {
+            console.error("Download dataset failed", e);
+            appendMessage('assistant', "معلش يا هندسة، مش قادر أوصل للسيرفر دلوقتي لتحميل الملف.");
+            setOrbState('idle');
+        }
+    });
+
+    // Clear active dataset state helper
+    function clearDatasetState() {
+        datasetsList = [];
+        selectedDatasetId = "";
+        
+        // Reset metrics
+        metricShape.textContent = "--";
+        metricNulls.textContent = "--";
+        metricDups.textContent = "--";
+        
+        // Hide audit log
+        document.getElementById('audit-log-panel').classList.add('hidden');
+        document.getElementById('audit-log-list').innerHTML = "";
+        
+        // Reset select dropdown
+        datasetSelect.innerHTML = `<option value="" disabled selected>${getLocale() === 'ar' ? 'لا توجد ملفات مرفوعة' : 'No uploaded files'}</option>`;
+        
+        // Reset preview table
+        tableContainer.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-2">
+                <span class="material-symbols-outlined text-4xl">table_chart</span>
+                <p class="text-sm">${getLocale() === 'ar' ? 'لا يوجد ملف بيانات نشط حالياً.' : 'No active data file at the moment.'}</p>
+                <p class="text-xs">${getLocale() === 'ar' ? 'ارفع ملفاً من خلال لوحة التحكم أو اختر ملفاً من القائمة أعلاه للبدء.' : 'Upload a file or select one from the dropdown menu above to start.'}</p>
+            </div>
+        `;
+        
+        // Disable action buttons
+        undoBtn.disabled = true;
+        downloadBtn.disabled = true;
+        deleteAllBtn.disabled = true;
+        
+        saveState();
+    }
+
+    // Deletion Modal Trigger
+    deleteAllBtn.addEventListener('click', () => {
+        confirmDeleteModal.classList.remove('hidden');
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        confirmDeleteModal.classList.add('hidden');
+    });
+
+    confirmDeleteBtn.addEventListener('click', async () => {
+        try {
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.innerHTML = `
+                <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            `;
+            
+            const res = await fetch('/api/copilot/datasets', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (res.ok) {
+                // Clear UI state completely
+                clearDatasetState();
+                
+                // Reset chat history completely
+                chatHistory.innerHTML = "";
+                chatMessages = [
+                    { role: "assistant", content: "يا هلا يا هندسة! منور. أنا SOLIX، مهندس البيانات الافتراضي بتاعك. تحب نعمل إيه في البيانات النهارده؟" }
+                ];
+                appendMessage('assistant', chatMessages[0].content);
+                
+                // Save state to sessionStorage
+                saveState();
+                
+                showLocalToast("SOLIX", getLocale() === 'ar' ? "تم مسح الملفات وتصفير الجلسة بنجاح" : "Files and chatbot session cleared successfully");
+            } else {
+                const errData = await res.json();
+                showLocalToast("SOLIX Error", errData.detail || "Error deleting files");
+            }
+        } catch (err) {
+            console.error("Error deleting datasets", err);
+            showLocalToast("SOLIX Error", "Failed to connect to server");
+        } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = getLocale() === 'ar' ? "تأكيد الحذف" : "Confirm Delete";
+            confirmDeleteModal.classList.add('hidden');
+        }
+    });
+
+
+    // Helper function to stop recording and cleanup resources
+    function stopRecordingProcess() {
+        if (micSilenceTimer) {
+            clearTimeout(micSilenceTimer);
+            micSilenceTimer = null;
+        }
+        if (isRecording) {
+            isRecording = false;
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) { }
+            }
+            // Reset UI
+            micBtn.className = "btn-circle btn-mic-idle";
+            micIcon.textContent = "mic";
+            setOrbState('idle');
+        }
+    }
+
+    // Set up standard recognition event handlers
+    if (recognition) {
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                accumulatedTranscript += (accumulatedTranscript ? ' ' : '') + finalTranscript;
+            }
+
+            const currentText = (accumulatedTranscript + (interimTranscript ? ' ' + interimTranscript : '')).trim();
+            if (currentText) {
+                chatInput.value = currentText;
+            }
+
+            // Debounce timer: wait for silence of 1.8 seconds before auto-submitting
+            if (micSilenceTimer) clearTimeout(micSilenceTimer);
+            micSilenceTimer = setTimeout(() => {
+                const textToSubmit = chatInput.value.trim();
+                stopRecordingProcess();
+                if (textToSubmit) {
+                    sendMessage(textToSubmit);
+                } else {
+                    appendMessage('assistant', "🎙️ مسمعتش كلامك كويس يا هندسة، ممكن تعيد تاني؟");
+                    setOrbState('idle');
+                }
+            }, 1800);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            if (event.error !== 'aborted') {
+                appendMessage('assistant', "🎙️ حصل مشكلة في معالجة الصوت، يا ريت تكتب السؤال كتابة.");
+            }
+            setOrbState('idle');
+            stopRecordingProcess();
+        };
+
+        recognition.onend = () => {
+            stopRecordingProcess();
+        };
+    }
+
+    // Native Microphone recording logic using Chrome Web Speech API
+    micBtn.addEventListener('click', () => {
+        if (!recognition) {
+            alert("برجاء استخدام متصفح Google Chrome للاستفادة من ميزة التعرف على الصوت!");
+            return;
+        }
+
+        if (!isRecording) {
+            isRecording = true;
+            accumulatedTranscript = '';
+            chatInput.value = '';
+            micBtn.className = "btn-circle btn-mic-recording";
+            micIcon.textContent = "stop";
+            setOrbState('listening', 'SOLIX بيسمعك دلوقتي...');
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error("Failed to start SpeechRecognition:", e);
+                stopRecordingProcess();
+            }
+        } else {
+            // Stop and submit immediately
+            const textToSubmit = chatInput.value.trim();
+            stopRecordingProcess();
+            if (textToSubmit) {
+                sendMessage(textToSubmit);
+            }
+        }
+    });
+
+    // Direct dataset file upload capability
+    datasetFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Set state to thinking
+        setOrbState('thinking', 'جاري رفع وتحليل الملف...');
+        tableContainer.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                <p class="text-sm font-semibold">${getLocale() === 'ar' ? 'بقوم برفع الملف حالياً يا هندسة...' : 'Uploading the file now...'}</p>
+            </div>
+        `;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.detail || 'فشل في رفع الملف');
+            }
+
+            const data = await res.json();
+
+            // Append assistant chat confirmation
+            appendMessage('user', `لقد قمت برفع ملف جديد: ${file.name}`);
+
+            selectedDatasetId = data.dataset_id;
+
+            // Reload datasets dropdown
+            await loadDatasets();
+
+            // Extract row/col metadata from the upload response
+            const rowCount = data.metadata ? data.metadata.rows : 0;
+            const colCount = data.metadata ? data.metadata.cols : 0;
+
+            const replyMsg = `يا هلا بيك يا بشمهندس! 🚀 أنا رفعت ملفك "${file.name}" وجاهز أساعدك في تنظيفه وتحليله. الملف ده فيه ${rowCount} صف و ${colCount} عمود. تحب نعمل فيه إيه؟`;
+
+            appendMessage('assistant', replyMsg);
+            chatMessages.push({ role: "user", content: `لقد قمت برفع ملف جديد: ${file.name}` });
+            chatMessages.push({ role: "assistant", content: replyMsg });
+            saveState();
+
+            setOrbState('idle');
+
+        } catch (err) {
+            console.error("Upload error", err);
+            appendMessage('assistant', `معلش يا هندسة، حصل مشكلة أثناء رفع الملف: ${err.message}`);
+            setOrbState('idle');
+
+            // Reset preview
+            if (selectedDatasetId) {
+                loadDatasetPreview(selectedDatasetId);
+            } else {
+                tableContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-2">
+                        <span class="material-symbols-outlined text-4xl">table_chart</span>
+                        <p class="text-sm">${getLocale() === 'ar' ? 'لا يوجد ملف بيانات نشط حالياً.' : 'No active data file at the moment.'}</p>
+                    </div>`;
+            }
+        } finally {
+            // Reset input so user can upload the same file name again if needed
+            datasetFileInput.value = "";
+        }
+    });
+
+    // ==========================================
+    // LIVE VOICE MODE STATE MACHINE & LOGIC
+    // ==========================================
+
+    function setVoiceOrbState(state, title, subtitle) {
+        voiceAiOrb.className = "voice-ai-orb";
+        if (state === 'listening') {
+            voiceAiOrb.classList.add('orb-listening');
+            voiceStatus.textContent = title || "أنا سامعك يا هندسة...";
+            voiceSubstatus.textContent = subtitle || "اتفضل اتكلم وSOLIX هينفذ فوراً";
+        } else if (state === 'thinking') {
+            voiceAiOrb.classList.add('orb-thinking');
+            voiceStatus.textContent = title || "ثواني وبفكر...";
+            voiceSubstatus.textContent = subtitle || "SOLIX بيحلل طلبك وينفذ العمليات";
+        } else if (state === 'speaking') {
+            voiceAiOrb.classList.add('orb-speaking');
+            voiceStatus.textContent = title || "SOLIX بيتكلم...";
+            voiceSubstatus.textContent = subtitle || "اسمع رد مساعدك الذكي";
+        } else {
+            voiceAiOrb.classList.add('orb-idle');
+            voiceStatus.textContent = title || "الوضع المباشر نشط";
+            voiceSubstatus.textContent = subtitle || "اضغط على زر المايك للتحدث";
+        }
+    }
+
+    function animateVoiceOrbReactivity() {
+        if (!isLiveVoiceMode || !playbackAnalyser || !voiceAiOrb.classList.contains('orb-speaking')) {
+            if (playbackAnimationId) {
+                cancelAnimationFrame(playbackAnimationId);
+                playbackAnimationId = null;
+            }
+            return;
+        }
+
+        const bufferLength = playbackAnalyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        playbackAnalyser.getByteFrequencyData(dataArray);
+
+        // Calculate average frequency volume
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        let average = sum / bufferLength;
+
+        // Map average volume (0 to 255) to scale factor (e.g., 1.0 to 1.45)
+        let scale = 1 + (average / 255) * 0.45;
+        // Map average volume to shadow glow size
+        let glow = 45 + (average / 255) * 40;
+
+        voiceAiOrb.style.transform = `scale(${scale})`;
+        voiceAiOrb.style.boxShadow = `0 0 ${glow}px rgba(52, 211, 153, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.3)`;
+
+        playbackAnimationId = requestAnimationFrame(animateVoiceOrbReactivity);
+    }
+
+    // Set up live recognition event handlers
+    if (liveRecognition) {
+        liveRecognition.onresult = async (event) => {
+            if (!isLiveVoiceMode || isVoiceMicMuted) return;
+
+            let interimTranscript = '';
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                liveAccumulatedTranscript += (liveAccumulatedTranscript ? ' ' : '') + finalTranscript;
+            }
+
+            const currentText = (liveAccumulatedTranscript + (interimTranscript ? ' ' + interimTranscript : '')).trim();
+            if (currentText) {
+                voiceSubstatus.textContent = currentText;
+            }
+
+            // Debounce timer: wait for silence of 1.8 seconds before processing
+            if (liveSilenceTimer) clearTimeout(liveSilenceTimer);
+            liveSilenceTimer = setTimeout(async () => {
+                const textToSubmit = (liveAccumulatedTranscript + (interimTranscript ? ' ' + interimTranscript : '')).trim();
+
+                // Stop voice recording programmatically so we can process and play the response
+                stopVoiceRecordingProcess();
+
+                if (textToSubmit) {
+                    // Transition orb to processing state
+                    setVoiceOrbState('thinking', 'ثواني وبفكر...', 'SOLIX بيحلل طلبك وينفذ العمليات');
+
+                    // Append user message silently to history context
+                    chatMessages.push({ role: "user", content: textToSubmit });
+
+                    // Send request directly to chat endpoint
+                    const chatReq = {
+                        dataset_id: selectedDatasetId || null,
+                        messages: chatMessages,
+                        model: modelSelect.value,
+                        tts_enabled: true // Always true in Live Voice Mode
+                    };
+
+                    try {
+                        const chatRes = await fetch('/api/copilot/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(chatReq)
+                        });
+
+                        if (!chatRes.ok) throw new Error("Chat server error");
+
+                        const data = await chatRes.json();
+
+                        // Save assistant message to history context
+                        chatMessages.push({ role: "assistant", content: data.reply });
+
+                        // Append to text chat feed
+                        appendMessage('user', textToSubmit, null);
+                        appendMessage('assistant', data.reply);
+
+                        // Handle reactive table mutation
+                        if (data.mutated && data.schema) {
+                            renderSchemaAndTable(data.schema, data.records || [], data.audit_log || null, data.diff_map || null);
+                            const alertBanner = document.createElement('div');
+                            alertBanner.className = "text-[10px] text-emerald-400 bg-emerald-950/35 border border-emerald-800/40 rounded px-3 py-1.5 self-center my-1";
+                            alertBanner.textContent = "⚡ تم تحديث معاينة البيانات بنجاح!";
+                            chatHistory.appendChild(alertBanner);
+                        }
+
+                        // Play voice and animate orb
+                        if (data.audio) {
+                            setVoiceOrbState('speaking', 'SOLIX بيتكلم...', 'اسمع رد مساعدك الذكي');
+
+                            // Set up audio source and analyser for reactivity
+                            if (!voiceAudioPlaybackSource) {
+                                try {
+                                    if (!audioContext) {
+                                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                                    }
+                                    voiceAudioPlaybackSource = audioContext.createMediaElementSource(audioPlayback);
+                                    playbackAnalyser = audioContext.createAnalyser();
+                                    playbackAnalyser.fftSize = 64;
+                                    voiceAudioPlaybackSource.connect(playbackAnalyser);
+                                    playbackAnalyser.connect(audioContext.destination);
+                                } catch (e) {
+                                    console.error("Failed to connect audio analyzer", e);
+                                }
+                            }
+
+                            audioPlayback.src = `data:audio/mp3;base64,${data.audio}`;
+                            audioPlayback.play().catch(e => {
+                                console.error("Audio playback failed", e);
+                                setTimeout(() => {
+                                    if (isLiveVoiceMode && !isVoiceMicMuted) startVoiceRecording();
+                                }, 1000);
+                            });
+
+                            audioPlayback.onended = () => {
+                                voiceAiOrb.style.transform = '';
+                                voiceAiOrb.style.boxShadow = '';
+                                if (isLiveVoiceMode && !isVoiceMicMuted) {
+                                    startVoiceRecording();
+                                } else {
+                                    setVoiceOrbState('idle', 'الوضع المباشر نشط', 'اضغط على زر المايك للتحدث');
+                                }
+                            };
+                        } else {
+                            setVoiceOrbState('idle', 'SOLIX جاهز للمساعدة...', 'لم يتم استلام رد صوتي');
+                            setTimeout(() => {
+                                if (isLiveVoiceMode && !isVoiceMicMuted) startVoiceRecording();
+                            }, 1500);
+                        }
+                    } catch (err) {
+                        console.error("Voice mode error:", err);
+                        setVoiceOrbState('idle', 'فشل الاتصال...', 'حدث خطأ أثناء معالجة الصوت');
+                        setTimeout(() => {
+                            if (isLiveVoiceMode && !isVoiceMicMuted) startVoiceRecording();
+                        }, 2000);
+                    }
+                } else {
+                    setVoiceOrbState('idle', 'SOLIX بيسمعك...', 'مسمعتش كلامك كويس يا هندسة، ممكن تعيد؟');
+                    setTimeout(() => {
+                        if (isLiveVoiceMode && !isVoiceMicMuted) startVoiceRecording();
+                    }, 1500);
+                }
+            }, 1800);
+        };
+
+        liveRecognition.onerror = (event) => {
+            console.error("Live recognition error:", event.error);
+            if (isLiveVoiceMode && event.error !== 'aborted') {
+                setVoiceOrbState('idle', 'SOLIX بيسمعك...', 'مسمعتش كلامك كويس يا هندسة، ممكن تعيد؟');
+                setTimeout(() => {
+                    if (isLiveVoiceMode && !isVoiceMicMuted) startVoiceRecording();
+                }, 1500);
+            }
+        };
+
+        liveRecognition.onend = () => {
+            // Restart recording if stopped by browser and not programmatically by us
+            if (!programmaticLiveStop && isLiveVoiceMode && !isVoiceMicMuted) {
+                try {
+                    liveRecognition.start();
+                } catch (e) {
+                    console.error("Failed to auto-restart live recognition:", e);
+                }
+            }
+        };
+    }
+
+    function stopVoiceRecordingProcess() {
+        programmaticLiveStop = true;
+        if (liveSilenceTimer) {
+            clearTimeout(liveSilenceTimer);
+            liveSilenceTimer = null;
+        }
+        // Stop audio playback if speaking
+        audioPlayback.pause();
+        audioPlayback.src = "";
+        audioPlayback.onended = null;
+
+        // Reset animated properties
+        voiceAiOrb.style.transform = '';
+        voiceAiOrb.style.boxShadow = '';
+
+        if (liveRecognition) {
+            try {
+                liveRecognition.stop();
+            } catch (e) { }
+        }
+
+        if (playbackAnimationId) {
+            cancelAnimationFrame(playbackAnimationId);
+            playbackAnimationId = null;
+        }
+    }
+
+    function startVoiceRecording() {
+        if (!isLiveVoiceMode || isVoiceMicMuted) return;
+
+        // Make sure previous processes are stopped
+        stopVoiceRecordingProcess();
+        programmaticLiveStop = false;
+
+        if (!liveRecognition) {
+            setVoiceOrbState('idle', 'غير مدعوم', 'متصفحك لا يدعم خاصية التعرف على الصوت.');
+            return;
+        }
+
+        liveAccumulatedTranscript = '';
+
+        try {
+            setVoiceOrbState('listening', 'أنا سامعك يا هندسة...', 'اتفضل اتكلم وSOLIX هينفذ فوراً');
+            liveRecognition.start();
+        } catch (e) {
+            console.error("Failed to start live recognition:", e);
+        }
+    }
+
+    function toggleLiveVoiceMode(active) {
+        isLiveVoiceMode = active;
+        if (active) {
+            // Stop any standard manual recording if active
+            stopRecordingProcess();
+
+            // Enter Voice Mode
+            chatHistory.classList.add('hidden');
+            smallOrbContainer.classList.add('hidden');
+            chatInputPanel.classList.add('hidden');
+            voiceModeScreen.classList.remove('hidden');
+
+            modeLabel.textContent = "وضع الكتابة";
+            modeIcon.textContent = "keyboard";
+
+            // Automatically start voice loop
+            isVoiceMicMuted = false;
+            voiceMicBtn.className = "w-14 h-14 rounded-full flex items-center justify-center bg-indigo-600/30 border border-indigo-500/50 hover:bg-indigo-600/50 text-indigo-200 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.3)]";
+            voiceMicIcon.textContent = "mic";
+            startVoiceRecording();
+        } else {
+            // Exit Voice Mode
+            stopVoiceRecordingProcess();
+
+            voiceModeScreen.classList.add('hidden');
+            chatHistory.classList.remove('hidden');
+            smallOrbContainer.classList.remove('hidden');
+            chatInputPanel.classList.remove('hidden');
+
+            modeLabel.textContent = "الوضع المباشر";
+            modeIcon.textContent = "settings_voice";
+
+            // Scroll chat to bottom
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    }
+
+    // Toggle button handler
+    modeToggle.addEventListener('click', () => {
+        toggleLiveVoiceMode(!isLiveVoiceMode);
+    });
+
+    // Exit voice button inside voice mode
+    exitVoiceBtn.addEventListener('click', () => {
+        toggleLiveVoiceMode(false);
+    });
+
+    // Mute / Unmute mic button inside voice mode
+    voiceMicBtn.addEventListener('click', () => {
+        isVoiceMicMuted = !isVoiceMicMuted;
+        if (isVoiceMicMuted) {
+            // Mute mic
+            voiceMicBtn.className = "w-14 h-14 rounded-full flex items-center justify-center bg-red-950/30 border border-red-700/50 text-red-400 hover:bg-red-950/60 transition-all duration-300";
+            voiceMicIcon.textContent = "mic_off";
+            stopVoiceRecordingProcess();
+            setVoiceOrbState('idle', 'الميكروفون مكتوم', 'اضغط على زر المايك للبدء');
+        } else {
+            // Unmute mic
+            voiceMicBtn.className = "w-14 h-14 rounded-full flex items-center justify-center bg-indigo-600/30 border border-indigo-500/50 hover:bg-indigo-600/50 text-indigo-200 transition-all duration-300 shadow-[0_0_15px_rgba(79,70,229,0.3)]";
+            voiceMicIcon.textContent = "mic";
+            startVoiceRecording();
+        }
+    });
+
+    function switchMobileTab(tab) {
+        const chatPane = document.querySelector('.chat-pane');
+        const dataPane = document.querySelector('.data-pane');
+        const chatBtn = document.getElementById('tab-chat-btn');
+        const previewBtn = document.getElementById('tab-preview-btn');
+        
+        if (tab === 'chat') {
+            chatPane.classList.add('active-tab');
+            dataPane.classList.remove('active-tab');
+            
+            chatBtn.className = "flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all bg-primary text-white shadow-sm";
+            previewBtn.className = "flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all text-outline hover:text-on-surface";
+        } else {
+            chatPane.classList.remove('active-tab');
+            dataPane.classList.add('active-tab');
+            
+            chatBtn.className = "flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all text-outline hover:text-on-surface";
+            previewBtn.className = "flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all bg-primary text-white shadow-sm";
+        }
+    }
+
+    // Load initial page datasets
+    window.addEventListener('DOMContentLoaded', () => {
+        loadState();
+        loadDatasets();
+    });
+</script>
+{% endblock %}

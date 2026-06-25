@@ -1,0 +1,20 @@
+1141:       "max": 100, // اختياري فقط إذا كان النوع number
+1142:       "is_float": false, // اختياري فقط إذا كان النوع number
+1143:       "categories": ["cat1", "cat2"] // إجباري فقط إذا كان النوع category
+1144:     }}
+1145:   ]
+1146: }}
+1147: """
+1148: 
+1149:     result_container = {"result": None, "error": None}
+1150: 
+1151:     def _call_llm():
+1152:         try:
+1153:             from groq import Groq
+1154:             key = os.getenv("GROQ_API_KEY", "").strip() or BACKUP_GROQ_API_KEY
+1155:             if not key.startswith("gsk"):
+1156:                 raise ValueError("No valid API key")
+1157:             client = Groq(api_key=key)
+1158:             try:
+1159:                 resp = client.chat.completions.create(
+1160:                     model="llama-3.3-70b-versatile",

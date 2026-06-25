@@ -1,0 +1,33 @@
+[{"stream_name":"stdout","time":15.916227092,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":15.916376244,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":15.916385032,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":15.916389118,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":15.916393007,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1780162608'], Files: []\n"}
+,{"stream_name":"stdout","time":15.920322896,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":15.922606103,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608/X_train.csv']\n"}
+,{"stream_name":"stdout","time":15.922640443,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780162608\n"}
+,{"stream_name":"stdout","time":16.199392675,"data":"Train Shape: (7651, 54) | Task: multiclass | Classes: 3\n"}
+,{"stream_name":"stdout","time":16.199432649,"data":"Models scheduled for training: ['LogisticRegression', 'DecisionTree', 'RandomForest', 'LightGBM', 'XGBoost', 'GradientBoosting', 'ExtraTrees']\n"}
+,{"stream_name":"stdout","time":16.199438361,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":24.487068432,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.9525\n"}
+,{"stream_name":"stdout","time":24.649786891,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":25.451047005,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.9623\n"}
+,{"stream_name":"stdout","time":25.574044311,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":29.873189996,"data":"  --\u003e RandomForest Completed | Composite Score: 0.9589\n"}
+,{"stream_name":"stdout","time":29.997761158,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":35.096841194,"data":"  --\u003e LightGBM Completed | Composite Score: 0.9595\n"}
+,{"stream_name":"stdout","time":35.221184538,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":39.518563051,"data":"  --\u003e XGBoost Completed | Composite Score: 0.9584\n"}
+,{"stream_name":"stdout","time":39.641891285,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":140.562556494,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9571\n"}
+,{"stream_name":"stdout","time":140.689436596,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":142.686985664,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.9528\n"}
+,{"stream_name":"stdout","time":142.813753665,"data":"Winning model 'DecisionTree' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":142.814353737,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":146.317972365,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":146.318026708,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":146.661377601,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":146.66143617,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":147.486561999,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":148.617854152,"data":"[NbConvertApp] Writing 342682 bytes to __results__.html\n"}
+]

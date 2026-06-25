@@ -1,0 +1,1892 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}{% if locale == 'ar' %}الاستوديو الاصطناعي{% else %}Synthetic Studio{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}الاستوديو الاصطناعي{% else %}Synthetic Studio{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / التطبيق / الاستوديو الاصطناعي{% else %}SOL / App / Synthetic Studio{%
+endif %}{% endblock %}
+{% block nav_synthetic %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    .glass-card {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    /* ── Terminal Progress Bar ── */
+    .terminal-window {
+        background: var(--surface-container-lowest);
+        border: 1px solid var(--outline-variant);
+        font-family: 'JetBrains Mono', monospace;
+        box-shadow: 0 0 30px rgba(0, 242, 254, 0.05);
+    }
+
+    .glow-btn {
+        background: linear-gradient(135deg, #4361ee, #00f2fe);
+        color: #ffffff;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glow-btn:hover:not(:disabled) {
+        filter: brightness(1.2);
+        box-shadow: 0 0 35px rgba(0, 242, 254, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .glow-btn:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    /* ── Nav Tabs ── */
+    .tab-btn {
+        position: relative;
+        transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+        color: var(--primary);
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #4361ee, #5bd5fc);
+        box-shadow: 0 0 10px #5bd5fc;
+    }
+
+    /* Form Inputs */
+    .input-field {
+        background: var(--surface-container-lowest) !important;
+        border: 1px solid var(--outline-variant) !important;
+        color: var(--on-surface) !important;
+        transition: all 0.3s !important;
+    }
+
+    .input-field:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px var(--primary-container) !important;
+        outline: none !important;
+    }
+
+    .input-field option {
+        background-color: var(--surface-container) !important;
+        color: var(--on-surface) !important;
+    }
+
+    .input-field::placeholder {
+        color: var(--on-surface-variant) !important;
+        opacity: 0.5;
+    }
+
+    /* Nested interactive schema/rules inputs to prevent Tailwind Forms override */
+    .interactive-item-input {
+        background-color: var(--surface-container-lowest) !important;
+        border: 1px solid var(--outline-variant) !important;
+        color: var(--on-surface) !important;
+        border-radius: 0.5rem !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+        transition: all 0.2s ease-in-out !important;
+        width: 100% !important;
+    }
+
+    .interactive-item-input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px var(--primary-container) !important;
+        outline: none !important;
+    }
+
+    .interactive-item-input option {
+        background-color: var(--surface-container) !important;
+        color: var(--on-surface) !important;
+    }
+
+    /* Pulse animation */
+    .pulse-glow {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(91, 213, 252, 0.2);
+        }
+
+        50% {
+            opacity: 0.7;
+            box-shadow: 0 0 20px rgba(91, 213, 252, 0.4);
+        }
+    }
+
+    /* ── Studio Switcher & Prompt Schema Editor ── */
+    .studio-tab-btn {
+        position: relative;
+        transition: all 0.2s;
+        color: var(--outline);
+    }
+
+    .studio-tab-btn.active {
+        color: var(--primary);
+    }
+
+    .studio-tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #4361ee, #5bd5fc);
+        box-shadow: 0 0 10px #5bd5fc;
+    }
+
+    .column-item {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .column-item:hover {
+        border-color: var(--primary);
+    }
+</style>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+{% endblock %}
+
+{% block content %}
+<div class="text-on-background">
+    <!-- Header Summary -->
+    <div class="glass-card p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-lg border border-outline-variant/30">
+                <span class="material-symbols-outlined text-on-primary-container text-2xl"
+                    style="font-variation-settings:'FILL' 1">precision_manufacturing</span>
+            </div>
+            <div>
+                <h1 class="font-headline font-black text-2xl text-on-background tracking-tight leading-none uppercase">
+                    {% if locale == 'ar' %}الاستوديو الاصطناعي للبيانات{% else %}Synthetic Data Studio{% endif %}</h1>
+                <p class="font-mono text-xs text-secondary mt-1">{% if locale == 'ar' %}محرك الذكاء الاصطناعي التوليدي
+                    ومُشغل سحابة Kaggle عن بعد{% else %}Generative AI Engine &amp; Remote Kaggle Cloud Runner{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Live Statistics / Status Pill -->
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-end">
+                <span class="font-mono text-[10px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الوضع
+                    النشط{% else %}Active Mode{% endif %}</span>
+                <span id="header-env-badge" class="font-mono text-xs text-[#00f2fe] font-bold">Kaggle Cloud</span>
+            </div>
+            <div class="h-8 w-[1px] bg-outline-variant/30"></div>
+            <div class="flex flex-col items-end">
+                <span class="font-mono text-[10px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}حالة
+                    المحرك{% else %}Engine Status{% endif %}</span>
+                <span id="engine-status-text"
+                    class="font-mono text-xs text-emerald-400 flex items-center gap-1.5 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> {% if locale == 'ar' %}جاهز{%
+                    else %}Ready{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Studio Mode Toggles -->
+    <div class="border-b border-outline-variant/15 flex items-center gap-6 mb-6 overflow-x-auto whitespace-nowrap scrollbar-none">
+        <button onclick="switchStudioMode('classic')"
+            class="studio-tab-btn active font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+            id="btn-studio-classic">
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">filter_alt</span>
+                {% if locale == 'ar' %}الكلاسيكي (بيانات إلى بيانات){% else %}Classic (Data-to-Data){% endif %}
+            </span>
+        </button>
+        <button onclick="switchStudioMode('prompt')"
+            class="studio-tab-btn font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+            id="btn-studio-prompt">
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">psychology</span>
+                {% if locale == 'ar' %}مُوجّه الذكاء الاصطناعي (نص إلى بيانات){% else %}AI Prompter (Text-to-Data){%
+                endif %}
+            </span>
+        </button>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="main-workspace-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left Column: Generator Configuration Form (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="glass-card p-6">
+                <h2 id="config-title"
+                    class="font-headline font-bold text-on-surface text-lg mb-4 flex items-center gap-2">
+                    <span id="config-title-icon" class="material-symbols-outlined text-secondary">tune</span>
+                    <span id="config-title-text">{% if locale == 'ar' %}معلمات التكوين{% else %}Configuration
+                        Parameters{% endif %}</span>
+                </h2>
+
+                <!-- Classic Configuration Panel -->
+                <div id="classic-config-panel">
+                    <form id="generate-form" onsubmit="event.preventDefault(); triggerGeneration();" class="space-y-4">
+                        <!-- Dataset Selection & Upload -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block font-label text-xs text-outline uppercase tracking-wider">{% if
+                                    locale == 'ar' %}مجموعة البيانات المصدر{% else %}Source Dataset{% endif %}</label>
+                                <span class="font-mono text-[10px] text-secondary">CSV, Excel, Parquet</span>
+                            </div>
+                            <select id="dataset-select" name="dataset_id"
+                                class="w-full input-field rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-secondary"
+                                required>
+                                <option value="" disabled selected>{% if locale == 'ar' %}اختر مجموعة بيانات...{% else
+                                    %}Select a dataset...{% endif %}</option>
+                            </select>
+
+                            <!-- Custom File Uploader Widget -->
+                            <div id="upload-zone"
+                                class="border border-dashed border-outline-variant/20 rounded-xl p-4 text-center cursor-pointer hover:border-secondary/60 hover:bg-primary-container/20 transition-all relative">
+                                <input type="file" id="dataset-file-input" class="hidden"
+                                    accept=".csv,.xlsx,.xls,.json,.parquet" />
+                                <div class="flex flex-col items-center justify-center gap-1">
+                                    <span class="material-symbols-outlined text-secondary text-xl">cloud_upload</span>
+                                    <span class="font-label text-xs text-on-surface font-medium">{% if locale == 'ar'
+                                        %}رفع مجموعة بيانات مخصصة{% else %}Upload custom dataset{% endif %}</span>
+                                    <span id="upload-status" class="font-mono text-[9px] text-outline">{% if locale ==
+                                        'ar' %}اسحب وأفلت أو انقر للتصفح{% else %}Drag &amp; drop or click to browse{%
+                                        endif %}</span>
+                                </div>
+                                <div id="upload-progress-bar"
+                                    class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-container to-secondary-container rounded-b-xl"
+                                    style="width: 0%; display: none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Row Count & Model Selection -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-label text-xs text-outline uppercase tracking-wider mb-2">{% if
+                                    locale == 'ar' %}الصفوف المستهدفة{% else %}Target Rows{% endif %}</label>
+                                <input type="number" id="num-rows-input" name="num_rows" value="500" min="10"
+                                    max="500000" class="w-full input-field rounded-xl px-4 py-3 text-sm" required />
+                            </div>
+                            <div>
+                                <label class="block font-label text-xs text-outline uppercase tracking-wider mb-2">{% if
+                                    locale == 'ar' %}نوع النموذج{% else %}Model Type{% endif %}</label>
+                                <select id="model-select" name="model_type" onchange="toggleModelParams()"
+                                    class="w-full input-field rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-secondary"
+                                    required>
+                                    <option value="basic">Basic (Statistical)</option>
+                                    <option value="gaussian_copula">Gaussian Copula</option>
+                                    <option value="tvae">TVAE (Deep Learning)</option>
+                                    <option value="ctgan">CTGAN (AI Model)</option>
+                                    <option value="benchmark">Auto-Benchmark</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Epochs Selection (Hidden for non-deep learning) -->
+                        <div id="epochs-wrapper" class="hidden">
+                            <label
+                                class="block font-label text-xs text-outline uppercase tracking-wider mb-1.5 flex justify-between">
+                                <span>{% if locale == 'ar' %}دورات التدريب (Epochs){% else %}Training Epochs{% endif
+                                    %}</span>
+                                <span id="epochs-val" class="font-mono text-secondary">30</span>
+                            </label>
+                            <input type="range" id="epochs-input" name="epochs" min="5" max="300" value="30"
+                                oninput="document.getElementById('epochs-val').textContent = this.value"
+                                class="w-full accent-secondary" />
+                        </div>
+
+                        <!-- Run Environment: Default to Kaggle Cloud -->
+                        <input type="hidden" name="run_env" value="kaggle" />
+
+                        <!-- Data Perturbation & Noise Injection -->
+                        <div class="border-t border-outline-variant/10 pt-4">
+                            <h3 class="font-label text-xs text-secondary uppercase tracking-widest mb-3">{% if locale ==
+                                'ar' %}خيارات الضوضاء والفساد{% else %}Noise &amp; Corruption Options{% endif %}</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-label text-xs text-outline mb-1.5 flex justify-between">
+                                        <span>{% if locale == 'ar' %}نسبة الخلايا الفارغة (Null){% else %}Null Cells
+                                            Ratio{% endif %}</span>
+                                        <span id="null-pct-val" class="font-mono text-outline">0%</span>
+                                    </label>
+                                    <input type="range" id="null-pct" name="null_pct" min="0" max="90" value="0"
+                                        step="5"
+                                        oninput="document.getElementById('null-pct-val').textContent = this.value + '%'"
+                                        class="w-full accent-secondary" />
+                                </div>
+                                <div>
+                                    <label class="block font-label text-xs text-outline mb-1.5 flex justify-between">
+                                        <span>{% if locale == 'ar' %}نسبة القيم الشاذة (Outliers){% else %}Outlier
+                                            Ratio{% endif %}</span>
+                                        <span id="outlier-pct-val" class="font-mono text-outline">0%</span>
+                                    </label>
+                                    <input type="range" id="outlier-pct" name="outlier_pct" min="0" max="50" value="0"
+                                        step="5"
+                                        oninput="document.getElementById('outlier-pct-val').textContent = this.value + '%'"
+                                        class="w-full accent-secondary" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="submit-btn"
+                            class="glow-btn w-full py-4 rounded-xl flex items-center justify-center gap-2 mt-4">
+                            <span class="material-symbols-outlined text-lg"
+                                style="font-variation-settings:'FILL' 1">bolt</span>
+                            {% if locale == 'ar' %}توليد البيانات الاصطناعية{% else %}Synthesize Dataset{% endif %}
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Prompt Configuration Panel -->
+                <div id="prompt-config-panel" class="hidden">
+                    <form id="prompt-generate-form" onsubmit="event.preventDefault(); triggerPromptGeneration();"
+                        class="space-y-4">
+                        <!-- Textarea for Prompt -->
+                        <div class="space-y-2">
+                            <label class="block font-label text-xs text-outline uppercase tracking-wider">{% if locale
+                                == 'ar' %}صف فكرتك لمجموعة البيانات{% else %}Describe your dataset idea{% endif
+                                %}</label>
+                            <textarea id="prompt-textarea" name="prompt" rows="4"
+                                placeholder="مثال: بيانات عملاء متجر إلكتروني سعودي تشمل الاسم، الهاتف، العنوان، العمر، وإجمالي المشتريات..."
+                                class="w-full input-field rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-secondary resize-none"
+                                required></textarea>
+                        </div>
+
+                        <!-- Row Count & Column Count & Locale -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block font-label text-[9px] text-outline uppercase tracking-wider mb-1">{%
+                                    if locale == 'ar' %}الصفوف المستهدفة{% else %}Target Rows{% endif %}</label>
+                                <input type="number" id="prompt-rows" name="num_rows" value="1000" min="10" max="500000"
+                                    class="w-full input-field rounded-xl px-2 py-2.5 text-xs text-center" required />
+                            </div>
+                            <div>
+                                <label class="block font-label text-[9px] text-outline uppercase tracking-wider mb-1">{%
+                                    if locale == 'ar' %}عدد الأعمدة{% else %}Col Count{% endif %}</label>
+                                <input type="number" id="prompt-cols" name="num_columns" value="5" min="1" max="100"
+                                    class="w-full input-field rounded-xl px-2 py-2.5 text-xs text-center" required />
+                            </div>
+                            <div>
+                                <label class="block font-label text-[9px] text-outline uppercase tracking-wider mb-1">{%
+                                    if locale == 'ar' %}الموقع المحلي{% else %}Locale{% endif %}</label>
+                                <select id="prompt-locale" name="locale"
+                                    class="w-full input-field rounded-xl px-2 py-2.5 text-xs focus:ring-1 focus:ring-secondary"
+                                    required>
+                                    <option value="en_US">English (US)</option>
+                                    <option value="ar_EG" selected>Arabic (ar_EG)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Suggest Button -->
+                        <button type="button" onclick="suggestPromptSchema()" id="suggest-schema-btn"
+                            class="w-full py-2.5 rounded-xl border border-secondary/40 text-secondary hover:bg-secondary/10 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+                            <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                            <span id="suggest-btn-text">{% if locale == 'ar' %}اقتراح الهيكل تلقائياً{% else
+                                %}Auto-Suggest Schema{% endif %}</span>
+                        </button>
+
+                        <!-- Interactive Schema Editor -->
+                        <div id="schema-editor-section"
+                            class="hidden border-t border-outline-variant/10 pt-4 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-label text-xs text-secondary uppercase tracking-widest">{% if locale ==
+                                    'ar' %}محرر الهيكل التفاعلي{% else %}Interactive Schema Editor{% endif %}</h3>
+                                <button type="button" onclick="addNewColumn()"
+                                    class="text-[10px] text-sky-400 hover:underline flex items-center gap-0.5">
+                                    <span class="material-symbols-outlined text-xs">add</span> {% if locale == 'ar'
+                                    %}إضافة عمود{% else %}Add Column{% endif %}
+                                </button>
+                            </div>
+
+                            <!-- Columns interactive list -->
+                            <div id="schema-columns-list"
+                                class="space-y-3 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Interactive Rules Editor -->
+                        <div id="rules-editor-section" class="hidden border-t border-outline-variant/10 pt-4 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-label text-xs text-secondary uppercase tracking-widest">{% if locale ==
+                                    'ar' %}الاتصالات المنطقية والقواعد{% else %}Logical Connections &amp; Rules{% endif
+                                    %}</h3>
+                                <button type="button" onclick="addNewRule()"
+                                    class="text-[10px] text-sky-400 hover:underline flex items-center gap-0.5">
+                                    <span class="material-symbols-outlined text-xs">add</span> {% if locale == 'ar'
+                                    %}إضافة قاعدة{% else %}Add Rule{% endif %}
+                                </button>
+                            </div>
+
+                            <!-- Rules interactive list -->
+                            <div id="rules-list" class="space-y-3 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Hidden Inputs or stored JSON -->
+                        <input type="hidden" id="columns-json-input" name="columns_json" />
+                        <input type="hidden" id="rules-json-input" name="rules_json" />
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="prompt-submit-btn"
+                            class="glow-btn w-full py-4 rounded-xl flex items-center justify-center gap-2 mt-4"
+                            disabled>
+                            <span class="material-symbols-outlined text-lg"
+                                style="font-variation-settings:'FILL' 1">bolt</span>
+                            {% if locale == 'ar' %}توليد مجموعة بيانات وهمية{% else %}Generate Mock Dataset{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Terminal Logging & Progress Output (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            <!-- Kaggle Internet Warning Alert Banner -->
+            <div id="kaggle-internet-alert"
+                class="hidden border border-error/30 bg-error/10 rounded-2xl p-5 flex items-start gap-4 animate-fade-in mb-1">
+                <div
+                    class="w-10 h-10 rounded-xl bg-error/20 border border-error/30 flex items-center justify-center text-error shrink-0">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="font-headline font-bold text-error text-sm">{% if locale == 'ar' %}خطأ: تفعيل الإنترنت
+                        مطلوب في حساب كاجل!{% else %}Error: Internet connection is required in Kaggle!{% endif %}</h4>
+                    <div class="font-body text-xs text-outline leading-relaxed">
+                        {% if locale == 'ar' %}
+                        فشل التوليد لأن بيئة Kaggle Cloud تفتقر للاتصال بالإنترنت لتثبيت مكتبة التوليد الذكي <code
+                            class="bg-surface-container-high px-1 py-0.5 rounded text-secondary font-mono text-[10px]">sdv</code>.
+                        <br><strong class="text-on-surface">لحل المشكلة:</strong>
+                        <ol class="list-decimal pl-4 mt-1 space-y-1 text-on-surface-variant font-body text-xs">
+                            <li>قم بتسجيل الدخول إلى حسابك على <a href="https://www.kaggle.com" target="_blank"
+                                    class="text-secondary hover:underline font-bold">Kaggle</a>.</li>
+                            <li>اذهب إلى إعدادات حسابك (Settings) ووثّق رقم هاتفك عبر الـ SMS (Phone Verification).</li>
+                            <li>بعد التوثيق، سيقوم النظام تلقائياً بتفعيل الإنترنت والعمل بنجاح.</li>
+                        </ol>
+                        <span class="block mt-2 font-semibold text-emerald-500">💡 بديل فوري: يمكنك اختيار نموذج <span
+                                class="underline font-mono">Basic (Statistical)</span> لتوليد البيانات فوراً بدون
+                            إنترنت!</span>
+                        {% else %}
+                        Generation failed because the Kaggle Cloud environment lacks internet access to install the
+                        generation library <code
+                            class="bg-surface-container-high px-1 py-0.5 rounded text-secondary font-mono text-[10px]">sdv</code>.
+                        <br><strong class="text-on-surface">To resolve:</strong>
+                        <ol class="list-decimal pl-4 mt-1 space-y-1 text-on-surface-variant font-body text-xs">
+                            <li>Log in to your <a href="https://www.kaggle.com" target="_blank"
+                                    class="text-secondary hover:underline font-bold">Kaggle</a> account.</li>
+                            <li>Go to Account Settings and verify your phone number via SMS.</li>
+                            <li>Once verified, internet access can be toggled on in the kernel settings.</li>
+                        </ol>
+                        <span class="block mt-2 font-semibold text-emerald-500">💡 Quick Alternative: Choose the <span
+                                class="underline font-mono">Basic (Statistical)</span> model to generate data
+                            immediately without internet access!</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Progress Panel -->
+            <div class="glass-card p-6 flex flex-col min-h-[460px]">
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-3 mb-4">
+                    <h2 class="font-headline font-bold text-on-surface text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">terminal</span>
+                        {% if locale == 'ar' %}طرفية التنفيذ{% else %}Execution Terminal{% endif %}
+                    </h2>
+                    <span id="terminal-env-badge"
+                        class="font-mono text-[9px] px-2 py-0.5 rounded border border-secondary/30 text-secondary bg-secondary/5 uppercase">Kaggle
+                        Cloud</span>
+                </div>
+
+                <!-- Terminal Window -->
+                <div class="terminal-window rounded-xl p-4 flex-1 flex flex-col overflow-hidden text-xs">
+                    <!-- Terminal logs -->
+                    <div id="terminal-logs"
+                        class="flex-1 overflow-y-auto space-y-2 text-on-surface-variant font-mono custom-scrollbar pr-2 min-h-[220px] max-h-[260px]">
+                        <div class="text-secondary">[SYSTEM] Terminal initialized. Waiting for synthesis instructions...
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar Section -->
+                    <div class="border-t border-outline-variant/10 pt-4 mt-3">
+                        <div class="flex items-center justify-between text-outline text-[10px] font-mono mb-1.5">
+                            <span id="progress-phase-text">{% if locale == 'ar' %}الحالة: خامل{% else %}Status: Idle{%
+                                endif %}</span>
+                            <span id="progress-percent" class="font-bold text-secondary">0%</span>
+                        </div>
+                        <div class="w-full h-2 bg-outline-variant/10 rounded-full overflow-hidden">
+                            <div id="terminal-progress-bar"
+                                class="h-full bg-gradient-to-r from-primary-container to-secondary-container transition-all duration-300"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Kaggle Kernel Redirect Link (Shows when Kaggle running) -->
+                    <div id="kaggle-link-container" class="hidden mt-3 text-center animate-fade-in">
+                        <a id="kaggle-kernel-link" href="#" target="_blank"
+                            class="inline-flex items-center gap-1.5 bg-[#008abb] hover:bg-[#00a2db] text-white font-bold font-mono text-[10px] px-3.5 py-2 rounded-lg shadow-md transition-all">
+                            <span class="material-symbols-outlined text-xs">open_in_new</span>
+                            {% if locale == 'ar' %}مراقبة تشغيل بيئة العمل مباشرة على Kaggle{% else %}Monitor Kernel
+                            Live on Kaggle{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Dashboard Section (Initially Hidden) -->
+    <div id="verification-dashboard" class="hidden mt-8 space-y-6 animate-fade-in">
+
+        <!-- Results Header Card -->
+        <div
+            class="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-emerald-500/20 bg-emerald-500/5">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                    <span class="material-symbols-outlined">task_alt</span>
+                </div>
+                <div>
+                    <h2 class="font-headline font-bold text-on-surface text-lg">{% if locale == 'ar' %}اكتمل التوليد
+                        بنجاح{% else %}Synthesis Completed Successfully{% endif %}</h2>
+                    <p class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}تم حفظ المخرجات المولدة في سجل
+                        البيانات المحلي{% else %}Generated output stored as local dataset registry{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a id="download-btn" href="#"
+                    class="glow-btn flex items-center gap-1.5 px-5 py-3 rounded-xl shadow-lg text-sm">
+                    <span class="material-symbols-outlined text-base">download</span>
+                    {% if locale == 'ar' %}تنزيل ملف CSV المولد{% else %}Download Generated CSV{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-card p-4 text-center">
+                <span class="font-mono text-[9px] text-outline uppercase tracking-wider block">{% if locale == 'ar'
+                    %}الصفوف المولدة{% else %}Generated Rows{% endif %}</span>
+                <span id="res-stat-rows" class="font-mono text-2xl font-bold text-on-surface mt-1 block">-</span>
+            </div>
+            <div class="glass-card p-4 text-center">
+                <span class="font-mono text-[9px] text-outline uppercase tracking-wider block">{% if locale == 'ar'
+                    %}الخصائص/الأعمدة{% else %}Features/Cols{% endif %}</span>
+                <span id="res-stat-cols" class="font-mono text-2xl font-bold text-on-surface mt-1 block">-</span>
+            </div>
+            <div class="glass-card p-4 text-center">
+                <span class="font-mono text-[9px] text-outline uppercase tracking-wider block">{% if locale == 'ar'
+                    %}متوسط الدقة (Fidelity){% else %}Fidelity Avg{% endif %}</span>
+                <span id="res-stat-fidelity" class="font-mono text-2xl font-bold text-secondary mt-1 block">-</span>
+            </div>
+            <div class="glass-card p-4 text-center">
+                <span class="font-mono text-[9px] text-outline uppercase tracking-wider block">{% if locale == 'ar'
+                    %}مخاطر الخصوصية{% else %}Privacy Risk{% endif %}</span>
+                <span id="res-stat-privacy" class="font-mono text-2xl font-bold text-emerald-500 mt-1 block">-</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="border-b border-outline-variant/15 flex items-center gap-6 overflow-x-auto whitespace-nowrap scrollbar-none">
+            <button onclick="switchTab('tab-preview')"
+                class="tab-btn active font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+                id="btn-tab-preview">{% if locale == 'ar' %}معاينة البيانات{% else %}Data Preview{% endif %}</button>
+            <button onclick="switchTab('tab-fidelity')"
+                class="tab-btn font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+                id="btn-tab-fidelity">{% if locale == 'ar' %}درجة الدقة{% else %}Fidelity Score{% endif %}</button>
+            <button onclick="switchTab('tab-privacy')"
+                class="tab-btn font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+                id="btn-tab-privacy">{% if locale == 'ar' %}الخصوصية والتسريب{% else %}Privacy &amp; Leakage{% endif
+                %}</button>
+            <button onclick="switchTab('tab-dictionary')"
+                class="tab-btn font-label text-sm font-bold tracking-wider uppercase py-3 outline-none"
+                id="btn-tab-dictionary">{% if locale == 'ar' %}قاموس البيانات{% else %}Data Dictionary{% endif
+                %}</button>
+        </div>
+
+        <!-- Tab Content Windows -->
+        <div class="glass-card p-6 min-h-[350px]">
+
+            <!-- TAB 1: DATA PREVIEW -->
+            <div id="tab-preview-content" class="tab-pane space-y-4">
+                <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}معاينة تفاعلية
+                    لمجموعة البيانات (أول 50 صفاً){% else %}Interactive Dataset Preview (First 50 Rows){% endif %}</h3>
+                <div class="overflow-x-auto border border-outline-variant/10 rounded-xl custom-scrollbar max-h-[350px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-surface-container sticky top-0">
+                            <tr id="preview-thead-row">
+                                <!-- Headers injected here -->
+                            </tr>
+                        </thead>
+                        <tbody id="preview-tbody"
+                            class="font-mono text-xs text-on-surface-variant divide-y divide-outline-variant/5">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: FIDELITY SCORE (PLOTLY) -->
+            <div id="tab-fidelity-content" class="tab-pane hidden space-y-4">
+                <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}مقاييس مقارنة
+                    الدقة{% else %}Fidelity Comparison Metrics{% endif %}</h3>
+                <p class="font-body text-xs text-outline">{% if locale == 'ar' %}درجة مطابقة التوزيع الإحصائي لكل عمود.
+                    تمثل الدرجات الأعلى من 70% تشابهاً كبيراً.{% else %}Statistical distribution matching score for each
+                    column. Scores above 70% represent high similarity.{% endif %}</p>
+                <div id="fidelity-chart-container" style="width: 100%; height: 320px;"></div>
+            </div>
+
+            <!-- TAB 3: PRIVACY & LEAKAGE (TABLE) -->
+            <div id="tab-privacy-content" class="tab-pane hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}تحليل
+                            المسافة إلى أقرب سجلات (DCR){% else %}Distance to Closest Records (DCR) Analysis{% endif %}
+                        </h3>
+                        <p class="font-body text-xs text-outline">{% if locale == 'ar' %}التحقق مما إذا كانت السجلات
+                            الاصطناعية نسخاً مطابقة تماماً أو قريبة جداً من السجلات الخام (مخاطر الخصوصية).{% else
+                            %}Checks if synthetic records are exact copies or too close to raw records (Privacy Risk).{%
+                            endif %}</p>
+                    </div>
+                    <span id="privacy-risk-badge"
+                        class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-500">{%
+                        if locale == 'ar' %}مخاطر منخفضة{% else %}Low Risk{% endif %}</span>
+                </div>
+
+                <div class="overflow-x-auto border border-outline-variant/10 rounded-xl max-h-[320px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-surface-container sticky top-0">
+                            <tr>
+                                <th
+                                    class="p-3 text-[10px] font-label text-outline uppercase tracking-wider border-b border-outline-variant/10">
+                                    {% if locale == 'ar' %}العمود الاصطناعي{% else %}Synthetic Column{% endif %}</th>
+                                <th
+                                    class="p-3 text-[10px] font-label text-outline uppercase tracking-wider border-b border-outline-variant/10">
+                                    {% if locale == 'ar' %}السجلات المطابقة الموجودة{% else %}Identical Records Found{%
+                                    endif %}</th>
+                                <th
+                                    class="p-3 text-[10px] font-label text-outline uppercase tracking-wider border-b border-outline-variant/10">
+                                    {% if locale == 'ar' %}مسافة الجار الأقرب{% else %}Nearest Neighbor Dist{% endif %}
+                                </th>
+                                <th
+                                    class="p-3 text-[10px] font-label text-outline uppercase tracking-wider border-b border-outline-variant/10">
+                                    {% if locale == 'ar' %}حالة المخاطر{% else %}Risk Status{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="privacy-table-body"
+                            class="font-mono text-xs text-on-surface-variant divide-y divide-outline-variant/5">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: DATA DICTIONARY -->
+            <div id="tab-dictionary-content" class="tab-pane hidden space-y-4">
+                <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}قاموس البيانات
+                    المولد والتوثيق{% else %}Generated Data Dictionary Documentation{% endif %}</h3>
+                <div id="dictionary-markdown"
+                    class="prose dark:prose-invert text-on-surface max-w-none font-mono text-xs p-4 bg-surface-container-lowest border border-outline-variant/10 rounded-xl overflow-y-auto max-h-[400px] whitespace-pre-wrap leading-relaxed">
+                    <!-- MD Content Injected -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeTaskId = null;
+    let pollIntervalId = null;
+    window.lastResult = null;
+
+    // ─── State Persistence ──────────────────────────────────────────────────────────
+    function saveState() {
+        try {
+            // Collect current columns
+            const schema = serializeSchema();
+            // Collect current rules
+            const rules = serializeRules();
+
+            const state = {
+                currentStudioMode: currentStudioMode,
+                classic: {
+                    datasetId: document.getElementById("dataset-select")?.value || '',
+                    rows: document.getElementById("row-count-input")?.value || '1000',
+                    model: document.getElementById("model-select")?.value || 'basic',
+                    epochs: document.getElementById("epochs-input")?.value || '30',
+                    nullPct: document.getElementById("null-pct")?.value || '0',
+                    outlierPct: document.getElementById("outlier-pct")?.value || '0',
+                },
+                prompt: {
+                    promptText: document.getElementById("prompt-textarea")?.value || '',
+                    rows: document.getElementById("prompt-rows")?.value || '1000',
+                    cols: document.getElementById("prompt-cols")?.value || '5',
+                    locale: document.getElementById("prompt-locale")?.value || 'ar_EG',
+                    schema: schema,
+                    rules: rules,
+                    schemaVisible: !document.getElementById("schema-editor-section")?.classList.contains("hidden"),
+                    rulesVisible: !document.getElementById("rules-editor-section")?.classList.contains("hidden")
+                },
+                activeTaskId: activeTaskId,
+                lastResult: window.lastResult || null
+            };
+            sessionStorage.setItem('sol_synthetic_studio_state', JSON.stringify(state));
+        } catch(e) {
+            console.error("Failed to save synthetic studio state:", e);
+        }
+    }
+
+    function loadState() {
+        const raw = sessionStorage.getItem('sol_synthetic_studio_state');
+        if (!raw) return;
+        try {
+            const state = JSON.parse(raw);
+            
+            // Restore studio mode
+            if (state.currentStudioMode) {
+                switchStudioMode(state.currentStudioMode);
+            }
+
+            // Restore classic options
+            if (state.classic) {
+                const dsSelect = document.getElementById("dataset-select");
+                if (dsSelect) {
+                    dsSelect.value = state.classic.datasetId;
+                }
+                if (document.getElementById("row-count-input")) {
+                    document.getElementById("row-count-input").value = state.classic.rows;
+                }
+                if (document.getElementById("model-select")) {
+                    document.getElementById("model-select").value = state.classic.model;
+                    toggleModelParams();
+                }
+                if (document.getElementById("epochs-input")) {
+                    document.getElementById("epochs-input").value = state.classic.epochs;
+                    document.getElementById('epochs-val').textContent = state.classic.epochs;
+                }
+                if (document.getElementById("null-pct")) {
+                    document.getElementById("null-pct").value = state.classic.nullPct;
+                    document.getElementById('null-pct-val').textContent = state.classic.nullPct + '%';
+                }
+                if (document.getElementById("outlier-pct")) {
+                    document.getElementById("outlier-pct").value = state.classic.outlierPct;
+                    document.getElementById('outlier-pct-val').textContent = state.classic.outlierPct + '%';
+                }
+            }
+
+            // Restore prompt options
+            if (state.prompt) {
+                if (document.getElementById("prompt-textarea")) {
+                    document.getElementById("prompt-textarea").value = state.prompt.promptText;
+                }
+                if (document.getElementById("prompt-rows")) {
+                    document.getElementById("prompt-rows").value = state.prompt.rows;
+                }
+                if (document.getElementById("prompt-cols")) {
+                    document.getElementById("prompt-cols").value = state.prompt.cols;
+                }
+                if (document.getElementById("prompt-locale")) {
+                    document.getElementById("prompt-locale").value = state.prompt.locale;
+                }
+
+                // Restore columns schema editor
+                const listContainer = document.getElementById("schema-columns-list");
+                if (listContainer && state.prompt.schema && state.prompt.schema.length > 0) {
+                    listContainer.innerHTML = "";
+                    state.prompt.schema.forEach(col => {
+                        addNewColumn(col);
+                    });
+                }
+
+                // Restore rules
+                const rulesContainer = document.getElementById("rules-list");
+                if (rulesContainer && state.prompt.rules && state.prompt.rules.length > 0) {
+                    rulesContainer.innerHTML = "";
+                    state.prompt.rules.forEach(rule => {
+                        addNewRule(rule);
+                    });
+                }
+
+                if (state.prompt.schemaVisible) {
+                    document.getElementById("schema-editor-section").classList.remove("hidden");
+                    document.getElementById("prompt-submit-btn")?.removeAttribute("disabled");
+                }
+                if (state.prompt.rulesVisible) {
+                    document.getElementById("rules-editor-section").classList.remove("hidden");
+                }
+            }
+
+            // Restore active task or results
+            if (state.activeTaskId) {
+                activeTaskId = state.activeTaskId;
+                writeTerminalLog("[SYSTEM] Resuming generation tracking...", "text-[#00f2fe]");
+                startPolling();
+            } else if (state.lastResult) {
+                window.lastResult = state.lastResult;
+                finalizeTask(state.lastResult);
+            }
+        } catch(e) {
+            console.error("Failed to restore synthetic studio state:", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDatasets();
+        toggleModelParams();
+        setupUploader();
+
+        // Bind bubble events for forms inputs to trigger saveState
+        const genForm = document.getElementById('generate-form');
+        if (genForm) {
+            genForm.addEventListener('input', saveState);
+            genForm.addEventListener('change', saveState);
+        }
+        const promptGenForm = document.getElementById('prompt-generate-form');
+        if (promptGenForm) {
+            promptGenForm.addEventListener('input', saveState);
+            promptGenForm.addEventListener('change', saveState);
+        }
+
+        // Restore saved state
+        loadState();
+    });
+
+    async function loadDatasets() {
+        try {
+            const res = await fetch("/api/synthetic/datasets");
+            if (!res.ok) throw new Error("Could not load datasets.");
+            const datasets = await res.json();
+            const select = document.getElementById("dataset-select");
+
+            datasets.forEach(d => {
+                const opt = document.createElement("option");
+                opt.value = d.dataset_id;
+                opt.textContent = d.filename;
+                select.appendChild(opt);
+            });
+
+            // Restore value after options load
+            const raw = sessionStorage.getItem('sol_synthetic_studio_state');
+            if (raw) {
+                const state = JSON.parse(raw);
+                if (state.classic && state.classic.datasetId) {
+                    select.value = state.classic.datasetId;
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            writeTerminalLog("[ERROR] Failed to fetch source datasets.", "text-red-400");
+        }
+    }
+
+    function setupUploader() {
+        const uploadZone = document.getElementById("upload-zone");
+        const fileInput = document.getElementById("dataset-file-input");
+        const uploadStatus = document.getElementById("upload-status");
+        const progressBar = document.getElementById("upload-progress-bar");
+
+        uploadZone.addEventListener("click", () => fileInput.click());
+
+        uploadZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadZone.classList.add("bg-white/10", "border-secondary");
+        });
+
+        uploadZone.addEventListener("dragleave", () => {
+            uploadZone.classList.remove("bg-white/10", "border-secondary");
+        });
+
+        uploadZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove("bg-white/10", "border-secondary");
+            if (e.dataTransfer.files.length) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files.length) {
+                handleFileUpload(fileInput.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            uploadStatus.textContent = "Uploading " + file.name + "...";
+            progressBar.style.display = "block";
+            progressBar.style.width = "30%";
+            writeTerminalLog(`[UPLOAD] Starting upload for dataset: ${file.name}`, "text-secondary");
+
+            try {
+                progressBar.style.width = "60%";
+                const res = await fetch("/api/synthetic/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                progressBar.style.width = "100%";
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Upload failed.");
+
+                writeTerminalLog(`[UPLOAD SUCCESS] Registered dataset: ${data.filename}`, "text-emerald-400 font-bold");
+
+                const select = document.getElementById("dataset-select");
+                let exists = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === data.dataset_id) {
+                        exists = true;
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    const opt = document.createElement("option");
+                    opt.value = data.dataset_id;
+                    opt.textContent = data.filename;
+                    select.appendChild(opt);
+                    select.value = data.dataset_id;
+                }
+
+                uploadStatus.textContent = "Upload complete! " + file.name;
+                setTimeout(() => {
+                    uploadStatus.textContent = "Drag & drop or click to browse";
+                    progressBar.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 3000);
+
+            } catch (err) {
+                writeTerminalLog(`[UPLOAD ERROR] ${err.message}`, "text-red-400 font-bold");
+                uploadStatus.textContent = "Upload failed: " + err.message;
+                progressBar.style.display = "none";
+            }
+        }
+    }
+
+    function toggleModelParams() {
+        const model = document.getElementById("model-select").value;
+        const epochsWrapper = document.getElementById("epochs-wrapper");
+        if (model === "tvae" || model === "ctgan") {
+            epochsWrapper.classList.remove("hidden");
+        } else {
+            epochsWrapper.classList.add("hidden");
+        }
+    }
+
+    function writeTerminalLog(message, colorClass = "text-on-surface-variant") {
+        const logBox = document.getElementById("terminal-logs");
+        const line = document.createElement("div");
+        const timestamp = new Date().toISOString().slice(11, 19);
+        line.className = `${colorClass}`;
+        line.textContent = `[${timestamp}] ${message}`;
+        logBox.appendChild(line);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    async function triggerGeneration() {
+        document.getElementById("kaggle-internet-alert").classList.add("hidden");
+        const form = document.getElementById("generate-form");
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById("submit-btn");
+
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+        document.getElementById("verification-dashboard").classList.add("hidden");
+
+        const env = formData.get("run_env");
+        const model = formData.get("model_type");
+
+        writeTerminalLog(`[SYSTEM] Initializing request... Env: ${env.toUpperCase()} | Model: ${model.toUpperCase()}`, "text-[#00f2fe] font-bold");
+
+        try {
+            const res = await fetch("/api/synthetic/generate", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Request failed.");
+
+            activeTaskId = data.task_id;
+            writeTerminalLog(`[SUCCESS] Background process spawned. Task ID: ${activeTaskId}`, "text-emerald-400");
+            saveState();
+
+            // Start Polling
+            startPolling();
+        } catch (err) {
+            writeTerminalLog(`[FATAL] Spawning failed: ${err.message}`, "text-red-400 font-bold");
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+    }
+
+    function startPolling() {
+        if (pollIntervalId) clearInterval(pollIntervalId);
+
+        document.getElementById("terminal-progress-bar").style.width = "5%";
+        document.getElementById("progress-percent").textContent = "5%";
+
+        pollIntervalId = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/synthetic/tasks/${activeTaskId}/status`);
+                if (!res.ok) throw new Error("Status query failed.");
+                const task = await res.json();
+
+                // Update Progress
+                const progress = task.progress || 0;
+                document.getElementById("terminal-progress-bar").style.width = `${progress}%`;
+                document.getElementById("progress-percent").textContent = `${progress}%`;
+                document.getElementById("progress-phase-text").textContent = `Status: ${task.status.toUpperCase()}`;
+
+                // Render logs
+                if (task.logs && task.logs.length) {
+                    const latestLog = task.logs[task.logs.length - 1];
+                    writeTerminalLog(`[ENGINE] ${latestLog}`, "text-outline");
+                }
+
+                if (task.run_env === "kaggle" && task.kernel_url) {
+                    const linkWrap = document.getElementById("kaggle-link-container");
+                    const link = document.getElementById("kaggle-kernel-link");
+                    link.href = task.kernel_url;
+                    linkWrap.classList.remove("hidden");
+                }
+
+                if (task.status === "completed") {
+                    clearInterval(pollIntervalId);
+                    writeTerminalLog("[SUCCESS] Synthesis completed. Fetching results...", "text-emerald-400 font-bold");
+                    finalizeTask(task.result);
+                } else if (task.status === "failed") {
+                    clearInterval(pollIntervalId);
+                    writeTerminalLog(`[FAILED] Engine encountered error: ${task.error}`, "text-red-400 font-bold");
+
+                    if (task.error && (
+                        task.error.includes("sdv") ||
+                        task.error.includes("internet") ||
+                        task.error.includes("الإنترنت") ||
+                        task.error.includes("Internet")
+                    )) {
+                        document.getElementById("kaggle-internet-alert").classList.remove("hidden");
+                        writeTerminalLog(`⚠️ [خطأ فادح] تشغيل النماذج المتقدمة يتطلب تفعيل خيار الإنترنت في حساب كاجل. يرجى توثيق رقم الهاتف في كاجل وتفعيل الإنترنت، أو اختيار نموذج التوليد الإحصائي Basic (Statistical) كبديل فوري.`, "text-yellow-400 font-bold");
+                    }
+
+                    resetButton();
+                }
+            } catch (err) {
+                console.error(err);
+                writeTerminalLog(`[WARNING] Connection lost: ${err.message}`, "text-yellow-500");
+            }
+        }, 3000);
+    }
+
+    function finalizeTask(result) {
+        resetButton();
+        document.getElementById("verification-dashboard").classList.remove("hidden");
+
+        // Update stats
+        document.getElementById("res-stat-rows").textContent = result.stats.total_rows.toLocaleString();
+        document.getElementById("res-stat-cols").textContent = result.stats.total_cols;
+
+        // Download Link
+        document.getElementById("download-btn").href = `/api/synthetic/download/${result.synthetic_dataset_id}`;
+
+        // Preview Table
+        renderPreviewTable(result.preview_records);
+
+        const hasFidelity = !!result.fidelity_report;
+
+        // Toggle tabs visibility
+        document.getElementById("btn-tab-fidelity").style.display = hasFidelity ? "block" : "none";
+        document.getElementById("btn-tab-privacy").style.display = hasFidelity ? "block" : "none";
+        document.getElementById("btn-tab-dictionary").style.display = hasFidelity ? "block" : "none";
+
+        if (hasFidelity) {
+            document.getElementById("res-stat-fidelity").textContent = result.stats.fidelity_avg.toFixed(1) + "%";
+
+            const privacy = result.privacy_report;
+            const privacyBadge = document.getElementById("privacy-risk-badge");
+            document.getElementById("res-stat-privacy").textContent = privacy.privacy_score.toFixed(1) + "%";
+
+            const isAr = document.documentElement.dir === 'rtl';
+            if (privacy.risk_level === "High") {
+                privacyBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-950 border border-red-400/30 text-red-400";
+                privacyBadge.textContent = isAr ? "مخاطر عالية" : "High Risk";
+            } else if (privacy.risk_level === "Moderate") {
+                privacyBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-yellow-950 border border-yellow-400/30 text-yellow-400";
+                privacyBadge.textContent = isAr ? "مخاطر متوسطة" : "Moderate Risk";
+            } else {
+                privacyBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-950 border border-emerald-400/30 text-emerald-400";
+                privacyBadge.textContent = isAr ? "مخاطر منخفضة" : "Low Risk";
+            }
+
+            // Fidelity Chart
+            renderFidelityChart(result.fidelity_report);
+
+            // Privacy Table
+            renderPrivacyTable(result.fidelity_report, privacy.rows);
+
+            // Data Dict
+            document.getElementById("dictionary-markdown").textContent = result.data_dict;
+        } else {
+            const isAr = document.documentElement.dir === 'rtl';
+            document.getElementById("res-stat-fidelity").textContent = isAr ? "غير متوفر" : "N/A";
+            document.getElementById("res-stat-privacy").textContent = isAr ? "غير متوفر" : "N/A";
+            document.getElementById("dictionary-markdown").textContent = "";
+        }
+
+        // Switch to default Tab
+        switchTab("tab-preview");
+
+        // Save Completed State
+        window.lastResult = result;
+        activeTaskId = null;
+        saveState();
+    }
+
+    function resetButton() {
+        const submitBtn = document.getElementById("submit-btn");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+
+        const promptSubmitBtn = document.getElementById("prompt-submit-btn");
+        if (promptSubmitBtn) {
+            promptSubmitBtn.disabled = false;
+            promptSubmitBtn.style.opacity = "1";
+        }
+
+        document.getElementById("kaggle-link-container").classList.add("hidden");
+
+        // Clear active task and save
+        activeTaskId = null;
+        saveState();
+    }
+
+    // ── Studio Mode Switcher ──
+    let currentStudioMode = "classic";
+
+    function switchStudioMode(mode) {
+        currentStudioMode = mode;
+        const btnClassic = document.getElementById("btn-studio-classic");
+        const btnPrompt = document.getElementById("btn-studio-prompt");
+
+        const panelClassic = document.getElementById("classic-config-panel");
+        const panelPrompt = document.getElementById("prompt-config-panel");
+
+        const titleIcon = document.getElementById("config-title-icon");
+        const titleText = document.getElementById("config-title-text");
+
+        const isAr = document.documentElement.dir === 'rtl';
+
+        if (mode === "classic") {
+            btnClassic.classList.add("active");
+            btnPrompt.classList.remove("active");
+
+            panelClassic.classList.remove("hidden");
+            panelPrompt.classList.add("hidden");
+
+            titleIcon.textContent = "tune";
+            titleText.textContent = isAr ? "معلمات التكوين" : "Configuration Parameters";
+
+            const headerBadge = document.getElementById("header-env-badge");
+            const terminalBadge = document.getElementById("terminal-env-badge");
+            if (headerBadge) headerBadge.textContent = "Kaggle Cloud";
+            if (terminalBadge) terminalBadge.textContent = "Kaggle Cloud";
+        } else {
+            btnClassic.classList.remove("active");
+            btnPrompt.classList.add("active");
+
+            panelClassic.classList.add("hidden");
+            panelPrompt.classList.remove("hidden");
+
+            titleIcon.textContent = "psychology";
+            titleText.textContent = isAr ? "معلمات موجّه الذكاء الاصطناعي" : "AI Prompt Parameters";
+
+            const headerBadge = document.getElementById("header-env-badge");
+            const terminalBadge = document.getElementById("terminal-env-badge");
+            if (headerBadge) headerBadge.textContent = isAr ? "المولد المحلي الهجين" : "Local Hybrid Generator";
+            if (terminalBadge) terminalBadge.textContent = isAr ? "المولد المحلي الهجين" : "Local Hybrid Generator";
+        }
+
+        saveState();
+    }
+
+    // ── Interactive Schema Editor Functions ──
+    function onColumnTypeChange(select) {
+        const colItem = select.closest(".column-item");
+        const wrapper = colItem.querySelector(".col-options-wrapper");
+        wrapper.innerHTML = "";
+        const val = select.value;
+
+        if (val === "number") {
+            wrapper.innerHTML = `
+                <div class="flex gap-1 items-center">
+                    <input type="number" class="col-min-input w-12 interactive-item-input !text-[10px] !py-0.5 !px-1 text-center" placeholder="Min" value="18" />
+                    <span class="text-[9px] text-outline">-</span>
+                    <input type="number" class="col-max-input w-12 interactive-item-input !text-[10px] !py-0.5 !px-1 text-center" placeholder="Max" value="65" />
+                    <label class="flex items-center gap-0.5 text-[9px] text-outline ml-1">
+                        <input type="checkbox" class="col-float-checkbox" /> F
+                    </label>
+                </div>
+            `;
+        } else if (val === "category") {
+            wrapper.innerHTML = `
+                <div class="w-full">
+                    <input type="text" class="col-categories-input w-full interactive-item-input !text-[10px] !py-0.5 !px-1.5" placeholder="الفئات مفصولة بـ ," value="فئة أ, فئة ب" />
+                </div>
+            `;
+        }
+    }
+
+    function addNewColumn(colData = null) {
+        const listContainer = document.getElementById("schema-columns-list");
+        const idx = listContainer.children.length;
+
+        const colName = colData ? colData.name : `column_${idx + 1}`;
+        const colDisplay = colData ? colData.display_name : `عمود_${idx + 1}`;
+        const colType = colData ? colData.type : "text";
+
+        const colDiv = document.createElement("div");
+        colDiv.className = "column-item p-3 rounded-lg border border-outline-variant/10 bg-white/5 space-y-2 relative";
+
+        colDiv.innerHTML = `
+            <button type="button" onclick="removeColumn(this)" class="absolute top-2 right-2 text-red-400 hover:text-red-300">
+                <span class="material-symbols-outlined text-sm">delete</span>
+            </button>
+            <div class="grid grid-cols-2 gap-2 pr-6">
+                <div>
+                    <label class="block text-[9px] text-outline uppercase">Key/Name (EN)</label>
+                    <input type="text" class="col-name-input w-full interactive-item-input" value="${colName}" required />
+                </div>
+                <div>
+                    <label class="block text-[9px] text-outline uppercase">Label/Display</label>
+                    <input type="text" class="col-display-input w-full interactive-item-input" value="${colDisplay}" required />
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[9px] text-outline uppercase">Data Type</label>
+                    <select class="col-type-select w-full interactive-item-input" onchange="onColumnTypeChange(this)" required>
+                        <option value="id" ${colType === "id" ? "selected" : ""}>ID</option>
+                        <option value="name" ${colType === "name" ? "selected" : ""}>Name</option>
+                        <option value="email" ${colType === "email" ? "selected" : ""}>Email</option>
+                        <option value="phone" ${colType === "phone" ? "selected" : ""}>Phone</option>
+                        <option value="address" ${colType === "address" ? "selected" : ""}>Address</option>
+                        <option value="number" ${colType === "number" ? "selected" : ""}>Number</option>
+                        <option value="category" ${colType === "category" ? "selected" : ""}>Category</option>
+                        <option value="date" ${colType === "date" ? "selected" : ""}>Date</option>
+                        <option value="text" ${colType === "text" ? "selected" : ""}>Text</option>
+                    </select>
+                </div>
+                <div class="col-options-wrapper flex items-center justify-start">
+                    <!-- Specific configurations -->
+                </div>
+            </div>
+        `;
+
+        listContainer.appendChild(colDiv);
+
+        // Trigger select change to render options if necessary
+        const selectEl = colDiv.querySelector(".col-type-select");
+        onColumnTypeChange(selectEl);
+
+        // Fill options from colData if present
+        if (colData) {
+            if (colType === "number") {
+                colDiv.querySelector(".col-min-input").value = colData.min !== undefined ? colData.min : 0;
+                colDiv.querySelector(".col-max-input").value = colData.max !== undefined ? colData.max : 100;
+                colDiv.querySelector(".col-float-checkbox").checked = !!colData.is_float;
+            } else if (colType === "category" && colData.categories) {
+                colDiv.querySelector(".col-categories-input").value = colData.categories.join(", ");
+            }
+        }
+
+        saveState();
+    }
+
+    function removeColumn(btn) {
+        const colItem = btn.closest(".column-item");
+        colItem.remove();
+        saveState();
+    }
+
+    function getCurrentColumns() {
+        const listContainer = document.getElementById("schema-columns-list");
+        const cols = [];
+        if (listContainer) {
+            Array.from(listContainer.children).forEach(colItem => {
+                const nameInput = colItem.querySelector(".col-name-input");
+                if (nameInput && nameInput.value.trim()) {
+                    cols.push(nameInput.value.trim());
+                }
+            });
+        }
+        return cols;
+    }
+
+    function populateColDropdown(selectEl, selectedValue = "") {
+        const cols = getCurrentColumns();
+        const currentVal = selectedValue || selectEl.getAttribute("data-value") || selectEl.value;
+        selectEl.innerHTML = "";
+
+        if (cols.length === 0) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "-- No Columns --";
+            selectEl.appendChild(opt);
+            return;
+        }
+
+        cols.forEach(col => {
+            const opt = document.createElement("option");
+            opt.value = col;
+            opt.textContent = col;
+            if (col === currentVal) {
+                opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+        });
+        selectEl.setAttribute("data-value", currentVal);
+    }
+
+    function onRuleTypeChange(select, ruleData = null) {
+        const ruleItem = select.closest(".rule-item");
+        const wrapper = ruleItem.querySelector(".rule-options-wrapper");
+        wrapper.innerHTML = "";
+        const val = select.value;
+
+        const cols = getCurrentColumns();
+        const colOptionsHTML = cols.map(c => `<option value="${c}">${c}</option>`).join("");
+
+        if (val === "formula") {
+            const targetVal = ruleData ? ruleData.target || "" : "";
+            const exprVal = ruleData ? ruleData.expression || "" : "";
+            wrapper.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 mt-1">
+                    <div>
+                        <label class="block text-[9px] text-outline uppercase">Target Column</label>
+                        <select class="rule-target-col w-full interactive-item-input" onfocus="populateColDropdown(this)" data-value="${targetVal}">
+                            ${colOptionsHTML}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-outline uppercase">Math Expression</label>
+                        <input type="text" class="rule-expression w-full interactive-item-input" placeholder="e.g. price * 1.15" value="${exprVal}" required />
+                    </div>
+                </div>
+            `;
+            const targetSelect = wrapper.querySelector(".rule-target-col");
+            if (targetSelect) populateColDropdown(targetSelect, targetVal);
+        } else if (val === "conditional") {
+            const ifCol = ruleData ? ruleData.if_col || "" : "";
+            const ifOp = ruleData ? ruleData.if_op || "==" : "==";
+            const ifVal = ruleData ? ruleData.if_val || "" : "";
+            const thenCol = ruleData ? ruleData.then_col || "" : "";
+            const thenVal = ruleData ? ruleData.then_val || "" : "";
+
+            wrapper.innerHTML = `
+                <div class="space-y-2 mt-1">
+                    <div class="grid grid-cols-3 gap-1">
+                        <div>
+                            <label class="block text-[9px] text-outline uppercase">If Column</label>
+                            <select class="rule-if-col w-full interactive-item-input !text-[10px] !py-1 !px-1" onfocus="populateColDropdown(this)" data-value="${ifCol}">
+                                ${colOptionsHTML}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-outline uppercase">Operator</label>
+                            <select class="rule-if-op w-full interactive-item-input !text-[10px] !py-1 !px-1">
+                                <option value="==" ${ifOp === "==" ? "selected" : ""}>==</option>
+                                <option value="!=" ${ifOp === "!=" ? "selected" : ""}>!=</option>
+                                <option value=">" ${ifOp === ">" ? "selected" : ""}>&gt;</option>
+                                <option value="<" ${ifOp === "<" ? "selected" : ""}>&lt;</option>
+                                <option value=">=" ${ifOp === ">=" ? "selected" : ""}>&gt;=</option>
+                                <option value="<=" ${ifOp === "<=" ? "selected" : ""}>&lt;=</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-outline uppercase">Value</label>
+                            <input type="text" class="rule-if-val w-full interactive-item-input !text-[10px] !py-1 !px-1" placeholder="e.g. VIP or 50" value="${ifVal}" required />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[9px] text-outline uppercase">Then Column</label>
+                            <select class="rule-then-col w-full interactive-item-input" onfocus="populateColDropdown(this)" data-value="${thenCol}">
+                                ${colOptionsHTML}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-outline uppercase">Set Value / Expr</label>
+                            <input type="text" class="rule-then-val w-full interactive-item-input" placeholder="e.g. salary * 1.5" value="${thenVal}" required />
+                        </div>
+                    </div>
+                </div>
+            `;
+            const ifColSelect = wrapper.querySelector(".rule-if-col");
+            const thenColSelect = wrapper.querySelector(".rule-then-col");
+            if (ifColSelect) populateColDropdown(ifColSelect, ifCol);
+            if (thenColSelect) populateColDropdown(thenColSelect, thenCol);
+        } else if (val === "correlation") {
+            const col1 = ruleData ? ruleData.col1 || "" : "";
+            const col2 = ruleData ? ruleData.col2 || "" : "";
+            const dir = ruleData ? ruleData.direction || "positive" : "positive";
+
+            wrapper.innerHTML = `
+                <div class="grid grid-cols-3 gap-1 mt-1">
+                    <div>
+                        <label class="block text-[9px] text-outline uppercase">Column 1</label>
+                        <select class="rule-col1 w-full interactive-item-input !text-[10px] !py-1 !px-1.5" onfocus="populateColDropdown(this)" data-value="${col1}">
+                            ${colOptionsHTML}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-outline uppercase">Column 2</label>
+                        <select class="rule-col2 w-full interactive-item-input !text-[10px] !py-1 !px-1.5" onfocus="populateColDropdown(this)" data-value="${col2}">
+                            ${colOptionsHTML}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-outline uppercase">Direction</label>
+                        <select class="rule-direction w-full interactive-item-input !text-[10px] !py-1 !px-1.5">
+                            <option value="positive" ${dir === "positive" ? "selected" : ""}>Positive (+)</option>
+                            <option value="negative" ${dir === "negative" ? "selected" : ""}>Negative (-)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            const col1Select = wrapper.querySelector(".rule-col1");
+            const col2Select = wrapper.querySelector(".rule-col2");
+            if (col1Select) populateColDropdown(col1Select, col1);
+            if (col2Select) populateColDropdown(col2Select, col2);
+        }
+    }
+
+    function addNewRule(ruleData = null) {
+        const listContainer = document.getElementById("rules-list");
+        const ruleType = ruleData ? ruleData.type : "formula";
+
+        const ruleDiv = document.createElement("div");
+        ruleDiv.className = "rule-item p-3 rounded-lg border border-outline-variant/10 bg-white/5 space-y-2 relative";
+
+        ruleDiv.innerHTML = `
+            <button type="button" onclick="removeRule(this)" class="absolute top-2 right-2 text-red-400 hover:text-red-300">
+                <span class="material-symbols-outlined text-sm">delete</span>
+            </button>
+            <div class="w-1/2 pr-6">
+                <label class="block text-[9px] text-outline uppercase">Rule Type</label>
+                <select class="rule-type-select w-full interactive-item-input" onchange="onRuleTypeChange(this)" required>
+                    <option value="formula" ${ruleType === "formula" ? "selected" : ""}>Formula</option>
+                    <option value="conditional" ${ruleType === "conditional" ? "selected" : ""}>Conditional</option>
+                    <option value="correlation" ${ruleType === "correlation" ? "selected" : ""}>Correlation</option>
+                </select>
+            </div>
+            <div class="rule-options-wrapper">
+                <!-- Specific options rendered by onRuleTypeChange -->
+            </div>
+        `;
+
+        listContainer.appendChild(ruleDiv);
+
+        const typeSelect = ruleDiv.querySelector(".rule-type-select");
+        onRuleTypeChange(typeSelect, ruleData);
+        saveState();
+    }
+
+    function removeRule(btn) {
+        const ruleItem = btn.closest(".rule-item");
+        ruleItem.remove();
+        saveState();
+    }
+
+    function serializeRules() {
+        const listContainer = document.getElementById("rules-list");
+        const rules = [];
+        if (!listContainer) return rules;
+
+        Array.from(listContainer.children).forEach(ruleItem => {
+            const type = ruleItem.querySelector(".rule-type-select").value;
+            const ruleObj = { type: type };
+
+            const wrapper = ruleItem.querySelector(".rule-options-wrapper");
+            if (type === "formula") {
+                const targetEl = wrapper.querySelector(".rule-target-col");
+                const exprEl = wrapper.querySelector(".rule-expression");
+                const target = targetEl ? targetEl.value : "";
+                const expr = exprEl ? exprEl.value.trim() : "";
+                if (target && expr) {
+                    ruleObj.target = target;
+                    ruleObj.expression = expr;
+                    rules.push(ruleObj);
+                }
+            } else if (type === "conditional") {
+                const ifColEl = wrapper.querySelector(".rule-if-col");
+                const ifOpEl = wrapper.querySelector(".rule-if-op");
+                const ifValEl = wrapper.querySelector(".rule-if-val");
+                const thenColEl = wrapper.querySelector(".rule-then-col");
+                const thenValEl = wrapper.querySelector(".rule-then-val");
+
+                const if_col = ifColEl ? ifColEl.value : "";
+                const if_op = ifOpEl ? ifOpEl.value : "==";
+                const if_val = ifValEl ? ifValEl.value.trim() : "";
+                const then_col = thenColEl ? thenColEl.value : "";
+                const then_val = thenValEl ? thenValEl.value.trim() : "";
+
+                if (if_col && if_op && if_val !== "" && then_col && then_val !== "") {
+                    ruleObj.if_col = if_col;
+                    ruleObj.if_op = if_op;
+                    ruleObj.if_val = if_val;
+                    ruleObj.then_col = then_col;
+                    ruleObj.then_val = then_val;
+                    rules.push(ruleObj);
+                }
+            } else if (type === "correlation") {
+                const col1El = wrapper.querySelector(".rule-col1");
+                const col2El = wrapper.querySelector(".rule-col2");
+                const dirEl = wrapper.querySelector(".rule-direction");
+
+                const col1 = col1El ? col1El.value : "";
+                const col2 = col2El ? col2El.value : "";
+                const dir = dirEl ? dirEl.value : "positive";
+
+                if (col1 && col2) {
+                    ruleObj.col1 = col1;
+                    ruleObj.col2 = col2;
+                    ruleObj.direction = dir;
+                    rules.push(ruleObj);
+                }
+            }
+        });
+
+        return rules;
+    }
+
+    async function suggestPromptSchema() {
+        const promptText = document.getElementById("prompt-textarea").value.trim();
+        const numCols = document.getElementById("prompt-cols").value;
+        const locale = document.getElementById("prompt-locale").value;
+        const suggestBtn = document.getElementById("suggest-schema-btn");
+        const btnText = document.getElementById("suggest-btn-text");
+        const isAr = document.documentElement.dir === 'rtl';
+
+        if (!promptText) {
+            alert(isAr ? "يرجى وصف فكرة مجموعة البيانات أولاً." : "Please describe your dataset first.");
+            return;
+        }
+
+        // Loading state
+        suggestBtn.disabled = true;
+        suggestBtn.classList.add("pulse-glow");
+        btnText.textContent = isAr ? "✨ جاري الاقتراح..." : "✨ Suggesting...";
+        writeTerminalLog("[AI] Sending description to architect LLM...", "text-[#00f2fe]");
+
+        try {
+            const formData = new FormData();
+            formData.append("prompt", promptText);
+            formData.append("num_columns", numCols);
+            formData.append("locale", locale);
+
+            const res = await fetch("/api/synthetic/prompt/suggest-schema", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!res.ok) throw new Error("LLM suggest-schema request failed.");
+
+            const data = await res.json();
+            writeTerminalLog(`[AI] LLM suggestion completed. Received ${data.columns.length} columns.`, "text-emerald-400");
+
+            // Clear old list
+            const listContainer = document.getElementById("schema-columns-list");
+            listContainer.innerHTML = "";
+
+            // Render returned suggestions
+            data.columns.forEach(col => addNewColumn(col));
+
+            // Clear and render rules suggestions
+            const rulesContainer = document.getElementById("rules-list");
+            if (rulesContainer) {
+                rulesContainer.innerHTML = "";
+                if (data.rules && Array.isArray(data.rules)) {
+                    writeTerminalLog(`[AI] Suggesting ${data.rules.length} logical relationship rules.`, "text-sky-400");
+                    data.rules.forEach(rule => addNewRule(rule));
+                }
+            }
+
+            // Show schema & rules editor sections & enable submit
+            document.getElementById("schema-editor-section").classList.remove("hidden");
+            document.getElementById("rules-editor-section").classList.remove("hidden");
+
+            const promptSubmitBtn = document.getElementById("prompt-submit-btn");
+            promptSubmitBtn.removeAttribute("disabled");
+
+            saveState();
+        } catch (err) {
+            writeTerminalLog(`[AI ERROR] Failed to fetch suggestions: ${err.message}`, "text-red-400 font-bold");
+            alert(isAr ? "تعذر الحصول على اقتراحات الذكاء الاصطناعي. يمكنك بناء الهيكل يدوياً." : "Could not retrieve AI suggestions. You can build the schema manually.");
+            document.getElementById("schema-editor-section").classList.remove("hidden");
+            document.getElementById("rules-editor-section").classList.remove("hidden");
+            const promptSubmitBtn = document.getElementById("prompt-submit-btn");
+            promptSubmitBtn.removeAttribute("disabled");
+        } finally {
+            suggestBtn.disabled = false;
+            suggestBtn.classList.remove("pulse-glow");
+            btnText.textContent = isAr ? "اقتراح الهيكل تلقائياً" : "Auto-Suggest Schema";
+        }
+    }
+
+    function serializeSchema() {
+        const listContainer = document.getElementById("schema-columns-list");
+        const columns = [];
+
+        Array.from(listContainer.children).forEach(colItem => {
+            const name = colItem.querySelector(".col-name-input").value.trim();
+            const display = colItem.querySelector(".col-display-input").value.trim();
+            const type = colItem.querySelector(".col-type-select").value;
+
+            const colObj = {
+                name: name,
+                display_name: display,
+                type: type
+            };
+
+            if (type === "number") {
+                colObj.min = Number(colItem.querySelector(".col-min-input").value);
+                colObj.max = Number(colItem.querySelector(".col-max-input").value);
+                colObj.is_float = colItem.querySelector(".col-float-checkbox").checked;
+            } else if (type === "category") {
+                const catsStr = colItem.querySelector(".col-categories-input").value;
+                colObj.categories = catsStr.split(",").map(c => c.trim()).filter(c => c.length > 0);
+            }
+
+            columns.push(colObj);
+        });
+
+        return columns;
+    }
+
+    async function triggerPromptGeneration() {
+        const form = document.getElementById("prompt-generate-form");
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById("prompt-submit-btn");
+        const isAr = document.documentElement.dir === 'rtl';
+
+        // Serialize schema into JSON input
+        const schema = serializeSchema();
+        if (!schema.length) {
+            alert(isAr ? "يرجى إضافة عمود واحد على الأقل للتوليد." : "Please add at least one column to generate.");
+            return;
+        }
+        formData.set("columns_json", JSON.stringify(schema));
+
+        // Serialize rules into JSON input
+        const rules = serializeRules();
+        formData.set("rules_json", JSON.stringify(rules));
+
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+        document.getElementById("verification-dashboard").classList.add("hidden");
+
+        writeTerminalLog(`[SYSTEM] Initializing Prompt-based Hybrid Generation...`, "text-[#00f2fe] font-bold");
+
+        try {
+            const res = await fetch("/api/synthetic/prompt/generate", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Request failed.");
+
+            activeTaskId = data.task_id;
+            writeTerminalLog(`[SUCCESS] Background Faker task spawned. Task ID: ${activeTaskId}`, "text-emerald-400");
+            saveState();
+
+            // Start Polling
+            startPolling();
+        } catch (err) {
+            writeTerminalLog(`[FATAL] Spawning failed: ${err.message}`, "text-red-400 font-bold");
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+    }
+
+    function renderPreviewTable(records) {
+        const theadRow = document.getElementById("preview-thead-row");
+        const tbody = document.getElementById("preview-tbody");
+
+        theadRow.innerHTML = "";
+        tbody.innerHTML = "";
+
+        if (!records || !records.length) return;
+
+        const cols = Object.keys(records[0]);
+
+        // Headers
+        cols.forEach(c => {
+            const th = document.createElement("th");
+            th.className = "p-3 text-[10px] font-label text-outline uppercase tracking-wider border-b border-outline-variant/10";
+            th.textContent = c;
+            theadRow.appendChild(th);
+        });
+
+        // Rows
+        records.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-primary-container/20 transition-all";
+            cols.forEach(c => {
+                const td = document.createElement("td");
+                td.className = "p-3 border-b border-outline-variant/5 truncate max-w-[150px]";
+                td.textContent = r[c] === null ? "NULL" : r[c];
+                if (r[c] === null) td.className += " text-error/70";
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderFidelityChart(report) {
+        const columns = report.map(r => r.column_name);
+        const scores = report.map(r => r.fidelity_score);
+        const isAr = document.documentElement.dir === 'rtl';
+
+        // Dynamically get theme colors
+        const style = window.getComputedStyle(document.documentElement);
+        const primaryColor = style.getPropertyValue('--primary').trim() || '#4361ee';
+        const secondaryColor = style.getPropertyValue('--secondary').trim() || '#5bd5fc';
+        const fontColor = style.getPropertyValue('--outline').trim() || '#8e8fa1';
+        const gridColor = style.getPropertyValue('--outline-variant').trim() || 'rgba(255,255,255,0.05)';
+        const paperBg = style.getPropertyValue('--surface-container-low').trim() || 'rgba(0,0,0,0)';
+
+        const trace = {
+            x: columns,
+            y: scores,
+            type: 'bar',
+            marker: {
+                color: scores.map(s => s >= 70 ? secondaryColor : primaryColor),
+                line: {
+                    color: paperBg,
+                    width: 1.5
+                }
+            }
+        };
+
+        const layout = {
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: {
+                family: 'Space Grotesk, sans-serif',
+                color: fontColor,
+                size: 9
+            },
+            xaxis: {
+                gridcolor: gridColor,
+                tickangle: -45
+            },
+            yaxis: {
+                gridcolor: gridColor,
+                range: [0, 100],
+                title: isAr ? 'درجة الدقة (%)' : 'Fidelity Score (%)'
+            },
+            margin: { t: 10, b: 80, l: 40, r: 10 }
+        };
+
+        Plotly.newPlot('fidelity-chart-container', [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function renderPrivacyTable(fidelity, privacyRows) {
+        const tbody = document.getElementById("privacy-table-body");
+        tbody.innerHTML = "";
+
+        if (!privacyRows || !privacyRows.length) return;
+        const isAr = document.documentElement.dir === 'rtl';
+
+        privacyRows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-primary-container/20 transition-all";
+
+            const cellCol = document.createElement("td");
+            cellCol.className = "p-3 border-b border-outline-variant/5 text-on-surface font-bold";
+            cellCol.textContent = row.column_name;
+
+            const cellIdentical = document.createElement("td");
+            cellIdentical.className = "p-3 border-b border-outline-variant/5";
+            cellIdentical.textContent = row.identical_matches.toLocaleString();
+
+            const cellDist = document.createElement("td");
+            cellDist.className = "p-3 border-b border-outline-variant/5";
+            cellDist.textContent = row.min_dcr_distance.toFixed(4);
+
+            const cellRisk = document.createElement("td");
+            cellRisk.className = "p-3 border-b border-outline-variant/5";
+
+            const span = document.createElement("span");
+            if (row.identical_matches > 0) {
+                span.className = "px-2 py-0.5 rounded text-[9px] font-bold bg-error/10 border border-error/30 text-error uppercase";
+                span.textContent = isAr ? "مخاطر التسريب" : "Leakage Risk";
+            } else {
+                span.className = "px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 uppercase";
+                span.textContent = isAr ? "آمن" : "Safe";
+            }
+            cellRisk.appendChild(span);
+
+            tr.appendChild(cellCol);
+            tr.appendChild(cellIdentical);
+            tr.appendChild(cellDist);
+            tr.appendChild(cellRisk);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function switchTab(tabId) {
+        // Toggle buttons
+        const tabs = ["tab-preview", "tab-fidelity", "tab-privacy", "tab-dictionary"];
+        tabs.forEach(t => {
+            const btn = document.getElementById(`btn-${t}`);
+            const pane = document.getElementById(`${t}-content`);
+            if (t === tabId) {
+                btn.classList.add("active");
+                pane.classList.remove("hidden");
+            } else {
+                btn.classList.remove("active");
+                pane.classList.add("hidden");
+            }
+        });
+
+        if (tabId === "tab-fidelity") {
+            // Recalculate Plotly sizes
+            const container = document.getElementById("fidelity-chart-container");
+            Plotly.Plots.resize(container);
+        }
+    }
+</script>
+{% endblock %}

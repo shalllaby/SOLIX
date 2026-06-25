@@ -1,0 +1,56 @@
+Do not support special JSON characters in feature name.
+Traceback (most recent call last):
+  File "E:\run-20260221T125607Z-1-001\Final Tasks\Auto ML\core\engine.py", line 379, in train_baselines
+    model.fit(X_train, y_train)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\sklearn.py", line 1560, in fit
+    super().fit(
+    ~~~~~~~~~~~^
+        X,
+        ^^
+    ...<12 lines>...
+        init_model=init_model,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\sklearn.py", line 1049, in fit
+    self._Booster = train(
+                    ~~~~~^
+        params=params,
+        ^^^^^^^^^^^^^^
+    ...<6 lines>...
+        callbacks=callbacks,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\engine.py", line 297, in train
+    booster = Booster(params=params, train_set=train_set)
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\basic.py", line 3656, in __init__
+    train_set.construct()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\basic.py", line 2590, in construct
+    self._lazy_init(
+    ~~~~~~~~~~~~~~~^
+        data=self.data,
+        ^^^^^^^^^^^^^^^
+    ...<9 lines>...
+        position=self.position,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\basic.py", line 2227, in _lazy_init
+    return self.set_feature_name(feature_name)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\basic.py", line 3046, in set_feature_name
+    _safe_call(
+    ~~~~~~~~~~^
+        _LIB.LGBM_DatasetSetFeatureNames(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\Mohamed Shalaby\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\basic.py", line 313, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name.

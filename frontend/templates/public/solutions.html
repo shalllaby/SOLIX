@@ -95,24 +95,24 @@
   <div class="max-w-4xl mx-auto">
     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20 mb-8 fade-up">
       <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 1">hub</span>
-      <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">Architecture & Solutions</span>
+      <span data-i18n="arch_solutions" class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">Architecture & Solutions</span>
     </div>
-    <h1 class="font-headline font-black text-5xl md:text-[68px] text-white leading-[1.02] tracking-tighter mb-6 fade-up" style="animation-delay:.08s">
+    <h1 data-i18n="how_sol_thinks" class="font-headline font-black text-5xl md:text-[68px] text-white leading-[1.02] tracking-tighter mb-6 fade-up" style="animation-delay:.08s">
       How SOL <span class="bg-gradient-to-r from-[#4361ee] via-[#7b2ff7] to-[#00a3c8] bg-clip-text text-transparent">Thinks & Acts</span>
     </h1>
-    <p class="text-on-surface/60 text-lg max-w-2xl mx-auto leading-relaxed mb-10 fade-up" style="animation-delay:.16s">
+    <p data-i18n="how_sol_thinks_desc" class="text-on-surface/60 text-lg max-w-2xl mx-auto leading-relaxed mb-10 fade-up" style="animation-delay:.16s">
       A fully autonomous, AI-powered data cleaning platform. No scripts. No config. No manual work.<br>
       SOL's 4-stage intelligence pipeline handles everything — from raw ingestion to validated output.
     </p>
     <div class="flex flex-wrap gap-4 justify-center fade-up" style="animation-delay:.22s">
       <a href="/register">
-        <button class="px-7 py-3.5 bg-gradient-to-r from-[#4361ee] to-[#7b2ff7] text-white font-bold rounded-xl shadow-[0_0_28px_rgba(67,97,238,.35)] hover:shadow-[0_0_44px_rgba(67,97,238,.55)] hover:scale-[1.02] transition-all">
+        <button data-i18n="start_free_trial_btn" class="px-7 py-3.5 bg-gradient-to-r from-[#4361ee] to-[#7b2ff7] text-white font-bold rounded-xl shadow-[0_0_28px_rgba(67,97,238,.35)] hover:shadow-[0_0_44px_rgba(67,97,238,.55)] hover:scale-[1.02] transition-all">
           Start Free Trial →
         </button>
       </a>
-      <a href="/docs">
-        <button class="px-7 py-3.5 border border-outline-variant/35 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/60 transition-all flex items-center gap-2">
-          <span class="material-symbols-outlined text-lg">menu_book</span> Read the Docs
+      <a href="/about-team">
+        <button data-i18n="about_team_btn" class="px-7 py-3.5 border border-outline-variant/35 text-white font-medium rounded-xl hover:bg-surface-container hover:border-outline-variant/60 transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-lg">group</span> About the Team
         </button>
       </a>
     </div>
@@ -123,34 +123,67 @@
 <!-- ═══ PIPELINE VISUAL ════════════════════════════════════════════════════════ -->
 <section id="pipeline" class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16">
   <div class="text-center mb-14">
-    <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">The 4-Stage Autonomous Pipeline</h2>
-    <p class="text-outline font-mono text-sm tracking-widest uppercase">Analysis → Strategy → Execution → Validation</p>
+    <h2 data-i18n="four_stage_title" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">The 4-Stage Autonomous Pipeline</h2>
+    <p data-i18n="four_stage_subtitle" class="text-outline font-mono text-sm tracking-widest uppercase">Analysis → Strategy → Execution → Validation</p>
     <div class="w-24 h-0.5 bg-gradient-to-r from-primary-container to-secondary-container mx-auto mt-5 rounded-full"></div>
   </div>
 
   <!-- Horizontal flow diagram (desktop) -->
   <div class="hidden lg:flex items-center justify-between gap-0 mb-12">
-    {% for num, label, icon, hex, short in [
-      ("01","Analyze","search","#5bd5fc","Scan & Profile"),
-      ("02","Strategize","psychology","#a48cf4","AI Plans"),
-      ("03","Execute","auto_fix_high","#4361ee","Transform"),
-      ("04","Validate","verified","#06d6a0","Export & Sync"),
-    ] %}
+    <!-- Stage 1 -->
     <div class="flex-1 min-w-0">
       <div class="glass-card rounded-2xl p-6 text-center">
         <div class="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center"
-             style="background:{{hex}}18;border:1px solid {{hex}}30">
-          <span class="material-symbols-outlined text-2xl" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+             style="background:#5bd5fc18;border:1px solid #5bd5fc30">
+          <span class="material-symbols-outlined text-2xl" style="color:#5bd5fc;font-variation-settings:'FILL' 1">search</span>
         </div>
-        <p class="stage-number mb-1">STAGE {{num}}</p>
-        <h3 class="font-headline font-bold text-xl text-white mb-1">{{label}}</h3>
-        <p class="font-mono text-[11px]" style="color:{{hex}}">{{short}}</p>
+        <p class="stage-number mb-1">STAGE 01</p>
+        <h3 data-i18n="sol_flow_1" class="font-headline font-bold text-xl text-white mb-1">Analyze</h3>
+        <p data-i18n="sol_flow_1_sub" class="font-mono text-[11px]" style="color:#5bd5fc">Scan & Profile</p>
       </div>
     </div>
-    {% if not loop.last %}
     <div class="pipeline-connector flex-shrink-0 mx-2"></div>
-    {% endif %}
-    {% endfor %}
+    
+    <!-- Stage 2 -->
+    <div class="flex-1 min-w-0">
+      <div class="glass-card rounded-2xl p-6 text-center">
+        <div class="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center"
+             style="background:#a48cf418;border:1px solid #a48cf430">
+          <span class="material-symbols-outlined text-2xl" style="color:#a48cf4;font-variation-settings:'FILL' 1">psychology</span>
+        </div>
+        <p class="stage-number mb-1">STAGE 02</p>
+        <h3 data-i18n="sol_flow_2" class="font-headline font-bold text-xl text-white mb-1">Strategize</h3>
+        <p data-i18n="sol_flow_2_sub" class="font-mono text-[11px]" style="color:#a48cf4">AI Plans</p>
+      </div>
+    </div>
+    <div class="pipeline-connector flex-shrink-0 mx-2"></div>
+    
+    <!-- Stage 3 -->
+    <div class="flex-1 min-w-0">
+      <div class="glass-card rounded-2xl p-6 text-center">
+        <div class="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center"
+             style="background:#4361ee18;border:1px solid #4361ee30">
+          <span class="material-symbols-outlined text-2xl" style="color:#4361ee;font-variation-settings:'FILL' 1">auto_fix_high</span>
+        </div>
+        <p class="stage-number mb-1">STAGE 03</p>
+        <h3 data-i18n="sol_flow_3" class="font-headline font-bold text-xl text-white mb-1">Execute</h3>
+        <p data-i18n="sol_flow_3_sub" class="font-mono text-[11px]" style="color:#4361ee">Transform</p>
+      </div>
+    </div>
+    <div class="pipeline-connector flex-shrink-0 mx-2"></div>
+    
+    <!-- Stage 4 -->
+    <div class="flex-1 min-w-0">
+      <div class="glass-card rounded-2xl p-6 text-center">
+        <div class="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center"
+             style="background:#06d6a018;border:1px solid #06d6a030">
+          <span class="material-symbols-outlined text-2xl" style="color:#06d6a0;font-variation-settings:'FILL' 1">verified</span>
+        </div>
+        <p class="stage-number mb-1">STAGE 04</p>
+        <h3 data-i18n="sol_flow_4" class="font-headline font-bold text-xl text-white mb-1">Validate</h3>
+        <p data-i18n="sol_flow_4_sub" class="font-mono text-[11px]" style="color:#06d6a0">Export & Sync</p>
+      </div>
+    </div>
   </div>
 
   <!-- Animated SVG pipeline flow -->
@@ -179,81 +212,223 @@
 
   <!-- 4 stage detail cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {% for num, label, icon, hex, desc, bullets, metric_label, metric_val in [
-      ("01","Analysis","search","#5bd5fc",
-       "SOL's analyzer scans your dataset end-to-end before touching a single value. It extracts schema, infers semantic types, maps missing values, and flags statistical anomalies — building a complete 'data profile' used by all subsequent stages.",
-       ["Auto-detect 7+ file formats","Column semantic classification (email, phone, date…)","Missing value density & pattern mapping","Duplicate row detection","Outlier flagging via IQR & Z-score"],
-       "Columns Profiled","100%"),
-      ("02","Strategize","psychology","#a48cf4",
-       "The AI Strategist (powered by Llama-3 via Groq API) reads the data profile and constructs a tailored cleaning plan — choosing between Alpha (gentle), Beta (balanced), or Gamma (aggressive) strategies based on data characteristics and your natural-language goal.",
-       ["3 plan tiers: Alpha / Beta / Gamma","User goal injection via plain English","JSON strategy preview before execution","Dual-confidence scoring for every decision","Column-level action mapping"],
-       "Planning Time","< 2s"),
-      ("03","Execution","auto_fix_high","#4361ee",
-       "SmartDataCleaner executes the approved strategy precisely — imputing missing values using statistical methods, removing outliers, standardizing date formats, fuzzy-matching text inconsistencies, and eliminating duplicates — all in a single efficient pass.",
-       ["Null imputation (mean, median, mode, smart)","Z-score & IQR outlier removal","ISO 8601 date standardization","Fuzzy text normalization for categories","Exact & near-duplicate elimination"],
-       "Avg. Accuracy","99.1%"),
-      ("04","Validation","verified","#06d6a0",
-       "A complete before-vs-after comparison with cell-level diff highlighting shows exactly what changed and why. The health score quantifies improvement. Export in any format or write-back directly to your SQL database — no intermediate files.",
-       ["Side-by-side comparison grid","Cell-level diff map highlighting","Health score % improvement","Smart export in original format","Direct PostgreSQL / MySQL / SQLite sync"],
-       "Time to Export","0.3s"),
-    ] %}
-    <div class="glass-card rounded-2xl p-7 fade-up" style="animation-delay:{{loop.index0*0.1}}s">
+    <!-- Card 1 -->
+    <div class="glass-card rounded-2xl p-7 fade-up" style="animation-delay:0s">
       <div class="flex items-start justify-between mb-5">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-               style="background:{{hex}}18;border:1px solid {{hex}}30">
-            <span class="material-symbols-outlined text-2xl" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+               style="background:#5bd5fc18;border:1px solid #5bd5fc30">
+            <span class="material-symbols-outlined text-2xl" style="color:#5bd5fc;font-variation-settings:'FILL' 1">search</span>
           </div>
           <div>
-            <p class="stage-number">STAGE {{num}}</p>
-            <h3 class="font-headline font-bold text-xl text-white">{{label}}</h3>
+            <p class="stage-number">STAGE 01</p>
+            <h3 data-i18n="sol_stage1_title" class="font-headline font-bold text-xl text-white">Analysis</h3>
           </div>
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="font-mono text-2xl font-bold text-white">{{metric_val}}</p>
-          <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{{metric_label}}</p>
+          <p data-i18n="sol_stage1_metric_val" class="font-mono text-2xl font-bold text-white">100%</p>
+          <p data-i18n="sol_stage1_metric_label" class="font-mono text-[9px] text-outline uppercase tracking-wider">Columns Profiled</p>
         </div>
       </div>
-      <p class="text-on-surface/55 text-sm leading-relaxed mb-5">{{desc}}</p>
+      <p data-i18n="sol_stage1_desc" class="text-on-surface/55 text-sm leading-relaxed mb-5">SOL's analyzer scans your dataset end-to-end before touching a single value. It extracts schema, infers semantic types, maps missing values, and flags statistical anomalies — building a complete 'data profile' used by all subsequent stages.</p>
       <ul class="space-y-1.5">
-        {% for b in bullets %}
         <li class="flex items-center gap-2 text-xs text-on-surface-variant">
-          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:{{hex}}"></div>{{b}}
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div><span data-i18n="sol_stage1_b1">Auto-detect 7+ file formats</span>
         </li>
-        {% endfor %}
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div><span data-i18n="sol_stage1_b2">Column semantic classification (email, phone, date…)</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div><span data-i18n="sol_stage1_b3">Missing value density & pattern mapping</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div><span data-i18n="sol_stage1_b4">Duplicate row detection</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div><span data-i18n="sol_stage1_b5">Outlier flagging via IQR & Z-score</span>
+        </li>
       </ul>
       <div class="prog-track mt-5">
-        <div class="prog-fill" style="background:{{hex}};--w:{{['65%','80%','95%','78%'][loop.index0]}}"></div>
+        <div class="prog-fill" style="background:#5bd5fc;--w:65%"></div>
       </div>
     </div>
-    {% endfor %}
+
+    <!-- Card 2 -->
+    <div class="glass-card rounded-2xl p-7 fade-up" style="animation-delay:0.1s">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+               style="background:#a48cf418;border:1px solid #a48cf430">
+            <span class="material-symbols-outlined text-2xl" style="color:#a48cf4;font-variation-settings:'FILL' 1">psychology</span>
+          </div>
+          <div>
+            <p class="stage-number">STAGE 02</p>
+            <h3 data-i18n="sol_stage2_title" class="font-headline font-bold text-xl text-white">Strategize</h3>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p data-i18n="sol_stage2_metric_val" class="font-mono text-2xl font-bold text-white">&lt; 2s</p>
+          <p data-i18n="sol_stage2_metric_label" class="font-mono text-[9px] text-outline uppercase tracking-wider">Planning Time</p>
+        </div>
+      </div>
+      <p data-i18n="sol_stage2_desc" class="text-on-surface/55 text-sm leading-relaxed mb-5">The AI Strategist (powered by Llama-3 via Groq API) reads the data profile and constructs a tailored cleaning plan — choosing between Alpha (gentle), Beta (balanced), or Gamma (aggressive) strategies based on data characteristics and your natural-language goal.</p>
+      <ul class="space-y-1.5">
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div><span data-i18n="sol_stage2_b1">3 plan tiers: Alpha / Beta / Gamma</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div><span data-i18n="sol_stage2_b2">User goal injection via plain English</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div><span data-i18n="sol_stage2_b3">JSON strategy preview before execution</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div><span data-i18n="sol_stage2_b4">Dual-confidence scoring for every decision</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div><span data-i18n="sol_stage2_b5">Column-level action mapping</span>
+        </li>
+      </ul>
+      <div class="prog-track mt-5">
+        <div class="prog-fill" style="background:#a48cf4;--w:80%"></div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="glass-card rounded-2xl p-7 fade-up" style="animation-delay:0.2s">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+               style="background:#4361ee18;border:1px solid #4361ee30">
+            <span class="material-symbols-outlined text-2xl" style="color:#4361ee;font-variation-settings:'FILL' 1">auto_fix_high</span>
+          </div>
+          <div>
+            <p class="stage-number">STAGE 03</p>
+            <h3 data-i18n="sol_stage3_title" class="font-headline font-bold text-xl text-white">Execution</h3>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p data-i18n="sol_stage3_metric_val" class="font-mono text-2xl font-bold text-white">10</p>
+          <p data-i18n="sol_stage3_metric_label" class="font-mono text-[9px] text-outline uppercase tracking-wider">Core Modules</p>
+        </div>
+      </div>
+      <p data-i18n="sol_stage3_desc" class="text-on-surface/55 text-sm leading-relaxed mb-5">SmartDataCleaner executes the approved strategy precisely — imputing missing values using statistical methods, removing outliers, standardizing date formats, fuzzy-matching text inconsistencies, and eliminating duplicates — all in a single efficient pass.</p>
+      <ul class="space-y-1.5">
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div><span data-i18n="sol_stage3_b1">Null imputation (mean, median, mode, smart)</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div><span data-i18n="sol_stage3_b2">Z-score & IQR outlier removal</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div><span data-i18n="sol_stage3_b3">ISO 8601 date standardization</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div><span data-i18n="sol_stage3_b4">Fuzzy text normalization for categories</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div><span data-i18n="sol_stage3_b5">Exact & near-duplicate elimination</span>
+        </li>
+      </ul>
+      <div class="prog-track mt-5">
+        <div class="prog-fill" style="background:#4361ee;--w:95%"></div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="glass-card rounded-2xl p-7 fade-up" style="animation-delay:0.3s">
+      <div class="flex items-start justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+               style="background:#06d6a018;border:1px solid #06d6a030">
+            <span class="material-symbols-outlined text-2xl" style="color:#06d6a0;font-variation-settings:'FILL' 1">verified</span>
+          </div>
+          <div>
+            <p class="stage-number">STAGE 04</p>
+            <h3 data-i18n="sol_stage4_title" class="font-headline font-bold text-xl text-white">Validation</h3>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p data-i18n="sol_stage4_metric_val" class="font-mono text-2xl font-bold text-white">0.3s</p>
+          <p data-i18n="sol_stage4_metric_label" class="font-mono text-[9px] text-outline uppercase tracking-wider">Time to Export</p>
+        </div>
+      </div>
+      <p data-i18n="sol_stage4_desc" class="text-on-surface/55 text-sm leading-relaxed mb-5">A complete before-vs-after comparison with cell-level diff highlighting shows exactly what changed and why. The health score quantifies improvement. Export in any format or write-back directly to your SQL database — no intermediate files.</p>
+      <ul class="space-y-1.5">
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div><span data-i18n="sol_stage4_b1">Side-by-side comparison grid</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div><span data-i18n="sol_stage4_b2">Cell-level diff map highlighting</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div><span data-i18n="sol_stage4_b3">Health score % improvement</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div><span data-i18n="sol_stage4_b4">Smart export in original format</span>
+        </li>
+        <li class="flex items-center gap-2 text-xs text-on-surface-variant">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div><span data-i18n="sol_stage4_b5">Direct PostgreSQL / MySQL / SQLite sync</span>
+        </li>
+      </ul>
+      <div class="prog-track mt-5">
+        <div class="prog-fill" style="background:#06d6a0;--w:78%"></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ═══ HOW IT WORKS — Visual Steps ═══════════════════════════════════════════ -->
 <section id="how-it-works" class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16">
   <div class="text-center mb-14">
-    <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">From Upload to Clean — In Seconds</h2>
-    <p class="text-on-surface/55 text-base max-w-2xl mx-auto">No configuration. No scripting. Upload any file, set your goal, pick a strategy, and SOL handles the rest.</p>
+    <h2 data-i18n="how_sec_title" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">From Upload to Clean — In Seconds</h2>
+    <p data-i18n="how_sec_desc" class="text-on-surface/55 text-base max-w-2xl mx-auto">No configuration. No scripting. Upload any file, set your goal, pick a strategy, and SOL handles the rest.</p>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-    {% for step, icon, title, desc, hex in [
-      ("01", "cloud_upload",   "Upload Dataset",      "Drag-and-drop CSV, Excel, JSON, Parquet and 4+ more formats — or connect your SQL database directly.",  "#5bd5fc"),
-      ("02", "psychology",     "Set Your Goal",       "Write a plain-English instruction like 'Normalize phone numbers' and SOL's AI will tailor the plan for you.", "#a48cf4"),
-      ("03", "auto_fix_high",  "Pick a Strategy",     "Choose Alpha (gentle), Beta (balanced), or Gamma (aggressive) based on your data's quality and sensitivity.", "#4361ee"),
-      ("04", "verified",       "Review & Export",     "Inspect the before-vs-after diff, download the clean file, or sync directly back to your SQL database.",     "#06d6a0"),
-    ] %}
-    <div class="glass-card rounded-2xl p-6 text-center fade-up" style="animation-delay:{{loop.index0 * 0.1}}s">
+    <!-- Step 1 -->
+    <div class="glass-card rounded-2xl p-6 text-center fade-up" style="animation-delay:0s">
       <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
-           style="background:{{hex}}18;border:1px solid {{hex}}30">
-        <span class="material-symbols-outlined text-2xl" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+           style="background:#5bd5fc18;border:1px solid #5bd5fc30">
+        <span class="material-symbols-outlined text-2xl" style="color:#5bd5fc;font-variation-settings:'FILL' 1">cloud_upload</span>
       </div>
-      <span class="font-mono text-[10px] tracking-widest" style="color:{{hex}}">STEP {{step}}</span>
-      <h3 class="font-headline font-bold text-lg text-white mt-1 mb-2">{{title}}</h3>
-      <p class="text-on-surface/50 text-sm leading-relaxed">{{desc}}</p>
+      <span class="font-mono text-[10px] tracking-widest" style="color:#5bd5fc">STEP 01</span>
+      <h3 data-i18n="sol_step1_title" class="font-headline font-bold text-lg text-white mt-1 mb-2">Upload Dataset</h3>
+      <p data-i18n="sol_step1_desc" class="text-on-surface/50 text-sm leading-relaxed">Drag-and-drop CSV, Excel, JSON, Parquet and 4+ more formats — or connect your SQL database directly.</p>
     </div>
-    {% endfor %}
+    
+    <!-- Step 2 -->
+    <div class="glass-card rounded-2xl p-6 text-center fade-up" style="animation-delay:0.1s">
+      <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+           style="background:#a48cf418;border:1px solid #a48cf430">
+        <span class="material-symbols-outlined text-2xl" style="color:#a48cf4;font-variation-settings:'FILL' 1">psychology</span>
+      </div>
+      <span class="font-mono text-[10px] tracking-widest" style="color:#a48cf4">STEP 02</span>
+      <h3 data-i18n="sol_step2_title" class="font-headline font-bold text-lg text-white mt-1 mb-2">Set Your Goal</h3>
+      <p data-i18n="sol_step2_desc" class="text-on-surface/50 text-sm leading-relaxed">Write a plain-English instruction like 'Normalize phone numbers' and SOL's AI will tailor the plan for you.</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="glass-card rounded-2xl p-6 text-center fade-up" style="animation-delay:0.2s">
+      <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+           style="background:#4361ee18;border:1px solid #4361ee30">
+        <span class="material-symbols-outlined text-2xl" style="color:#4361ee;font-variation-settings:'FILL' 1">auto_fix_high</span>
+      </div>
+      <span class="font-mono text-[10px] tracking-widest" style="color:#4361ee">STEP 03</span>
+      <h3 data-i18n="sol_step3_title" class="font-headline font-bold text-lg text-white mt-1 mb-2">Pick a Strategy</h3>
+      <p data-i18n="sol_step3_desc" class="text-on-surface/50 text-sm leading-relaxed">Choose Alpha (gentle), Beta (balanced), or Gamma (aggressive) based on your data's quality and sensitivity.</p>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="glass-card rounded-2xl p-6 text-center fade-up" style="animation-delay:0.3s">
+      <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+           style="background:#06d6a018;border:1px solid #06d6a030">
+        <span class="material-symbols-outlined text-2xl" style="color:#06d6a0;font-variation-settings:'FILL' 1">verified</span>
+      </div>
+      <span class="font-mono text-[10px] tracking-widest" style="color:#06d6a0">STEP 04</span>
+      <h3 data-i18n="sol_step4_title" class="font-headline font-bold text-lg text-white mt-1 mb-2">Review & Export</h3>
+      <p data-i18n="sol_step4_desc" class="text-on-surface/50 text-sm leading-relaxed">Inspect the before-vs-after diff, download the clean file, or sync directly back to your SQL database.</p>
+    </div>
   </div>
 </section>
 
@@ -261,74 +436,208 @@
 <!-- ═══ SUBSYSTEMS ════════════════════════════════════════════════════════════ -->
 <section id="subsystems" class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16">
   <div class="text-center mb-14">
-    <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Integrated Subsystems</h2>
-    <p class="text-on-surface/55 text-base max-w-2xl mx-auto">Beyond the core pipeline — a full arsenal of specialized AI tools embedded directly in the platform.</p>
+    <h2 data-i18n="subsystems_title" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Integrated Subsystems</h2>
+    <p data-i18n="subsystems_desc" class="text-on-surface/55 text-base max-w-2xl mx-auto">Beyond the core pipeline — a full arsenal of specialized AI tools embedded directly in the platform.</p>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-    {% for icon, title, path, desc, hex, badge in [
-      ("document_scanner","OCR Engine","/app/ocr","Extract structured data from scanned images and PDFs — converts to clean DataFrames instantly.","#5bd5fc","LIVE"),
-      ("dynamic_form","SOL Forms","/app/forms","An advanced data-collection system (Google Forms alternative) that prevents dirty data at the source.","#a48cf4","LIVE"),
-      ("schema","Semantic Mapper","/app/semantic-mapper","Auto-detects boolean columns (Yes/No, Approved/Rejected) and maps them to 0/1 for ML readiness.","#4361ee","LIVE"),
-      ("psychology","ML Advisor","/app/ml-advisor","Analyzes your cleaned dataset and recommends the optimal ML model architecture for your problem type.","#ffd166","LIVE"),
-      ("science","Data Noise Lab","/app/data-noise","Sandbox to simulate data corruption, stress-test cleaning models, and validate quality thresholds.","#06d6a0","LIVE"),
-      ("summarize","Audit Reports","/app/audit","Full transparency logs of every AI intervention with confidence scores and change deltas per column.","#f37121","LIVE"),
-      ("cable","DB Connectors","/app/connectors","Connect, inspect and sync data directly with SQLite, MySQL, and PostgreSQL databases.","#5fa8d3","LIVE"),
-      ("settings","Settings & API Keys","/app/settings","Manage your profile, system preferences, and generate API keys for programmatic access.","#8e8fa1","LIVE"),
-    ] %}
-    <a href="{{path}}" class="sub-chip rounded-xl p-5 block">
+    <!-- Card 1 -->
+    <a href="/app/ocr" class="sub-chip rounded-xl p-5 block">
       <div class="flex items-start justify-between mb-4">
         <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-             style="background:{{hex}}15;border:1px solid {{hex}}28">
-          <span class="material-symbols-outlined" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+             style="background:#5bd5fc15;border:1px solid #5bd5fc28">
+          <span class="material-symbols-outlined" style="color:#5bd5fc;font-variation-settings:'FILL' 1">document_scanner</span>
         </div>
-        <span class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
-              style="color:{{hex}};border-color:{{hex}}35;background:{{hex}}10">{{badge}}</span>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#5bd5fc;border-color:#5bd5fc35;background:#5bd5fc10">LIVE</span>
       </div>
-      <h3 class="text-white font-label font-bold text-base mb-1.5">{{title}}</h3>
-      <p class="text-on-surface/50 text-xs leading-relaxed">{{desc}}</p>
+      <h3 data-i18n="sub_ocr_title" class="text-white font-label font-bold text-base mb-1.5">OCR Engine</h3>
+      <p data-i18n="sub_ocr_desc" class="text-on-surface/50 text-xs leading-relaxed">Extract structured data from scanned images and PDFs — converts to clean DataFrames instantly.</p>
     </a>
-    {% endfor %}
+
+    <!-- Card 2 -->
+    <a href="/app/forms" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#a48cf415;border:1px solid #a48cf428">
+          <span class="material-symbols-outlined" style="color:#a48cf4;font-variation-settings:'FILL' 1">dynamic_form</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#a48cf4;border-color:#a48cf435;background:#a48cf410">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_forms_title" class="text-white font-label font-bold text-base mb-1.5">SOL Forms</h3>
+      <p data-i18n="sub_forms_desc" class="text-on-surface/50 text-xs leading-relaxed">An advanced data-collection system (Google Forms alternative) that prevents dirty data at the source.</p>
+    </a>
+
+    <!-- Card 3 -->
+    <a href="/app/semantic-mapper" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#4361ee15;border:1px solid #4361ee28">
+          <span class="material-symbols-outlined" style="color:#4361ee;font-variation-settings:'FILL' 1">schema</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#4361ee;border-color:#4361ee35;background:#4361ee10">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_mapper_title" class="text-white font-label font-bold text-base mb-1.5">Semantic Mapper</h3>
+      <p data-i18n="sub_mapper_desc" class="text-on-surface/50 text-xs leading-relaxed">Auto-detects boolean columns (Yes/No, Approved/Rejected) and maps them to 0/1 for ML readiness.</p>
+    </a>
+
+    <!-- Card 4 -->
+    <a href="/app/ml-advisor" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#ffd16615;border:1px solid #ffd16628">
+          <span class="material-symbols-outlined" style="color:#ffd166;font-variation-settings:'FILL' 1">psychology</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#ffd166;border-color:#ffd16635;background:#ffd16610">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_ml_title" class="text-white font-label font-bold text-base mb-1.5">ML Advisor</h3>
+      <p data-i18n="sub_ml_desc" class="text-on-surface/50 text-xs leading-relaxed">Analyzes your cleaned dataset and recommends the optimal ML model architecture for your problem type.</p>
+    </a>
+
+    <!-- Card 5 -->
+    <a href="/app/data-noise" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#06d6a015;border:1px solid #06d6a028">
+          <span class="material-symbols-outlined" style="color:#06d6a0;font-variation-settings:'FILL' 1">science</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#06d6a0;border-color:#06d6a035;background:#06d6a010">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_noise_title" class="text-white font-label font-bold text-base mb-1.5">Data Noise Lab</h3>
+      <p data-i18n="sub_noise_desc" class="text-on-surface/50 text-xs leading-relaxed">Sandbox to simulate data corruption, stress-test cleaning models, and validate quality thresholds.</p>
+    </a>
+
+    <!-- Card 6 -->
+    <a href="/app/audit" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#f3712115;border:1px solid #f3712128">
+          <span class="material-symbols-outlined" style="color:#f37121;font-variation-settings:'FILL' 1">summarize</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#f37121;border-color:#f3712135;background:#f3712110">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_audit_title" class="text-white font-label font-bold text-base mb-1.5">Audit Reports</h3>
+      <p data-i18n="sub_audit_desc" class="text-on-surface/50 text-xs leading-relaxed">Full transparency logs of every AI intervention with confidence scores and change deltas per column.</p>
+    </a>
+
+    <!-- Card 7 -->
+    <a href="/app/settings" class="sub-chip rounded-xl p-5 block">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+             style="background:#8e8fa115;border:1px solid #8e8fa128">
+          <span class="material-symbols-outlined" style="color:#8e8fa1;font-variation-settings:'FILL' 1">settings</span>
+        </div>
+        <span data-i18n="live_badge" class="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+              style="color:#8e8fa1;border-color:#8e8fa135;background:#8e8fa110">LIVE</span>
+      </div>
+      <h3 data-i18n="sub_settings_title" class="text-white font-label font-bold text-base mb-1.5">Settings & API Keys</h3>
+      <p data-i18n="sub_settings_desc" class="text-on-surface/50 text-xs leading-relaxed">Manage your profile, system preferences, and generate API keys for programmatic access.</p>
+    </a>
   </div>
 </section>
 
 <!-- ═══ COMPARISON ═══════════════════════════════════════════════════════════ -->
 <section id="comparison" class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16">
   <div class="text-center mb-14">
-    <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">SOL vs. The Alternatives</h2>
-    <p class="text-on-surface/55 text-base max-w-2xl mx-auto">Why leading data teams choose SOL over manual scripts, OpenRefine, or generic ETL tools.</p>
+    <h2 data-i18n="compare_title" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">SOL vs. The Alternatives</h2>
+    <p data-i18n="compare_desc" class="text-on-surface/55 text-base max-w-2xl mx-auto">Why leading data teams choose SOL over manual scripts, OpenRefine, or generic ETL tools.</p>
   </div>
   <div class="glass-card rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
       <thead>
         <tr>
-          <th class="text-left py-4 px-6 font-mono text-[10px] text-outline uppercase tracking-widest">Capability</th>
-          <th class="py-4 px-4 font-mono text-[10px] text-primary uppercase tracking-widest text-center">SOL Agent</th>
-          <th class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">Manual Scripts</th>
-          <th class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">OpenRefine</th>
-          <th class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">Generic ETL</th>
+          <th data-i18n="cmp_col_cap" class="text-left py-4 px-6 font-mono text-[10px] text-outline uppercase tracking-widest">Capability</th>
+          <th data-i18n="cmp_col_sol" class="py-4 px-4 font-mono text-[10px] text-primary uppercase tracking-widest text-center">SOL Agent</th>
+          <th data-i18n="cmp_col_scripts" class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">Manual Scripts</th>
+          <th data-i18n="cmp_col_openrefine" class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">OpenRefine</th>
+          <th data-i18n="cmp_col_etl" class="py-4 px-4 font-mono text-[10px] text-outline uppercase tracking-widest text-center">Generic ETL</th>
         </tr>
       </thead>
       <tbody>
-        {% for feature, sol, manual, openrefine, etl in [
-          ("Zero-code operation",            True,  False, True,  False),
-          ("AI-generated strategy",          True,  False, False, False),
-          ("Natural language goal injection",True,  False, False, False),
-          ("7+ file formats",                True,  True,  True,  True ),
-          ("Direct SQL read/write",          True,  True,  False, True ),
-          ("Side-by-side diff view",         True,  False, True,  False),
-          ("Audit & confidence scores",      True,  False, False, False),
-          ("OCR integration",                True,  False, False, False),
-          ("ML model recommendation",        True,  False, False, False),
-          ("SaaS / On-premise",              True,  False, False, True ),
-        ] %}
+        <!-- Row 1 -->
         <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
-          <td class="py-3.5 px-6 text-on-surface-variant text-sm">{{feature}}</td>
-          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg {% if sol %}check{% else %}cross{% endif %}" style="font-variation-settings:'FILL' 1">{% if sol %}check_circle{% else %}cancel{% endif %}</span></td>
-          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg {% if manual %}check{% else %}cross{% endif %}" style="font-variation-settings:'FILL' 1">{% if manual %}check_circle{% else %}cancel{% endif %}</span></td>
-          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg {% if openrefine %}check{% else %}cross{% endif %}" style="font-variation-settings:'FILL' 1">{% if openrefine %}check_circle{% else %}cancel{% endif %}</span></td>
-          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg {% if etl %}check{% else %}cross{% endif %}" style="font-variation-settings:'FILL' 1">{% if etl %}check_circle{% else %}cancel{% endif %}</span></td>
+          <td data-i18n="cmp_feat_zero_code" class="py-3.5 px-6 text-on-surface-variant text-sm">Zero-code operation</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
         </tr>
-        {% endfor %}
+        <!-- Row 2 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_ai_gen" class="py-3.5 px-6 text-on-surface-variant text-sm">AI-generated strategy</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 3 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_nl_goal" class="py-3.5 px-6 text-on-surface-variant text-sm">Natural language goal injection</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 4 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_formats" class="py-3.5 px-6 text-on-surface-variant text-sm">7+ file formats</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+        </tr>
+        <!-- Row 5 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_sql" class="py-3.5 px-6 text-on-surface-variant text-sm">Direct SQL read/write</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+        </tr>
+        <!-- Row 6 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_diff" class="py-3.5 px-6 text-on-surface-variant text-sm">Side-by-side diff view</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 7 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_audit" class="py-3.5 px-6 text-on-surface-variant text-sm">Audit & confidence scores</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 8 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_ocr" class="py-3.5 px-6 text-on-surface-variant text-sm">OCR integration</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 9 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_ml" class="py-3.5 px-6 text-on-surface-variant text-sm">ML model recommendation</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+        </tr>
+        <!-- Row 10 -->
+        <tr class="border-t border-outline-variant/8 cmp-row transition-colors">
+          <td data-i18n="cmp_feat_deploy" class="py-3.5 px-6 text-on-surface-variant text-sm">SaaS / On-premise</td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg cross" style="font-variation-settings:'FILL' 1">cancel</span></td>
+          <td class="py-3.5 px-4 text-center"><span class="material-symbols-outlined text-lg check" style="font-variation-settings:'FILL' 1">check_circle</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -337,36 +646,169 @@
 <!-- ═══ TECH STACK ════════════════════════════════════════════════════════════ -->
 <section id="tech-stack" class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16">
   <div class="text-center mb-14">
-    <h2 class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Technology Stack</h2>
-    <p class="text-on-surface/55 text-base max-w-xl mx-auto">Engineered on battle-tested open-source foundations — optimized for enterprise workloads and real-time performance.</p>
+    <h2 data-i18n="tech_stack_title" class="font-headline font-black text-3xl md:text-5xl text-white mb-3">Technology Stack</h2>
+    <p data-i18n="tech_stack_desc" class="text-on-surface/55 text-base max-w-xl mx-auto">Engineered on battle-tested open-source foundations — optimized for enterprise workloads and real-time performance.</p>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-    {% for group, hex, icon, items in [
-      ("AI & Intelligence","#a48cf4","psychology",[("Groq API","Llama-3 8B inference"),("LangChain","LLM orchestration"),("Dual-Confidence","Strategy validation"),("Semantic Engine","Column classification")]),
-      ("Backend Core","#4361ee","terminal",[("FastAPI","REST API layer"),("Python 3.10+","Core language"),("Pandas / NumPy","Data processing"),("SQLAlchemy","ORM + connectors")]),
-      ("Data Layer","#06d6a0","storage",[("7 File Formats","CSV, XLSX, JSON, Parquet…"),("SQL Databases","SQLite, MySQL, PostgreSQL"),("Dynamic Export","Original format persistence"),("OCR Engine","Image → DataFrame")]),
-      ("Frontend","#5bd5fc","web",[("Jinja2 SSR","Server-side rendering"),("Tailwind CSS","Utility-first styling"),("Vanilla JS","Zero-framework JS"),("Material Symbols","Icon system")]),
-    ] %}
+    <!-- Group 1: AI -->
     <div class="glass-card rounded-2xl p-6">
       <div class="flex items-center gap-3 mb-5">
-        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:{{hex}}20;border:1px solid {{hex}}35">
-          <span class="material-symbols-outlined text-lg" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#a48cf420;border:1px solid #a48cf435">
+          <span class="material-symbols-outlined text-lg" style="color:#a48cf4;font-variation-settings:'FILL' 1">psychology</span>
         </div>
-        <p class="font-mono text-[11px] font-bold uppercase tracking-widest" style="color:{{hex}}">{{group}}</p>
+        <p data-i18n="tech_grp_ai" class="font-mono text-[11px] font-bold uppercase tracking-widest" style="color:#a48cf4">AI & Intelligence</p>
       </div>
       <div class="space-y-3">
-        {% for name, desc in items %}
         <div class="flex items-center gap-2">
-          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:{{hex}}"></div>
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div>
           <div>
-            <span class="text-white text-sm font-medium">{{name}}</span>
-            <span class="text-outline text-xs ml-1.5">— {{desc}}</span>
+            <span class="text-white text-sm font-medium">Groq API</span>
+            <span data-i18n="tech_ai_groq_desc" class="text-outline text-xs ml-1.5">— Llama-3 8B inference</span>
           </div>
         </div>
-        {% endfor %}
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div>
+          <div>
+            <span class="text-white text-sm font-medium">LangChain</span>
+            <span data-i18n="tech_ai_langchain_desc" class="text-outline text-xs ml-1.5">— LLM orchestration</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div>
+          <div>
+            <span data-i18n="tech_ai_dualconf_name" class="text-white text-sm font-medium">Dual-Confidence</span>
+            <span data-i18n="tech_ai_dualconf_desc" class="text-outline text-xs ml-1.5">— Strategy validation</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#a48cf4"></div>
+          <div>
+            <span data-i18n="tech_ai_semantic_name" class="text-white text-sm font-medium">Semantic Engine</span>
+            <span data-i18n="tech_ai_semantic_desc" class="text-outline text-xs ml-1.5">— Column classification</span>
+          </div>
+        </div>
       </div>
     </div>
-    {% endfor %}
+
+    <!-- Group 2: Backend -->
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#4361ee20;border:1px solid #4361ee35">
+          <span class="material-symbols-outlined text-lg" style="color:#4361ee;font-variation-settings:'FILL' 1">terminal</span>
+        </div>
+        <p data-i18n="tech_grp_backend" class="font-mono text-[11px] font-bold uppercase tracking-widest" style="color:#4361ee">Backend Core</p>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div>
+          <div>
+            <span class="text-white text-sm font-medium">FastAPI</span>
+            <span data-i18n="tech_be_fastapi_desc" class="text-outline text-xs ml-1.5">— REST API layer</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Python 3.10+</span>
+            <span data-i18n="tech_be_python_desc" class="text-outline text-xs ml-1.5">— Core language</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Pandas / NumPy</span>
+            <span data-i18n="tech_be_pandas_desc" class="text-outline text-xs ml-1.5">— Data processing</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#4361ee"></div>
+          <div>
+            <span class="text-white text-sm font-medium">SQLAlchemy</span>
+            <span data-i18n="tech_be_sqlalchemy_desc" class="text-outline text-xs ml-1.5">— ORM + connectors</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 3: Data -->
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#06d6a020;border:1px solid #06d6a035">
+          <span class="material-symbols-outlined text-lg" style="color:#06d6a0;font-variation-settings:'FILL' 1">storage</span>
+        </div>
+        <p data-i18n="tech_grp_data" class="font-mono text-[11px] font-bold uppercase tracking-widest" style="color:#06d6a0">Data Layer</p>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div>
+          <div>
+            <span data-i18n="tech_data_formats_name" class="text-white text-sm font-medium">7 File Formats</span>
+            <span data-i18n="tech_data_formats_desc" class="text-outline text-xs ml-1.5">— CSV, XLSX, JSON, Parquet…</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div>
+          <div>
+            <span data-i18n="tech_data_sql_name" class="text-white text-sm font-medium">SQL Databases</span>
+            <span data-i18n="tech_data_sql_desc" class="text-outline text-xs ml-1.5">— SQLite, MySQL, PostgreSQL</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div>
+          <div>
+            <span data-i18n="tech_data_export_name" class="text-white text-sm font-medium">Dynamic Export</span>
+            <span data-i18n="tech_data_export_desc" class="text-outline text-xs ml-1.5">— Original format persistence</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#06d6a0"></div>
+          <div>
+            <span data-i18n="tech_data_ocr_name" class="text-white text-sm font-medium">OCR Engine</span>
+            <span data-i18n="tech_data_ocr_desc" class="text-outline text-xs ml-1.5">— Image → DataFrame</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 4: Frontend -->
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#5bd5fc20;border:1px solid #5bd5fc35">
+          <span class="material-symbols-outlined text-lg" style="color:#5bd5fc;font-variation-settings:'FILL' 1">web</span>
+        </div>
+        <p data-i18n="tech_grp_frontend" class="font-mono text-[11px] font-bold uppercase tracking-widest" style="color:#5bd5fc">Frontend</p>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Jinja2 SSR</span>
+            <span data-i18n="tech_fe_jinja_desc" class="text-outline text-xs ml-1.5">— Server-side rendering</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Tailwind CSS</span>
+            <span data-i18n="tech_fe_tailwind_desc" class="text-outline text-xs ml-1.5">— Utility-first styling</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Vanilla JS</span>
+            <span data-i18n="tech_fe_vanilla_desc" class="text-outline text-xs ml-1.5">— Zero-framework JS</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#5bd5fc"></div>
+          <div>
+            <span class="text-white text-sm font-medium">Material Symbols</span>
+            <span data-i18n="tech_fe_material_desc" class="text-outline text-xs ml-1.5">— Icon system</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -376,12 +818,12 @@
     <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary-container to-tertiary-container flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(67,97,238,.45)]">
       <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings:'FILL' 1">rocket_launch</span>
     </div>
-    <h2 class="font-headline font-black text-4xl text-white mb-4">Ready to Deploy SOL?</h2>
-    <p class="text-on-surface/55 text-base max-w-xl mx-auto mb-8">Start cleaning data intelligently in under 5 minutes — no configuration, no code, no friction.</p>
+    <h2 data-i18n="ready_deploy_title" class="font-headline font-black text-4xl text-white mb-4">Ready to Deploy SOL?</h2>
+    <p data-i18n="ready_deploy_desc" class="text-on-surface/55 text-base max-w-xl mx-auto mb-8">Start cleaning data intelligently in under 5 minutes — no configuration, no code, no friction.</p>
     <div class="flex flex-wrap gap-4 justify-center">
-      <a href="/register"><button class="px-8 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,.35)] hover:shadow-[0_0_48px_rgba(67,97,238,.55)] hover:scale-[1.02] transition-all">Get Started Free →</button></a>
-      <a href="/docs"><button class="px-8 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container transition-all flex items-center gap-2"><span class="material-symbols-outlined text-lg">menu_book</span>Read the Docs</button></a>
-      <a href="/pricing"><button class="px-8 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container transition-all">View Pricing</button></a>
+      <a href="/register"><button data-i18n="ready_deploy_btn" class="px-8 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,.35)] hover:shadow-[0_0_48px_rgba(67,97,238,.55)] hover:scale-[1.02] transition-all">Get Started Free →</button></a>
+      <a href="/about-team"><button data-i18n="about_team_btn" class="px-8 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container transition-all flex items-center gap-2"><span class="material-symbols-outlined text-lg">group</span>About the Team</button></a>
+      <a href="/pricing"><button data-i18n="view_pricing_btn" class="px-8 py-3.5 border border-outline-variant/30 text-white font-medium rounded-xl hover:bg-surface-container transition-all">View Pricing</button></a>
     </div>
   </div>
 </section>

@@ -4,7 +4,7 @@ from groq import Groq
 
 class StrategyManager:
     def __init__(self, api_key):
-        self.client = Groq(api_key=api_key)
+        self.client = Groq(api_key=api_key, max_retries=0)
         self.model = "llama-3.3-70b-versatile"
 
     def construct_prompt(self, metadata, user_goal):
@@ -18,7 +18,7 @@ class StrategyManager:
         }
         
         prompt = f"""
-        You are an expert Data Scientist Agent (SOL Platform V30).
+        You are an expert Data Scientist Agent (SOL Platform V29).
         
         DATA PROFILE:
         {json.dumps(slim_metadata, indent=2)}
@@ -27,34 +27,24 @@ class StrategyManager:
         "{user_goal}"
         
         TASK:
-        Generate exactly 3 diverse cleaning strategies:
-        - "Alpha": Conservative (focus on preserving data, filling missing values safely)
-        - "Beta": Balanced (standard cleaning, removing obvious outliers/duplicates)
-        - "Gamma": Aggressive (focus on high accuracy, dropping suspicious rows, enforcing strict types)
+        Generate a precise JSON cleaning strategy.
         
         MAPPING RULES (Strictly map columns to these actions):
         - Numeric Columns (Salary/Price/Age) -> MUST use "remove_outliers"
         - Missing values > 0 -> "smart_impute"
         - Date columns -> "standardize_date"
         - Text with typos (City/Job) -> "fuzzy_fix"
-        - Mixed numbers (e.g. '100 USD') -> "remove_outliers"
+        - Mixed numbers (e.g. '100 USD') -> "remove_outliers" (it handles extraction too)
         - Emails/Phones -> "clean_pattern"
         
-        OUTPUT FORMAT (STRICT JSON ARRAY OF 3 OBJECTS):
+        OUTPUT FORMAT (STRICT JSON):
         {{
-            "strategies": [
-                {{
-                    "strategy_name": "Alpha",
-                    "model_confidence_score": 9,
-                    "target_column": "ColumnName_or_None",
-                    "remove_duplicates": false,
-                    "cleaning_strategy": {{
-                        "ColumnName": "action_key"
-                    }},
-                    "strategy_philosophy": "Conservative approach..."
-                }},
-                // ... Beta & Gamma objects here
-            ]
+            "target_column": "ColumnName_or_None",
+            "remove_duplicates": true,
+            "cleaning_strategy": {{
+                "ColumnName": "action_key"
+            }},
+            "reasoning": "Brief explanation"
         }}
         """
         return prompt
@@ -144,101 +134,56 @@ class StrategyManager:
             "reasoning": root.get("reasoning", "Strategy optimized by SOL Enforcer V2.")
         }
 
-    def _calculate_system_confidence(self, plan_strategy, metadata):
-        """
-        Calculates an internal "System Confidence Score" (0-10) based on deterministic rules.
-        """
-        score = 10.0
-        
-        col_info_map = {c['name']: c for c in metadata.get('columns_info', [])}
-        
-        # Rule 1: Check coverage of problematic columns
-        for col_name, info in col_info_map.items():
-            if info.get('missing_count', 0) > 0 and col_name not in plan_strategy:
-                score -= 1.0  # Penalize for missing obvious problems
-        
-        # Check specific actions mapped to columns
-        for col_name, action in plan_strategy.items():
-            info = col_info_map.get(col_name)
-            if not info:
-                continue
-                
-            semantic = info.get('semantic_type', '')
-            
-            # Rule 2: Sensitivity Penalty
-            if info.get('is_sensitive'):
-                 if action in ["drop_rows", "remove_outliers"]:
-                     score -= 3.0 # Heavy penalty for risking deletion of ID/Email rows
-                     
-            # Rule 3: Type Mismatch
-            if semantic in ["Text", "Categorical"] and action == "remove_outliers":
-                score -= 0.5 # Outliyers logic usually intended for numeric
-            if semantic == "DateTime" and action not in ["standardize_date", "smart_impute", "drop_rows"]:
-                score -= 1.0
-
-        return max(0.0, round(score, 1))
-
-    def _evaluate_plans(self, plans, metadata):
-        best_plan = None
-        highest_score = -9999
-        
-        evaluated_plans_info = []
-
-        for p in plans:
-            model_confidence = p.get("model_confidence_score", 5)
-            plan_strategy = p.get("cleaning_strategy", {})
-            action_count = len(plan_strategy.keys())
-            
-            # Calculate explicit system confidence
-            system_confidence = self._calculate_system_confidence(plan_strategy, metadata)
-            p['system_confidence_score'] = system_confidence
-            
-            # Final scoring (Weighted: 40% AI, 60% System + action coverage bonus)
-            score = (model_confidence * 0.4) + (system_confidence * 0.6)
-            
-            # Target Feature Bonus
-            target_cols = [c['name'] for c in metadata.get('columns_info', []) if c.get('is_primary_target')]
-            for col, action in plan_strategy.items():
-                if col in target_cols and action == "smart_impute":
-                    score += 1 # Bonus for targeting ML features safely
-                        
-            # Reward comprehensive plans slightly
-            score += min(action_count * 0.2, 1) 
-            
-            p['internal_score'] = round(score, 2)
-            evaluated_plans_info.append({
-                "name": p.get("strategy_name", "Unknown"),
-                "model_confidence": model_confidence,
-                "system_confidence": system_confidence,
-                "final_score": p['internal_score'],
-                "philosophy": p.get("strategy_philosophy", "")
-            })
-            
-            if score > highest_score:
-                highest_score = score
-                best_plan = p
-                
-        # Inject the alternative info into the winning plan so UI can read it
-        if best_plan:
-            best_plan['alternatives_considered'] = evaluated_plans_info
-            best_plan['system_confidence_score'] = best_plan['system_confidence_score']
-            best_plan['model_confidence_score'] = best_plan.get('model_confidence_score', 0)
-            best_plan['reasoning'] = f"Selected {best_plan.get('strategy_name')} (Final Internal Score: {best_plan['internal_score']}). Philosophy: {best_plan.get('strategy_philosophy')}"
-            
-        return best_plan or plans[0]
-
     def generate_strategy(self, metadata, user_goal):
         prompt = self.construct_prompt(metadata, user_goal)
         try:
-            chat_completion = self.client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a JSON-only assistant. Output strict JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
+            models = [
+                self.model,
+                "meta-llama/llama-4-scout-17b-16e-instruct",
+                "llama-3.3-70b-versatile"
+            ]
+            seen = set()
+            fallback_models = []
+            for m in models:
+                if m not in seen:
+                    seen.add(m)
+                    fallback_models.append(m)
+
+            chat_completion = None
+            last_err = None
+
+            for i, model_name in enumerate(fallback_models):
+                try:
+                    chat_completion = self.client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": "You are a JSON-only assistant. Output strict JSON."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model=model_name,
+                        temperature=0.1,
+                        response_format={"type": "json_object"}
+                    )
+                    break
+                except Exception as e:
+                    last_err = e
+                    is_rate_limit = False
+                    if hasattr(e, "status_code") and e.status_code == 429:
+                        is_rate_limit = True
+                    elif "RateLimit" in type(e).__name__:
+                        is_rate_limit = True
+                        
+                    if is_rate_limit and i < len(fallback_models) - 1:
+                        next_model = fallback_models[i + 1]
+                        print(f"Model {model_name} hit rate limit, falling back to Model {next_model}...")
+                        continue
+                    else:
+                        raise e
+
+            if chat_completion is None:
+                if last_err:
+                    raise last_err
+                else:
+                    raise RuntimeError("All LLM models failed to respond.")
             
             response_content = chat_completion.choices[0].message.content
             
@@ -249,32 +194,12 @@ class StrategyManager:
                 if json_match:
                     raw_json = json.loads(json_match.group())
                 else:
-                    raw_json = {"strategies": []} 
+                    raw_json = {} 
 
-            plans = raw_json.get("strategies", [])
-            if not plans and isinstance(raw_json, list):
-                plans = raw_json
-            elif not plans and isinstance(raw_json, dict):
-                # Fallback if model just returns one object
-                plans = [raw_json]
-                
-            if not plans:
-                raise ValueError("No strategies returned by AI")
-
-            winning_plan = self._evaluate_plans(plans, metadata)
-
-            # تطبيق القواعد الصارمة على الخطة الفائزة
-            normalized_strategy = self._normalize_strategy(winning_plan, metadata)
-            # Retain the extra metadata we added during evaluation
-            if 'alternatives_considered' in winning_plan:
-                normalized_strategy['alternatives_considered'] = winning_plan['alternatives_considered']
-                normalized_strategy['internal_score'] = winning_plan['internal_score']
-                normalized_strategy['system_confidence_score'] = winning_plan['system_confidence_score']
-                normalized_strategy['model_confidence_score'] = winning_plan['model_confidence_score']
+            # تطبيق القواعد الصارمة
+            normalized_strategy = self._normalize_strategy(raw_json, metadata)
             
             return normalized_strategy
-
-
             
         except Exception as e:
             # Fallback في حالة فشل النت

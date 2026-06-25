@@ -1,0 +1,192 @@
+6.7 Backend Development
+This chapter explains the backend development of the project. The backend is the hidden part of the system that works behind the user interface. It receives requests from the frontend, processes data, communicates with the database, handles uploaded files, and connects the system with artificial intelligence models.
+In this project, the backend is responsible for file processing, database operations, API communication, security, authentication, and AI-based data cleaning. It connects all main components of the system together and ensures that the application works correctly and securely. 
+6.7.1 What is Backend? 
+The backend is the part of the system responsible for processing data, handling requests, connecting with the database, and executing the AI cleaning operations.
+The backend works behind the scenes and acts as the main engine of the system. When a user performs an action on the frontend, such as uploading a file, the backend receives the request, processes it, connects with the database, and returns the required response to the frontend.
+In this project, the backend allows the system to handle uploaded datasets, store user information, execute cleaning operations, and communicate with AI services. Without the backend, the system would only have a visual interface without real processing or data management functions.
+6.7.2 Why We Used Backend in Our Project?
+We used backend technologies to manage uploaded files, analyze datasets, connect with AI models, and store user information securely.
+The frontend alone cannot securely process uploaded files, communicate with the database, or run AI cleaning operations. Therefore, the backend is used to control the system logic, 
+
+
+manage the uploaded files, validate the data, connect with the AI model, and save the results in the database.
+Using backend development makes the project more reliable, organized, and secure. It also helps separate the user interface from the internal system operations, which improves maintainability and makes the project easier to develop and test.
+6.7.3 Backend Technologies Used
+Several backend technologies were used to support the main functions of the system. These technologies help in handling files, managing databases, connecting APIs, and running AI-based cleaning operations.
+The backend technologies used in the project include PHP or Python, Flask or Django, Node.js, MySQL, APIs, and AI libraries. Each technology has a specific role in supporting the backend structure and improving the system performance.
+Technology
+Purpose
+Explanation
+PHP / Python
+Backend Programming
+Used to write backend logic, process data, and support AI-based operations.
+Flask or Django
+Backend Framework
+Used to build backend routes, APIs, and server-side functions.
+Node.js
+Server-side Runtime
+Allows JavaScript to run on the server side and handle backend requests.
+MySQL
+Database Management
+Stores user information, uploaded file records, and cleaning reports.
+APIs
+System Communication
+Connect the frontend, backend, database, and AI services together.
+AI Libraries
+Data Cleaning and Preprocessing
+Support automatic data analysis, cleaning, and preprocessing tasks.
+
+Backend Technologies Used - Code Style View
+const backendTechnologies = [
+  'PHP / Python',
+  'Flask or Django',
+  'Node.js',
+  'MySQL',
+  'APIs',
+  'AI Libraries'
+];
+
+
+
+
+6.7.4 File Upload and Processing
+The backend receives uploaded files such as CSV, JSON, PDF, and Word files. Then, the system analyzes the content and detects issues like missing values, duplicates, and formatting errors.
+File upload and processing is one of the most important functions in the project because the uploaded files represent the main input of the system. After the user uploads a file through the frontend, the backend receives the file, checks its type and size, reads the content, and prepares it for analysis.
+The backend can process different file formats, such as CSV, JSON, PDF, and Word files. The system then detects common problems in the data, including missing values, duplicate records, and formatting errors. This stage prepares the data before sending it to the AI model for cleaning and preprocessing.
+
+Step
+Description
+1. Upload File
+The user uploads a file through the frontend interface.
+2. Receive File
+The backend receives the uploaded file from the frontend request.
+3. Validate File
+The backend checks the file type, file size, and security.
+4. Read Content
+The system reads and extracts the content of the uploaded file.
+5. Detect Issues
+The system detects missing values, duplicates, and formatting errors.
+6. Prepare for Cleaning
+The data is prepared for AI-based cleaning and preprocessing.
+
+
+
+File Processing Logic - Code Style View
+function processUploadedFile(file) {
+  validateFileType(file);
+  readFileContent(file);
+  detectMissingValues(file);
+  detectDuplicateRecords(file);
+  detectFormattingErrors(file);
+  prepareDataForCleaning(file);
+}
+
+6.7.5 AI Integration
+AI models are integrated into the backend to automate data cleaning and preprocessing tasks efficiently.
+AI integration allows the system to perform data cleaning in a smarter and faster way. The backend sends the uploaded data to the AI model, and the AI model analyzes the content to detect data quality issues. These issues may include missing values, duplicated records, inconsistent formatting, or incorrect data entries.
+After the AI model completes the analysis and cleaning process, the backend receives the result and stores it in the database. The cleaned output can then be returned to the user through the frontend.
+AI Task
+Purpose
+Missing Value Detection
+Identifies empty or incomplete values inside the dataset.
+Duplicate Detection
+Finds repeated records that may affect data accuracy.
+Formatting Check
+Detects inconsistent formatting in the uploaded file.
+Data Preprocessing
+Prepares the dataset for analysis or further processing.
+Cleaning Output
+Returns the cleaned version of the uploaded data.
+
+AI Model Integration - Code Style View
+const aiResult = await AIModel.cleanData(uploadedData);
+database.saveCleaningReport(aiResult);
+return aiResult;
+
+6.7.6 API Integration
+The backend uses APIs to communicate between the frontend, database, and AI services.
+An API, or Application Programming Interface, is a method that allows different parts of the system to communicate with each other. In this project, APIs connect the frontend with the backend. When the user uploads a file or requests a result, the frontend sends a request to the backend API.
+The backend API receives the request, processes it, communicates with the database or AI services, and then sends the response back to the frontend. This makes the system organized and allows each component to perform its role clearly.
+HTTP Method
+Main Use
+Example
+GET
+Retrieve data
+Get cleaned files or reports.
+POST
+Send new data
+Upload a file or create a new request.
+PUT / PATCH
+Update existing data
+Edit user information or update a report.
+DELETE
+Remove data
+Delete a file or cleaning report.
+
+API Communication Workflow - Code Style View
+const apiWorkflow = 'Frontend Request -> Backend API -> Database / AI Model -> Backend Response -> Frontend Result';
+
+6.7.7 Security and Authentication
+The backend ensures data security through authentication, validation, and secure database connections.
+Security is important because the system deals with user information and uploaded files. Authentication is used to verify the identity of users before allowing them to access the system. Validation is used to check user inputs and uploaded files before processing them.
+Secure database connections are also important because they protect stored data from unauthorized access. These security steps help make the system safer and more reliable.
+Security Feature
+Purpose
+Authentication
+Verifies the identity of users before system access.
+Input Validation
+Checks user inputs before processing.
+File Type Validation
+Ensures that only valid file types are uploaded.
+Secure Database Connection
+Protects stored data and database operations.
+Protected User Data
+Helps keep user information safe from unauthorized access.
+
+Security and Authentication - Code Style View
+if (!userAuthenticated) {
+  return 'Access Denied';
+}
+validateInput(userData);
+connectSecureDatabase();
+
+6.7.8 Backend Workflow
+The backend workflow explains how the system works from the moment the user uploads a file until the cleaned data is returned.
+First, the user uploads a file through the frontend. Then, the backend receives the file and sends it for AI analysis. After that, the data cleaning process is performed, and the results are stored in the database. Finally, the cleaned data is returned to the user.
+Workflow Order
+Process
+1
+User Upload File
+2
+Backend Receives File
+3
+AI Analysis
+4
+Data Cleaning
+5
+Store Results in Database
+6
+Return Clean Data to User
+
+Backend Workflow - Code Style View
+const backendWorkflow = 'User Upload File -> Backend Receives File -> AI Analysis -> Data Cleaning -> Store Results in Database -> Return Clean Data to User';
+
+6.7.9 Possible Doctor Question
+If the doctor asks: “What is the role of the backend in your project?”
+The answer can be:
+Suggested Answer - Code Style View
+"The backend handles file processing, database operations, AI integration, and communication between the frontend and the system services."
+
+
+This means that the backend is responsible for processing files, dealing with the database, running the AI model, and connecting all parts of the system together.
+Chapter Summary
+• The backend is responsible for server-side logic and system processing.
+• Backend technologies were used to manage uploaded files, analyze datasets, connect with AI models, and store user information securely.
+• The backend technologies include PHP or Python, Flask or Django, Node.js, MySQL, APIs, and AI libraries.
+• The backend receives CSV, JSON, PDF, and Word files and detects missing values, duplicates, and formatting errors.
+• AI models are integrated into the backend to automate data cleaning and preprocessing tasks efficiently.
+• APIs connect the frontend, database, and AI services.
+• Security and authentication protect user data and uploaded files.
+• The backend workflow starts with file upload and ends with returning clean data to the user.
+

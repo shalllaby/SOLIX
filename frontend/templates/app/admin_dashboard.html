@@ -1,0 +1,870 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}{% if locale == 'ar' %}لوحة تحكم المسؤول{% else %}Admin Portal{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}لوحة تحكم المسؤول{% else %}Admin Portal{% endif %}{% endblock %}
+{% block breadcrumb %}SOLIX / App / Admin Portal{% endblock %}
+{% block nav_admin %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    .admin-card {
+        background: var(--surface-container);
+        border: 1px solid var(--outline-variant);
+        backdrop-filter: blur(12px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .admin-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px -5px rgba(67, 97, 238, 0.15);
+    }
+    .glass-panel {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        backdrop-filter: blur(16px);
+    }
+    .tab-btn {
+        transition: all 0.2s ease-in-out;
+    }
+    .tab-btn.active {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+        border-color: var(--primary);
+    }
+    .status-badge {
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .status-active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    .status-pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .status-admin {
+        background: rgba(168, 85, 247, 0.1);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+    .status-user {
+        background: rgba(100, 116, 139, 0.1);
+        color: #64748b;
+        border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+    .status-failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .status-completed {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    .status-processing {
+        background: rgba(14, 165, 233, 0.1);
+        color: #0ea5e9;
+        border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header and Pulse -->
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-headline font-black text-on-background tracking-tight">
+            {% if locale == 'ar' %}لوحة التحكم الإدارية{% else %}Administrative Control Center{% endif %}
+            <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">SOLIX</span>
+        </h1>
+        <p class="text-on-surface-variant mt-1 font-body">
+            {% if locale == 'ar' %}مراقبة وإدارة المستخدمين والأنشطة والأداء العام للنظام.{% else %}Monitor and manage users, backgrounds jobs, and system token utilization.{% endif %}
+        </p>
+    </div>
+    
+    <div class="flex items-center gap-4 bg-surface-container px-4 py-2.5 rounded-xl border border-outline-variant/20 shadow-md">
+        <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span class="font-mono text-xs font-bold text-emerald-500 tracking-wider">
+                {% if locale == 'ar' %}بوابة المسؤول نشطة{% else %}ADMIN PORTAL ACTIVE{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div class="flex flex-wrap gap-2 mb-6 border-b border-outline-variant/10 pb-4">
+    <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container active">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">dashboard</span>
+            {% if locale == 'ar' %}نظرة عامة{% else %}Overview{% endif %}
+        </span>
+    </button>
+    <button onclick="switchTab('users')" id="tab-btn-users" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">group</span>
+            {% if locale == 'ar' %}إدارة المستخدمين{% else %}User Management{% endif %}
+        </span>
+    </button>
+    <button onclick="switchTab('jobs')" id="tab-btn-jobs" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">settings_backup_restore</span>
+            {% if locale == 'ar' %}سجلات العمليات{% else %}System Jobs{% endif %}
+        </span>
+    </button>
+    <button onclick="switchTab('tokens')" id="tab-btn-tokens" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">toll</span>
+            {% if locale == 'ar' %}استهلاك توكنز LLM{% else %}LLM Tokens{% endif %}
+        </span>
+    </button>
+    <button onclick="switchTab('feedbacks')" id="tab-btn-feedbacks" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">rate_review</span>
+            {% if locale == 'ar' %}الآراء والتعليقات{% else %}Feedbacks{% endif %}
+        </span>
+    </button>
+    <button onclick="switchTab('auth')" id="tab-btn-auth" class="tab-btn px-4 py-2 text-sm font-label rounded-lg border border-outline-variant/20 text-on-surface bg-surface-container-low hover:bg-surface-container">
+        <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">security</span>
+            {% if locale == 'ar' %}سجلات الأمان{% else %}Security Logs{% endif %}
+        </span>
+    </button>
+</div>
+
+<!-- ==================== TAB: OVERVIEW ==================== -->
+<div id="tab-content-overview" class="tab-content space-y-6">
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="admin-card rounded-xl p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-outline uppercase font-mono tracking-wider">{% if locale == 'ar' %}إجمالي المستخدمين{% else %}Total Users{% endif %}</span>
+                <span class="material-symbols-outlined text-primary text-2xl">group</span>
+            </div>
+            <p class="text-3xl font-mono font-bold text-on-surface" id="stat-total-users">0</p>
+            <div class="text-[11px] text-outline mt-2">
+                <span id="stat-active-users-pct" class="text-emerald-500 font-bold">0%</span> {% if locale == 'ar' %}نشطين{% else %}active accounts{% endif %}
+            </div>
+        </div>
+
+        <div class="admin-card rounded-xl p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-outline uppercase font-mono tracking-wider">{% if locale == 'ar' %}إجمالي الوظائف المنفذة{% else %}Total Jobs Run{% endif %}</span>
+                <span class="material-symbols-outlined text-secondary text-2xl">history</span>
+            </div>
+            <p class="text-3xl font-mono font-bold text-on-surface" id="stat-total-jobs">0</p>
+            <div class="text-[11px] text-outline mt-2">
+                <span id="stat-failed-jobs-pct" class="text-rose-500 font-bold">0%</span> {% if locale == 'ar' %}معدل الفشل{% else %}failure rate{% endif %}
+            </div>
+        </div>
+
+        <div class="admin-card rounded-xl p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-outline uppercase font-mono tracking-wider">{% if locale == 'ar' %}توكنز LLM المستهلكة{% else %}LLM Tokens Used{% endif %}</span>
+                <span class="material-symbols-outlined text-tertiary text-2xl">toll</span>
+            </div>
+            <p class="text-3xl font-mono font-bold text-on-surface" id="stat-total-tokens">0</p>
+            <div class="text-[11px] text-outline mt-2">
+                <span id="stat-prompt-tokens" class="text-primary font-bold">0</span> {% if locale == 'ar' %}توكنز الإدخال{% else %}prompt / input{% endif %}
+            </div>
+        </div>
+
+        <div class="admin-card rounded-xl p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-outline uppercase font-mono tracking-wider">{% if locale == 'ar' %}التعليقات والآراء{% else %}Feedbacks Recieved{% endif %}</span>
+                <span class="material-symbols-outlined text-amber-500 text-2xl">chat_bubble</span>
+            </div>
+            <p class="text-3xl font-mono font-bold text-on-surface" id="stat-total-feedbacks">0</p>
+            <div class="text-[11px] text-outline mt-2">
+                {% if locale == 'ar' %}من النماذج العامة والاتصال{% else %}from contact forms{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Status Feed -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- User Status Bar Chart Representation -->
+        <div class="glass-panel p-5 rounded-xl lg:col-span-2 space-y-4">
+            <h3 class="font-headline font-bold text-on-surface text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">query_stats</span>
+                {% if locale == 'ar' %}إحصائيات وحالات النظام{% else %}System Health & Status Overview{% endif %}
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+                    <p class="text-xs text-outline mb-1">{% if locale == 'ar' %}الحسابات المعلقة{% else %}Pending Verifications{% endif %}</p>
+                    <p class="text-xl font-bold font-mono" id="overview-pending-users">0</p>
+                </div>
+                <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+                    <p class="text-xs text-outline mb-1">{% if locale == 'ar' %}وظائف جارية حالياً{% else %}Currently Processing Jobs{% endif %}</p>
+                    <p class="text-xl font-bold font-mono text-sky-500" id="overview-processing-jobs">0</p>
+                </div>
+                <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+                    <p class="text-xs text-outline mb-1">{% if locale == 'ar' %}وظائف مكتملة بنجاح{% else %}Successfully Completed Jobs{% endif %}</p>
+                    <p class="text-xl font-bold font-mono text-emerald-500" id="overview-completed-jobs">0</p>
+                </div>
+                <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+                    <p class="text-xs text-outline mb-1">{% if locale == 'ar' %}وظائف فشلت{% else %}Failed Job Runs{% endif %}</p>
+                    <p class="text-xl font-bold font-mono text-rose-500" id="overview-failed-jobs">0</p>
+                </div>
+            </div>
+            
+            <div class="pt-2">
+                <h4 class="text-xs text-outline uppercase font-mono tracking-wider mb-2">{% if locale == 'ar' %}توزيع استهلاك التوكنز{% else %}LLM Token Consumption Breakdown{% endif %}</h4>
+                <div class="h-4 bg-outline-variant/20 rounded-full overflow-hidden flex">
+                    <div id="token-bar-prompt" class="h-full bg-primary" style="width: 50%" title="Prompt Tokens"></div>
+                    <div id="token-bar-completion" class="h-full bg-tertiary" style="width: 50%" title="Completion Tokens"></div>
+                </div>
+                <div class="flex justify-between text-[10px] text-outline mt-1 font-mono">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-primary rounded-full"></span> {% if locale == 'ar' %}المدخلات{% else %}Prompt{% endif %} (<span id="token-bar-prompt-pct">0%</span>)</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-tertiary rounded-full"></span> {% if locale == 'ar' %}المخرجات{% else %}Completion{% endif %} (<span id="token-bar-completion-pct">0%</span>)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Activity Feed -->
+        <div class="glass-panel p-5 rounded-xl space-y-4">
+            <h3 class="font-headline font-bold text-on-surface text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-xl">notifications_active</span>
+                {% if locale == 'ar' %}آخر عمليات تسجيل الدخول{% else %}Recent Auth Activities{% endif %}
+            </h3>
+            <div class="space-y-3 max-h-[300px] overflow-y-auto" id="overview-auth-logs">
+                <p class="text-xs text-outline text-center py-8">{% if locale == 'ar' %}لا توجد سجلات حالية.{% else %}No activity records yet.{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB: USER MANAGEMENT ==================== -->
+<div id="tab-content-users" class="tab-content space-y-4 hidden">
+    <div class="glass-panel p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+            <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}حسابات المستخدمين{% else %}User Directory{% endif %}</h3>
+            <p class="text-xs text-outline">{% if locale == 'ar' %}إدارة أدوار وحالات المستخدمين أو حذف الحسابات بصفة نهائية.{% else %}Manage user roles, modify status, or permanently delete workspace accounts.{% endif %}</p>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto">
+            <div class="relative w-full md:w-64">
+                <span class="material-symbols-outlined text-outline text-sm absolute left-3 top-1/2 -translate-y-1/2">search</span>
+                <input type="text" id="users-search" placeholder="{% if locale == 'ar' %}بحث عن مستخدم...{% else %}Search users...{% endif %}" oninput="filterUsers()" class="w-full pl-9 pr-4 py-1.5 bg-surface-container border border-outline-variant/20 rounded-lg text-xs text-on-surface focus:outline-none focus:border-primary">
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/10 bg-surface-container-high/40 text-outline uppercase font-mono text-[10px]">
+                        <th class="py-3 px-4">{% if locale == 'ar' %}المستخدم{% else %}User{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}المسمى الوظيفي / المنظمة{% else %}Title / Org{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}تاريخ التسجيل{% else %}Date Joined{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الدور{% else %}Role{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                        <th class="py-3 px-4 text-right">{% if locale == 'ar' %}إجراءات{% else %}Actions{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body" class="divide-y divide-outline-variant/10">
+                    <tr>
+                        <td colspan="7" class="text-center py-10 text-outline">
+                            {% if locale == 'ar' %}جاري تحميل قائمة المستخدمين...{% else %}Loading user list...{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB: SYSTEM JOBS ==================== -->
+<div id="tab-content-jobs" class="tab-content space-y-4 hidden">
+    <div class="glass-panel p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+            <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}سجلات تشغيل المهام{% else %}System Job Executions{% endif %}</h3>
+            <p class="text-xs text-outline">{% if locale == 'ar' %}عرض وتحليل كافة العمليات الخلفية المنفذة في النظام.{% else %}Trace all pipeline tasks and backend background executions across the platform.{% endif %}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <input type="text" id="jobs-search" placeholder="Search files..." oninput="filterJobs()" class="pl-9 pr-4 py-1.5 bg-surface-container border border-outline-variant/20 rounded-lg text-xs text-on-surface focus:outline-none focus:border-primary w-48">
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/10 bg-surface-container-high/40 text-outline uppercase font-mono text-[10px]">
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الملف / المهمة{% else %}File / Task{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}المستخدم{% else %}User ID{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}نوع المهمة{% else %}Task Type{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الاستراتيجية / النموذج{% else %}Strategy / Model{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}تاريخ البدء{% else %}Triggered At{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}التفاصيل / الخطأ{% else %}Details / Error{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="jobs-table-body-admin" class="divide-y divide-outline-variant/10">
+                    <tr>
+                        <td colspan="7" class="text-center py-10 text-outline">
+                            {% if locale == 'ar' %}جاري تحميل السجلات...{% else %}Loading job execution logs...{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB: LLM TOKENS ==================== -->
+<div id="tab-content-tokens" class="tab-content space-y-4 hidden">
+    <div class="glass-panel p-4 rounded-xl">
+        <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}استهلاك نماذج الذكاء الاصطناعي (Groq / OpenAI){% else %}LLM Model Token Telemetry{% endif %}</h3>
+        <p class="text-xs text-outline">{% if locale == 'ar' %}بيانات استهلاك التوكنز مقسمة حسب النماذج ووحدات الميزات.{% else %}Trace usage tokens and execution cost metrics generated by AI assistance modules.{% endif %}</p>
+    </div>
+
+    <div class="glass-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/10 bg-surface-container-high/40 text-outline uppercase font-mono text-[10px]">
+                        <th class="py-3 px-4">{% if locale == 'ar' %}اسم الموديل{% else %}Model Name{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}اسم الوحدة{% else %}Module Name{% endif %}</th>
+                        <th class="py-3 px-4 text-center">{% if locale == 'ar' %}توكنز الإدخال{% else %}Prompt Tokens{% endif %}</th>
+                        <th class="py-3 px-4 text-center">{% if locale == 'ar' %}توكنز الإكمال{% else %}Completion Tokens{% endif %}</th>
+                        <th class="py-3 px-4 text-center">{% if locale == 'ar' %}الإجمالي{% else %}Total Tokens{% endif %}</th>
+                        <th class="py-3 px-4 text-right">{% if locale == 'ar' %}تاريخ الطلب{% else %}Timestamp{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="tokens-table-body" class="divide-y divide-outline-variant/10">
+                    <tr>
+                        <td colspan="6" class="text-center py-10 text-outline">
+                            {% if locale == 'ar' %}جاري تحميل بيانات التوكنز...{% else %}Loading token usage telemetry...{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB: FEEDBACKS ==================== -->
+<div id="tab-content-feedbacks" class="tab-content space-y-4 hidden">
+    <div class="glass-panel p-4 rounded-xl">
+        <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}تعليقات وآراء المستخدمين{% else %}User Feedback Submissions{% endif %}</h3>
+        <p class="text-xs text-outline">{% if locale == 'ar' %}الرسائل المستلمة من صفحة الاتصال بنا وآراء المستخدمين.{% else %}View messages and comments sent by users through public channels.{% endif %}</p>
+    </div>
+
+    <div class="glass-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/10 bg-surface-container-high/40 text-outline uppercase font-mono text-[10px]">
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الاسم{% else %}Name{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}البريد الإلكتروني / الهاتف{% else %}Email / Phone{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الرسالة{% else %}Message{% endif %}</th>
+                        <th class="py-3 px-4 text-right">{% if locale == 'ar' %}تاريخ الاستلام{% else %}Submitted At{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="feedbacks-table-body" class="divide-y divide-outline-variant/10">
+                    <tr>
+                        <td colspan="4" class="text-center py-10 text-outline">
+                            {% if locale == 'ar' %}جاري تحميل التعليقات...{% else %}Loading feedback submissions...{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB: SECURITY LOGS ==================== -->
+<div id="tab-content-auth" class="tab-content space-y-4 hidden">
+    <div class="glass-panel p-4 rounded-xl">
+        <h3 class="font-headline font-bold text-on-surface text-base">{% if locale == 'ar' %}سجلات الأمان والعمليات الإدارية{% else %}Security & Audit Logs{% endif %}</h3>
+        <p class="text-xs text-outline">{% if locale == 'ar' %}مراقبة عمليات تسجيل الدخول والعمليات الحساسة في لوحة التحكم.{% else %}Trace logins, administrative interventions, and system verification logs.{% endif %}</p>
+    </div>
+
+    <div class="glass-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/10 bg-surface-container-high/40 text-outline uppercase font-mono text-[10px]">
+                        <th class="py-3 px-4">{% if locale == 'ar' %}المستخدم / البريد{% else %}Email{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الحدث{% else %}Event Action{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}العنوان الفرعي IP{% else %}IP Address{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                        <th class="py-3 px-4">{% if locale == 'ar' %}التفاصيل{% else %}Details{% endif %}</th>
+                        <th class="py-3 px-4 text-right">{% if locale == 'ar' %}الوقت والتاريخ{% else %}Timestamp{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="auth-table-body" class="divide-y divide-outline-variant/10">
+                    <tr>
+                        <td colspan="6" class="text-center py-10 text-outline">
+                            {% if locale == 'ar' %}جاري تحميل سجلات الأمان...{% else %}Loading security audit logs...{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Confirm Modal -->
+<div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+    <div class="glass-panel w-full max-w-sm rounded-xl border border-outline-variant/30 shadow-2xl p-6 space-y-4">
+        <div class="flex items-center gap-3 text-rose-500">
+            <span class="material-symbols-outlined text-3xl">warning</span>
+            <h3 class="font-headline font-bold text-lg">{% if locale == 'ar' %}حذف الحساب نهائياً؟{% else %}Confirm Account Deletion{% endif %}</h3>
+        </div>
+        <p class="text-xs text-outline-variant">
+            {% if locale == 'ar' %}سيؤدي هذا إلى حذف حساب المستخدم وجميع المشاريع والنماذج والملفات والمهام المرتبطة به بشكل كامل ودائم. لا يمكن التراجع عن هذا الإجراء.{% else %}This will permanently delete the user account and all associated projects, models, forms, and background jobs. This action is irreversible.{% endif %}
+        </p>
+        <div class="flex justify-end gap-2.5 pt-2">
+            <button onclick="closeDeleteModal()" class="px-4 py-1.5 border border-outline-variant/20 hover:bg-surface-container rounded-lg text-xs text-on-surface">
+                {% if locale == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+            </button>
+            <button id="confirm-delete-btn" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-md">
+                {% if locale == 'ar' %}نعم، احذف الحساب{% else %}Yes, Delete permanently{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let usersData = [];
+    let jobsData = [];
+    let selectedUserIdToDelete = null;
+
+    const authCookie = (document.cookie.match(/sol_auth_token=([^;]+)/) || [])[1];
+    const token = localStorage.getItem('sol_auth_token') || authCookie;
+    const headers = { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    function getLocale() {
+        return "{{ locale|default('en') }}";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fetch all admin data
+        refreshAllData();
+        // Periodically refresh stats
+        setInterval(refreshOverviewStatsOnly, 15000);
+    });
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+        document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+        document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+    }
+
+    function refreshOverviewStatsOnly() {
+        fetch('/api/admin/stats', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(stats => {
+                if (stats) populateOverviewStats(stats);
+            });
+    }
+
+    function refreshAllData() {
+        // 1. Stats
+        fetch('/api/admin/stats', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(stats => {
+                if (stats) populateOverviewStats(stats);
+            });
+
+        // 2. Users
+        fetch('/api/admin/users', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(users => {
+                if (users) {
+                    usersData = users;
+                    renderUsersTable(users);
+                }
+            });
+
+        // 3. Jobs
+        fetch('/api/admin/job-records', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(jobs => {
+                if (jobs) {
+                    jobsData = jobs;
+                    renderJobsTable(jobs);
+                }
+            });
+
+        // 4. Tokens
+        fetch('/api/admin/token-usage', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(tokens => {
+                if (tokens) renderTokensTable(tokens);
+            });
+
+        // 5. Feedbacks
+        fetch('/api/admin/feedbacks', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(feedbacks => {
+                if (feedbacks) renderFeedbacksTable(feedbacks);
+            });
+
+        // 6. Auth logs (Security Logs)
+        fetch('/api/admin/auth-logs', { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(logs => {
+                if (logs) {
+                    renderAuthTable(logs);
+                    renderOverviewAuthLogs(logs.slice(0, 5));
+                }
+            });
+    }
+
+    function populateOverviewStats(stats) {
+        document.getElementById('stat-total-users').textContent = stats.users.total;
+        document.getElementById('stat-total-jobs').textContent = stats.jobs.total;
+        
+        // Format tokens count
+        const totalTokens = stats.tokens.total;
+        if (totalTokens >= 1000000) {
+            document.getElementById('stat-total-tokens').textContent = (totalTokens / 1000000).toFixed(2) + 'M';
+        } else if (totalTokens >= 1000) {
+            document.getElementById('stat-total-tokens').textContent = (totalTokens / 1000).toFixed(1) + 'K';
+        } else {
+            document.getElementById('stat-total-tokens').textContent = totalTokens;
+        }
+
+        document.getElementById('stat-prompt-tokens').textContent = `${stats.tokens.prompt.toLocaleString()} prompt`;
+        document.getElementById('stat-total-feedbacks').textContent = stats.feedback_count;
+
+        // Percentages
+        const activePct = stats.users.total > 0 ? Math.round((stats.users.active / stats.users.total) * 100) : 0;
+        document.getElementById('stat-active-users-pct').textContent = `${activePct}%`;
+
+        const failPct = stats.jobs.total > 0 ? Math.round((stats.jobs.failed / stats.jobs.total) * 100) : 0;
+        document.getElementById('stat-failed-jobs-pct').textContent = `${failPct}%`;
+
+        // Breakdown stats
+        document.getElementById('overview-pending-users').textContent = stats.users.pending;
+        document.getElementById('overview-processing-jobs').textContent = stats.jobs.processing;
+        document.getElementById('overview-completed-jobs').textContent = stats.jobs.completed;
+        document.getElementById('overview-failed-jobs').textContent = stats.jobs.failed;
+
+        // Token usage bar
+        const total = stats.tokens.total || 1;
+        const promptPct = Math.round((stats.tokens.prompt / total) * 100);
+        const compPct = Math.round((stats.tokens.completion / total) * 100);
+
+        document.getElementById('token-bar-prompt').style.width = `${promptPct}%`;
+        document.getElementById('token-bar-completion').style.width = `${compPct}%`;
+        document.getElementById('token-bar-prompt-pct').textContent = `${promptPct}%`;
+        document.getElementById('token-bar-completion-pct').textContent = `${compPct}%`;
+    }
+
+    function renderUsersTable(users) {
+        const tbody = document.getElementById('users-table-body');
+        if (users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-outline">No users registered yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const roleBadge = u.is_admin ? '<span class="status-badge status-admin">Admin</span>' : '<span class="status-badge status-user">User</span>';
+            const statusBadge = u.status === 'active' ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-pending">Pending</span>';
+            const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString() : '-';
+            const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.username || 'No Name';
+            const initials = fullName[0] || 'U';
+            
+            const avatarHtml = u.avatar_url 
+                ? `<img src="${u.avatar_url}" class="w-7 h-7 rounded-full object-cover">`
+                : `<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container font-bold text-xs flex items-center justify-center">${initials}</div>`;
+
+            // Arabic text localized inside action titles
+            const isAr = getLocale() === 'ar';
+            const roleActionTitle = u.is_admin 
+                ? (isAr ? 'تنزيل إلى مستخدم عادي' : 'Demote to Standard') 
+                : (isAr ? 'ترقية إلى مسؤول' : 'Promote to Admin');
+            const statusActionTitle = u.status === 'active'
+                ? (isAr ? 'تعليق الحساب' : 'Suspend User')
+                : (isAr ? 'تنشيط الحساب' : 'Activate User');
+            const deleteActionTitle = isAr ? 'حذف الحساب نهائياً' : 'Delete Account';
+
+            // Disable admin self demotion/deletion
+            const isSelf = u.email === 'solixagentic@gmail.com' || u.email === 'socilaw715@luxudata.com' || u.email === 'admin@example.com';
+            const disabledAttr = isSelf ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : '';
+
+            return `
+                <tr class="hover:bg-surface-container-high/30 transition-colors">
+                    <td class="py-3 px-4 flex items-center gap-3">
+                        ${avatarHtml}
+                        <div class="font-semibold text-on-surface">${fullName}</div>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-outline">${u.email}</td>
+                    <td class="py-3 px-4 text-outline">${u.job_title || ''} ${u.organization ? `(${u.organization})` : ''}</td>
+                    <td class="py-3 px-4 text-outline">${dateStr}</td>
+                    <td class="py-3 px-4">${roleBadge}</td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                    <td class="py-3 px-4 text-right">
+                        <div class="flex justify-end gap-1.5">
+                            <button onclick="toggleUserRole(${u.id}, ${u.is_admin})" title="${roleActionTitle}" ${disabledAttr} class="p-1 hover:bg-primary-container/20 rounded text-outline hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-base">manage_accounts</span>
+                            </button>
+                            <button onclick="toggleUserStatus(${u.id}, '${u.status}')" title="${statusActionTitle}" ${disabledAttr} class="p-1 hover:bg-secondary-container/20 rounded text-outline hover:text-secondary transition-colors">
+                                <span class="material-symbols-outlined text-base">swap_horiz</span>
+                            </button>
+                            <button onclick="openDeleteModal(${u.id})" title="${deleteActionTitle}" ${disabledAttr} class="p-1 hover:bg-rose-500/10 rounded text-outline hover:text-rose-500 transition-colors">
+                                <span class="material-symbols-outlined text-base">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderJobsTable(jobs) {
+        const tbody = document.getElementById('jobs-table-body-admin');
+        if (jobs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-outline">No system jobs recorded yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = jobs.map(j => {
+            let badge = '';
+            if (j.status === 'completed') badge = '<span class="status-badge status-active">Success</span>';
+            else if (j.status === 'failed') badge = '<span class="status-badge status-failed">Failed</span>';
+            else badge = '<span class="status-badge status-processing">Running</span>';
+
+            const triggerTime = j.created_at ? new Date(j.created_at).toLocaleString() : '-';
+            const isFailed = j.status === 'failed';
+            const detailsText = isFailed 
+                ? `<span class="text-rose-500 font-mono text-[10px] break-all max-w-xs block overflow-hidden truncate" title="${j.error_message || ''}">${j.error_message || 'Unknown failure'}</span>`
+                : `<span class="text-outline font-mono text-[10px]">Row count: ${j.row_count || 0}, Accuracy: ${j.accuracy_rate ? j.accuracy_rate + '%' : 'N/A'}</span>`;
+
+            return `
+                <tr class="hover:bg-surface-container-high/30 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-on-surface">${j.filename || 'Task Run'}</td>
+                    <td class="py-3 px-4 font-mono text-outline">User ID: ${j.user_id || 'N/A'}</td>
+                    <td class="py-3 px-4 font-mono text-outline uppercase">${j.task_type || 'N/A'}</td>
+                    <td class="py-3 px-4 text-outline font-mono">${j.strategy || 'None'}</td>
+                    <td class="py-3 px-4">${badge}</td>
+                    <td class="py-3 px-4 text-outline">${triggerTime}</td>
+                    <td class="py-3 px-4">${detailsText}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderTokensTable(tokens) {
+        const tbody = document.getElementById('tokens-table-body');
+        if (tokens.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-outline">No token usage logged yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = tokens.map(t => {
+            const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleString() : '-';
+            return `
+                <tr class="hover:bg-surface-container-high/30 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-on-surface font-mono">${t.model_name || 'unknown'}</td>
+                    <td class="py-3 px-4 text-outline font-mono uppercase">${t.module_name || 'unknown'}</td>
+                    <td class="py-3 px-4 text-center font-mono text-outline">${t.prompt_tokens ? t.prompt_tokens.toLocaleString() : 0}</td>
+                    <td class="py-3 px-4 text-center font-mono text-outline">${t.completion_tokens ? t.completion_tokens.toLocaleString() : 0}</td>
+                    <td class="py-3 px-4 text-center font-mono font-bold text-primary dark:text-[#bac3ff]">${t.total_tokens ? t.total_tokens.toLocaleString() : 0}</td>
+                    <td class="py-3 px-4 text-right text-outline">${timeStr}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderFeedbacksTable(feedbacks) {
+        const tbody = document.getElementById('feedbacks-table-body');
+        if (feedbacks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-outline">No user feedbacks received yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = feedbacks.map(f => {
+            const timeStr = f.created_at ? new Date(f.created_at).toLocaleString() : '-';
+            const emailAndPhone = `<div>${f.email || ''}</div><div class="text-[10px] text-outline">${f.phone || ''}</div>`;
+            return `
+                <tr class="hover:bg-surface-container-high/30 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-on-surface">${f.name || 'Anonymous'}</td>
+                    <td class="py-3 px-4 font-mono text-outline">${emailAndPhone}</td>
+                    <td class="py-3 px-4 text-on-surface-variant break-all max-w-sm whitespace-pre-wrap">${f.message || ''}</td>
+                    <td class="py-3 px-4 text-right text-outline">${timeStr}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderAuthTable(logs) {
+        const tbody = document.getElementById('auth-table-body');
+        if (logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-outline">No logs recorded yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = logs.map(l => {
+            const timeStr = l.timestamp ? new Date(l.timestamp).toLocaleString() : '-';
+            const statusBadge = l.status === 'success' || l.status === 'info'
+                ? '<span class="status-badge status-active">Success</span>'
+                : '<span class="status-badge status-failed">Failed</span>';
+            return `
+                <tr class="hover:bg-surface-container-high/30 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-on-surface">${l.email || 'System'}</td>
+                    <td class="py-3 px-4 font-mono text-outline font-bold uppercase">${l.action || 'Unknown'}</td>
+                    <td class="py-3 px-4 font-mono text-outline">${l.ip_address || '-'}</td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                    <td class="py-3 px-4 text-outline break-all max-w-xs">${l.details || ''}</td>
+                    <td class="py-3 px-4 text-right text-outline">${timeStr}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderOverviewAuthLogs(logs) {
+        const container = document.getElementById('overview-auth-logs');
+        if (logs.length === 0) {
+            container.innerHTML = `<p class="text-xs text-outline text-center py-8">No auth logs found.</p>`;
+            return;
+        }
+
+        container.innerHTML = logs.map(l => {
+            const actionText = l.action || 'activity';
+            const statusColor = l.status === 'success' || l.status === 'info' ? 'text-emerald-500' : 'text-rose-500';
+            const timeAgoText = l.timestamp ? timeAgo(l.timestamp) : '';
+            return `
+                <div class="flex items-start justify-between text-xs py-2 border-b border-outline-variant/10">
+                    <div>
+                        <span class="font-semibold text-on-surface">${l.email || 'Anonymous'}</span>
+                        <span class="text-outline"> did </span>
+                        <span class="font-mono text-primary font-bold">${actionText}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold ${statusColor}">${l.status}</div>
+                        <div class="text-[10px] text-outline font-mono">${timeAgoText}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function timeAgo(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        const isAr = getLocale() === 'ar';
+        if (seconds < 5) return isAr ? 'الآن' : 'Just now';
+        if (seconds < 60) return isAr ? `منذ ${seconds} ثانية` : `${seconds}s ago`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return isAr ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return isAr ? `منذ ${hours} ساعة` : `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return isAr ? `منذ ${days} يوم` : `${days}d ago`;
+    }
+
+    function filterUsers() {
+        const query = document.getElementById('users-search').value.toLowerCase();
+        const filtered = usersData.filter(u => {
+            const fullName = `${u.first_name || ''} ${u.last_name || ''} ${u.username || ''}`.toLowerCase();
+            return fullName.includes(query) || (u.email && u.email.toLowerCase().includes(query)) || (u.organization && u.organization.toLowerCase().includes(query));
+        });
+        renderUsersTable(filtered);
+    }
+
+    function filterJobs() {
+        const query = document.getElementById('jobs-search').value.toLowerCase();
+        const filtered = jobsData.filter(j => {
+            return (j.filename && j.filename.toLowerCase().includes(query)) || (j.task_type && j.task_type.toLowerCase().includes(query)) || (j.strategy && j.strategy.toLowerCase().includes(query));
+        });
+        renderJobsTable(filtered);
+    }
+
+    // Toggle User Status
+    async function toggleUserStatus(userId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'pending_verification' : 'active';
+        try {
+            const res = await fetch(`/api/admin/users/${userId}/status`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (res.ok) {
+                refreshAllData();
+            } else {
+                const err = await res.json();
+                alert(err.detail || 'Failed to update user status');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Connection error');
+        }
+    }
+
+    // Toggle User Role (Admin / Standard User)
+    async function toggleUserRole(userId, isAdmin) {
+        const newRole = !isAdmin;
+        try {
+            const res = await fetch(`/api/admin/users/${userId}/role`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ is_admin: newRole })
+            });
+            if (res.ok) {
+                refreshAllData();
+            } else {
+                const err = await res.json();
+                alert(err.detail || 'Failed to update user role');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Connection error');
+        }
+    }
+
+    // Delete User Modals
+    function openDeleteModal(userId) {
+        selectedUserIdToDelete = userId;
+        document.getElementById('delete-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        selectedUserIdToDelete = null;
+        document.getElementById('delete-modal').classList.add('hidden');
+    }
+
+    // Confirm Delete
+    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+        if (!selectedUserIdToDelete) return;
+        try {
+            const res = await fetch(`/api/admin/users/${selectedUserIdToDelete}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (res.ok) {
+                closeDeleteModal();
+                refreshAllData();
+            } else {
+                const err = await res.json();
+                alert(err.detail || 'Failed to delete user');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Connection error');
+        }
+    });
+</script>
+{% endblock %}

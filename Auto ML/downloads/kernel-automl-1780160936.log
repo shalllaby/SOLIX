@@ -1,0 +1,33 @@
+[{"stream_name":"stdout","time":18.225366712,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":18.225437494,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":18.225444142,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":18.225468029,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":18.225479154,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1780160936'], Files: []\n"}
+,{"stream_name":"stdout","time":18.23084569,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":18.233422289,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936/X_train.csv']\n"}
+,{"stream_name":"stdout","time":18.233450809,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780160936\n"}
+,{"stream_name":"stdout","time":18.524854347,"data":"Train Shape: (7651, 54) | Task: multiclass\n"}
+,{"stream_name":"stdout","time":18.52490273,"data":"Models scheduled for training: ['LogisticRegression', 'DecisionTree', 'RandomForest', 'LightGBM', 'XGBoost', 'GradientBoosting', 'ExtraTrees']\n"}
+,{"stream_name":"stdout","time":18.52490999,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":24.867674462,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.9525\n"}
+,{"stream_name":"stdout","time":25.025583051,"data":"Training DecisionTree...\n"}
+,{"stream_name":"stdout","time":25.931784389,"data":"  --\u003e DecisionTree Completed | Composite Score: 0.9623\n"}
+,{"stream_name":"stdout","time":26.03377048,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":30.69927883,"data":"  --\u003e RandomForest Completed | Composite Score: 0.9589\n"}
+,{"stream_name":"stdout","time":30.803062472,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":36.052389015,"data":"  --\u003e LightGBM Completed | Composite Score: 0.9595\n"}
+,{"stream_name":"stdout","time":36.158543577,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":40.640362761,"data":"  --\u003e XGBoost Completed | Composite Score: 0.9584\n"}
+,{"stream_name":"stdout","time":40.74623392,"data":"Training GradientBoosting...\n"}
+,{"stream_name":"stdout","time":158.650004209,"data":"  --\u003e GradientBoosting Completed | Composite Score: 0.9571\n"}
+,{"stream_name":"stdout","time":158.75322103,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":160.692862125,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.9528\n"}
+,{"stream_name":"stdout","time":160.798906413,"data":"Winning model 'DecisionTree' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":160.799490601,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":164.374756156,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":164.374840709,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":164.776215772,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":164.776273466,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":165.632230291,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":166.729432081,"data":"[NbConvertApp] Writing 333202 bytes to __results__.html\n"}
+]

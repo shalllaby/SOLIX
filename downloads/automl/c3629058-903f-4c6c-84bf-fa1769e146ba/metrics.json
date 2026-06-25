@@ -1,0 +1,231 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "Tuned_LogisticRegression",
+            "fit_time": 5.71175742149353,
+            "train_metrics": {
+                "accuracy": 0.7523257647429833,
+                "precision": 0.24664085629697108,
+                "recall": 0.7932405566600398,
+                "f1": 0.3762843103191542,
+                "roc_auc": 0.8476294493280756
+            },
+            "val_metrics": {
+                "accuracy": 0.753409807631662,
+                "precision": 0.24814332247557003,
+                "recall": 0.7970286670851643,
+                "f1": 0.37845893983804463,
+                "roc_auc": 0.8470355097762515
+            },
+            "cv_mean": 0.3757391381818708,
+            "cv_std": 0.002095599563196987,
+            "generalization_gap": 0.0,
+            "composite_score": 0.49958363164476927,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "LogisticRegression",
+            "fit_time": 0.6756305694580078,
+            "train_metrics": {
+                "accuracy": 0.752281417533901,
+                "precision": 0.2466459597027304,
+                "recall": 0.7935021450245893,
+                "f1": 0.3763196744699592,
+                "roc_auc": 0.847626258983119
+            },
+            "val_metrics": {
+                "accuracy": 0.7534295175023652,
+                "precision": 0.2481594892175386,
+                "recall": 0.7970286670851643,
+                "f1": 0.37847774244833066,
+                "roc_auc": 0.8470311524183178
+            },
+            "cv_mean": 0.3757033229663009,
+            "cv_std": 0.002174667561076944,
+            "generalization_gap": 0.0,
+            "composite_score": 0.49949775860477574,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_ExtraTrees",
+            "fit_time": 102.65658950805664,
+            "train_metrics": {
+                "accuracy": 0.7794908940397351,
+                "precision": 0.28101884278319694,
+                "recall": 0.8606257193680025,
+                "f1": 0.42369061570359684,
+                "roc_auc": 0.8993355352443442
+            },
+            "val_metrics": {
+                "accuracy": 0.7623383790602334,
+                "precision": 0.25134932021589124,
+                "recall": 0.7698263234986399,
+                "f1": 0.37896580140090647,
+                "roc_auc": 0.8445696139904026
+            },
+            "cv_mean": 0.38052677167611426,
+            "cv_std": 0.001450748954134005,
+            "generalization_gap": 0.044724814302690374,
+            "composite_score": 0.48734628027667426,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "Tuned_XGBoost",
+            "fit_time": 12.255113363265991,
+            "train_metrics": {
+                "accuracy": 0.7487632056133712,
+                "precision": 0.24997254428215065,
+                "recall": 0.8335774824735795,
+                "f1": 0.38460888561669465,
+                "roc_auc": 0.8653442372816129
+            },
+            "val_metrics": {
+                "accuracy": 0.7441461684011353,
+                "precision": 0.2423671315491896,
+                "recall": 0.8072818581293157,
+                "f1": 0.3728076532830845,
+                "roc_auc": 0.8495452455003073
+            },
+            "cv_mean": 0.372783698417545,
+            "cv_std": 0.001160990551543642,
+            "generalization_gap": 0.011801232333610134,
+            "composite_score": 0.4820755501287082,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "XGBoost",
+            "fit_time": 1.3861079216003418,
+            "train_metrics": {
+                "accuracy": 0.7519660596026491,
+                "precision": 0.25284572152299534,
+                "recall": 0.8355655540441561,
+                "f1": 0.38821570510093706,
+                "roc_auc": 0.867559715416904
+            },
+            "val_metrics": {
+                "accuracy": 0.7455652790917692,
+                "precision": 0.24246071971616828,
+                "recall": 0.8007951454279137,
+                "f1": 0.3722219520497982,
+                "roc_auc": 0.8459732774302067
+            },
+            "cv_mean": 0.37084933757973637,
+            "cv_std": 0.0014984841192793124,
+            "generalization_gap": 0.01599375305113887,
+            "composite_score": 0.4807300317325345,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "ExtraTrees",
+            "fit_time": 7.765497446060181,
+            "train_metrics": {
+                "accuracy": 0.7516112819299905,
+                "precision": 0.2526126069153057,
+                "recall": 0.8359317777545254,
+                "f1": 0.38798033145146604,
+                "roc_auc": 0.8699837859042089
+            },
+            "val_metrics": {
+                "accuracy": 0.7444418164616841,
+                "precision": 0.24132701421800948,
+                "recall": 0.7991211550533585,
+                "f1": 0.3707047175305766,
+                "roc_auc": 0.8445348666789393
+            },
+            "cv_mean": 0.3707063671876285,
+            "cv_std": 0.0018745778730779033,
+            "generalization_gap": 0.017275613920889443,
+            "composite_score": 0.4796898560142041,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "LightGBM",
+            "fit_time": 1.8302984237670898,
+            "train_metrics": {
+                "accuracy": 0.7396030432040366,
+                "precision": 0.24248809087577866,
+                "recall": 0.8309092811551743,
+                "f1": 0.3754166174211086,
+                "roc_auc": 0.8581564303656612
+            },
+            "val_metrics": {
+                "accuracy": 0.7381740775780511,
+                "precision": 0.2395737644681242,
+                "recall": 0.8185812931575643,
+                "f1": 0.3706651506537806,
+                "roc_auc": 0.8501359156466134
+            },
+            "cv_mean": 0.36966818463573387,
+            "cv_std": 0.001806319225635256,
+            "generalization_gap": 0.004751466767328016,
+            "composite_score": 0.4793270148901705,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "GradientBoosting",
+            "fit_time": 26.84030556678772,
+            "train_metrics": {
+                "accuracy": 0.9085511274046042,
+                "precision": 0.5692883895131086,
+                "recall": 0.11928429423459244,
+                "f1": 0.19724036506769324,
+                "roc_auc": 0.8520467827403145
+            },
+            "val_metrics": {
+                "accuracy": 0.90740302743614,
+                "precision": 0.5407035175879397,
+                "recall": 0.11257585268884704,
+                "f1": 0.18635261517145826,
+                "roc_auc": 0.8505060383715313
+            },
+            "cv_mean": 0.191119308362795,
+            "cv_std": 0.006062091269425582,
+            "generalization_gap": 0.010887749896234977,
+            "composite_score": 0.32992667814427573,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "LogisticRegression": "completed",
+        "ExtraTrees": "completed",
+        "GradientBoosting": "completed",
+        "XGBoost": "completed",
+        "LightGBM": "completed",
+        "Tuned_LogisticRegression": "completed",
+        "Tuned_XGBoost": "completed",
+        "Tuned_ExtraTrees": "completed"
+    },
+    "model_errors": {}
+}

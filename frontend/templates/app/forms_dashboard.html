@@ -1,45 +1,45 @@
 {% extends "app/_layout.html" %}
 
-{% block page_title %}Forms Dashboard{% endblock %}
-{% block page_title_text %}AI Forms Engine{% endblock %}
-{% block breadcrumb %}SOL / AI Forms{% endblock %}
+{% block page_title %}{% if locale == 'ar' %}لوحة تحكم النماذج{% else %}Forms Dashboard{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}محرك النماذج الذكي{% else %}AI Forms Engine{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / نماذج الذكاء الاصطناعي{% else %}SOL / AI Forms{% endif %}{% endblock %}
 
 {% block head %}
 <style>
     .glass-card { 
-        background: rgba(26, 28, 41, 0.6); 
+        background: var(--surface-container-low); 
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(68, 70, 85, 0.4); 
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 32px -8px rgba(0,0,0,0.5);
+        border: 1px solid var(--outline-variant); 
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 32px -8px rgba(0,0,0,0.15);
     }
     .btn-gradient { 
-        background: linear-gradient(135deg, #4361ee, #7b2ff7); 
-        color: white; 
+        background: linear-gradient(135deg, var(--primary), var(--tertiary)); 
+        color: var(--on-primary, white); 
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        box-shadow: 0 4px 15px -3px rgba(67, 97, 238, 0.4);
+        box-shadow: 0 4px 15px -3px rgba(67, 97, 238, 0.2);
     }
     .btn-gradient:hover { 
         filter: brightness(1.15); 
         transform: translateY(-2px); 
-        box-shadow: 0 8px 25px -4px rgba(123, 47, 247, 0.5);
+        box-shadow: 0 8px 25px -4px rgba(123, 47, 247, 0.3);
     }
     .input-field { 
-        background-color: rgba(11, 13, 26, 0.5) !important; 
-        border: 1px solid rgba(68, 70, 85, 0.6) !important; 
-        color: white !important; 
+        background-color: var(--surface-container-lowest) !important; 
+        border: 1px solid var(--outline-variant) !important; 
+        color: var(--on-surface) !important; 
         transition: all 0.2s ease;
     }
     .input-field:focus { 
-        border-color: #5bd5fc !important; 
+        border-color: var(--primary) !important; 
         outline: none; 
-        box-shadow: 0 0 0 3px rgba(91, 213, 252, 0.15) !important; 
-        background-color: rgba(11, 13, 26, 0.8) !important;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15) !important; 
+        background-color: var(--surface-container-lowest) !important;
     }
     .glow-accent { position: relative; }
     .glow-accent::before {
         content: ''; position: absolute; inset: -1px; border-radius: 0.75rem;
-        background: linear-gradient(135deg, rgba(67,97,238,0.5), rgba(123,47,247,0.5));
+        background: linear-gradient(135deg, rgba(67,97,238,0.3), rgba(123,47,247,0.3));
         z-index: -1; filter: blur(10px); opacity: 0; transition: opacity 0.3s ease;
     }
     .glow-accent:hover::before { opacity: 1; }
@@ -47,8 +47,27 @@
     /* Custom Scrollbar for inner elements */
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(68,70,85,0.5); border-radius: 10px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(67,97,238,0.5); }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    /* Visual Question Type picker styling */
+    .q-type-btn {
+        border: 1px solid var(--outline-variant);
+        background: var(--surface-container-lowest);
+        color: var(--on-surface-variant);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .q-type-btn:hover {
+        border-color: var(--primary);
+        background: var(--surface-container-high);
+        color: var(--on-surface);
+    }
+    .q-type-btn.active {
+        border-color: var(--primary) !important;
+        background: var(--primary-container) !important;
+        color: var(--on-primary-container) !important;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.15);
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -57,13 +76,17 @@
 {% block content %}
 <div class="mb-8 flex items-start justify-between">
     <div>
-        <h1 class="text-3xl font-headline font-black text-white tracking-tight">AI Form <span class="bg-gradient-to-r from-[#5bd5fc] to-[#4361ee] bg-clip-text text-transparent">Engine</span> ✨</h1>
-        <p class="text-on-surface-variant mt-2 font-body max-w-2xl">Design intelligent data-collection schemas and gather real-time analytical feedback powered by SOL's Data Intelligence framework.</p>
+        <h1 class="text-3xl font-headline font-black text-on-surface tracking-tight">
+            {% if locale == 'ar' %}محرك <span class="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">النماذج الذكي</span> ✨{% else %}AI Form <span class="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Engine</span> ✨{% endif %}
+        </h1>
+        <p class="text-on-surface-variant mt-2 font-body max-w-2xl">
+            {% if locale == 'ar' %}قم بتصميم مخططات ذكية لجمع البيانات وجمع التحليلات والآراء المباشرة والمدعومة بإطار عمل SOL لتحليل البيانات.{% else %}Design intelligent data-collection schemas and gather real-time analytical feedback powered by SOL's Data Intelligence framework.{% endif %}
+        </p>
     </div>
     <div class="flex flex-col items-end">
-         <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20">
+         <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-surface-container-high text-secondary border border-secondary">
              <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-             Engine Online
+             {% if locale == 'ar' %}المحرك متصل{% else %}Engine Online{% endif %}
          </span>
     </div>
 </div>
@@ -74,12 +97,12 @@
     <div class="xl:col-span-7 glass-card rounded-2xl p-7 flex flex-col h-full overflow-hidden">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4361ee] to-[#7b2ff7] flex items-center justify-center shadow-lg">
-                    <span class="material-symbols-outlined text-white">draw</span>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-tertiary flex items-center justify-center shadow-lg">
+                    <span class="material-symbols-outlined text-on-primary">draw</span>
                 </div>
                 <div>
-                    <h2 id="designerTitle" class="text-xl font-bold text-white">Schema Designer</h2>
-                    <p id="designerSubtitle" class="text-xs text-outline font-mono uppercase tracking-wider">Build dynamic structures</p>
+                    <h2 id="designerTitle" class="text-xl font-bold text-on-surface">{% if locale == 'ar' %}مصمم المخطط{% else %}Schema Designer{% endif %}</h2>
+                    <p id="designerSubtitle" class="text-xs text-outline font-mono uppercase tracking-wider">{% if locale == 'ar' %}بناء هياكل ديناميكية للبيانات{% else %}Build dynamic structures{% endif %}</p>
                 </div>
             </div>
         </div>
@@ -87,20 +110,20 @@
         <div class="flex-grow overflow-y-auto custom-scroll pr-2 space-y-6">
             
             <!-- Metadata Section -->
-            <div class="p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 relative overflow-hidden group">
+            <div class="p-5 rounded-xl bg-surface-container-lowest border border-outline-variant relative overflow-hidden group">
                 <div class="absolute -right-10 -top-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
-                <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <h3 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-sm">tune</span> 
-                    Form Metadata
+                    {% if locale == 'ar' %}بيانات النموذج التعريفية{% else %}Form Metadata{% endif %}
                 </h3>
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Title</label>
-                        <input type="text" id="formTitle" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="e.g. Automated User Feedback">
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}العنوان{% else %}Title{% endif %}</label>
+                        <input type="text" id="formTitle" oninput="validateFormSchema()" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="{% if locale == 'ar' %}مثال: تقييمات المستخدمين التلقائية{% else %}e.g. Automated User Feedback{% endif %}">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Target Objective</label>
-                        <textarea id="formDesc" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" rows="2" placeholder="Describe the semantic goal of this data collection..."></textarea>
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}الهدف المستهدف{% else %}Target Objective{% endif %}</label>
+                        <textarea id="formDesc" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" rows="2" placeholder="{% if locale == 'ar' %}صف الهدف الدلالي لجمع هذه البيانات...{% else %}Describe the semantic goal of this data collection...{% endif %}"></textarea>
                     </div>
                 </div>
             </div>
@@ -108,45 +131,65 @@
             <!-- Questions List -->
             <div id="questionsContainer" class="space-y-3">
                 <!-- Dynamic questions populated here -->
-                <div id="emptyQuestionsState" class="text-center py-8 px-4 border border-dashed border-outline-variant/30 rounded-xl">
+                <div id="emptyQuestionsState" class="text-center py-8 px-4 border border-dashed border-outline-variant rounded-xl">
                     <span class="material-symbols-outlined text-outline/50 text-4xl mb-2">fact_check</span>
-                    <p class="text-sm text-outline">No nodes added to the schema yet.</p>
+                    <p class="text-sm text-outline">{% if locale == 'ar' %}لم يتم إضافة أي حقول إلى المخطط بعد.{% else %}No nodes added to the schema yet.{% endif %}</p>
                 </div>
             </div>
             
             <!-- Add new question area -->
-            <div class="p-5 rounded-xl bg-gradient-to-br from-surface-container-lowest to-surface-container border border-outline-variant/40">
+            <div class="p-5 rounded-xl bg-gradient-to-br from-surface-container-lowest to-surface-container border border-outline-variant">
                 <h3 class="text-sm font-bold text-primary mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-sm">add_circle</span> 
-                    Inject Data Node
+                    {% if locale == 'ar' %}إدراج حقل بيانات جديد{% else %}Inject Data Node{% endif %}
                 </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                    <div class="sm:col-span-8">
-                        <input type="text" id="qText" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="Define inquiry parameter...">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}معامل الاستعلام / تسمية السؤال{% else %}Inquiry Parameter / Question Label{% endif %}</label>
+                        <input type="text" id="qText" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" placeholder="{% if locale == 'ar' %}حدد معامل الاستعلام...{% else %}Define inquiry parameter...{% endif %}">
                     </div>
-                    <div class="sm:col-span-4">
-                        <select id="qType" class="w-full input-field rounded-lg px-4 py-2.5 text-sm" onchange="toggleOptionsField()">
-                            <option value="Short Answer">Short Text</option>
-                            <option value="Paragraph">Long Text</option>
-                            <option value="Multiple Choice">Categorical (Multiple Choice)</option>
-                            <option value="Rating">Sentiment (1-5 Rating)</option>
-                        </select>
-                    </div>
-                    <div id="optionsDiv" class="sm:col-span-12 hidden">
-                        <div class="flex gap-2 mb-3">
-                            <input type="text" id="optionInput" class="flex-grow input-field rounded-lg px-4 py-2.5 text-sm border-secondary/50 focus:border-secondary" placeholder="Enter option text...">
-                            <button type="button" onclick="addOptionToList()" class="px-4 py-2.5 rounded-lg bg-secondary/20 hover:bg-secondary/30 text-secondary border border-secondary/40 transition-all font-bold text-xs uppercase flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">add</span> Add
+                    <div>
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}اختر نوع السؤال{% else %}Select Question Type{% endif %}</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <!-- Short Answer -->
+                            <button type="button" onclick="selectQuestionType('Short Answer', this)" class="q-type-btn active flex flex-col items-center justify-center p-3.5 rounded-xl border border-primary bg-primary-container text-on-primary-container transition-all hover:brightness-95 text-center gap-1.5">
+                                <span class="material-symbols-outlined text-lg text-primary">short_text</span>
+                                <span class="text-xs font-bold">{% if locale == 'ar' %}نص قصير{% else %}Short Text{% endif %}</span>
+                            </button>
+                            <!-- Paragraph -->
+                            <button type="button" onclick="selectQuestionType('Paragraph', this)" class="q-type-btn flex flex-col items-center justify-center p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-outline hover:text-on-surface transition-all hover:bg-surface-container text-center gap-1.5">
+                                <span class="material-symbols-outlined text-lg">notes</span>
+                                <span class="text-xs font-bold">{% if locale == 'ar' %}نص طويل{% else %}Long Text{% endif %}</span>
+                            </button>
+                            <!-- Multiple Choice -->
+                            <button type="button" onclick="selectQuestionType('Multiple Choice', this)" class="q-type-btn flex flex-col items-center justify-center p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-outline hover:text-on-surface transition-all hover:bg-surface-container text-center gap-1.5">
+                                <span class="material-symbols-outlined text-lg">radio_button_checked</span>
+                                <span class="text-xs font-bold">{% if locale == 'ar' %}خيارات متعددة{% else %}Categorical{% endif %}</span>
+                            </button>
+                            <!-- Rating -->
+                            <button type="button" onclick="selectQuestionType('Rating', this)" class="q-type-btn flex flex-col items-center justify-center p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-outline hover:text-on-surface transition-all hover:bg-surface-container text-center gap-1.5">
+                                <span class="material-symbols-outlined text-lg">star_rate</span>
+                                <span class="text-xs font-bold">{% if locale == 'ar' %}تقييم (1-5){% else %}Sentiment (1-5){% endif %}</span>
                             </button>
                         </div>
-                        <div id="optionLabels" class="flex flex-wrap gap-2 p-3 rounded-xl bg-surface-container-lowest/50 border border-outline-variant/20 min-h-[50px]">
-                            <p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">No options defined</p>
+                        <input type="hidden" id="qType" value="Short Answer">
+                    </div>
+                    <div id="optionsDiv" class="hidden">
+                        <label class="block text-xs font-bold text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}خيارات الفئات (اضغط Enter أو فاصلة للإضافة){% else %}Categorical Options (Press Enter or Comma to add){% endif %}</label>
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="optionInput" class="flex-grow input-field rounded-lg px-4 py-2.5 text-sm border-secondary/50 focus:border-secondary" placeholder="{% if locale == 'ar' %}أدخل نص الخيار...{% else %}Enter option text...{% endif %}">
+                            <button type="button" onclick="addOptionToList()" class="px-4 py-2.5 rounded-lg bg-secondary text-on-secondary hover:brightness-105 transition-all font-bold text-xs uppercase flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add</span> {% if locale == 'ar' %}إضافة{% else %}Add{% endif %}
+                            </button>
+                        </div>
+                        <div id="optionLabels" class="flex flex-wrap gap-2 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant min-h-[50px]">
+                            <p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">{% if locale == 'ar' %}لم يتم تحديد خيارات{% else %}No options defined{% endif %}</p>
                         </div>
                     </div>
-                    <div class="sm:col-span-12 mt-2">
-                        <button type="button" onclick="addQuestion()" class="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-bold border border-white/10 transition-colors flex justify-center items-center gap-2">
+                    <div class="mt-2">
+                        <button type="button" onclick="addQuestion()" class="w-full py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-sm font-bold border border-outline-variant transition-colors flex justify-center items-center gap-2">
                             <span class="material-symbols-outlined text-sm">playlist_add</span>
-                            Append Node to Schema
+                            {% if locale == 'ar' %}إرفاق الحقل بالمخطط{% else %}Append Node to Schema{% endif %}
                         </button>
                     </div>
                 </div>
@@ -154,10 +197,31 @@
             
         </div>
         
-        <div class="pt-5 border-t border-outline-variant/30 mt-4 flex-shrink-0">
+        <div class="pt-5 border-t border-outline-variant mt-4 flex-shrink-0">
+            <!-- Interactive Validation Panel -->
+            <div class="mb-4 p-4 rounded-xl bg-surface-container-lowest border border-outline-variant text-xs space-y-3">
+                <h4 class="font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-[#5bd5fc]">task_alt</span>
+                    {% if locale == 'ar' %}قائمة مراجعة جاهزية النشر{% else %}Deployment Readiness Checklist{% endif %}
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div id="checkTitle" class="flex items-center gap-2 text-outline">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                        <span>{% if locale == 'ar' %}عنوان البيانات التعريفية{% else %}Metadata Title{% endif %}</span>
+                    </div>
+                    <div id="checkNodes" class="flex items-center gap-2 text-outline">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                        <span>{% if locale == 'ar' %}حقول البيانات النشطة{% else %}Active Data Nodes{% endif %}</span>
+                    </div>
+                    <div id="checkOptions" class="flex items-center gap-2 text-outline">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                        <span>{% if locale == 'ar' %}تكوين الفئات{% else %}Categorical Config{% endif %}</span>
+                    </div>
+                </div>
+            </div>
             <button type="button" id="saveBtn" onclick="saveForm()" class="btn-gradient w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                 <span class="material-symbols-outlined">rocket_launch</span>
-                Compile & Deploy Live Route
+                {% if locale == 'ar' %}ترجمة ونشر الرابط المباشر{% else %}Compile & Deploy Live Route{% endif %}
             </button>
         </div>
     </div>
@@ -166,15 +230,15 @@
     <div class="xl:col-span-5 glass-card rounded-2xl p-7 flex flex-col h-full overflow-hidden">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00a3c8] to-[#5bd5fc] flex items-center justify-center shadow-lg">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-secondary to-primary flex items-center justify-center shadow-lg">
                     <span class="material-symbols-outlined text-on-secondary text-lg">database</span>
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-white">Live Interfaces</h2>
-                    <p class="text-xs text-outline font-mono uppercase tracking-wider">Active collection endpoints</p>
+                    <h2 class="text-xl font-bold text-on-surface">{% if locale == 'ar' %}الواجهات المباشرة{% else %}Live Interfaces{% endif %}</h2>
+                    <p class="text-xs text-outline font-mono uppercase tracking-wider">{% if locale == 'ar' %}روابط جمع البيانات النشطة{% else %}Active collection endpoints{% endif %}</p>
                 </div>
             </div>
-            <button onclick="fetchForms()" class="text-outline hover:text-white transition-colors" title="Refresh">
+            <button onclick="fetchForms()" class="text-outline hover:text-on-surface transition-colors" title="Refresh">
                 <span class="material-symbols-outlined">refresh</span>
             </button>
         </div>
@@ -183,7 +247,7 @@
             <!-- Forms populated here -->
             <div class="flex flex-col items-center justify-center h-full text-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary mx-auto mb-4"></div>
-                <p class="text-sm text-outline">Querying active schemas...</p>
+                <p class="text-sm text-outline">{% if locale == 'ar' %}جاري الاستعلام عن المخططات النشطة...{% else %}Querying active schemas...{% endif %}</p>
             </div>
         </div>
     </div>
@@ -191,7 +255,7 @@
 </div>
 
 <!-- Pop-up Notification System -->
-<div id="notification" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-surface-container-high border border-outline-variant/50 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50">
+<div id="notification" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-surface-container-high border border-outline-variant/50 text-on-surface px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50">
     <span id="notifIcon" class="material-symbols-outlined">info</span>
     <span id="notifText" class="text-sm font-medium"></span>
 </div>
@@ -228,15 +292,36 @@
         }, 4000);
     }
 
+    function selectQuestionType(type, element) {
+        document.getElementById("qType").value = type;
+        document.querySelectorAll(".q-type-btn").forEach(btn => {
+            btn.classList.remove("active");
+            btn.classList.add("border-outline-variant/30", "bg-surface-container-lowest", "text-outline");
+            btn.querySelector("span:first-child").classList.remove("text-primary");
+        });
+        element.classList.add("active");
+        element.classList.remove("border-outline-variant/30", "bg-surface-container-lowest", "text-outline");
+        element.querySelector("span:first-child").classList.add("text-primary");
+        toggleOptionsField();
+        validateFormSchema();
+    }
+
     function toggleOptionsField() {
         const type = document.getElementById("qType").value;
         const optsDiv = document.getElementById("optionsDiv");
         const optionInput = document.getElementById("optionInput");
+        const isAr = getLocale() === 'ar';
         
         if(type === "Multiple Choice") {
             optsDiv.classList.remove("hidden");
-            // Add enter key listener
+            // Add enter and comma key listeners
             if(!optionInput.dataset.listener) {
+                optionInput.addEventListener("input", (e) => {
+                    if(optionInput.value.endsWith(",")) {
+                        optionInput.value = optionInput.value.slice(0, -1);
+                        addOptionToList();
+                    }
+                });
                 optionInput.addEventListener("keydown", (e) => {
                     if(e.key === "Enter") {
                         e.preventDefault();
@@ -254,32 +339,35 @@
     }
 
     function addOptionToList() {
+        const isAr = getLocale() === 'ar';
         const input = document.getElementById("optionInput");
         const val = input.value.trim();
         if(!val) return;
         if(currentOptions.includes(val)) {
-            showNotification("Option already exists.", "error");
+            showNotification(isAr ? "الخيار موجود بالفعل." : "Option already exists.", "error");
             return;
         }
         currentOptions.push(val);
         input.value = "";
         renderOptionLabels();
+        validateFormSchema();
     }
 
     function renderOptionLabels() {
         const container = document.getElementById("optionLabels");
+        const isAr = getLocale() === 'ar';
         container.innerHTML = "";
         if(currentOptions.length === 0) {
-            container.innerHTML = `<p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">No options defined</p>`;
+            container.innerHTML = `<p id="noOptionsHint" class="text-[10px] text-outline uppercase tracking-widest flex items-center justify-center w-full opacity-50">${isAr ? "لم يتم تحديد خيارات" : "No options defined"}</p>`;
             return;
         }
         currentOptions.forEach((opt, idx) => {
             const span = document.createElement("span");
-            span.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/10 border border-secondary/30 text-secondary text-xs font-medium animate-in fade-in zoom-in duration-200";
+            span.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/15 border border-secondary/35 text-secondary text-xs font-bold animate-in fade-in zoom-in duration-200 shadow-sm shadow-secondary/5";
             span.innerHTML = `
                 ${opt}
-                <button type="button" onclick="removeOptionFromList(${idx})" class="hover:text-white transition-colors">
-                    <span class="material-symbols-outlined text-[14px]">close</span>
+                <button type="button" onclick="removeOptionFromList(${idx})" class="hover:text-white transition-colors ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-secondary/20 hover:bg-secondary/40">
+                    <span class="material-symbols-outlined text-[10px] font-bold">close</span>
                 </button>
             `;
             container.appendChild(span);
@@ -289,20 +377,22 @@
     function removeOptionFromList(idx) {
         currentOptions.splice(idx, 1);
         renderOptionLabels();
+        validateFormSchema();
     }
 
     function addQuestion() {
         const text = document.getElementById("qText").value.trim();
         const type = document.getElementById("qType").value;
+        const isAr = getLocale() === 'ar';
         
         if(!text) {
-            showNotification("Please define inquiry parameter.", "error"); return;
+            showNotification(isAr ? "يرجى تحديد معامل الاستعلام." : "Please define inquiry parameter.", "error"); return;
         }
         
         const qData = { question: text, type: type };
         if(type === "Multiple Choice") {
             if(currentOptions.length === 0) {
-                showNotification("Provide at least one categorical option.", "error"); return;
+                showNotification(isAr ? "يرجى تقديم خيار فئة واحد على الأقل." : "Provide at least one categorical option.", "error"); return;
             }
             qData.options = [...currentOptions];
         }
@@ -310,15 +400,105 @@
         tempQuestions.push(qData);
         renderQuestions();
         
-        // Reset Inputs
+        // Reset Inputs and visual type back to Short Answer
         document.getElementById("qText").value = "";
         currentOptions = [];
         renderOptionLabels();
+        
+        // Reset Visual Question Type picker active state to Short Text
+        const firstTypeBtn = document.querySelector(".q-type-btn");
+        if(firstTypeBtn) {
+            selectQuestionType('Short Answer', firstTypeBtn);
+        }
+    }
+
+    function validateFormSchema() {
+        const title = document.getElementById("formTitle").value.trim();
+        const checkTitle = document.getElementById("checkTitle");
+        const checkNodes = document.getElementById("checkNodes");
+        const checkOptions = document.getElementById("checkOptions");
+        const saveBtn = document.getElementById("saveBtn");
+        const isAr = getLocale() === 'ar';
+        
+        let titleValid = title.length > 0;
+        let nodesValid = tempQuestions.length > 0;
+        
+        // Categorical check: all Multiple Choice questions must have at least 1 option
+        let optionsValid = true;
+        let hasMultipleChoice = false;
+        tempQuestions.forEach(q => {
+            if(q.type === "Multiple Choice") {
+                hasMultipleChoice = true;
+                if(!q.options || q.options.length === 0) {
+                    optionsValid = false;
+                }
+            }
+        });
+        
+        // Update Metadata Title Check Badge
+        if (titleValid) {
+            if(checkTitle) {
+                checkTitle.className = "flex items-center gap-2 text-green-400 font-bold transition-all";
+                checkTitle.querySelector("span:first-child").textContent = "check_circle";
+            }
+        } else {
+            if(checkTitle) {
+                checkTitle.className = "flex items-center gap-2 text-outline transition-all";
+                checkTitle.querySelector("span:first-child").textContent = "cancel";
+            }
+        }
+        
+        // Update Nodes Check Badge
+        if (nodesValid) {
+            if(checkNodes) {
+                checkNodes.className = "flex items-center gap-2 text-green-400 font-bold transition-all";
+                checkNodes.querySelector("span:first-child").textContent = "check_circle";
+            }
+        } else {
+            if(checkNodes) {
+                checkNodes.className = "flex items-center gap-2 text-outline transition-all";
+                checkNodes.querySelector("span:first-child").textContent = "cancel";
+            }
+        }
+        
+        // Update Options Check Badge
+        if (!hasMultipleChoice || optionsValid) {
+            if(checkOptions) {
+                checkOptions.className = "flex items-center gap-2 text-green-400 font-bold transition-all";
+                checkOptions.querySelector("span:first-child").textContent = "check_circle";
+                if (hasMultipleChoice) {
+                    checkOptions.querySelector("span:last-child").textContent = isAr ? "تم تكوين حقول الفئات" : "Categorical nodes configured";
+                } else {
+                    checkOptions.querySelector("span:last-child").textContent = isAr ? "لا توجد أخطاء في الفئات" : "No categorical errors";
+                }
+            }
+        } else {
+            if(checkOptions) {
+                checkOptions.className = "flex items-center gap-2 text-red-400 font-bold transition-all";
+                checkOptions.querySelector("span:first-child").textContent = "cancel";
+                checkOptions.querySelector("span:last-child").textContent = isAr ? "حقل الفئات يفتقر إلى خيارات" : "Categorical node lacks options";
+            }
+        }
+        
+        const allValid = titleValid && nodesValid && optionsValid;
+        
+        if (allValid) {
+            if(saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                saveBtn.classList.add("shadow-[0_0_20px_rgba(67,97,238,0.5)]");
+            }
+        } else {
+            if(saveBtn) {
+                saveBtn.classList.remove("shadow-[0_0_20px_rgba(67,97,238,0.5)]");
+            }
+        }
     }
 
     function renderQuestions() {
         const container = document.getElementById("questionsContainer");
         const emptyState = document.getElementById("emptyQuestionsState");
+        const isAr = getLocale() === 'ar';
         
         // Clear all except empty state if we want to keep it
         container.innerHTML = "";
@@ -327,7 +507,8 @@
             if(emptyState) container.appendChild(emptyState);
             else container.innerHTML = `<div id="emptyQuestionsState" class="text-center py-8 px-4 border border-dashed border-outline-variant/30 rounded-xl">
                 <span class="material-symbols-outlined text-outline/50 text-4xl mb-2">fact_check</span>
-                <p class="text-sm text-outline">No nodes added to the schema yet.</p></div>`;
+                <p class="text-sm text-outline">${isAr ? "لم يتم إضافة أي حقول إلى المخطط بعد." : "No nodes added to the schema yet."}</p></div>`;
+            validateFormSchema();
             return;
         }
         
@@ -336,15 +517,28 @@
             div.className = "group bg-surface-container-lowest border border-outline-variant/30 hover:border-primary/50 transition-all p-4 rounded-xl flex justify-between items-start";
             
             let icon = 'short_text';
-            if(q.type === 'Paragraph') icon = 'notes';
-            if(q.type === 'Multiple Choice') icon = 'radio_button_checked';
-            if(q.type === 'Rating') icon = 'star_rate';
-
+            let displayType = q.type;
+            if(q.type === 'Paragraph') {
+                icon = 'notes';
+                if (isAr) displayType = 'نص طويل';
+            }
+            if(q.type === 'Multiple Choice') {
+                icon = 'radio_button_checked';
+                if (isAr) displayType = 'خيارات متعددة';
+            }
+            if(q.type === 'Rating') {
+                icon = 'star_rate';
+                if (isAr) displayType = 'تقييم';
+            }
+            if(q.type === 'Short Answer' && isAr) {
+                displayType = 'نص قصير';
+            }
+ 
             let typeBadge = `<span class="inline-flex items-center gap-1 text-[10px] uppercase font-mono tracking-wider bg-outline-variant/20 text-on-surface-variant px-2 py-0.5 rounded">
-                <span class="material-symbols-outlined text-[12px]">${icon}</span> ${q.type}
+                <span class="material-symbols-outlined text-[12px]">${icon}</span> ${displayType}
             </span>`;
             
-            let label = `<div class="mb-1 text-sm font-bold text-white flex items-center gap-2"><span class="text-primary">${i+1}.</span> ${q.question}</div> ${typeBadge}`;
+            let label = `<div class="mb-1 text-sm font-bold text-on-surface flex items-center gap-2"><span class="text-primary">${i+1}.</span> ${q.question}</div> ${typeBadge}`;
             
             if(q.type === "Multiple Choice") {
                 label += `<div class="mt-3 flex flex-wrap gap-2">
@@ -360,6 +554,7 @@
             `;
             container.appendChild(div);
         });
+        validateFormSchema();
     }
 
     function removeQuestion(index) {
@@ -370,14 +565,15 @@
     async function saveForm() {
         const title = document.getElementById("formTitle").value.trim();
         const desc = document.getElementById("formDesc").value.trim();
+        const isAr = getLocale() === 'ar';
         
-        if(!title) { showNotification("Dataset title required.", "error"); return; }
-        if(tempQuestions.length === 0) { showNotification("Add at least one node to schema.", "error"); return; }
+        if(!title) { showNotification(isAr ? "عنوان قاعدة البيانات مطلوب." : "Dataset title required.", "error"); return; }
+        if(tempQuestions.length === 0) { showNotification(isAr ? "أضف حقلًا واحدًا على الأقل إلى المخطط." : "Add at least one node to schema.", "error"); return; }
         
         try {
             const btn = document.getElementById('saveBtn');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> Compiling...`;
+            btn.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-on-primary"></div> ` + (isAr ? 'جاري الترجمة...' : 'Compiling...');
             btn.disabled = true;
 
             let res;
@@ -387,7 +583,7 @@
                     description: desc,
                     questions: tempQuestions
                 });
-                showNotification(`Schema updated successfully!`, "success");
+                showNotification(isAr ? `تم تحديث المخطط بنجاح!` : `Schema updated successfully!`, "success");
                 cancelEdit();
             } else {
                 res = await axios.post("/api/forms", {
@@ -395,7 +591,7 @@
                     description: desc,
                     questions: tempQuestions
                 });
-                showNotification(`Deployment successful! Endpoint active.`, "success");
+                showNotification(isAr ? `تم النشر بنجاح! الرابط نشط الآن.` : `Deployment successful! Endpoint active.`, "success");
                 
                 // reset form
                 document.getElementById("formTitle").value = "";
@@ -410,14 +606,15 @@
             btn.disabled = false;
         } catch(e) {
             console.error(e);
-            showNotification("Compile error: Check logs.", "error");
-            const btn = document.querySelector('.btn-gradient');
+            showNotification(isAr ? "خطأ في الترجمة: تحقق من السجلات." : "Compile error: Check logs.", "error");
+            const btn = document.getElementById('saveBtn');
             btn.disabled = false;
-            btn.innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Compile & Deploy Live Route`;
+            btn.innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> ` + (isAr ? "ترجمة ونشر الرابط المباشر" : "Compile & Deploy Live Route");
         }
     }
 
     async function fetchForms() {
+        const isAr = getLocale() === 'ar';
         try {
             const res = await axios.get("/api/forms");
             const forms = res.data.forms;
@@ -428,7 +625,7 @@
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full text-center opacity-50">
                         <span class="material-symbols-outlined text-4xl mb-3">cloud_off</span>
-                        <p class="text-sm">No active endpoints.</p>
+                        <p class="text-sm text-outline">${isAr ? "لا توجد روابط نشطة." : "No active endpoints."}</p>
                     </div>`;
                 return;
             }
@@ -438,38 +635,38 @@
                 const date = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
                 container.innerHTML += `
-                    <div class="bg-surface-container-lowest hover:bg-surface-container transition-colors border border-outline-variant/30 hover:border-secondary/40 rounded-xl p-5 group flex flex-col relative overflow-hidden">
-                        <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-bl from-secondary/10 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="bg-surface-container-lowest hover:bg-surface-container transition-colors border border-outline-variant hover:border-secondary rounded-xl p-5 group flex flex-col relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-bl from-secondary to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="flex justify-between items-start mb-2 relative z-10">
-                            <h3 class="text-white font-bold text-base pr-1">${f.title}</h3>
+                            <h3 class="text-on-surface font-bold text-base pr-1">${f.title}</h3>
                             <div class="flex items-center gap-2">
-                                <button onclick="editForm(${f.id})" class="w-7 h-7 flex items-center justify-center rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all border border-primary/20" title="Edit Form">
-                                    <span class="text-xs">✏️</span>
+                                <button onclick="editForm(${f.id})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-container text-primary transition-all border border-primary" title="${isAr ? 'تعديل النموذج' : 'Edit Form'}">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
                                 </button>
-                                <button onclick="deleteForm(${f.id})" class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all border border-red-500/20" title="Delete Form">
-                                    <span class="text-xs">🗑️</span>
+                                <button onclick="deleteForm(${f.id})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all border border-red-500/20" title="${isAr ? 'حذف النموذج' : 'Delete Form'}">
+                                    <span class="material-symbols-outlined text-[16px]">delete_forever</span>
                                 </button>
-                                <span class="flex items-center gap-1.5 text-[10px] text-secondary font-mono bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20 whitespace-nowrap">
+                                <span class="flex items-center gap-1.5 text-[10px] text-secondary font-mono bg-surface-container-high px-2 py-0.5 rounded border border-secondary whitespace-nowrap">
                                     <span class="material-symbols-outlined text-[10px]">analytics</span>
-                                    ${f.responses_count} RES
+                                    ${f.responses_count} ${isAr ? 'استجابات' : 'RES'}
                                 </span>
                             </div>
                         </div>
-                        <p class="text-xs text-outline-variant line-clamp-2 mb-4 font-body relative z-10 min-h-[32px]">${f.description || 'No declarative metadata provided.'}</p>
+                        <p class="text-xs text-on-surface-variant line-clamp-2 mb-4 font-body relative z-10 min-h-[32px]">${f.description || (isAr ? 'لم يتم توفير بيانات تعريفية توضيحية.' : 'No declarative metadata provided.')}</p>
                         
                         <div class="flex items-center justify-between text-xs text-outline font-mono mb-4">
-                            <span>ID: ${String(f.id).padStart(4, '0')}</span>
+                            <span>{% if locale == 'ar' %}المعرف:{% else %}ID:{% endif %} ${String(f.id).padStart(4, '0')}</span>
                             <span>${date}</span>
                         </div>
-
+ 
                         <div class="grid grid-cols-2 gap-2 mt-auto relative z-10">
-                            <a href="/f/${f.id}" target="_blank" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg transition-colors">
+                            <a href="/f/${f.id}" target="_blank" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-primary bg-primary-container hover:brightness-95 border border-primary rounded-lg transition-all">
                                 <span class="material-symbols-outlined text-sm">open_in_new</span>
-                                Open View
+                                ${isAr ? 'فتح الواجهة' : 'Open View'}
                             </a>
-                            <a href="/api/forms/${f.id}/export" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-[#4ade80] bg-[#4ade80]/10 hover:bg-[#4ade80]/20 border border-[#4ade80]/20 rounded-lg transition-colors">
+                            <a href="/api/forms/${f.id}/export" class="flex items-center justify-center gap-1 py-2 text-xs font-bold text-green-500 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-sm">download</span>
-                                Vector Data
+                                ${isAr ? 'بيانات المتجهات' : 'Vector Data'}
                             </a>
                         </div>
                     </div>
@@ -478,15 +675,16 @@
             
         } catch (e) {
             console.error(e);
-            document.getElementById("formsList").innerHTML = `
+            container.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-full text-center text-error">
                     <span class="material-symbols-outlined text-4xl mb-3">error</span>
-                    <p class="text-sm">Connection Refused.</p>
+                    <p class="text-sm">${isAr ? "تم رفض الاتصال." : "Connection Refused."}</p>
                 </div>`;
         }
     }
-
+ 
     async function editForm(id) {
+        const isAr = getLocale() === 'ar';
         try {
             const res = await axios.get(`/api/forms/${id}`);
             const form = res.data;
@@ -499,71 +697,74 @@
             renderQuestions();
             
             // Update Designer UI to show editing mode
-            document.getElementById("designerTitle").textContent = "Update Schema";
-            document.getElementById("designerSubtitle").textContent = `Editing Interface ID: ${id}`;
-            document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">save</span> Update & Deploy Changes`;
+            document.getElementById("designerTitle").textContent = isAr ? "تحديث المخطط" : "Update Schema";
+            document.getElementById("designerSubtitle").textContent = isAr ? `جاري تعديل الواجهة ذات المعرف: ${id}` : `Editing Interface ID: ${id}`;
+            document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">save</span> ` + (isAr ? "تحديث ونشر التغييرات" : "Update & Deploy Changes");
             
             // Add a cancel button if not already there
             if(!document.getElementById("cancelEditBtn")) {
                 const cancelBtn = document.createElement("button");
                 cancelBtn.id = "cancelEditBtn";
-                cancelBtn.className = "mt-3 w-full py-2 text-xs font-bold text-outline hover:text-white transition-colors uppercase tracking-widest";
-                cancelBtn.textContent = "Cancel Editing / Create New";
+                cancelBtn.className = "mt-3 w-full py-2 text-xs font-bold text-outline hover:text-on-surface transition-colors uppercase tracking-widest";
+                cancelBtn.textContent = isAr ? "إلغاء التعديل / إنشاء جديد" : "Cancel Editing / Create New";
                 cancelBtn.onclick = cancelEdit;
                 document.getElementById("saveBtn").parentElement.appendChild(cancelBtn);
             }
-
+ 
             // Scroll to designer
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            showNotification(`Loading Schema ID: ${id}`, "info");
-
+            showNotification(isAr ? `جاري تحميل المخطط ذي المعرف: ${id}` : `Loading Schema ID: ${id}`, "info");
+ 
         } catch (e) {
             console.error(e);
-            showNotification("Failed to load form for editing.", "error");
+            showNotification(isAr ? "فشل تحميل النموذج للتعديل." : "Failed to load form for editing.", "error");
         }
     }
-
+ 
     function cancelEdit() {
+        const isAr = getLocale() === 'ar';
         editingFormId = null;
         document.getElementById("formTitle").value = "";
         document.getElementById("formDesc").value = "";
         tempQuestions = [];
         renderQuestions();
         
-        document.getElementById("designerTitle").textContent = "Schema Designer";
-        document.getElementById("designerSubtitle").textContent = "Build dynamic structures";
-        document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Compile & Deploy Live Route`;
+        document.getElementById("designerTitle").textContent = isAr ? "مصمم المخطط" : "Schema Designer";
+        document.getElementById("designerSubtitle").textContent = isAr ? "بناء هياكل ديناميكية للبيانات" : "Build dynamic structures";
+        document.getElementById("saveBtn").innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> ` + (isAr ? "ترجمة ونشر الرابط المباشر" : "Compile & Deploy Live Route");
         
         const cb = document.getElementById("cancelEditBtn");
         if(cb) cb.remove();
     }
-
+ 
     async function deleteForm(id) {
+        const isAr = getLocale() === 'ar';
         Swal.fire({
-            title: 'Permanent Deletion',
-            text: "This will purge the schema and all associated vector data from core systems. This operation is non-reversible.",
+            title: isAr ? 'حذف نهائي' : 'Permanent Deletion',
+            text: isAr ? "سيؤدي هذا إلى تطهير المخطط وجميع بيانات المتجهات المرتبطة به من الأنظمة الأساسية. هذه العملية غير قابلة للتراجع." : "This will purge the schema and all associated vector data from core systems. This operation is non-reversible.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: 'rgba(68,70,85,0.5)',
-            confirmButtonText: 'PURGE DATA',
-            background: '#1a1c29',
-            color: '#fff',
+            confirmButtonText: isAr ? 'تطهير البيانات' : 'PURGE DATA',
+            cancelButtonText: isAr ? 'إلغاء' : 'Cancel',
+            background: 'var(--surface-container, #1a1c29)',
+            color: 'var(--on-surface, #fff)',
             backdrop: `rgba(0,0,0,0.4) blur(4px)`
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
                     await axios.delete(`/api/forms/${id}`);
-                    showNotification("Data purged successfully.", "success");
+                    showNotification(isAr ? "تم تطهير البيانات بنجاح." : "Data purged successfully.", "success");
                     await fetchForms();
                 } catch(e) {
                     console.error(e);
-                    showNotification("Purge operation failed.", "error");
+                    showNotification(isAr ? "فشلت عملية التطهير." : "Purge operation failed.", "error");
                 }
             }
         });
     }
-
+ 
     // init
     renderQuestions();
     fetchForms();

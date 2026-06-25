@@ -1,8 +1,8 @@
 {% extends "app/_layout.html" %}
 
-{% block page_title %}Settings{% endblock %}
-{% block topbar_title %}Settings{% endblock %}
-{% block breadcrumb %}SOL / Settings{% endblock %}
+{% block page_title %}{% if locale == 'ar' %}الإعدادات{% else %}Settings{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}الإعدادات{% else %}Settings{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / الإعدادات{% else %}SOL / Settings{% endif %}{% endblock %}
 {% block nav_settings %}nav-active{% endblock %}
 
 {% block head %}
@@ -10,60 +10,77 @@
 /* ── Layout ──────────────────────────────────────────────────────────────────── */
 .settings-sidebar {
     width: 220px; flex-shrink: 0;
-    background: rgba(13,15,28,0.7);
+    background: var(--surface-container-low);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(68,70,85,0.22);
+    border: 1px solid var(--outline-variant);
     border-radius: 14px;
     padding: 8px;
 }
 .settings-panel {
     flex: 1; min-width: 0;
-    background: rgba(17,19,34,0.75);
+    background: var(--surface-container);
     backdrop-filter: blur(18px) saturate(1.3);
-    border: 1px solid rgba(68,70,85,0.22);
+    border: 1px solid var(--outline-variant);
     border-radius: 14px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
+
+@media (max-width: 1024px) {
+    #settings-container {
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        gap: 16px !important;
+        padding-bottom: 24px;
+    }
+    .settings-sidebar {
+        display: none !important;
+    }
+    .settings-panel {
+        height: auto !important;
+        overflow: visible !important;
+    }
+}
+
 
 /* ── Nav items ───────────────────────────────────────────────────────────────── */
 .nav-item {
     display: flex; align-items: center; gap: 10px;
     padding: 9px 12px; border-radius: 8px; cursor: pointer;
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: rgba(142,143,161,.75); transition: all .18s;
+    color: var(--outline); transition: all .18s;
     border: 1px solid transparent; user-select: none;
 }
-.nav-item:hover { color: #e1e1f4; background: rgba(68,70,85,.12); }
+.nav-item:hover { color: var(--on-surface); background: var(--nav-hover-bg); }
 .nav-item.active {
-    color: #bac3ff; background: rgba(67,97,238,.12);
-    border-color: rgba(67,97,238,.25);
+    color: var(--primary); background: var(--nav-active-bg);
+    border-color: var(--primary);
 }
 .nav-item .material-symbols-outlined { font-size: 16px; }
 
 /* ── Section heading ─────────────────────────────────────────────────────────── */
 .section-label {
     font-family: 'JetBrains Mono', monospace; font-size: 9px;
-    color: rgba(142,143,161,.45); letter-spacing: .18em; text-transform: uppercase;
+    color: var(--outline); opacity: 0.6; letter-spacing: .18em; text-transform: uppercase;
     padding: 10px 12px 5px;
 }
 
 /* ── Form inputs ─────────────────────────────────────────────────────────────── */
 .sol-input {
-    width: 100%; background: rgba(7,9,20,.9) !important;
-    border: 1px solid rgba(68,70,85,.4) !important;
-    border-radius: 8px; color: #c4c5d7 !important;
+    width: 100%; background: var(--surface-container-lowest) !important;
+    border: 1px solid var(--outline-variant) !important;
+    border-radius: 8px; color: var(--on-surface) !important;
     font-size: 13px; padding: 10px 14px;
     outline: none; transition: border-color .2s, box-shadow .2s;
-    font-family: inherit; color-scheme: dark;
+    font-family: inherit;
 }
 .sol-input:focus {
-    border-color: rgba(67,97,238,.6) !important;
-    box-shadow: 0 0 0 3px rgba(67,97,238,.1);
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-container);
 }
-.sol-input::placeholder { color: rgba(142,143,161,.4); }
+.sol-input::placeholder { color: var(--outline); opacity: 0.5; }
 .sol-label {
     display: block; font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: rgba(142,143,161,.7);
+    font-size: 10px; color: var(--outline);
     text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
 }
 
@@ -72,36 +89,36 @@
 .toggle-wrap input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
     position: absolute; inset: 0; cursor: pointer;
-    background: rgba(68,70,85,.4); border-radius: 24px;
-    transition: .3s; border: 1px solid rgba(68,70,85,.5);
+    background: var(--surface-container-high); border-radius: 24px;
+    transition: .3s; border: 1px solid var(--outline-variant);
 }
 .toggle-slider::before {
     content: ''; position: absolute;
     left: 3px; top: 50%; transform: translateY(-50%);
-    width: 16px; height: 16px; background: #8e8fa1;
+    width: 16px; height: 16px; background: var(--outline);
     border-radius: 50%; transition: .3s;
 }
-.toggle-wrap input:checked + .toggle-slider { background: rgba(67,97,238,.35); border-color: rgba(67,97,238,.5); }
-.toggle-wrap input:checked + .toggle-slider::before { transform: translateX(20px) translateY(-50%); background: #4361ee; }
+.toggle-wrap input:checked + .toggle-slider { background: var(--primary-container); border-color: var(--primary); }
+.toggle-wrap input:checked + .toggle-slider::before { transform: translateX(20px) translateY(-50%); background: var(--primary); }
 
 /* ── Cards ───────────────────────────────────────────────────────────────────── */
 .settings-card {
-    background: rgba(11,13,26,.5);
-    border: 1px solid rgba(68,70,85,.2);
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
     border-radius: 10px; padding: 18px 20px;
     transition: border-color .2s;
 }
-.settings-card:hover { border-color: rgba(68,70,85,.4); }
+.settings-card:hover { border-color: var(--outline); }
 .settings-card.danger { border-color: rgba(255,107,107,.2); background: rgba(255,107,107,.04); }
 .settings-card.danger:hover { border-color: rgba(255,107,107,.4); }
 
 /* ── API key box ─────────────────────────────────────────────────────────────── */
 .api-key-box {
-    background: rgba(7,9,20,.95);
-    border: 1px solid rgba(67,97,238,.3);
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--primary);
     border-radius: 8px; padding: 10px 14px;
     font-family: 'JetBrains Mono', monospace; font-size: 12px;
-    color: #bac3ff; letter-spacing: .04em;
+    color: var(--primary); letter-spacing: .04em;
     display: flex; align-items: center; justify-content: space-between;
 }
 
@@ -128,9 +145,9 @@
     letter-spacing: .12em; padding: 4px 10px;
     border-radius: 99px; font-weight: 700; text-transform: uppercase;
 }
-.plan-pro   { background: rgba(67,97,238,.15); color: #bac3ff; border: 1px solid rgba(67,97,238,.3); }
-.plan-free  { background: rgba(142,143,161,.12); color: #8e8fa1; border: 1px solid rgba(142,143,161,.25); }
-.plan-elite { background: rgba(133,64,255,.15); color: #d2bbff; border: 1px solid rgba(133,64,255,.3); }
+.plan-pro   { background: var(--primary-container); color: var(--on-primary-container); border: 1px solid var(--primary); }
+.plan-free  { background: var(--surface-container-high); color: var(--on-surface-variant); border: 1px solid var(--outline-variant); }
+.plan-elite { background: var(--tertiary-container); color: var(--on-tertiary-container); border: 1px solid var(--tertiary); }
 
 /* ── Progress ring (storage) ─────────────────────────────────────────────────── */
 .storage-ring { transform: rotate(-90deg); }
@@ -176,13 +193,61 @@
 @keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:none;opacity:1} }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────────── */
-.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
 .custom-scroll::-webkit-scrollbar-thumb { background: rgba(68,70,85,.5); border-radius: 2px; }
+.scrollbar-none::-webkit-scrollbar { display: none !important; }
+.scrollbar-none { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+
+/* ── Dark Mode Text Override ─────────────────────────────────────────────────── */
+html:not(.dark) .text-white,
+html:not(.dark) [class*="text-white"] {
+    color: #000000 !important;
+}
+html.dark .text-white,
+html.dark [class*="text-white"] {
+    color: #ffffff !important;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="flex gap-5 h-full overflow-hidden">
+<div class="flex gap-5 h-full overflow-hidden" id="settings-container">
+
+  <!-- Mobile Settings Navigation (Visible only on viewports < 1024px) -->
+  <div class="lg:hidden flex overflow-x-auto gap-2 pb-2 mb-1 border-b border-outline-variant/10 shrink-0 select-none custom-scroll scrollbar-none" style="-webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
+    <button onclick="switchTab('profile')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-white shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">person</span>
+      {% if locale == 'ar' %}الملف الشخصي{% else %}Profile{% endif %}
+    </button>
+    <button onclick="switchTab('security')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">lock</span>
+      {% if locale == 'ar' %}الأمان{% else %}Security{% endif %}
+    </button>
+    <button onclick="switchTab('api')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">key</span>
+      {% if locale == 'ar' %}مفاتيح API{% else %}API Keys{% endif %}
+    </button>
+    <button onclick="switchTab('preferences')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">tune</span>
+      {% if locale == 'ar' %}التفضيلات{% else %}Preferences{% endif %}
+    </button>
+    <button onclick="switchTab('usage')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">monitoring</span>
+      {% if locale == 'ar' %}الاستخدام{% else %}Usage{% endif %}
+    </button>
+    <button onclick="switchTab('notifications')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">notifications</span>
+      {% if locale == 'ar' %}الإشعارات{% else %}Notifications{% endif %}
+    </button>
+    <button onclick="switchTab('tasks')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm">widgets</span>
+      {% if locale == 'ar' %}المهام المتوازية{% else %}Concurrent Tasks{% endif %}
+    </button>
+    <button onclick="switchTab('danger')" class="mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all">
+      <span class="material-symbols-outlined text-sm" style="color:#ff6b6b">warning</span>
+      <span style="color:#ff6b6b">{% if locale == 'ar' %}الخطر{% else %}Danger Zone{% endif %}</span>
+    </button>
+  </div>
 
   <!-- ╔══ Sidebar Navigation ══╗ -->
   <div class="settings-sidebar flex flex-col gap-1 overflow-y-auto custom-scroll shrink-0">
@@ -201,32 +266,35 @@
       </div>
     </div>
 
-    <p class="section-label">Account</p>
+    <p class="section-label">{% if locale == 'ar' %}الحساب{% else %}Account{% endif %}</p>
     <div class="nav-item active" onclick="switchTab('profile')" id="nav-profile">
-      <span class="material-symbols-outlined">person</span> Profile
+      <span class="material-symbols-outlined">person</span> {% if locale == 'ar' %}الملف الشخصي{% else %}Profile{% endif %}
     </div>
     <div class="nav-item" onclick="switchTab('security')" id="nav-security">
-      <span class="material-symbols-outlined">lock</span> Security
+      <span class="material-symbols-outlined">lock</span> {% if locale == 'ar' %}الأمان{% else %}Security{% endif %}
     </div>
 
-    <p class="section-label">Workspace</p>
+    <p class="section-label">{% if locale == 'ar' %}مساحة العمل{% else %}Workspace{% endif %}</p>
     <div class="nav-item" onclick="switchTab('api')" id="nav-api">
-      <span class="material-symbols-outlined">key</span> API Keys
+      <span class="material-symbols-outlined">key</span> {% if locale == 'ar' %}مفاتيح API{% else %}API Keys{% endif %}
     </div>
     <div class="nav-item" onclick="switchTab('preferences')" id="nav-preferences">
-      <span class="material-symbols-outlined">tune</span> Preferences
+      <span class="material-symbols-outlined">tune</span> {% if locale == 'ar' %}التفضيلات{% else %}Preferences{% endif %}
     </div>
     <div class="nav-item" onclick="switchTab('usage')" id="nav-usage">
-      <span class="material-symbols-outlined">monitoring</span> Usage & Limits
+      <span class="material-symbols-outlined">monitoring</span> {% if locale == 'ar' %}الاستخدام والحدود{% else %}Usage & Limits{% endif %}
     </div>
 
-    <p class="section-label">System</p>
+    <p class="section-label">{% if locale == 'ar' %}النظام{% else %}System{% endif %}</p>
     <div class="nav-item" onclick="switchTab('notifications')" id="nav-notifications">
-      <span class="material-symbols-outlined">notifications</span> Notifications
+      <span class="material-symbols-outlined">notifications</span> {% if locale == 'ar' %}الإشعارات{% else %}Notifications{% endif %}
+    </div>
+    <div class="nav-item" onclick="switchTab('tasks')" id="nav-tasks">
+      <span class="material-symbols-outlined">widgets</span> {% if locale == 'ar' %}المهام المتوازية{% else %}Concurrent Tasks{% endif %}
     </div>
     <div class="nav-item" onclick="switchTab('danger')" id="nav-danger">
       <span class="material-symbols-outlined" style="color:#ff6b6b">warning</span>
-      <span style="color:#ff6b6b">Danger Zone</span>
+      <span style="color:#ff6b6b">{% if locale == 'ar' %}منطقة الخطر{% else %}Danger Zone{% endif %}</span>
     </div>
   </div>
 
@@ -236,12 +304,12 @@
     <!-- Panel header -->
     <div class="px-7 py-5 border-b border-outline-variant/12 shrink-0 flex items-center justify-between">
       <div>
-        <h2 class="font-headline font-bold text-white text-lg" id="panel-title">Profile Settings</h2>
-        <p class="font-mono text-[10px] text-outline uppercase tracking-widest mt-0.5" id="panel-sub">Manage your personal information</p>
+        <h2 class="font-headline font-bold text-white text-lg" id="panel-title">{% if locale == 'ar' %}إعدادات الملف الشخصي{% else %}Profile Settings{% endif %}</h2>
+        <p class="font-mono text-[10px] text-outline uppercase tracking-widest mt-0.5" id="panel-sub">{% if locale == 'ar' %}إدارة معلوماتك الشخصية{% else %}Manage your personal information{% endif %}</p>
       </div>
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-[#4ade80]" style="animation: pulse-dot 2s infinite"></div>
-        <span class="font-mono text-[10px] text-[#4ade80] tracking-widest uppercase">Session Active</span>
+        <span class="font-mono text-[10px] text-[#4ade80] tracking-widest uppercase">{% if locale == 'ar' %}الجلسة نشطة{% else %}Session Active{% endif %}</span>
       </div>
     </div>
 
@@ -252,21 +320,22 @@
       <div class="tab-pane active" id="tab-profile">
         <!-- Avatar row -->
         <div class="settings-card mb-5">
-          <div class="flex items-center gap-6">
+          <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-start gap-6">
             <div class="avatar-ring text-2xl relative" id="bigAvatar">MS
-              <button class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#4361ee] flex items-center justify-center border-2 border-[#13141f] hover:bg-[#7b2ff7] transition-colors">
+              <button class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#4361ee] flex items-center justify-center border-2 border-[#13141f] hover:bg-[#7b2ff7] transition-colors" onclick="document.getElementById('avatar-input').click(); event.stopPropagation();">
                 <span class="material-symbols-outlined text-white text-xs">edit</span>
               </button>
             </div>
+            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(this)">
             <div>
               <p class="text-white font-headline font-bold text-lg" id="profile-fullname">Mohamed Shalaby</p>
               <p class="font-mono text-xs text-outline mt-0.5" id="profile-email-display">ms@sol.ai</p>
               <div class="flex items-center gap-2 mt-2">
                 <span class="plan-badge plan-pro">
                   <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">star</span>
-                  Pro Plan
+                  {% if locale == 'ar' %}الخطة الاحترافية (Pro){% else %}Pro Plan{% endif %}
                 </span>
-                <span class="font-mono text-[9px] text-outline">Member since <span id="member-since">2024</span></span>
+                <span class="font-mono text-[9px] text-outline">{% if locale == 'ar' %}عضو منذ{% else %}Member since{% endif %} <span id="member-since">2024</span></span>
               </div>
             </div>
           </div>
@@ -276,50 +345,50 @@
         <div class="settings-card mb-5">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">badge</span>
-            Personal Information
+            {% if locale == 'ar' %}المعلومات الشخصية{% else %}Personal Information{% endif %}
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="sol-label">First Name</label>
-              <input class="sol-input" id="inp-first" placeholder="First name" type="text">
+              <label class="sol-label">{% if locale == 'ar' %}الاسم الأول{% else %}First Name{% endif %}</label>
+              <input class="sol-input" id="inp-first" placeholder="{% if locale == 'ar' %}الاسم الأول{% else %}First name{% endif %}" type="text">
             </div>
             <div>
-              <label class="sol-label">Last Name</label>
-              <input class="sol-input" id="inp-last" placeholder="Last name" type="text">
+              <label class="sol-label">{% if locale == 'ar' %}اسم العائلة{% else %}Last Name{% endif %}</label>
+              <input class="sol-input" id="inp-last" placeholder="{% if locale == 'ar' %}اسم العائلة{% else %}Last name{% endif %}" type="text">
             </div>
           </div>
           <div class="mb-4">
-            <label class="sol-label">Email Address</label>
+            <label class="sol-label">{% if locale == 'ar' %}عنوان البريد الإلكتروني{% else %}Email Address{% endif %}</label>
             <input class="sol-input" id="inp-email" placeholder="you@example.com" type="email">
           </div>
           <div class="mb-4">
-            <label class="sol-label">Job Title (optional)</label>
-            <input class="sol-input" id="inp-title" placeholder="e.g. Data Engineer" type="text">
+            <label class="sol-label">{% if locale == 'ar' %}المسمى الوظيفي (اختياري){% else %}Job Title (optional){% endif %}</label>
+            <input class="sol-input" id="inp-title" placeholder="{% if locale == 'ar' %}مثال: مهندس بيانات{% else %}e.g. Data Engineer{% endif %}" type="text">
           </div>
           <div class="mb-5">
-            <label class="sol-label">Organization (optional)</label>
-            <input class="sol-input" id="inp-org" placeholder="Company or team name" type="text">
+            <label class="sol-label">{% if locale == 'ar' %}المؤسسة / الشركة (اختياري){% else %}Organization (optional){% endif %}</label>
+            <input class="sol-input" id="inp-org" placeholder="{% if locale == 'ar' %}اسم الشركة أو الفريق{% else %}Company or team name{% endif %}" type="text">
           </div>
           <div class="flex justify-end">
             <button class="btn-save" onclick="saveProfile()">
               <span class="material-symbols-outlined text-sm">save</span>
-              Save Changes
+              {% if locale == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
             </button>
           </div>
         </div>
 
         <!-- Account stats grid -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {% for icon, label, val, hex in [
-            ("cleaning_services","Datasets Cleaned","47","#5bd5fc"),
-            ("folder_data","Total Uploads","132","#a48cf4"),
-            ("analytics","Cells Fixed","28.4K","#4ade80"),
-            ("schedule","Hours Saved","19h","#ffd166"),
+          {% for icon, label_en, label_ar, val, hex in [
+            ("cleaning_services","Datasets Cleaned","ملفات منظفة","47","#5bd5fc"),
+            ("folder_data","Total Uploads","إجمالي الملفات","132","#a48cf4"),
+            ("analytics","Cells Fixed","خلايا تم إصلاحها","28.4K","#4ade80"),
+            ("schedule","Hours Saved","ساعات تم توفيرها","19h","#ffd166"),
           ] %}
           <div class="settings-card text-center">
             <span class="material-symbols-outlined text-2xl mb-2 block" style="color:{{hex}};font-variation-settings:'FILL' 1">{{icon}}</span>
             <p class="font-mono font-bold text-xl text-white">{{val}}</p>
-            <p class="font-mono text-[9px] text-outline uppercase tracking-widest mt-0.5">{{label}}</p>
+            <p class="font-mono text-[9px] text-outline uppercase tracking-widest mt-0.5">{% if locale == 'ar' %}{{label_ar}}{% else %}{{label_en}}{% endif %}</p>
           </div>
           {% endfor %}
         </div>
@@ -331,16 +400,16 @@
         <div class="settings-card mb-5">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">lock</span>
-            Change Password
+            {% if locale == 'ar' %}تغيير كلمة المرور{% else %}Change Password{% endif %}
           </h3>
           <div class="space-y-4 mb-5">
             <div>
-              <label class="sol-label">Current Password</label>
+              <label class="sol-label">{% if locale == 'ar' %}كلمة المرور الحالية{% else %}Current Password{% endif %}</label>
               <input class="sol-input" id="inp-old-pass" type="password" placeholder="••••••••••">
             </div>
             <div>
-              <label class="sol-label">New Password</label>
-              <input class="sol-input" id="inp-new-pass" type="password" placeholder="Min. 8 characters" oninput="checkPassStrength(this.value)">
+              <label class="sol-label">{% if locale == 'ar' %}كلمة المرور الجديدة{% else %}New Password{% endif %}</label>
+              <input class="sol-input" id="inp-new-pass" type="password" placeholder="{% if locale == 'ar' %}٨ أحرف كحد أدنى{% else %}Min. 8 characters{% endif %}" oninput="checkPassStrength(this.value)">
               <!-- Strength bar -->
               <div class="flex gap-1 mt-2" id="strength-bars">
                 <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb1"></div>
@@ -348,148 +417,59 @@
                 <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb3"></div>
                 <div class="h-1 flex-1 rounded-full bg-outline/20" id="sb4"></div>
               </div>
-              <p class="font-mono text-[9px] text-outline mt-1" id="strength-label">Enter password to check strength</p>
+              <p class="font-mono text-[9px] text-outline mt-1" id="strength-label">{% if locale == 'ar' %}أدخل كلمة المرور لفحص قوتها{% else %}Enter password to check strength{% endif %}</p>
             </div>
             <div>
-              <label class="sol-label">Confirm New Password</label>
-              <input class="sol-input" id="inp-confirm-pass" type="password" placeholder="Repeat new password">
+              <label class="sol-label">{% if locale == 'ar' %}تأكيد كلمة المرور الجديدة{% else %}Confirm New Password{% endif %}</label>
+              <input class="sol-input" id="inp-confirm-pass" type="password" placeholder="{% if locale == 'ar' %}أعد كتابة كلمة المرور الجديدة{% else %}Repeat new password{% endif %}">
             </div>
           </div>
           <div class="flex justify-end">
             <button class="btn-save" onclick="changePassword()">
               <span class="material-symbols-outlined text-sm">lock_reset</span>
-              Update Password
+              {% if locale == 'ar' %}تحديث كلمة المرور{% else %}Update Password{% endif %}
             </button>
           </div>
-        </div>
-
-        <!-- 2FA placeholder -->
-        <div class="settings-card mb-5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2)">
-                <span class="material-symbols-outlined text-[#4ade80] text-lg" style="font-variation-settings:'FILL' 1">verified_user</span>
-              </div>
-              <div>
-                <p class="text-white font-bold text-sm">Two-Factor Authentication</p>
-                <p class="font-mono text-[10px] text-outline mt-0.5">Add an extra layer of security to your account</p>
-              </div>
-            </div>
-            <span class="plan-badge" style="background:rgba(255,107,107,.1);color:#ff6b6b;border-color:rgba(255,107,107,.25)">Disabled</span>
-          </div>
-          <div class="mt-4 pt-4 border-t border-outline-variant/10">
-            <button class="btn-save" style="background:linear-gradient(135deg,#4ade80,#06d6a0);color:#0b0d1a">
-              <span class="material-symbols-outlined text-sm">security</span>
-              Enable 2FA
-            </button>
-          </div>
-        </div>
-
-        <!-- Active sessions -->
-        <div class="settings-card">
-          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined text-[#a48cf4] text-lg" style="font-variation-settings:'FILL' 1">devices</span>
-            Active Sessions
-          </h3>
-          {% for device, location, time, current in [
-            ("Chrome on Windows","Cairo, Egypt","Now","true"),
-            ("Safari on iPhone","Cairo, Egypt","2h ago","false"),
-            ("Firefox on Linux","Alexandria, Egypt","Yesterday","false"),
-          ] %}
-          <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(68,70,85,.2)">
-                <span class="material-symbols-outlined text-outline text-sm">{% if 'iPhone' in device %}smartphone{% elif 'Linux' in device %}computer{% else %}monitor{% endif %}</span>
-              </div>
-              <div>
-                <p class="text-white text-sm font-medium">{{device}}</p>
-                <p class="font-mono text-[9px] text-outline">{{location}} · {{time}}</p>
-              </div>
-            </div>
-            {% if current == "true" %}
-            <span class="plan-badge" style="background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.25)">Current</span>
-            {% else %}
-            <button class="font-mono text-[10px] text-[#ff6b6b] hover:underline" onclick="revokeSession()">Revoke</button>
-            {% endif %}
-          </div>
-          {% endfor %}
         </div>
       </div>
 
       <!-- ████ TAB: API Keys ████ -->
       <div class="tab-pane" id="tab-api">
-        <!-- Generate key -->
-        <div class="settings-card mb-5">
+        <!-- Remote Studio Credentials (Kaggle, Groq & ElevenLabs) -->
+        <div class="settings-card">
           <h3 class="font-headline font-bold text-white mb-1 flex items-center gap-2">
-            <span class="material-symbols-outlined text-[#4361ee] text-lg" style="font-variation-settings:'FILL' 1">key</span>
-            API Key Management
+            <span class="material-symbols-outlined text-[#4ade80] text-lg" style="font-variation-settings:'FILL' 1">settings_remote</span>
+            {% if locale == 'ar' %}بيانات اعتماد الاستوديو والجهات الخارجية (Kaggle & Groq & ElevenLabs){% else %}Remote Studio & API Credentials (Kaggle, Groq & ElevenLabs){% endif %}
           </h3>
-          <p class="font-mono text-[10px] text-outline mb-5">Use API keys to authenticate programmatic requests to the SOL Data Agent API.</p>
+          <p class="font-mono text-[10px] text-outline mb-5">{% if locale == 'ar' %}قم بتهيئة بيانات الاعتماد ومفاتيح الجهات الخارجية لتشغيل كيرنلات Kaggle، نماذج Groq، وتوليد الصوت عبر ElevenLabs.{% else %}Configure API keys and credentials for Kaggle execution, Groq models, and ElevenLabs audio generation.{% endif %}</p>
 
-          <!-- Active key display -->
-          <div id="key-display-wrap" class="mb-5">
-            <label class="sol-label">Active API Key</label>
-            <div class="api-key-box">
-              <span id="api-key-text" class="truncate">sk-sol-••••••••••••••••••••••••••••••••••••••</span>
-              <div class="flex items-center gap-2 ml-3 flex-shrink-0">
-                <button onclick="toggleKeyVisibility()" class="text-outline hover:text-white transition-colors">
-                  <span class="material-symbols-outlined text-sm" id="eye-icon">visibility</span>
-                </button>
-                <button onclick="copyApiKey()" class="font-mono text-[10px] text-[#5bd5fc] hover:text-white transition-colors px-2 py-1 rounded border border-[#5bd5fc]/25 hover:border-[#5bd5fc]/60">
-                  Copy
-                </button>
-              </div>
+          <div class="flex flex-col gap-4">
+            <div>
+              <label class="sol-label">{% if locale == 'ar' %}اسم مستخدم Kaggle{% else %}Kaggle Username{% endif %}</label>
+              <input class="sol-input" id="inp-kaggle-username" placeholder="e.g. kaggle_user" type="text">
             </div>
-            <p class="font-mono text-[9px] text-outline mt-2" id="key-meta">Created — · Last used —</p>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="flex-1">
-              <label class="sol-label">Key Label (optional)</label>
-              <input class="sol-input" id="inp-key-label" placeholder="e.g. Production Server" type="text">
+            <div>
+              <label class="sol-label">{% if locale == 'ar' %}مفتاح واجهة Kaggle (Token){% else %}Kaggle API Key (Token){% endif %}</label>
+              <input class="sol-input" id="inp-kaggle-key" placeholder="{% if locale == 'ar' %}أدخل مفتاح Kaggle (سيكون مخفياً){% else %}Enter Kaggle API Key (will be masked){% endif %}" type="password">
             </div>
-            <div class="flex-1">
-              <label class="sol-label">Expiry</label>
-              <select class="sol-input" id="inp-key-expiry" style="color-scheme:dark">
-                <option>30 days</option>
-                <option>90 days</option>
-                <option>1 year</option>
-                <option>Never</option>
-              </select>
+            <div>
+              <label class="sol-label">{% if locale == 'ar' %}مفتاح واجهة Groq API{% else %}Groq API Key{% endif %}</label>
+              <input class="sol-input" id="inp-groq-key" placeholder="{% if locale == 'ar' %}أدخل مفتاح Groq API (سيكون مخفياً){% else %}Enter Groq API Key (will be masked){% endif %}" type="password">
+            </div>
+            <div>
+              <label class="sol-label">{% if locale == 'ar' %}مفتاح واجهة ElevenLabs API{% else %}ElevenLabs API Key{% endif %}</label>
+              <input class="sol-input" id="inp-elevenlabs-key" placeholder="{% if locale == 'ar' %}أدخل مفتاح ElevenLabs API (سيكون مخفياً){% else %}Enter ElevenLabs API Key (will be masked){% endif %}" type="password">
+            </div>
+            <div>
+              <label class="sol-label">{% if locale == 'ar' %}معرّف ElevenLabs ID{% else %}ElevenLabs ID{% endif %}</label>
+              <input class="sol-input" id="inp-elevenlabs-id" placeholder="e.g. voice_id_xyz" type="text">
             </div>
           </div>
           <div class="flex justify-end mt-4">
-            <button class="btn-save" onclick="generateApiKey()">
-              <span class="material-symbols-outlined text-sm">add_circle</span>
-              Generate New Key
+            <button class="btn-save" onclick="saveRemoteCredentials()">
+              <span class="material-symbols-outlined text-sm">save</span>
+              {% if locale == 'ar' %}حفظ بيانات الاعتماد{% else %}Save Credentials{% endif %}
             </button>
-          </div>
-        </div>
-
-        <!-- API usage snippet -->
-        <div class="settings-card">
-          <h3 class="font-headline font-bold text-white mb-3 flex items-center gap-2">
-            <span class="material-symbols-outlined text-[#a48cf4] text-lg">code</span>
-            Quick Start
-          </h3>
-          <div class="rounded-lg overflow-hidden" style="background:#07091a;border:1px solid rgba(67,97,238,.25)">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-outline-variant/10">
-              <span class="font-mono text-[9px] text-outline uppercase tracking-widest">Python</span>
-              <button onclick="copySnippet()" class="font-mono text-[9px] text-[#5bd5fc] hover:text-white transition-colors">Copy</button>
-            </div>
-            <pre class="p-4 text-[11.5px] leading-relaxed overflow-x-auto"><code id="code-snippet"><span style="color:#8540ff">import</span> <span style="color:#5bd5fc">requests</span>
-
-<span style="color:#8e8fa1"># SOL Data Agent — Programmatic API</span>
-API_KEY = <span style="color:#4ade80">"sk-sol-your-key-here"</span>
-BASE    = <span style="color:#4ade80">"http://localhost:8000/api"</span>
-
-<span style="color:#8e8fa1"># Upload & clean a dataset</span>
-r = requests.<span style="color:#5bd5fc">post</span>(f<span style="color:#4ade80">"{BASE}/upload"</span>,
-    headers={<span style="color:#4ade80">"Authorization"</span>: f<span style="color:#4ade80">"Bearer {API_KEY}"</span>},
-    files  ={<span style="color:#4ade80">"file"</span>: <span style="color:#5bd5fc">open</span>(<span style="color:#4ade80">"data.csv"</span>, <span style="color:#4ade80">"rb"</span>)},
-)
-dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ade80">"dataset_id"</span>]
-<span style="color:#5bd5fc">print</span>(f<span style="color:#4ade80">"Uploaded: {dataset_id}"</span>)</code></pre>
           </div>
         </div>
       </div>
@@ -499,17 +479,17 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
         <div class="settings-card mb-4">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">palette</span>
-            Appearance
+            {% if locale == 'ar' %}المظهر{% else %}Appearance{% endif %}
           </h3>
-          {% for label, desc, id in [
-            ("Dark Mode","Use the dark Sci-Fi theme across all pages","pref-dark"),
-            ("Animations","Enable smooth transitions and micro-animations","pref-anim"),
-            ("Compact Tables","Reduce table row height for denser views","pref-compact"),
+          {% for label_en, label_ar, desc_en, desc_ar, id in [
+            ("Dark Mode","الوضع الداكن","Use the dark Sci-Fi theme across all pages","استخدام المظهر الداكن في جميع الصفحات","pref-dark"),
+            ("Animations","المؤثرات البصرية","Enable smooth transitions and micro-animations","تفعيل الانتقالات السلسة والأنيميشن الدقيق","pref-anim"),
+            ("Compact Tables","جداول مدمجة","Reduce table row height for denser views","تقليل ارتفاع صفوف الجدول لعرض أكثر كثافة","pref-compact"),
           ] %}
           <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
             <div>
-              <p class="text-sm text-white font-medium">{{label}}</p>
-              <p class="font-mono text-[10px] text-outline mt-0.5">{{desc}}</p>
+              <p class="text-sm text-white font-medium">{% if locale == 'ar' %}{{label_ar}}{% else %}{{label_en}}{% endif %}</p>
+              <p class="font-mono text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}{{desc_ar}}{% else %}{{desc_en}}{% endif %}</p>
             </div>
             <label class="toggle-wrap">
               <input type="checkbox" id="{{id}}" {% if loop.index <= 2 %}checked{% endif %} onchange="savePref('{{id}}', this.checked)">
@@ -519,45 +499,21 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
           {% endfor %}
         </div>
 
-        <div class="settings-card mb-4">
-          <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined text-[#a48cf4] text-lg" style="font-variation-settings:'FILL' 1">cleaning_services</span>
-            Default Cleaning Strategy
-          </h3>
-          <div class="grid grid-cols-3 gap-3">
-            {% for name, desc, hex, id in [
-              ("Alpha","Conservative — minimal changes","#8e8fa1","strat-alpha"),
-              ("Beta","Balanced — recommended","#4361ee","strat-beta"),
-              ("Gamma","Aggressive — maximum repair","#8540ff","strat-gamma"),
-            ] %}
-            <label class="settings-card cursor-pointer hover:border-opacity-100 transition-all" style="border-color:{{hex}}{% if id == 'strat-beta' %}50{% else %}20{% endif %}">
-              <input type="radio" name="strategy" value="{{name|lower}}" {% if id == 'strat-beta' %}checked{% endif %} class="hidden" id="{{id}}">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style="background:{{hex}}15;border:1px solid {{hex}}30">
-                <span class="material-symbols-outlined text-sm" style="color:{{hex}};font-variation-settings:'FILL' 1">auto_fix_high</span>
-              </div>
-              <p class="font-mono font-bold text-xs" style="color:{{hex}}">{{name}}</p>
-              <p class="font-mono text-[9px] text-outline mt-0.5">{{desc}}</p>
-            </label>
-            {% endfor %}
-          </div>
-        </div>
-
         <div class="settings-card">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">language</span>
-            Language & Region
+            {% if locale == 'ar' %}اللغة والمنطقة{% else %}Language & Region{% endif %}
           </h3>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="sol-label">Language</label>
-              <select class="sol-input" style="color-scheme:dark">
-                <option>English (US)</option>
-                <option>Arabic (Egypt)</option>
-                <option>French</option>
+              <label class="sol-label">{% if locale == 'ar' %}اللغة{% else %}Language{% endif %}</label>
+              <select id="settings-language" class="sol-input" style="color-scheme:dark" onchange="changeLanguage(this.value)">
+                <option value="en" {% if locale != 'ar' %}selected{% endif %}>{% if locale == 'ar' %}الإنجليزية (English){% else %}English (US){% endif %}</option>
+                <option value="ar" {% if locale == 'ar' %}selected{% endif %}>{% if locale == 'ar' %}العربية (Arabic){% else %}Arabic (Egypt){% endif %}</option>
               </select>
             </div>
             <div>
-              <label class="sol-label">Timezone</label>
+              <label class="sol-label">{% if locale == 'ar' %}المنطقة الزمنية{% else %}Timezone{% endif %}</label>
               <select class="sol-input" style="color-scheme:dark">
                 <option>Africa/Cairo (UTC+2)</option>
                 <option>UTC</option>
@@ -575,26 +531,27 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
           <div class="absolute inset-0 opacity-[0.04]" style="background:radial-gradient(ellipse at top right,rgba(67,97,238,.8),transparent 60%)"></div>
           <div class="relative flex items-start justify-between">
             <div>
-              <p class="font-mono text-[9px] text-outline uppercase tracking-widest mb-1">Current Plan</p>
+              <p class="font-mono text-[9px] text-outline uppercase tracking-widest mb-1">{% if locale == 'ar' %}الخطة الحالية{% else %}Current Plan{% endif %}</p>
               <div class="flex items-center gap-3 mb-2">
-                <h3 class="font-headline font-black text-2xl text-white">Pro</h3>
-                <span class="plan-badge plan-pro">Active</span>
+                <h3 class="font-headline font-black text-2xl text-white">{% if locale == 'ar' %}احترافي (Pro){% else %}Pro{% endif %}</h3>
+                <span class="plan-badge plan-pro">{% if locale == 'ar' %}نشط{% else %}Active{% endif %}</span>
               </div>
-              <p class="font-mono text-[10px] text-outline">50 GB storage · Unlimited cleanings · Priority AI processing</p>
+              <p class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}مساحة تخزين ٥٠ جيجابايت · تنظيف غير محدود · معالجة ذكاء اصطناعي ذات أولوية{% else %}50 GB storage · Unlimited cleanings · Priority AI processing{% endif %}</p>
             </div>
             <button class="btn-save no-print">
               <span class="material-symbols-outlined text-sm">upgrade</span>
-              Upgrade to Elite
+              {% if locale == 'ar' %}الترقية إلى الفئة النخبة (Elite){% else %}Upgrade to Elite{% endif %}
             </button>
           </div>
         </div>
 
         <!-- Usage meters -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-          {% for label, used, total, unit, hex in [
-            ("Storage Used", 23, 50, "GB", "#5bd5fc"),
-            ("API Calls", 3240, 10000, "/mo", "#a48cf4"),
-            ("Cleanings", 47, 100, "/mo", "#4ade80"),
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+          {% for label_en, label_ar, used, total, unit_en, unit_ar, hex in [
+            ("Storage Used", "المساحة المستخدمة", 23, 50, "GB", "ج.ب", "#5bd5fc"),
+            ("API Calls", "استدعاءات الـ API", 3240, 10000, "/mo", "/شهر", "#a48cf4"),
+            ("Cleanings", "عمليات التنظيف", 47, 100, "/mo", "/شهر", "#4ade80"),
+            ("ElevenLabs API", "استهلاك ElevenLabs", 1250, 10000, " chars", " حرف", "#f72585"),
           ] %}
           <div class="settings-card text-center">
             <div class="relative w-20 h-20 mx-auto mb-3">
@@ -604,15 +561,16 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
                   stroke-linecap="round"
                   stroke-dasharray="201"
                   stroke-dashoffset="{{ (1 - used/total) * 201 | int }}"
-                  style="transition: stroke-dashoffset 1s ease"/>
+                  style="transition: stroke-dashoffset 1s ease"
+                  {% if label_en == 'ElevenLabs API' %}id="elevenlabs-ring"{% endif %}/>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="font-mono font-bold text-sm text-white">{{used}}</span>
-                <span class="font-mono text-[9px] text-outline">{{unit}}</span>
+                <span class="font-mono font-bold text-sm text-white" {% if label_en == 'ElevenLabs API' %}id="elevenlabs-used"{% endif %}>{{used}}</span>
+                <span class="font-mono text-[9px] text-outline" {% if label_en == 'ElevenLabs API' %}id="elevenlabs-unit"{% endif %}>{% if locale == 'ar' %}{{unit_ar}}{% else %}{{unit_en}}{% endif %}</span>
               </div>
             </div>
-            <p class="font-mono text-xs text-white font-bold">{{label}}</p>
-            <p class="font-mono text-[9px] text-outline mt-0.5">{{used}} / {{total}}{{unit}}</p>
+            <p class="font-mono text-xs text-white font-bold">{% if locale == 'ar' %}{{label_ar}}{% else %}{{label_en}}{% endif %}</p>
+            <p class="font-mono text-[9px] text-outline mt-0.5" {% if label_en == 'ElevenLabs API' %}id="elevenlabs-summary"{% endif %}>{{used}} / {{total}}{% if locale == 'ar' %}{{unit_ar}}{% else %}{{unit_en}}{% endif %}</p>
           </div>
           {% endfor %}
         </div>
@@ -621,24 +579,24 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
         <div class="settings-card">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#ffd166] text-lg" style="font-variation-settings:'FILL' 1">history</span>
-            Recent Activity
+            {% if locale == 'ar' %}النشاط الأخير{% else %}Recent Activity{% endif %}
           </h3>
-          {% for action, file, time, hex in [
-            ("Cleaned","employee_data.csv","5 min ago","#4ade80"),
-            ("Uploaded","sales_q1.xlsx","1h ago","#5bd5fc"),
-            ("Exported","audit_report.json","2h ago","#a48cf4"),
-            ("Cleaned","inventory_2024.csv","Yesterday","#4ade80"),
+          {% for action_en, action_ar, file, time_en, time_ar, hex in [
+            ("Cleaned","تم تنظيف","employee_data.csv","5 min ago","منذ ٥ دقائق","#4ade80"),
+            ("Uploaded","تم رفع","sales_q1.xlsx","1h ago","منذ ساعة","#5bd5fc"),
+            ("Exported","تم تصدير","audit_report.json","2h ago","منذ ساعتين","#a48cf4"),
+            ("Cleaned","تم تنظيف","inventory_2024.csv","Yesterday","أمس","#4ade80"),
           ] %}
           <div class="flex items-center gap-3 py-2.5 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
             <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:{{hex}}15">
               <span class="material-symbols-outlined text-xs" style="color:{{hex}};font-variation-settings:'FILL' 1">
-                {% if action == 'Cleaned' %}cleaning_services{% elif action == 'Uploaded' %}upload{% else %}download{% endif %}
+                {% if action_en == 'Cleaned' %}cleaning_services{% elif action_en == 'Uploaded' %}upload{% else %}download{% endif %}
               </span>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm text-white truncate">{{action}}: <span class="font-mono text-[#bac3ff]">{{file}}</span></p>
+              <p class="text-sm text-white truncate">{% if locale == 'ar' %}{{action_ar}}{% else %}{{action_en}}{% endif %}: <span class="font-mono text-[#bac3ff]">{{file}}</span></p>
             </div>
-            <span class="font-mono text-[9px] text-outline flex-shrink-0">{{time}}</span>
+            <span class="font-mono text-[9px] text-outline flex-shrink-0">{% if locale == 'ar' %}{{time_ar}}{% else %}{{time_en}}{% endif %}</span>
           </div>
           {% endfor %}
         </div>
@@ -649,26 +607,44 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
         <div class="settings-card mb-4">
           <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">notifications_active</span>
-            Email Notifications
+            {% if locale == 'ar' %}إشعارات البريد الإلكتروني{% else %}Email Notifications{% endif %}
           </h3>
-          {% for label, desc, checked in [
-            ("Cleaning Complete","Notify me when a dataset finishes cleaning","true"),
-            ("Audit Reports Ready","Send me a link when the audit report is generated","true"),
-            ("API Key Expiry Alerts","Warn me 7 days before an API key expires","true"),
-            ("Product Updates","New features and improvements from SOL","false"),
-            ("Weekly Digest","Summary of my cleaning activity each week","false"),
+          {% for label_en, label_ar, desc_en, desc_ar, checked in [
+            ("Cleaning Complete","اكتمال التنظيف","Notify me when a dataset finishes cleaning","تنبيهي عندما ينتهي تنظيف مجموعة بيانات","true"),
+            ("Audit Reports Ready","تقارير المراجعة جاهزة","Send me a link when the audit report is generated","إرسال رابط لي عند إنشاء تقرير المراجعة","true"),
+            ("API Key Expiry Alerts","تنبيهات انتهاء صلاحية مفتاح API","Warn me 7 days before an API key expires","تحذيري قبل ٧ أيام من انتهاء صلاحية مفتاح API","true"),
+            ("Product Updates","تحديثات المنتج","New features and improvements from SOL","الميزات الجديدة والتحسينات من SOL","false"),
+            ("Weekly Digest","الموجز الأسبوعي","Summary of my cleaning activity each week","ملخص لنشاط التنظيف الخاص بي كل أسبوع","false"),
           ] %}
           <div class="flex items-center justify-between py-3 {% if not loop.last %}border-b border-outline-variant/10{% endif %}">
             <div>
-              <p class="text-sm text-white font-medium">{{label}}</p>
-              <p class="font-mono text-[10px] text-outline mt-0.5">{{desc}}</p>
+              <p class="text-sm text-white font-medium">{% if locale == 'ar' %}{{label_ar}}{% else %}{{label_en}}{% endif %}</p>
+              <p class="font-mono text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}{{desc_ar}}{% else %}{{desc_en}}{% endif %}</p>
             </div>
             <label class="toggle-wrap">
-              <input type="checkbox" {% if checked == "true" %}checked{% endif %} onchange="toast('Notification preference saved')">
+              <input type="checkbox" {% if checked == "true" %}checked{% endif %} onchange="toast('{% if locale == 'ar' %}تم حفظ تفضيلات الإشعارات{% else %}Notification preference saved{% endif %}')">
               <span class="toggle-slider"></span>
             </label>
           </div>
           {% endfor %}
+        </div>
+      </div>
+
+      <!-- ████ TAB: Concurrent Tasks ████ -->
+      <div class="tab-pane" id="tab-tasks">
+        <div class="settings-card">
+          <h3 class="font-headline font-bold text-white mb-1 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">widgets</span>
+            {% if locale == 'ar' %}المهام المتوازية النشطة{% else %}Active Concurrent Tasks{% endif %}
+          </h3>
+          <p class="font-mono text-[10px] text-outline mb-5">
+            {% if locale == 'ar' %}إدارة ومتابعة مهام هندسة البيانات الخلفية في الوقت الفعلي.{% else %}Manage and monitor backend data engineering tasks in real time.{% endif %}
+          </p>
+          
+          <div class="flex flex-col gap-3" id="settings-task-list">
+            <!-- Dynamic task list will be rendered here by renderFloatingTasks() -->
+            <p class="text-xs text-outline text-center py-6 font-mono">{% if locale == 'ar' %}لا توجد مهام نشطة{% else %}No active tasks{% endif %}</p>
+          </div>
         </div>
       </div>
 
@@ -677,47 +653,47 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
         <div class="mb-4 p-4 rounded-xl border border-[#ff6b6b]/25 flex items-start gap-3" style="background:rgba(255,107,107,.06)">
           <span class="material-symbols-outlined text-[#ff6b6b] text-xl mt-0.5" style="font-variation-settings:'FILL' 1">warning</span>
           <div>
-            <p class="font-mono font-bold text-[#ff6b6b] text-xs uppercase tracking-widest">Danger Zone</p>
-            <p class="font-mono text-[10px] text-outline mt-1">Actions here are irreversible. Proceed with caution.</p>
+            <p class="font-mono font-bold text-[#ff6b6b] text-xs uppercase tracking-widest">{% if locale == 'ar' %}منطقة الخطر{% else %}Danger Zone{% endif %}</p>
+            <p class="font-mono text-[10px] text-outline mt-1">{% if locale == 'ar' %}الإجراءات هنا لا يمكن التراجع عنها. يرجى المتابعة بحذر.{% else %}Actions here are irreversible. Proceed with caution.{% endif %}</p>
           </div>
         </div>
 
         <div class="space-y-4">
           <div class="settings-card danger">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
-                <p class="text-white font-bold mb-1">Clear All Session Data</p>
-                <p class="font-mono text-[10px] text-outline">Remove all uploaded datasets and reports from this session. Your account and settings will be preserved.</p>
+                <p class="text-white font-bold mb-1">{% if locale == 'ar' %}مسح جميع بيانات الجلسة{% else %}Clear All Session Data{% endif %}</p>
+                <p class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}إزالة جميع مجموعات البيانات والتقارير المرفوعة في هذه الجلسة. سيتم الحفاظ على حسابك وإعداداتك.{% else %}Remove all uploaded datasets and reports from this session. Your account and settings will be preserved.{% endif %}</p>
               </div>
-              <button class="btn-danger flex-shrink-0" onclick="confirmAction('clear-session', 'This will delete all datasets from this session.')">
+              <button class="btn-danger flex-shrink-0 self-start sm:self-auto" onclick="confirmAction('clear-session', {% if locale == 'ar' %}'سيؤدي هذا إلى حذف جميع مجموعات البيانات في هذه الجلسة.'{% else %}'This will delete all datasets from this session.'{% endif %})">
                 <span class="material-symbols-outlined text-sm">delete_sweep</span>
-                Clear
+                {% if locale == 'ar' %}مسح{% else %}Clear{% endif %}
               </button>
             </div>
           </div>
 
           <div class="settings-card danger">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
-                <p class="text-white font-bold mb-1">Revoke All API Keys</p>
-                <p class="font-mono text-[10px] text-outline">Immediately invalidates all active API keys. Any running integrations will stop working.</p>
+                <p class="text-white font-bold mb-1">{% if locale == 'ar' %}إلغاء جميع مفاتيح API{% else %}Revoke All API Keys{% endif %}</p>
+                <p class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}إبطال جميع مفاتيح API النشطة فوراً. ستتوقف أي تطبيقات أو خدمات متكاملة قيد التشغيل.{% else %}Immediately invalidates all active API keys. Any running integrations will stop working.{% endif %}</p>
               </div>
-              <button class="btn-danger flex-shrink-0" onclick="confirmAction('revoke-all', 'This will revoke ALL active API keys immediately.')">
+              <button class="btn-danger flex-shrink-0 self-start sm:self-auto" onclick="confirmAction('revoke-all', {% if locale == 'ar' %}'سيؤدي هذا إلى إلغاء جميع مفاتيح API النشطة فوراً.'{% else %}'This will revoke ALL active API keys immediately.'{% endif %})">
                 <span class="material-symbols-outlined text-sm">key_off</span>
-                Revoke All
+                {% if locale == 'ar' %}إلغاء الكل{% else %}Revoke All{% endif %}
               </button>
             </div>
           </div>
 
           <div class="settings-card danger" style="border-color:rgba(255,107,107,.4)">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
-                <p class="text-[#ff6b6b] font-bold mb-1">Delete Account</p>
-                <p class="font-mono text-[10px] text-outline">Permanently delete your SOL account, all data, and cancel your subscription. This cannot be undone.</p>
+                <p class="text-[#ff6b6b] font-bold mb-1">{% if locale == 'ar' %}حذف الحساب{% else %}Delete Account{% endif %}</p>
+                <p class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}حذف حساب SOL الخاص بك نهائياً، مع كافة البيانات وإلغاء اشتراكك. لا يمكن التراجع عن هذا الإجراء.{% else %}Permanently delete your SOL account, all data, and cancel your subscription. This cannot be undone.{% endif %}</p>
               </div>
-              <button class="btn-danger flex-shrink-0" style="border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.1)" onclick="confirmAction('delete-account', 'This will permanently delete your account.')">
+              <button class="btn-danger flex-shrink-0 self-start sm:self-auto" style="border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.1)" onclick="confirmAction('delete-account', {% if locale == 'ar' %}'سيؤدي هذا إلى حذف حسابك نهائياً.'{% else %}'This will permanently delete your account.'{% endif %})">
                 <span class="material-symbols-outlined text-sm">person_remove</span>
-                Delete
+                {% if locale == 'ar' %}حذف{% else %}Delete{% endif %}
               </button>
             </div>
           </div>
@@ -734,17 +710,17 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
     <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background:rgba(255,107,107,.12)">
       <span class="material-symbols-outlined text-[#ff6b6b] text-2xl" style="font-variation-settings:'FILL' 1">warning</span>
     </div>
-    <h3 class="font-headline font-bold text-white text-lg mb-2">Are you sure?</h3>
-    <p class="font-mono text-[11px] text-outline mb-5" id="confirm-msg">This action cannot be undone.</p>
+    <h3 class="font-headline font-bold text-white text-lg mb-2">{% if locale == 'ar' %}هل أنت متأكد؟{% else %}Are you sure?{% endif %}</h3>
+    <p class="font-mono text-[11px] text-outline mb-5" id="confirm-msg">{% if locale == 'ar' %}لا يمكن التراجع عن هذا الإجراء.{% else %}This action cannot be undone.{% endif %}</p>
     <div class="flex gap-3">
       <button onclick="document.getElementById('confirm-modal').classList.add('hidden')"
         class="flex-1 py-2.5 rounded-xl border border-outline-variant/30 font-mono text-xs text-outline hover:text-white transition-colors">
-        Cancel
+        {% if locale == 'ar' %}إلغاء{% else %}Cancel{% endif %}
       </button>
       <button id="confirm-ok"
         class="flex-1 py-2.5 rounded-xl font-mono text-xs font-bold text-white"
         style="background:linear-gradient(135deg,#ff6b6b,#ff4444)">
-        Confirm
+        {% if locale == 'ar' %}تأكيد{% else %}Confirm{% endif %}
       </button>
     </div>
   </div>
@@ -754,6 +730,60 @@ dataset_id = r.<span style="color:#5bd5fc">json</span>()[<span style="color:#4ad
 <div id="toast">
   <span class="material-symbols-outlined text-sm" id="toast-icon" style="color:#4ade80">check_circle</span>
   <span id="toast-msg">Done</span>
+</div>
+
+<!-- Avatar Edit Modal -->
+<div id="avatar-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+  <div class="bg-[#131524] border border-outline-variant/30 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-6 relative">
+    <div class="flex items-center justify-between border-b border-outline-variant/10 pb-3">
+      <h3 class="font-headline font-bold text-white text-lg">
+        {% if locale == 'ar' %}تعديل الصورة الشخصية{% else %}Adjust Profile Picture{% endif %}
+      </h3>
+      <button onclick="document.getElementById('avatar-edit-modal').classList.add('hidden')" class="text-outline hover:text-white transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Drag Viewport -->
+    <div class="relative w-[220px] h-[220px] mx-auto rounded-full overflow-hidden border-2 border-dashed border-[#4361ee]/40 bg-[#0b0c16] flex items-center justify-center cursor-move select-none" id="avatar-viewport">
+      <img id="avatar-editor-img" class="absolute pointer-events-none select-none max-w-none origin-center" style="transform: scale(1) rotate(0deg); transform-origin: center center;" src="" alt="Preview">
+      
+      <!-- Inner circular frame mask helper (visual guide) -->
+      <div class="absolute inset-0 rounded-full border border-white/10 pointer-events-none"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="sol-label flex justify-between">
+          <span>{% if locale == 'ar' %}التكبير{% else %}Zoom{% endif %}</span>
+          <span id="zoom-value" class="font-mono text-[10px] text-[#4ade80]">100%</span>
+        </label>
+        <input type="range" id="avatar-zoom-slider" min="1" max="4" step="0.05" value="1" class="w-full accent-[#4361ee] bg-[#1e2030] h-1.5 rounded-lg appearance-none cursor-pointer" oninput="handleAvatarZoom(this.value)">
+      </div>
+
+      <div class="flex gap-3 justify-center">
+        <button onclick="handleAvatarRotate()" class="px-4 py-2 rounded-lg bg-[#1e2030] border border-outline-variant/10 hover:bg-[#25283e] transition-colors flex items-center gap-2 text-xs text-white">
+          <span class="material-symbols-outlined text-sm">rotate_right</span>
+          {% if locale == 'ar' %}تدوير 90°{% else %}Rotate 90°{% endif %}
+        </button>
+        <button onclick="resetAvatarEditor()" class="px-4 py-2 rounded-lg bg-[#1e2030] border border-outline-variant/10 hover:bg-[#25283e] transition-colors flex items-center gap-2 text-xs text-white">
+          <span class="material-symbols-outlined text-sm">restart_alt</span>
+          {% if locale == 'ar' %}إعادة ضبط{% else %}Reset{% endif %}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 border-t border-outline-variant/10 pt-4">
+      <button onclick="document.getElementById('avatar-edit-modal').classList.add('hidden')" class="px-4 py-2 rounded-lg text-outline hover:text-white transition-colors text-xs">
+        {% if locale == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+      </button>
+      <button onclick="saveAvatarCrop()" class="px-5 py-2 rounded-lg bg-[#4361ee] hover:bg-[#7b2ff7] text-white font-medium transition-all text-xs flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">check</span>
+        {% if locale == 'ar' %}حفظ وتطبيق{% else %}Save & Apply{% endif %}
+      </button>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -785,24 +815,62 @@ function getCookie(n) {
 }
 
 // ─── Tab switching ────────────────────────────────────────────────────────────────
-const TAB_META = {
+const TAB_META = {% if locale == 'ar' %}{
+    profile:       { title:'إعدادات الملف الشخصي',   sub:'إدارة معلوماتك الشخصية' },
+    security:      { title:'الأمان',                 sub:'تغيير كلمة المرور وحماية الحساب' },
+    api:           { title:'مفاتيح API',             sub:'بيانات اعتماد الاستوديو البعيد وتوصيف النماذج' },
+    preferences:   { title:'التفضيلات',              sub:'المظهر، القيم الافتراضية والمنطقة' },
+    usage:         { title:'الاستخدام والحدود',       sub:'مساحة التخزين، استدعاءات API وسجل النشاط' },
+    notifications: { title:'الإشعارات',              sub:'التحكم في رسائل البريد الإلكتروني المستلمة' },
+    tasks:         { title:'المهام المتوازية',        sub:'إدارة ومتابعة مهام هندسة البيانات الخلفية النشطة' },
+    danger:        { title:'منطقة الخطر',            sub:'إجراءات الحساب غير القابلة للتراجع' },
+}{% else %}{
     profile:       { title:'Profile Settings',        sub:'Manage your personal information' },
-    security:      { title:'Security',                 sub:'Password, 2FA and active sessions' },
-    api:           { title:'API Keys',                 sub:'Generate and manage API access tokens' },
+    security:      { title:'Security',                 sub:'Change password and protect your account' },
+    api:           { title:'API Keys',                 sub:'Remote studio credentials and API configurations' },
     preferences:   { title:'Preferences',              sub:'Appearance, defaults and region' },
     usage:         { title:'Usage & Limits',           sub:'Storage, API calls and activity log' },
     notifications: { title:'Notifications',            sub:'Control what emails you receive' },
+    tasks:         { title:'Concurrent Tasks',         sub:'Manage and monitor active backend data engineering tasks' },
     danger:        { title:'Danger Zone',              sub:'Irreversible account actions' },
-};
+}{% endif %};
+
 function switchTab(tab) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('nav-' + tab).classList.add('active');
+    const pane = document.getElementById('tab-' + tab);
+    if (pane) pane.classList.add('active');
+    const navItem = document.getElementById('nav-' + tab);
+    if (navItem) navItem.classList.add('active');
+    
+    // Update active state of mobile settings tabs
+    document.querySelectorAll('.mobile-settings-tab').forEach(btn => {
+        btn.className = "mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-outline hover:text-on-surface shrink-0 transition-all";
+        if (btn.getAttribute('onclick').includes(`'${tab}'`)) {
+            btn.className = "mobile-settings-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-white shrink-0 transition-all";
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    });
+
     const m = TAB_META[tab] || {};
     document.getElementById('panel-title').textContent = m.title || '';
     document.getElementById('panel-sub').textContent   = m.sub   || '';
+
+    if (tab === 'tasks' && typeof loadFloatingTasks === 'function') {
+        loadFloatingTasks();
+    }
+    
+    // Sync to URL hash
+    window.location.hash = tab;
 }
+
+// Hash routing
+window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && TAB_META[hash]) {
+        switchTab(hash);
+    }
+});
 
 // ─── Load profile ─────────────────────────────────────────────────────────────────
 async function loadProfile() {
@@ -813,15 +881,39 @@ async function loadProfile() {
         if (!r.ok) return;
         const d = await r.json();
         const full = `${d.first_name||''} ${d.last_name||''}`.trim() || 'User';
-        const initials = (d.first_name?.[0]||'') + (d.last_name?.[0]||'');
-        document.getElementById('nav-avatar').textContent     = initials || 'U';
-        document.getElementById('bigAvatar').childNodes[0].textContent = initials || 'U';
+        const initials = ((d.first_name?.[0]||'') + (d.last_name?.[0]||'')).toUpperCase() || 'U';
+        
+        const navAvatar = document.getElementById('nav-avatar');
+        if (d.avatar_url) {
+            navAvatar.innerHTML = `<img src="${d.avatar_url}" class="w-full h-full rounded-full object-cover">`;
+        } else {
+            navAvatar.textContent = initials;
+        }
+
+        const bigAvatar = document.getElementById('bigAvatar');
+        if (d.avatar_url) {
+            bigAvatar.innerHTML = `<img src="${d.avatar_url}" class="w-full h-full rounded-full object-cover">` +
+                `<button class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#4361ee] flex items-center justify-center border-2 border-[#13141f] hover:bg-[#7b2ff7] transition-colors" onclick="document.getElementById('avatar-input').click(); event.stopPropagation();">` +
+                `  <span class="material-symbols-outlined text-white text-xs">edit</span>` +
+                `</button>` +
+                `<button class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center border border-[#13141f] transition-colors" onclick="deleteAvatar(event)" title="Delete Avatar">` +
+                `  <span class="material-symbols-outlined text-white text-[12px]">delete</span>` +
+                `</button>`;
+        } else {
+            bigAvatar.innerHTML = initials +
+                `<button class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#4361ee] flex items-center justify-center border-2 border-[#13141f] hover:bg-[#7b2ff7] transition-colors" onclick="document.getElementById('avatar-input').click(); event.stopPropagation();">` +
+                `  <span class="material-symbols-outlined text-white text-xs">edit</span>` +
+                `</button>`;
+        }
+
         document.getElementById('nav-username').textContent   = d.first_name || 'User';
         document.getElementById('profile-fullname').textContent = full;
         document.getElementById('profile-email-display').textContent = d.email || '';
         document.getElementById('inp-first').value  = d.first_name || '';
         document.getElementById('inp-last').value   = d.last_name  || '';
         document.getElementById('inp-email').value  = d.email      || '';
+        document.getElementById('inp-title').value  = d.job_title  || '';
+        document.getElementById('inp-org').value    = d.organization || '';
         if (d.created_at) document.getElementById('member-since').textContent = new Date(d.created_at).getFullYear();
     } catch(e) { console.warn('Profile load failed', e); }
 }
@@ -832,6 +924,8 @@ async function saveProfile() {
         first_name: document.getElementById('inp-first').value.trim(),
         last_name:  document.getElementById('inp-last').value.trim(),
         email:      document.getElementById('inp-email').value.trim(),
+        job_title:  document.getElementById('inp-title').value.trim(),
+        organization: document.getElementById('inp-org').value.trim()
     };
     try {
         const r = await fetch('/api/me', {
@@ -840,13 +934,14 @@ async function saveProfile() {
             body: JSON.stringify(body)
         });
         if (r.ok) {
-            toast('Profile saved successfully!');
+            toast('{% if locale == "ar" %}تم حفظ الملف الشخصي بنجاح!{% else %}Profile saved successfully!{% endif %}');
             loadProfile();
         } else {
-            toast('Failed to save profile.', false);
+            const data = await r.json();
+            toast(data.detail || '{% if locale == "ar" %}فشل في حفظ الملف الشخصي.{% else %}Failed to save profile.{% endif %}', false);
         }
     } catch(e) {
-        toast('Profile saved (offline mode)', true);
+        toast('{% if locale == "ar" %}فشل في حفظ الملف الشخصي.{% else %}Failed to save profile.{% endif %}', false);
     }
 }
 
@@ -855,12 +950,12 @@ function checkPassStrength(val) {
     const checks = [val.length>=8, /[A-Z]/.test(val), /[0-9]/.test(val), /[^A-Za-z0-9]/.test(val)];
     const score = checks.filter(Boolean).length;
     const colors = ['#ff6b6b','#f59e0b','#5bd5fc','#4ade80'];
-    const labels = ['Too Weak','Weak','Good','Strong'];
+    const labels = {% if locale == 'ar' %}['ضعيف جداً','ضعيف','جيد','قوي']{% else %}['Too Weak','Weak','Good','Strong']{% endif %};
     for (let i=1; i<=4; i++) {
         const b = document.getElementById('sb'+i);
         b.style.background = i <= score ? colors[score-1] : 'rgba(68,70,85,.2)';
     }
-    document.getElementById('strength-label').textContent = val ? labels[score-1] || 'Too Weak' : 'Enter password to check strength';
+    document.getElementById('strength-label').textContent = val ? labels[score-1] || '{% if locale == "ar" %}ضعيف جداً{% else %}Too Weak{% endif %}' : '{% if locale == "ar" %}أدخل كلمة المرور للتحقق من قوتها{% else %}Enter password to check strength{% endif %}';
     document.getElementById('strength-label').style.color = val ? colors[score-1] : '';
 }
 
@@ -868,16 +963,16 @@ function checkPassStrength(val) {
 async function changePassword() {
     const np = document.getElementById('inp-new-pass').value;
     const cp = document.getElementById('inp-confirm-pass').value;
-    if (np !== cp) { toast('Passwords do not match.', false); return; }
-    if (np.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+    if (np !== cp) { toast('{% if locale == "ar" %}كلمات المرور غير متطابقة.{% else %}Passwords do not match.{% endif %}', false); return; }
+    if (np.length < 8) { toast('{% if locale == "ar" %}يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.{% else %}Password must be at least 8 characters.{% endif %}', false); return; }
     try {
         const r = await fetch('/api/change-password', {
             method:'POST',
             headers:{'Authorization':`Bearer ${getToken()}`,'Content-Type':'application/json'},
             body: JSON.stringify({ old_password: document.getElementById('inp-old-pass').value, new_password: np })
         });
-        toast(r.ok ? 'Password updated!' : 'Failed — check current password.', r.ok);
-    } catch { toast('Password updated! (offline)', true); }
+        toast(r.ok ? '{% if locale == "ar" %}تم تحديث كلمة المرور!{% else %}Password updated!{% endif %}' : '{% if locale == "ar" %}فشل — يرجى التحقق من كلمة المرور الحالية.{% else %}Failed — check current password.{% endif %}', r.ok);
+    } catch { toast('{% if locale == "ar" %}تم تحديث كلمة المرور! (دون اتصال){% else %}Password updated! (offline){% endif %}', true); }
 }
 
 // ─── API Key ──────────────────────────────────────────────────────────────────────
@@ -887,8 +982,8 @@ function generateApiKey() {
     document.getElementById('api-key-text').textContent = _apiKey;
     _keyVisible = true;
     document.getElementById('eye-icon').textContent = 'visibility_off';
-    document.getElementById('key-meta').textContent = `Created: ${new Date().toLocaleString('en-GB')} · Label: ${document.getElementById('inp-key-label').value || 'Unnamed'} · Expires: ${document.getElementById('inp-key-expiry').value}`;
-    toast('New API key generated! Copy it now — it won\'t be shown again.');
+    document.getElementById('key-meta').textContent = {% if locale == 'ar' %}`تم الإنشاء: ${new Date().toLocaleString('ar-EG')} · الاسم: ${document.getElementById('inp-key-label').value || 'بدون اسم'} · تاريخ الانتهاء: ${document.getElementById('inp-key-expiry').value}`{% else %}`Created: ${new Date().toLocaleString('en-GB')} · Label: ${document.getElementById('inp-key-label').value || 'Unnamed'} · Expires: ${document.getElementById('inp-key-expiry').value}`{% endif %};
+    toast('{% if locale == "ar" %}تم إنشاء مفتاح API جديد! انسخه الآن — لن يتم عرضه مرة أخرى.{% else %}New API key generated! Copy it now — it won\'t be shown again.{% endif %}');
 }
 
 function toggleKeyVisibility() {
@@ -899,23 +994,30 @@ function toggleKeyVisibility() {
 
 function copyApiKey() {
     const text = _apiKey || '';
-    if (!text) { toast('No active key to copy.', false); return; }
-    navigator.clipboard.writeText(text).then(() => toast('API key copied to clipboard!'));
+    if (!text) { toast('{% if locale == "ar" %}لا يوجد مفتاح نشط لنسخه.{% else %}No active key to copy.{% endif %}', false); return; }
+    navigator.clipboard.writeText(text).then(() => toast('{% if locale == "ar" %}تم نسخ مفتاح API إلى الحافظة!{% else %}API key copied to clipboard!{% endif %}'));
 }
 
 function copySnippet() {
     navigator.clipboard.writeText(document.getElementById('code-snippet').innerText)
-        .then(() => toast('Code snippet copied!'));
+        .then(() => toast('{% if locale == "ar" %}تم نسخ الكود البرمجي!{% else %}Code snippet copied!{% endif %}'));
 }
 
 // ─── Preferences ─────────────────────────────────────────────────────────────────
 function savePref(id, val) {
     localStorage.setItem('sol_pref_' + id, val);
-    toast('Preference saved');
+    if (id === 'pref-dark') {
+        if (val) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+    toast('{% if locale == "ar" %}تم حفظ التفضيل{% else %}Preference saved{% endif %}');
 }
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────────
-function revokeSession() { toast('Session revoked.'); }
+function revokeSession() { toast('{% if locale == "ar" %}تم إلغاء الجلسة.{% else %}Session revoked.{% endif %}'); }
 
 // ─── Danger Zone ─────────────────────────────────────────────────────────────────
 function confirmAction(action, msg) {
@@ -924,18 +1026,372 @@ function confirmAction(action, msg) {
     document.getElementById('confirm-ok').onclick = () => {
         document.getElementById('confirm-modal').classList.add('hidden');
         if (action === 'delete-account') {
-            toast('Account deletion requested. Check your email.', true);
+            toast('{% if locale == "ar" %}تم طلب حذف الحساب. يرجى التحقق من بريدك الإلكتروني.{% else %}Account deletion requested. Check your email.{% endif %}', true);
         } else if (action === 'revoke-all') {
             _apiKey = '';
             document.getElementById('api-key-text').textContent = MASKED;
-            toast('All API keys revoked.', true);
+            toast('{% if locale == "ar" %}تم إلغاء جميع مفاتيح API.{% else %}All API keys revoked.{% endif %}', true);
         } else {
-            toast('Session data cleared.', true);
+            toast('{% if locale == "ar" %}تم مسح بيانات الجلسة.{% else %}Session data cleared.{% endif %}', true);
         }
     };
 }
 
+// ─── Remote Credentials ───────────────────────────────────────────────────────────
+async function loadRemoteCredentials() {
+    const token = getToken();
+    try {
+        const r = await fetch('/api/settings/check-credentials', {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        if (r.ok) {
+            const data = await r.json();
+            if (data.kaggle_username) {
+                document.getElementById('inp-kaggle-username').value = data.kaggle_username;
+            }
+            if (data.kaggle_key) {
+                document.getElementById('inp-kaggle-key').value = data.kaggle_key;
+            }
+            if (data.groq_api_key) {
+                document.getElementById('inp-groq-key').value = data.groq_api_key;
+            }
+            if (data.elevenlabs_api_key) {
+                document.getElementById('inp-elevenlabs-key').value = data.elevenlabs_api_key;
+            }
+            if (data.elevenlabs_id) {
+                document.getElementById('inp-elevenlabs-id').value = data.elevenlabs_id;
+            }
+        }
+    } catch(e) {
+        console.warn('Failed to load credentials', e);
+    }
+}
+
+async function saveRemoteCredentials() {
+    const token = getToken();
+    const body = {
+        kaggle_username: document.getElementById('inp-kaggle-username').value.trim(),
+        kaggle_key: document.getElementById('inp-kaggle-key').value.trim(),
+        groq_api_key: document.getElementById('inp-groq-key').value.trim(),
+        elevenlabs_api_key: document.getElementById('inp-elevenlabs-key').value.trim(),
+        elevenlabs_id: document.getElementById('inp-elevenlabs-id').value.trim()
+    };
+    try {
+        const r = await fetch('/api/settings/credentials', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        if (r.ok) {
+            toast('{% if locale == "ar" %}تم حفظ بيانات الاعتماد بنجاح!{% else %}Credentials saved successfully!{% endif %}');
+            loadRemoteCredentials();
+            loadElevenLabsUsage();
+        } else {
+            const data = await r.json();
+            toast(data.detail || '{% if locale == "ar" %}فشل حفظ بيانات الاعتماد.{% else %}Failed to save credentials.{% endif %}', false);
+        }
+    } catch(e) {
+        toast('{% if locale == "ar" %}فشل حفظ بيانات الاعتماد.{% else %}Failed to save credentials.{% endif %}', false);
+    }
+}
+
+// ─── Avatar Editor Modal Logic ──────────────────────────────────────────────────
+let scale = 1.0;
+let rotateDeg = 0;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let imageObj = new Image();
+
+function handleAvatarFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (!file.type.startsWith('image/')) {
+            toast('{% if locale == "ar" %}يرجى اختيار ملف صورة صالح.{% else %}Please select a valid image file.{% endif %}', false);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imageObj.onload = function() {
+                scale = 1.0;
+                rotateDeg = 0;
+                panX = 0;
+                panY = 0;
+                document.getElementById('avatar-zoom-slider').value = 1;
+                document.getElementById('zoom-value').textContent = '100%';
+                updateAvatarEditorPreview();
+                document.getElementById('avatar-edit-modal').classList.remove('hidden');
+                // Reset file input value so same file can be selected again
+                input.value = '';
+            };
+            imageObj.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function updateAvatarEditorPreview() {
+    const imgEl = document.getElementById('avatar-editor-img');
+    if (!imgEl) return;
+    imgEl.src = imageObj.src;
+    
+    const previewSize = 220; // viewport is 220px
+    let w = imageObj.width;
+    let h = imageObj.height;
+    let renderW, renderH;
+    if (w < h) {
+        renderW = previewSize;
+        renderH = (h / w) * previewSize;
+    } else {
+        renderH = previewSize;
+        renderW = (w / h) * previewSize;
+    }
+    imgEl.style.width = renderW + 'px';
+    imgEl.style.height = renderH + 'px';
+    
+    // Centered coordinates + offsets
+    const left = (previewSize - renderW) / 2 + panX;
+    const top = (previewSize - renderH) / 2 + panY;
+    
+    imgEl.style.left = left + 'px';
+    imgEl.style.top = top + 'px';
+    imgEl.style.transform = `scale(${scale}) rotate(${rotateDeg}deg)`;
+}
+
+function handleAvatarZoom(val) {
+    scale = parseFloat(val);
+    document.getElementById('zoom-value').textContent = Math.round(scale * 100) + '%';
+    updateAvatarEditorPreview();
+}
+
+function handleAvatarRotate() {
+    rotateDeg = (rotateDeg + 90) % 360;
+    updateAvatarEditorPreview();
+}
+
+// Add mouse wheel zoom support
+(function() {
+    const vp = document.getElementById('avatar-viewport');
+    if (!vp) return;
+    vp.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const slider = document.getElementById('avatar-zoom-slider');
+        if (!slider) return;
+        let val = parseFloat(slider.value);
+        if (e.deltaY < 0) {
+            val = Math.min(4, val + 0.1);
+        } else {
+            val = Math.max(1, val - 0.1);
+        }
+        slider.value = val;
+        handleAvatarZoom(val);
+    });
+})();
+
+function resetAvatarEditor() {
+    scale = 1.0;
+    rotateDeg = 0;
+    panX = 0;
+    panY = 0;
+    document.getElementById('avatar-zoom-slider').value = 1;
+    document.getElementById('zoom-value').textContent = '100%';
+    updateAvatarEditorPreview();
+}
+
+function saveAvatarCrop() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, 256, 256);
+    
+    // Target size is 256x256, viewport size is 220px
+    const previewSize = 220;
+    const drawScale = 256 / previewSize;
+    
+    let w = imageObj.width;
+    let h = imageObj.height;
+    let renderW, renderH;
+    if (w < h) {
+        renderW = previewSize;
+        renderH = (h / w) * previewSize;
+    } else {
+        renderH = previewSize;
+        renderW = (w / h) * previewSize;
+    }
+    
+    // 1. Move origin to canvas center (128, 128)
+    ctx.translate(128, 128);
+    // 2. Apply viewport panning scaled up to canvas size
+    ctx.translate(panX * drawScale, panY * drawScale);
+    // 3. Apply rotation
+    ctx.rotate(rotateDeg * Math.PI / 180);
+    // 4. Apply scale
+    ctx.scale(scale * drawScale, scale * drawScale);
+    // 5. Draw image centered
+    ctx.drawImage(imageObj, -renderW / 2, -renderH / 2, renderW, renderH);
+    
+    canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'avatar.png');
+        
+        try {
+            const res = await fetch('/api/settings/upload-avatar', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` },
+                body: formData
+            });
+            if (res.ok) {
+                toast('{% if locale == "ar" %}تم تحديث الصورة الشخصية بنجاح!{% else %}Avatar updated successfully!{% endif %}');
+                document.getElementById('avatar-edit-modal').classList.add('hidden');
+                loadProfile();
+                // Hydrate layout sidebar and topbar
+                if (window.parent && typeof window.parent.verifySessionAndHydrate === 'function') {
+                    window.parent.verifySessionAndHydrate();
+                } else if (typeof verifySessionAndHydrate === 'function') {
+                    verifySessionAndHydrate();
+                }
+            } else {
+                toast('{% if locale == "ar" %}فشل في رفع الصورة الشخصية.{% else %}Failed to upload avatar.{% endif %}', false);
+            }
+        } catch(e) {
+            console.error(e);
+            toast('{% if locale == "ar" %}حدث خطأ أثناء رفع الصورة.{% else %}Error uploading avatar.{% endif %}', false);
+        }
+    }, 'image/png');
+}
+
+async function deleteAvatar(event) {
+    if (event) event.stopPropagation();
+    if (!confirm('{% if locale == "ar" %}هل أنت متأكد من رغبتك في إزالة الصورة الشخصية؟{% else %}Are you sure you want to remove your profile picture?{% endif %}')) return;
+    
+    try {
+        const res = await fetch('/api/settings/delete-avatar', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        if (res.ok) {
+            toast('{% if locale == "ar" %}تمت إزالة الصورة الشخصية.{% else %}Profile picture removed.{% endif %}');
+            loadProfile();
+            if (window.parent && typeof window.parent.verifySessionAndHydrate === 'function') {
+                window.parent.verifySessionAndHydrate();
+            } else if (typeof verifySessionAndHydrate === 'function') {
+                verifySessionAndHydrate();
+            }
+        } else {
+            toast('{% if locale == "ar" %}فشل في إزالة الصورة الشخصية.{% else %}Failed to remove avatar.{% endif %}', false);
+        }
+    } catch(e) {
+        console.error(e);
+        toast('{% if locale == "ar" %}حدث خطأ أثناء إزالة الصورة.{% else %}Error removing avatar.{% endif %}', false);
+    }
+}
+
+// Register viewport drag events
+(function() {
+    const vp = document.getElementById('avatar-viewport');
+    if (!vp) return;
+    
+    const dragStart = (x, y) => {
+        isDragging = true;
+        startX = x - panX;
+        startY = y - panY;
+    };
+    
+    const dragMove = (x, y) => {
+        if (!isDragging) return;
+        panX = x - startX;
+        panY = y - startY;
+        updateAvatarEditorPreview();
+    };
+    
+    const dragEnd = () => {
+        isDragging = false;
+    };
+    
+    vp.addEventListener('mousedown', (e) => {
+        dragStart(e.clientX, e.clientY);
+        e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+        dragMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', dragEnd);
+    
+    // Touch support
+    vp.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            dragStart(e.touches[0].clientX, e.touches[0].clientY);
+            e.preventDefault();
+        }
+    });
+    vp.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+            dragMove(e.touches[0].clientX, e.touches[0].clientY);
+            e.preventDefault();
+        }
+    });
+    vp.addEventListener('touchend', dragEnd);
+})();
+
+function changeLanguage(lang) {
+    document.cookie = "sol_locale=" + lang + "; path=/; max-age=31536000";
+    window.location.reload();
+}
+// ─── ElevenLabs Usage ─────────────────────────────────────────────────────────────
+async function loadElevenLabsUsage() {
+    const token = getToken();
+    try {
+        const r = await fetch('/api/settings/elevenlabs-usage', {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        if (r.ok) {
+            const data = await r.json();
+            const used = data.character_count;
+            const total = data.character_limit;
+            
+            const usedEl = document.getElementById('elevenlabs-used');
+            const summaryEl = document.getElementById('elevenlabs-summary');
+            const ringEl = document.getElementById('elevenlabs-ring');
+            
+            if (usedEl) usedEl.textContent = used;
+            if (summaryEl) {
+                summaryEl.textContent = used + ' / ' + total + '{% if locale == "ar" %} حرف{% else %} chars{% endif %}';
+            }
+            if (ringEl) {
+                const dashoffset = Math.max(0, Math.min(201, (1 - used / total) * 201));
+                ringEl.setAttribute('stroke-dashoffset', Math.round(dashoffset));
+            }
+        }
+    } catch(e) {
+        console.warn('Failed to load ElevenLabs usage', e);
+    }
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────────
 loadProfile();
+loadRemoteCredentials();
+loadElevenLabsUsage();
+
+(function() {
+    const darkPref = localStorage.getItem('sol_pref_pref-dark');
+    if (darkPref !== null) {
+        document.getElementById('pref-dark').checked = darkPref === 'true';
+    }
+    const animPref = localStorage.getItem('sol_pref_pref-anim');
+    if (animPref !== null) {
+        document.getElementById('pref-anim').checked = animPref === 'true';
+    }
+    const compactPref = localStorage.getItem('sol_pref_pref-compact');
+    if (compactPref !== null) {
+        document.getElementById('pref-compact').checked = compactPref === 'true';
+    }
+})();
 </script>
 {% endblock %}

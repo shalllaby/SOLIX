@@ -3,141 +3,106 @@ import numpy as np
 import io
 
 class MetadataAnalyzer:
-    def analyze_file(self, file_content: bytes, filename: str):
-        try:
-            from data_layer.loaders.universal_loader import DataLoaderFactory
-        except ImportError:
-            # Fallback for when core is run directly or from different cwd
-            import sys, os
-            sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-            from data_layer.loaders.universal_loader import DataLoaderFactory
-            
-        try:
-            df = DataLoaderFactory.load_data(io.BytesIO(file_content), file_name=filename)
-        except Exception as e:
-            raise ValueError(f"Unsupported file format or error loading file: {e}")
+    def analyze_file(self, file_content: bytes = None, filename: str = "", file_path: str = None):
+        import polars as pl
+        import json
+        import numpy as np
 
-        # 1. Sample Cleaning
-        df_sample = df.head(3).copy()
-        df_sample = df_sample.replace({np.nan: None})
+        # Determine source
+        if file_path is not None:
+            if filename.endswith('.csv'):
+                lf = pl.scan_csv(file_path, infer_schema_length=10000)
+            elif filename.endswith('.parquet'):
+                lf = pl.scan_parquet(file_path)
+            elif filename.endswith(('.xls', '.xlsx')):
+                lf = pl.read_excel(file_path).lazy()
+            else:
+                lf = pl.read_json(file_path).lazy()
+        else:
+            import io
+            if filename.endswith('.csv'):
+                lf = pl.read_csv(io.BytesIO(file_content)).lazy()
+            elif filename.endswith('.parquet'):
+                lf = pl.read_parquet(io.BytesIO(file_content)).lazy()
+            elif filename.endswith(('.xls', '.xlsx')):
+                lf = pl.from_pandas(pd.read_excel(io.BytesIO(file_content))).lazy()
+            else:
+                lf = pl.from_pandas(pd.read_json(io.BytesIO(file_content))).lazy()
+
+        # Get total row count and col count
+        shape_df = lf.select([pl.len().alias("rows")]).collect()
+        rows = shape_df["rows"][0]
+        cols = len(lf.columns)
+        
+        # Get head sample (up to 3 rows)
+        df_sample = lf.head(3).collect().to_pandas()
         for col in df_sample.columns:
             if pd.api.types.is_datetime64_any_dtype(df_sample[col]):
                 df_sample[col] = df_sample[col].astype(str)
-        
-        sample = df_sample.to_dict(orient='records')
+        sample = json.loads(df_sample.to_json(orient='records', date_format='iso'))
 
         metadata = {
             "file_name": filename,
-            "rows": int(df.shape[0]),
-            "cols": int(df.shape[1]),
+            "rows": int(rows),
+            "cols": int(cols),
             "columns_info": [],
-            "sample_data": sample,
-            "correlations": [],
-            "system_warnings": []
+            "sample_data": sample 
         }
 
+        # Analyze columns in a single streaming pass to prevent OOM
+        select_exprs = []
+        for col in lf.columns:
+            select_exprs.append(pl.col(col).null_count().alias(f"{col}_nulls"))
+            select_exprs.append(pl.col(col).n_unique().alias(f"{col}_unique"))
+            dtype = lf.schema[col]
+            if dtype.is_numeric():
+                select_exprs.append(pl.col(col).min().alias(f"{col}_min"))
+                select_exprs.append(pl.col(col).max().alias(f"{col}_max"))
 
-        # 2. Column Analysis
-        for col in df.columns:
-            col_data = df[col]
-            dtype = str(col_data.dtype)
-            # Count both true NaN and known error/dirty tokens as "missing"
-            _ERROR_TOKENS = {"ERROR", "error", "UNKNOWN", "unknown", "?", "-",
-                             "Not Started", "Null", "NULL", "N/A", "n/a", "na",
-                             "NA", "#VALUE!", "??", "---", "#N/A", "#REF!"}
-            nan_mask = col_data.isna()
-            if col_data.dtype == object:
-                error_mask = col_data.astype(str).str.strip().isin(_ERROR_TOKENS)
-                dirty_mask = nan_mask | error_mask
-            else:
-                dirty_mask = nan_mask
-            missing_count = int(dirty_mask.sum())
-            missing_pct = round((missing_count / len(df)) * 100, 2)
-            
-            # Min/Max for Numeric
+        stats_df = lf.select(select_exprs).collect(streaming=True)
+
+        for col in lf.columns:
+            dtype = lf.schema[col]
+            physical_type = str(dtype)
+            missing_count = int(stats_df[f"{col}_nulls"][0])
+            missing_pct = round((missing_count / rows) * 100, 2) if rows > 0 else 0.0
+            unique_vals = int(stats_df[f"{col}_unique"][0])
+
             min_val, max_val = None, None
-            if pd.api.types.is_numeric_dtype(col_data):
-                min_val = float(col_data.min()) if not col_data.empty else None
-                max_val = float(col_data.max()) if not col_data.empty else None
+            if dtype.is_numeric():
+                val_min = stats_df[f"{col}_min"][0]
+                val_max = stats_df[f"{col}_max"][0]
+                if val_min is not None and np.isfinite(val_min):
+                    min_val = float(val_min)
+                if val_max is not None and np.isfinite(val_max):
+                    max_val = float(val_max)
 
             # Semantic Type Inference
             semantic_type = "Unknown"
-            if pd.api.types.is_numeric_dtype(col_data):
+            if dtype.is_numeric():
                 semantic_type = "Numeric"
-                if col_data.nunique() == 2: semantic_type = "Binary"
-            elif pd.api.types.is_datetime64_any_dtype(col_data):
+                if unique_vals == 2:
+                    semantic_type = "Binary"
+            elif dtype.is_temporal():
                 semantic_type = "DateTime"
-            elif col_data.nunique() < 20 and len(col_data) > 20:
+            elif unique_vals < 20 and rows > 20:
                 semantic_type = "Categorical"
             else:
                 semantic_type = "Text"
-            
-            # --- New Context Awareness Logic ---
-            col_name_lower = str(col).lower()
-            
-            # 1. Sensitive Column Detection
-            sensitive_keywords = ['id', 'uuid', 'guid', 'email', 'name', 'phone', 'address', 'password', 'token', 'secret']
-            is_sensitive = False
-            
-            if any(keyword in col_name_lower for keyword in sensitive_keywords):
-                is_sensitive = True
-            elif semantic_type in ["Text", "Numeric"] and col_data.nunique() > 0:
-                # If > 95% unique, it's likely an ID/Sensitive column
-                if (col_data.nunique() / len(df)) >= 0.95:
-                    is_sensitive = True
-
-            # 2. Target Column Detection
-            target_keywords = ['target', 'label', 'price', 'sales', 'revenue', 'status', 'churn', 'is_', 'has_']
-            is_primary_target = False
-            
-            if semantic_type in ["Binary", "Categorical", "Numeric"]:
-                if any(keyword in col_name_lower for keyword in target_keywords):
-                    is_primary_target = True
 
             is_target = True if semantic_type in ["Binary", "Categorical", "Numeric"] else False
 
-
             col_info = {
                 "name": str(col),
-                "physical_type": dtype,
+                "physical_type": physical_type,
                 "semantic_type": semantic_type,
                 "missing_count": missing_count,
                 "missing_percentage": missing_pct,
-                "unique_values": int(col_data.nunique()),
-                "is_sensitive": is_sensitive,
-                "is_primary_target": is_primary_target,
+                "unique_values": unique_vals,
                 "is_target_candidate": is_target,
                 "min_value": min_val,
                 "max_value": max_val
             }
             metadata["columns_info"].append(col_info)
             
-            if is_sensitive:
-                metadata["system_warnings"].append(f"Column '{col}' is marked as sensitive. Heavily replacing or deleting its values is not recommended.")
-            if is_primary_target:
-                metadata["system_warnings"].append(f"Column '{col}' is marked as a primary target. Accuracy is prioritized over filling all missing values.")
-
-        # 3. Correlation Analysis (Context Awareness)
-        numeric_df = df.select_dtypes(include=[np.number])
-        if not numeric_df.empty and numeric_df.shape[1] > 1:
-            corr_matrix = numeric_df.corr().abs()
-            
-            # Extract upper triangle of correlation matrix without diagonal
-            upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-            
-            # Find highly correlated features (> 0.8)
-            for i in range(len(upper_tri.columns)):
-                for j in range(i+1, len(upper_tri.columns)):
-                    col1 = upper_tri.columns[i]
-                    col2 = upper_tri.columns[j]
-                    val = upper_tri.iloc[i, j]
-                    if pd.notna(val) and val >= 0.8:
-                        metadata["correlations"].append({
-                            "column_1": col1,
-                            "column_2": col2,
-                            "correlation_score": round(float(val), 2),
-                            "relationship": "Strongly Correlated"
-                        })
-                        metadata["system_warnings"].append(f"Columns '{col1}' and '{col2}' are highly correlated (score: {round(float(val), 2)}). Actions taken on one should be consistent with the other.")
-
         return metadata

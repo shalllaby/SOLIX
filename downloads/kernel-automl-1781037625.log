@@ -1,0 +1,29 @@
+[{"stream_name":"stdout","time":13.933956659,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":13.934057622,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":13.934062843,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":13.934065632,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":13.934071792,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1781037625'], Files: []\n"}
+,{"stream_name":"stdout","time":13.938810353000001,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.940562362,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625/X_train.csv']\n"}
+,{"stream_name":"stdout","time":13.940590169,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1781037625\n"}
+,{"stream_name":"stdout","time":13.979157309,"data":"Class distribution: {np.int64(0): np.int64(6), np.int64(1): np.int64(6)} | Imbalance ratio: 1.00x | Balancing active: False | Weights: {k: round(v, 4) for k, v in CLASS_WEIGHT_DICT.items()}\n"}
+,{"stream_name":"stdout","time":13.979192182,"data":"Train Shape: (12, 2) | Task: binary | Classes: 2\n"}
+,{"stream_name":"stdout","time":13.979197791,"data":"Models scheduled for training: ['random_forest']\n"}
+,{"stream_name":"stdout","time":13.979201928,"data":"Training random_forest...\n"}
+,{"stream_name":"stdout","time":13.98029327,"data":"  --\u003e random_forest Failed: Model random_forest is not supported or not installed.\n"}
+,{"stream_name":"stdout","time":13.980314025,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":13.980318541,"data":"  File \"/kaggle/src/script.py\", line 428, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":13.980323361,"data":"    model = instantiate_model(name)\n"}
+,{"stream_name":"stdout","time":13.980327121,"data":"            ^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":13.980331115,"data":"  File \"/kaggle/src/script.py\", line 295, in instantiate_model\n"}
+,{"stream_name":"stdout","time":13.980335467,"data":"    raise ValueError(f\"Model {model_name} is not supported or not installed.\")\n"}
+,{"stream_name":"stdout","time":13.980339605,"data":"ValueError: Model random_forest is not supported or not installed.\n"}
+,{"stream_name":"stdout","time":13.980343598,"data":"\n"}
+,{"stream_name":"stdout","time":14.096320875,"data":"Error: No models were successfully trained.\n"}
+,{"stream_name":"stderr","time":17.364687486,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":17.364738236,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":17.67694261,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":17.676967982,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":18.455370373,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":19.577152818,"data":"[NbConvertApp] Writing 381161 bytes to __results__.html\n"}
+]

@@ -1,0 +1,1 @@
+# Keep directory tracked by git, as it is required by FastAPI's StaticFiles mount.

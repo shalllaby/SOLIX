@@ -1,0 +1,151 @@
+1001:             valid_indices = noisy_df[noisy_df[col].notna()].index
+1002:             if len(valid_indices) == 0:
+1003:                 continue
+1004:                 
+1005:             n_outliers = int(len(valid_indices) * (outlier_pct / 100.0))
+1006:             if n_outliers > 0:
+1007:                 outlier_indices = np.random.choice(valid_indices, n_outliers, replace=False)
+1008:                 multipliers = np.random.choice([5, 10, -5], size=n_outliers)
+1009:                 noisy_df.loc[outlier_indices, col] = noisy_df.loc[outlier_indices, col] * multipliers
+1010:                 
+1011:     return noisy_df
+1012: 
+1013: 
+1014: # ─────────────────────────────────────────────
+1015: # 3. SIMILARITY REPORT  (تقرير التشابه)
+1016: # ─────────────────────────────────────────────
+1017: 
+1018: def fidelity_score_column(original: pd.Series, synthetic: pd.Series, col_type: str) -> float:
+1019:     if col_type == "sensitive":
+1020:         return 100.0
+1021: 
+1022:     if col_type == "numerical":
+1023:         orig_clean = original.dropna()
+1024:         synt_clean = synthetic.dropna()
+1025:         if len(orig_clean) == 0 or len(synt_clean) == 0:
+1026:             return 0.0
+1027:         stat, _ = ks_2samp(orig_clean, synt_clean)
+1028:         return round((1 - stat) * 100, 2)
+1029: 
+1030:     if col_type == "categorical":
+1031:         orig_dist = original.value_counts(normalize=True)
+1032:         synt_dist = synthetic.value_counts(normalize=True)
+1033:         all_cats  = set(orig_dist.index) | set(synt_dist.index)
+1034:         diff = sum(abs(orig_dist.get(c, 0) - synt_dist.get(c, 0)) for c in all_cats)
+1035:         return round((1 - diff / 2) * 100, 2)
+1036: 
+1037:     return 0.0
+1038: 
+1039: 
+1040: def generate_report(
+1041:     original:  pd.DataFrame,
+1042:     synthetic: pd.DataFrame,
+1043:     profile:   dict
+1044: ) -> pd.DataFrame:
+1045:     rows = []
+1046:     for col in original.columns:
+1047:         if col not in synthetic.columns:
+1048:             continue
+1049:         if col not in profile or not isinstance(profile.get(col), dict):
+1050:             continue
+1051:         col_type = profile[col]["type"]
+1052:         score    = fidelity_score_column(original[col], synthetic[col], col_type)
+1053:         rows.append({
+1054:             "column":        col,
+1055:             "type":         col_type,
+1056:             "fidelity_score": score,
+1057:             "quality":        "ممتاز 🟢" if score >= 85 else "مقبول 🟡" if score >= 60 else "ضعيف 🔴"
+1058:         })
+1059: 
+1060:     report_df = pd.DataFrame(rows)
+1061:     return report_df
+1062: 
+1063: 
+1064: # ─────────────────────────────────────────────
+1065: # 4. PRIVACY ANALYSIS  (تحليل الخصوصية)
+1066: # ─────────────────────────────────────────────
+1067: 
+1068: def _prepare_numeric_matrix(df: pd.DataFrame, profile: dict) -> np.ndarray:
+1069:     from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+1070: 
+1071:     cols_to_use = []
+1072:     encoded_parts = []
+1073: 
+1074:     for col in df.columns:
+1075:         if col not in profile or not isinstance(profile[col], dict):
+1076:             continue
+1077:         col_type = profile[col].get("type", "")
+1078: 
+1079:         if col_type == "sensitive":
+1080:             continue
+1081: 
+1082:         if col_type == "numerical":
+1083:             cols_to_use.append(col)
+1084:             vals = df[col].fillna(0).values.reshape(-1, 1)
+1085:             scaler = MinMaxScaler()
+1086:             encoded_parts.append(scaler.fit_transform(vals))
+1087: 
+1088:         elif col_type == "categorical":
+1089:             cols_to_use.append(col)
+1090:             le = LabelEncoder()
+1091:             vals = le.fit_transform(df[col].fillna("__MISSING__").astype(str))
+1092:             if vals.max() > 0:
+1093:                 vals = vals / vals.max()
+1094:             encoded_parts.append(vals.reshape(-1, 1))
+1095: 
+1096:     if not encoded_parts:
+1097:         return np.array([])
+1098: 
+1099:     return np.hstack(encoded_parts)
+1100: 
+1101: 
+1102: def compute_dcr(original: pd.DataFrame, synthetic: pd.DataFrame, profile: dict, sample_size: int = 500) -> dict:
+1103:     from scipy.spatial.distance import cdist
+1104: 
+1105:     orig_matrix = _prepare_numeric_matrix(original, profile)
+1106:     synth_matrix = _prepare_numeric_matrix(synthetic, profile)
+1107: 
+1108:     if orig_matrix.size == 0 or synth_matrix.size == 0:
+1109:         return {
+1110:             "dcr_values": [],
+1111:             "mean_dcr": 0, "min_dcr": 0, "max_dcr": 0,
+1112:             "privacy_score": 0, "risk_level": "غير قابل للحساب",
+1113:             "at_risk_count": 0, "at_risk_pct": 0
+1114:         }
+1115: 
+1116:     if len(synth_matrix) > sample_size:
+1117:         idx = np.random.choice(len(synth_matrix), sample_size, replace=False)
+1118:         synth_sample = synth_matrix[id- NO LANGUAGE MIXING: If {target_language} is Arabic, under no circumstances should you return English words inside the 'categories', 'display_name', or 'description' fields.
+1119: - The ONLY exception is the programmatic 'name' field, which must always remain in English snake_case (e.g., 'car_color').
+1120: 
+1121: الأنواع المدعومة (type) التي يجب عليك الاختيار منها حصراً هي:
+1122: 1. "id": رقم تسلسلي أو معرّف فريد.
+1123: 2. "name": اسم شخص كامل.
+1124: 3. "email": بريد إلكتروني.
+1125: 4. "phone": رقم هاتف متوافق مع سياق الوصف والدولة.
+1126: 5. "address": عنوان جغرافي.
+1127: 6. "number": أرقام وحسابات (مثال: السعر، العمر، الكمية). حدد "min" و "max" و "is_float" في التفاصيل.
+1128: 7. "category": فئات/تصنيفات خيارات محددة. أرفق قائمة بالخيارات المقترحة "categories" مثلاً: ["رياضة", "ألعاب", "موسيقى"].
+1129: 8. "date": تاريخ (مثلاً تاريخ ميلاد، تاريخ شراء).
+1130: 9. "text": نص حر قصير (مثلاً ملاحظات، وصف منتج).
+1131: 
+1132: صيغة الإرجاع يجب أن تكون كائن JSON فقط يحتوي على قائمة من الأعمدة بالصيغة التالية:
+1133: {{
+1134:   "columns": [
+1135:     {{
+1136:       "name": "column_name_in_english",
+1137:       "display_name": "اسم العمود باللغة المطلوبة",
+1138:       "type": "type_name",
+1139:       "description": "وصف مختصر للعمود باللغة المطلوبة",
+1140:       "min": 10,  // اختياري فقط إذا كان النوع number
+1141:       "max": 100, // اختياري فقط إذا كان النوع number
+1142:       "is_float": false, // اختياري فقط إذا كان النوع number
+1143:       "categories": ["cat1", "cat2"] // إجباري فقط إذا كان النوع category
+1144:     }}
+1145:   ]
+1146: }}
+1147: """
+1148: 
+1149:     result_container = {"result": None, "error": None}
+1150: 
+1151:     def _call_llm():

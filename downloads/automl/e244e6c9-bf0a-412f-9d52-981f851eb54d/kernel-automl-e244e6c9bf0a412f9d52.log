@@ -1,0 +1,27 @@
+[{"stream_name":"stdout","time":15.969071011,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":15.96917708,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":15.969282834,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":15.969292455,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":15.969295895,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-e244e6c9bf0a412f9d52'], Files: []\n"}
+,{"stream_name":"stdout","time":15.973273387,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":15.975607999,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52/X_train.csv']\n"}
+,{"stream_name":"stdout","time":15.975648575,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-e244e6c9bf0a412f9d52\n"}
+,{"stream_name":"stdout","time":16.00343726,"data":"Train Shape: (80, 5) | Task: regression | Classes: 2\n"}
+,{"stream_name":"stdout","time":16.003478173,"data":"Models scheduled for training: ['LogisticRegression']\n"}
+,{"stream_name":"stdout","time":16.003484315,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":16.167860789,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.0000\n"}
+,{"stream_name":"stdout","time":16.349482248,"data":"Top 3 baseline models selected for deep tuning: ['LogisticRegression']\n"}
+,{"stream_name":"stdout","time":16.34966057,"data":"Executing deep tuning sweep for: LogisticRegression...\n"}
+,{"stream_name":"stderr","time":16.36524264,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_search.py:317: UserWarning: The total space of parameters 4 is smaller than n_iter=5. Running 4 iterations. For exhaustive searches, use GridSearchCV.\n"}
+,{"stream_name":"stderr","time":16.365335161,"data":"  warnings.warn(\n"}
+,{"stream_name":"stdout","time":19.568217835,"data":"  Tuning complete for LogisticRegression. Best params: {'C': 10.0}\n"}
+,{"stream_name":"stdout","time":19.711110572,"data":"  --\u003e Tuned_LogisticRegression Completed | Composite Score: 0.9118\n"}
+,{"stream_name":"stdout","time":19.712975096,"data":"Ultimate Champion model 'Tuned_LogisticRegression' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":19.714204608,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":24.182561914,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":24.182632658,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":24.579422543,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":24.579463377,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":25.489245388,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":26.769283185,"data":"[NbConvertApp] Writing 387667 bytes to __results__.html\n"}
+]

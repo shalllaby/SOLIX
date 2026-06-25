@@ -1,0 +1,16 @@
+981:     md += "---\n\n"
+982:     for col, info in profile.items():
+983:         if col.startswith("__"): continue
+984:         md += f"### 🔹 عمود: `{col}`\n"
+985:         md += f"- **النوع (Type):** `{info.get('type', 'Unknown')}`\n"
+986:         md += f"- **نسبة القيم المفقودة (Nulls):** {info.get('null_pct', 0):.2f}%\n"
+987:         if info.get('type') == 'numerical':
+988:             md += f"- **الحد الأدنى (Min):** {info.get('min', 'N/A')}\n"
+989:             md += f"- **الحد الأقصى (Max):** {info.get('max', 'N/A')}\n"
+990:             md += f"- **المتوسط (Mean):** {info.get('mean', 'N/A'):.2f}\n"
+991:         elif info.get('type') == 'categorical':
+992:             val_counts = info.get('value_counts', {})
+993:             top_vals = list(val_counts.keys())[:5]
+994:             md += f"- **أبرز الفئات المتكررة:** {', '.join([str(x) for x in top_vals])}\n"
+995:         md += "\n"
+996:     return md

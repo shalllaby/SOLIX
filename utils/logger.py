@@ -44,8 +44,8 @@ class SystemLogger:
                 updated_df = pd.concat([existing_df, new_df], ignore_index=True)
                 updated_df.to_excel(self.log_file, index=False)
             except Exception as e:
-                print(f"[!] Logger Error (Append): {e}")
+                print(f"⚠️ Logger Error (Append): {e}")
         else:
             new_df.to_excel(self.log_file, index=False)
         
-        print(f"[OK] [Logger] Quality Report saved: Fixed {cleaned_count} cells ({improvement_pct}%)")
+        print(f"✅ [Logger] Quality Report saved: Fixed {cleaned_count} cells ({improvement_pct}%)")

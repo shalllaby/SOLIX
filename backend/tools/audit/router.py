@@ -183,9 +183,9 @@ async def export_audit_report(
 
         # ── Section 6: Actions Log ───────────────────────────────────────────
         writer.writerow(["=== CLEANING ACTIONS LOG ==="])
-        writer.writerow(["Step", "Category", "Action"])
+        writer.writerow(["Column Name", "Issue Detected", "Resolution Method"])
         for entry in log.get("actions_log", []):
-            writer.writerow([entry.get("step", ""), entry.get("category", ""), entry.get("action", "")])
+            writer.writerow([entry.get("column", ""), entry.get("issue", ""), entry.get("resolution", "")])
 
         output.seek(0)
         return StreamingResponse(

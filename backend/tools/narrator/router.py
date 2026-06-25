@@ -2,6 +2,7 @@ from fastapi import APIRouter, Form, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from backend.auth import get_current_user
 from backend.models import User
+from backend.middleware.barrier import CredentialsBarrier
 from backend.store import _store, _store_filename
 from backend.tools.narrator.narrator import DataNarrator
 import io, json
@@ -36,7 +37,8 @@ def _build_col_info(df: pd.DataFrame) -> list:
 @router.post("/pre-clean")
 async def narrate_pre_clean(
     dataset_id: str = Form(...),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    _barrier = Depends(CredentialsBarrier(["groq_api_key"]))
 ):
     """Generate Arabic pre-cleaning narrative for a stored dataset."""
     if dataset_id not in _store:
@@ -60,7 +62,8 @@ async def narrate_post_clean(
     strategy: str = Form(default="beta"),
     stats_json: str = Form(default="{}"),
     report_json: str = Form(default="{}"),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    _barrier = Depends(CredentialsBarrier(["groq_api_key"]))
 ):
     """Generate Arabic post-cleaning narrative."""
     filename = _store_filename.get(dataset_id, "dataset")

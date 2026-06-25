@@ -1,0 +1,21 @@
+[{"stream_name":"stdout","time":1.528268835,"data":"[2026-05-31 03:01:41] [INFO] [SOL.KaggleKernel] === REMOTE KAGGLE CLEANING KERNEL STARTING (AUTO-UNZIP MODE) ===\n"}
+,{"stream_name":"stdout","time":1.52835973,"data":"[2026-05-31 03:01:41] [INFO] [SOL.KaggleKernel] Waiting for mounted dataset (raw.parquet) under /kaggle/input/...\n"}
+,{"stream_name":"stdout","time":1.537245661,"data":"[2026-05-31 03:01:41] [INFO] [SOL.KaggleKernel] Dataset found instantly at: /kaggle/input/datasets/mohamedshalaby11/solcleanind53461bbb211430d8dba189638d18379\n"}
+,{"stream_name":"stdout","time":1.5372988410000001,"data":"[2026-05-31 03:01:41] [INFO] [SOL.KaggleKernel] [SUCCESS] Appended paths from: '/kaggle/input/datasets/mohamedshalaby11/solcleanind53461bbb211430d8dba189638d18379/studio_core' to sys.path.\n"}
+,{"stream_name":"stdout","time":1.537307267,"data":"[2026-05-31 03:01:41] [INFO] [SOL.KaggleKernel] Loading raw dataset and strategy configurations...\n"}
+,{"stream_name":"stdout","time":8.038277158,"data":"[2026-05-31 03:01:48] [INFO] [SOL.KaggleKernel] [SUCCESS] Loaded raw dataset: Shape = (5819079, 31)\n"}
+,{"stream_name":"stdout","time":8.038422939,"data":"[2026-05-31 03:01:48] [INFO] [SOL.KaggleKernel] Importing SmartDataCleaner engine...\n"}
+,{"stream_name":"stdout","time":12.989443151,"data":"[2026-05-31 03:01:53] [INFO] [SOL.KaggleKernel] Injecting GROQ_API_KEY into remote runtime environment.\n"}
+,{"stream_name":"stdout","time":12.989566209,"data":"[2026-05-31 03:01:53] [INFO] [SOL.KaggleKernel] Starting data cleaning execution...\n"}
+,{"stream_name":"stderr","time":39.316640985,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2732: UserWarning: X has feature names, but OrdinalEncoder was fitted without feature names\n"}
+,{"stream_name":"stderr","time":39.316723694,"data":"  warnings.warn(\n"}
+,{"stream_name":"stderr","time":39.442628067,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2732: UserWarning: X has feature names, but OrdinalEncoder was fitted without feature names\n"}
+,{"stream_name":"stderr","time":39.442707274,"data":"  warnings.warn(\n"}
+,{"stream_name":"stderr","time":99.455247021,"data":"Killed\n"}
+,{"stream_name":"stderr","time":104.343313258,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":104.343360548,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":105.162685455,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":105.162729832,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":108.694378134,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":111.190603297,"data":"[NbConvertApp] Writing 304668 bytes to __results__.html\n"}
+]

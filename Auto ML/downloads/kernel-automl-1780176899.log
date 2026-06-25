@@ -1,0 +1,48 @@
+[{"stream_name":"stdout","time":11.911681908,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":11.911746569,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":11.91175315,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":11.911758322,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":11.911762951,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-1780176899'], Files: []\n"}
+,{"stream_name":"stdout","time":11.918366945,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":11.920700651,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899/X_train.csv']\n"}
+,{"stream_name":"stdout","time":11.920728819,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-1780176899\n"}
+,{"stream_name":"stdout","time":12.023954135,"data":"Class distribution: {np.int64(0): np.int64(4139), np.int64(1): np.int64(1495)} | Imbalance ratio: 2.77x | Balancing active: True | Weights: {k: round(v, 4) for k, v in CLASS_WEIGHT_DICT.items()}\n"}
+,{"stream_name":"stdout","time":12.02398943,"data":"Train Shape: (5634, 46) | Task: binary | Classes: 2\n"}
+,{"stream_name":"stdout","time":12.02399522,"data":"Models scheduled for training: ['LogisticRegression', 'KNN', 'SVM', 'RandomForest', 'ExtraTrees', 'XGBoost', 'LightGBM', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":12.024000647,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":12.330707835,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.6870\n"}
+,{"stream_name":"stdout","time":12.4468332,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":13.107668444,"data":"  --\u003e KNN Completed | Composite Score: 0.5895\n"}
+,{"stream_name":"stdout","time":13.208382982,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":39.649599715,"data":"  --\u003e SVM Completed | Composite Score: 0.6705\n"}
+,{"stream_name":"stdout","time":39.750729993,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":41.706663229,"data":"  --\u003e RandomForest Completed | Composite Score: 0.6416\n"}
+,{"stream_name":"stdout","time":41.809655141,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":43.570644512,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.6236\n"}
+,{"stream_name":"stdout","time":43.670985363,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":44.386501866,"data":"  --\u003e XGBoost Completed | Composite Score: 0.4101\n"}
+,{"stream_name":"stdout","time":44.488835515,"data":"Training LightGBM...\n"}
+,{"stream_name":"stdout","time":45.105670542,"data":"  --\u003e LightGBM Completed | Composite Score: 0.6446\n"}
+,{"stream_name":"stdout","time":45.207082633,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":46.964245484,"data":"  --\u003e CatBoost Completed | Composite Score: 0.6301\n"}
+,{"stream_name":"stdout","time":47.066173285,"data":"Top 3 baseline models selected for deep tuning: ['LogisticRegression', 'SVM', 'LightGBM']\n"}
+,{"stream_name":"stdout","time":47.066288615,"data":"Executing deep tuning sweep for: LogisticRegression...\n"}
+,{"stream_name":"stderr","time":47.077336428,"data":"/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_search.py:317: UserWarning: The total space of parameters 4 is smaller than n_iter=5. Running 4 iterations. For exhaustive searches, use GridSearchCV.\n"}
+,{"stream_name":"stderr","time":47.07742576,"data":"  warnings.warn(\n"}
+,{"stream_name":"stdout","time":49.985547696,"data":"  Tuning complete for LogisticRegression. Best params: {'C': 0.1}\n"}
+,{"stream_name":"stdout","time":50.202967587,"data":"  --\u003e Tuned_LogisticRegression Completed | Composite Score: 0.6876\n"}
+,{"stream_name":"stdout","time":50.203020591,"data":"Executing deep tuning sweep for: SVM...\n"}
+,{"stream_name":"stdout","time":88.692665735,"data":"  Tuning complete for SVM. Best params: {'gamma': 'scale', 'C': 1.0}\n"}
+,{"stream_name":"stdout","time":106.039202707,"data":"  --\u003e Tuned_SVM Completed | Composite Score: 0.6705\n"}
+,{"stream_name":"stdout","time":106.039261355,"data":"Executing deep tuning sweep for: LightGBM...\n"}
+,{"stream_name":"stdout","time":324.31020815,"data":"  Tuning complete for LightGBM. Best params: {'num_leaves': 31, 'n_estimators': 100, 'learning_rate': 0.1}\n"}
+,{"stream_name":"stdout","time":324.783938781,"data":"  --\u003e Tuned_LightGBM Completed | Composite Score: 0.6446\n"}
+,{"stream_name":"stdout","time":324.785531335,"data":"Ultimate Champion model 'Tuned_LogisticRegression' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":324.786918777,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":328.541551323,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":328.541626172,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":328.815515655,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":328.815553867,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":329.584918272,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":330.739257883,"data":"[NbConvertApp] Writing 381630 bytes to __results__.html\n"}
+]

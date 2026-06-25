@@ -1,31 +1,52 @@
 {% extends "app/_layout.html" %}
 
-{% block page_title %}Cleaning Studio{% endblock %}
-{% block page_title_text %}Cleaning Studio{% endblock %}
-{% block breadcrumb %}SOL / App / Cleaning Studio{% endblock %}
+{% block page_title %}{% if locale == 'ar' %}استوديو التنظيف{% else %}Cleaning Studio{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}استوديو التنظيف{% else %}Cleaning Studio{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / التطبيق / استوديو التنظيف{% else %}SOL / App / Cleaning Studio{% endif %}{% endblock %}
 {% block nav_studio %}nav-active{% endblock %}
 
 {% block head %}
 <style>
+    /* ── Sci-Fi Glassmorphism & Aesthetics ── */
+    .glass-card {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 1rem;
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.25);
+    }
+
     /* ── Phase Stepper ── */
     .step {
-        transition: all 0.3s;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .step-active .step-num {
-        background: #4361ee;
+        background: linear-gradient(135deg, #4361ee, #7b2ff7);
         color: white;
-        box-shadow: 0 0 16px rgba(67, 97, 238, 0.5);
+        box-shadow: 0 0 24px rgba(67, 97, 238, 0.65);
+        border-color: transparent;
+        transform: scale(1.1);
     }
 
     .step-active .step-label {
-        color: #bac3ff;
+        color: var(--primary);
+        font-weight: 700;
     }
 
     .step-done .step-num {
-        background: rgba(74, 222, 128, 0.15);
+        background: rgba(74, 222, 128, 0.12);
         color: #4ade80;
-        border: 1px solid rgba(74, 222, 128, 0.3);
+        border: 1px solid rgba(74, 222, 128, 0.4);
+        box-shadow: 0 0 15px rgba(74, 222, 128, 0.15);
     }
 
     .step-done .step-label {
@@ -33,109 +54,296 @@
     }
 
     .step-idle .step-num {
-        background: rgba(68, 70, 85, 0.3);
-        color: #8e8fa1;
-        border: 1px solid rgba(68, 70, 85, 0.3);
+        background: var(--surface-container);
+        color: var(--outline);
+        border: 1px solid var(--outline-variant);
     }
 
     .step-idle .step-label {
-        color: #8e8fa1;
+        color: var(--outline);
     }
 
     .step-connector {
-        height: 1px;
+        height: 2px;
         flex: 1;
-        background: rgba(68, 70, 85, 0.4);
+        background: linear-gradient(90deg, var(--outline-variant), transparent);
         margin-top: -16px;
+        transition: all 0.3s;
+    }
+
+    @media (max-width: 767px) {
+        .step-connector {
+            margin-top: 0 !important;
+            align-self: center;
+        }
+    }
+
+    /* ── Discovery Panel ── */
+    .disco-panel {
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1rem;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .disco-panel:hover {
+        border-color: var(--primary);
+    }
+
+    .disco-chart-wrap {
+        padding: 0.5rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .insight-card {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .insight-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        filter: brightness(1.05);
+    }
+
+    .disco-spinner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: var(--surface-container-lowest);
+        backdrop-filter: blur(4px);
+    }
+
+    .disco-spin {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border-width: 3px;
+        border-style: solid;
+        animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .disco-chip {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        border-style: solid;
+        border-width: 1px;
+        transition: all 0.2s;
+    }
+
+    .disco-chip:hover {
+        filter: brightness(1.15);
     }
 
     /* ── Drop Zone ── */
     .drop-zone {
-        border: 2px dashed rgba(67, 97, 238, 0.35);
-        transition: border-color 0.3s, background 0.3s;
+        border: 2px dashed var(--primary);
+        background: var(--surface-container-low);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
     .drop-zone:hover,
     .drop-zone.dragging {
-        border-color: #4361ee;
-        background: rgba(67, 97, 238, 0.06);
+        border-color: var(--secondary);
+        background: var(--surface-container-high);
+        box-shadow: 0 0 30px rgba(91, 213, 252, 0.05) inset, 0 0 20px rgba(91, 213, 252, 0.05);
+        transform: translateY(-2px);
     }
 
     @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0)
+        0%, 100% {
+            transform: translateY(0) scale(1);
+            filter: drop-shadow(0 0 0px rgba(67, 97, 238, 0));
         }
-
         50% {
-            transform: translateY(-8px)
+            transform: translateY(-8px) scale(1.04);
+            filter: drop-shadow(0 4px 12px rgba(67, 97, 238, 0.2));
         }
     }
 
     .float-icon {
-        animation: float 3s ease-in-out infinite;
+        animation: float 3.5s ease-in-out infinite;
     }
 
     /* ── Tables ── */
     .meta-table th {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 9px;
-        letter-spacing: 0.15em;
-        color: #8e8fa1;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--outline);
         text-transform: uppercase;
+        border-bottom: 2px solid var(--outline-variant);
+    }
+
+    .meta-table tbody tr {
+        transition: background-color 0.2s;
+    }
+
+    .meta-table tbody tr:hover {
+        background-color: var(--surface-container-high);
     }
 
     .diff-cell-changed {
-        background: rgba(74, 222, 128, 0.15) !important;
-        border-left: 2px solid #4ade80;
+        background: rgba(74, 222, 128, 0.08) !important;
+        border-left: 3px solid #4ade80;
         color: #4ade80;
         font-weight: 600;
     }
 
     .diff-cell-null {
-        background: rgba(248, 113, 113, 0.12) !important;
-        border-left: 2px solid #f87171;
+        background: rgba(248, 113, 113, 0.06) !important;
+        border-left: 3px solid #f87171;
         color: #f87171;
     }
 
-    /* ── Strategy Pills ── */
+    /* ── Strategy Selector ── */
     .strategy-pill {
-        border: 1px solid transparent;
+        border: 1px solid var(--outline-variant);
+        background: var(--surface-container-low);
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .strategy-pill.selected {
-        border-color: #4361ee;
-        background: rgba(67, 97, 238, 0.12);
+    /* Alpha pill selected: Cyan */
+    .strategy-pill[data-strategy="alpha"].selected {
+        border-color: var(--secondary) !important;
+        background: rgba(0, 163, 200, 0.1) !important;
+        box-shadow: 0 0 20px rgba(0, 163, 200, 0.2);
+        transform: translateY(-3px);
+    }
+
+    /* Beta pill selected: Amber gold (Pulse selection active) */
+    .strategy-pill[data-strategy="beta"].selected {
+        border-color: #f59e0b !important;
+        background: rgba(245, 158, 11, 0.12) !important;
+        animation: pulse-best-selected 2.5s ease-in-out infinite;
+        transform: translateY(-3px);
+    }
+
+    /* Gamma pill selected: Purple */
+    .strategy-pill[data-strategy="gamma"].selected {
+        border-color: var(--tertiary) !important;
+        background: rgba(123, 47, 247, 0.1) !important;
+        box-shadow: 0 0 20px rgba(123, 47, 247, 0.2);
+        transform: translateY(-3px);
     }
 
     .strategy-pill:not(.selected):hover {
-        border-color: rgba(68, 70, 85, 0.6);
-        background: rgba(68, 70, 85, 0.2);
+        border-color: var(--outline);
+        background: var(--surface-container-high);
+        transform: translateY(-1.5px);
     }
 
-    /* ── Progress Bar ── */
-    @keyframes progress-slide {
-        from {
-            width: 0
+    /* ── Recommended Best Strategy Highlight ── */
+    .best-strategy {
+        border-color: rgba(245, 158, 11, 0.3) !important;
+        background: rgba(245, 158, 11, 0.02) !important;
+        animation: pulse-best-idle 4s ease-in-out infinite;
+    }
+
+    /* Textarea focus glow */
+    #goal-input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.15) !important;
+        background-color: var(--surface-container-lowest) !important;
+    }
+
+    .best-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #0d0e1c;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 7px;
+        font-weight: 800;
+        padding: 1px 5px;
+        border-bottom-left-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    @keyframes pulse-best-idle {
+        0%, 100% {
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.03);
+            border-color: rgba(245, 158, 11, 0.2);
         }
-
-        to {
-            width: 100%
+        50% {
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.35);
         }
     }
 
-    .progress-bar-anim {
-        animation: progress-slide 2s ease forwards;
+    @keyframes pulse-best-selected {
+        0%, 100% {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25), inset 0 0 8px rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.6);
+            transform: translateY(-2px);
+        }
+        50% {
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.45), inset 0 0 12px rgba(245, 158, 11, 0.25);
+            border-color: rgba(245, 158, 11, 1);
+            transform: translateY(-3.5px);
+        }
     }
 
-    /* ── General ── */
+    /* ── Inline Goal Panel transition helper ── */
+    #goals-panel-container > div {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* ── Custom Scrollbar ── */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--outline-variant);
+        border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--outline);
+    }
+
+    /* ── General Elements ── */
     .panel {
-        background: rgba(29, 31, 44, 0.6);
-        border: 1px solid rgba(68, 70, 85, 0.25);
-        border-radius: 0.75rem;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1rem;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     }
 
     .btn-primary {
@@ -143,33 +351,95 @@
         color: white;
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
-        font-size: .8rem;
-        letter-spacing: .04em;
-        transition: filter 0.2s, transform 0.1s;
+        font-size: .85rem;
+        letter-spacing: .05em;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .btn-primary:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.15);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.45);
+        transform: translateY(-1px);
     }
 
     .btn-primary:active {
-        transform: scale(0.98);
+        transform: translateY(1px);
     }
 
     .btn-secondary {
-        background: rgba(68, 70, 85, 0.3);
-        color: #c4c5d7;
-        border: 1px solid rgba(68, 70, 85, 0.4);
+        background: var(--surface-container-low);
+        color: var(--on-surface-variant);
+        border: 1px solid var(--outline-variant);
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 600;
-        font-size: .8rem;
-        transition: background 0.2s;
+        font-size: .85rem;
+        transition: all 0.2s;
     }
 
     .btn-secondary:hover {
-        background: rgba(68, 70, 85, 0.5);
+        background: var(--surface-container-high);
+        border-color: var(--outline);
+        color: var(--on-surface);
+        transform: translateY(-1px);
+    }
+
+    /* Cell Modification Highlights */
+    tr.row-anomaly {
+        background-color: rgba(239, 68, 68, 0.05) !important;
+        border-right: 4px solid #ef4444 !important;
+    }
+    tr.row-anomaly:hover {
+        background-color: rgba(239, 68, 68, 0.08) !important;
+    }
+    td.cell-imputed {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        border-left: 3px solid #3b82f6 !important;
+        color: #3b82f6 !important;
+        font-weight: 600;
+    }
+    td.cell-fuzzy {
+        background-color: rgba(245, 158, 11, 0.1) !important;
+        border-left: 3px solid #f59e0b !important;
+        color: #f59e0b !important;
+        font-weight: 600;
+    }
+    td.cell-coerced {
+        background-color: rgba(168, 85, 247, 0.1) !important;
+        border-left: 3px solid #a855f7 !important;
+        color: #a855f7 !important;
+        font-weight: 600;
+    }
+    .cell-tooltip {
+        cursor: help;
+    }
+
+    #confidence-progress {
+        transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 1s ease;
+        filter: drop-shadow(0 0 5px var(--circle-shadow-color, #4ade80));
+    }
+
+    /* Suggestion Goal Chips */
+    .goal-chip {
+        background: var(--surface-container-high);
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 11px;
+        padding: 0.3rem 0.7rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .goal-chip:hover {
+        background: var(--surface-container-highest);
+        border-color: var(--outline);
+        color: var(--on-surface);
+        transform: translateY(-1px);
     }
 </style>
+<!-- Plotly CDN — required for Discovery and Comparison inline charts -->
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
 {% endblock %}
 
 {% block content %}
@@ -179,25 +449,31 @@
 </div>
 
 <!-- ═══ PHASE STEPPER ═══ -->
-<div class="flex items-center gap-0 mb-8 max-w-3xl mx-auto">
+<div class="flex items-center gap-0 mb-8 max-w-3xl mx-auto px-4">
     <div class="step flex flex-col items-center gap-1.5 step-active" id="step-1">
         <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">1</div>
-        <span class="step-label font-label text-xs font-bold tracking-wide">Upload</span>
+        <span class="step-label hidden md:inline font-label text-xs font-bold tracking-wide">{% if locale == 'ar' %}رفع الملف{% else %}Upload{% endif %}</span>
+    </div>
+    <div class="step-connector mb-4"></div>
+    <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-1b">
+        <div class="step-num w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+            style="border:1px solid rgba(68,70,85,0.3);background:rgba(68,70,85,0.2);color:#8e8fa1">&#9673;</div>
+        <span class="step-label hidden md:inline font-label text-xs tracking-wide">{% if locale == 'ar' %}الاستكشاف{% else %}Discovery{% endif %}</span>
     </div>
     <div class="step-connector mb-4"></div>
     <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-2">
         <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">2</div>
-        <span class="step-label font-label text-xs tracking-wide">Analyze & Goals</span>
+        <span class="step-label hidden md:inline font-label text-xs tracking-wide">{% if locale == 'ar' %}التحليل والأهداف{% else %}Analyze & Goals{% endif %}</span>
     </div>
     <div class="step-connector mb-4"></div>
     <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-3">
         <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">3</div>
-        <span class="step-label font-label text-xs tracking-wide">Validate</span>
+        <span class="step-label hidden md:inline font-label text-xs tracking-wide">{% if locale == 'ar' %}التحقق{% else %}Validate{% endif %}</span>
     </div>
     <div class="step-connector mb-4"></div>
     <div class="step flex flex-col items-center gap-1.5 step-idle" id="step-4">
         <div class="step-num w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm font-bold">4</div>
-        <span class="step-label font-label text-xs tracking-wide">Export</span>
+        <span class="step-label hidden md:inline font-label text-xs tracking-wide">{% if locale == 'ar' %}تصدير{% else %}Export{% endif %}</span>
     </div>
 </div>
 
@@ -206,7 +482,7 @@
     <div
         class="flex items-center gap-3 bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-3 shadow-xl">
         <span id="toast-icon" class="material-symbols-outlined text-lg">info</span>
-        <span id="toast-msg" class="font-body text-sm text-white"></span>
+        <span id="toast-msg" class="font-body text-sm text-on-surface"></span>
     </div>
 </div>
 
@@ -217,14 +493,25 @@
         <div
             class="w-16 h-16 border-2 border-primary-container border-t-transparent rounded-full animate-spin mx-auto mb-4">
         </div>
-        <p id="loading-msg" class="font-label text-white text-lg">Processing...</p>
-        <p class="font-mono text-xs text-outline mt-1">SOL Engine is working</p>
+        <p id="loading-msg" class="font-label text-on-surface text-lg">{% if locale == 'ar' %}جاري المعالجة...{% else %}Processing...{% endif %}</p>
+        <div id="loading-progress-container" class="w-64 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden mx-auto mt-3 hidden">
+            <div id="loading-progress-bar" class="h-full bg-primary rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p id="loading-progress-text" class="font-mono text-[10px] text-primary mt-1.5 hidden">0% Complete</p>
+        <p class="font-mono text-xs text-outline mt-2">{% if locale == 'ar' %}محرك SOL يعمل حالياً{% else %}SOL Engine is working{% endif %}</p>
+        <p id="loading-timer" class="font-mono text-xs text-secondary mt-2 hidden">{% if locale == 'ar' %}الوقت المنقضي: 00:00:00{% else %}Elapsed Time: 00:00:00{% endif %}</p>
+        <div id="live-kernel-container" class="mt-4 hidden">
+            <a id="live-kernel-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-[#008abb] hover:bg-[#00a2db] text-white font-bold font-mono text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all transform hover:scale-105 active:scale-95">
+                <span class="material-symbols-outlined text-sm">open_in_new</span>
+                {% if locale == 'ar' %}عرض سجلات النواة المباشرة على Kaggle{% else %}View Live Kernel Logs on Kaggle{% endif %}
+            </a>
+        </div>
     </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
      PHASE 1: UPLOAD
-═══════════════════════════════════════════════════════════ -->
+ ═══════════════════════════════════════════════════════════ -->
 <div id="phase-1">
     <div class="panel p-8 max-w-2xl mx-auto">
         <div class="drop-zone rounded-xl p-12 text-center cursor-pointer relative" id="drop-zone"
@@ -232,10 +519,10 @@
             <input type="file" id="file-input" accept=".csv,.xlsx,.xls,.json,.parquet" class="hidden" />
             <div class="float-icon">
                 <span class="material-symbols-outlined text-6xl text-primary-container/60"
-                    style="font-variation-settings:'FILL' 1">upload_file</span>
+                     style="font-variation-settings:'FILL' 1">upload_file</span>
             </div>
-            <p class="font-headline font-bold text-xl text-white mt-4 mb-1">Drag & drop your file here</p>
-            <p class="font-body text-on-surface-variant text-sm">or click to browse from your computer</p>
+            <p class="font-headline font-bold text-xl text-on-surface mt-4 mb-1">{% if locale == 'ar' %}اسحب وأسقط ملفك هنا{% else %}Drag & drop your file here{% endif %}</p>
+            <p class="font-body text-on-surface-variant text-sm">{% if locale == 'ar' %}أو انقر لتصفح الملفات من جهازك{% else %}or click to browse from your computer{% endif %}</p>
 
             <div class="flex items-center justify-center gap-2 mt-6 flex-wrap">
                 <span
@@ -252,15 +539,16 @@
         </div>
 
         <div id="file-preview"
-            class="hidden mt-4 flex items-center gap-3 bg-surface-container p-4 rounded-xl border border-outline-variant/20">
-            <span class="material-symbols-outlined text-secondary text-2xl"
-                style="font-variation-settings:'FILL' 1">description</span>
-            <div class="flex-1 min-w-0">
-                <p id="file-name-label" class="text-white font-medium text-sm truncate"></p>
-                <p id="file-size-label" class="font-mono text-xs text-outline"></p>
+            class="hidden p-8 rounded-xl text-center relative border border-primary/20 bg-primary/5 animate-fade-in flex flex-col items-center justify-center min-h-[220px]">
+            <div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-xl"></div>
+            <div id="file-preview-icon-container" class="float-icon w-16 h-16 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary mb-4">
+                <span id="file-preview-icon" class="material-symbols-outlined text-4xl" style="font-variation-settings:'FILL' 1">description</span>
             </div>
-            <button onclick="clearFile()" class="text-outline hover:text-error transition-colors">
-                <span class="material-symbols-outlined text-lg">close</span>
+            <h4 id="file-name-label" class="font-headline font-bold text-on-surface text-lg max-w-md truncate px-4"></h4>
+            <p id="file-size-label" class="font-mono text-xs text-outline mt-1.5"></p>
+            <div id="file-format-badge-container" class="mt-4"></div>
+            <button onclick="clearFile()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-surface-container/40 border border-outline-variant/10 flex items-center justify-center text-outline hover:text-error hover:bg-error/10 hover:border-error/20 transition-all outline-none" title="{% if locale == 'ar' %}إزالة الملف{% else %}Remove file{% endif %}">
+                <span class="material-symbols-outlined text-base">close</span>
             </button>
         </div>
 
@@ -268,9 +556,180 @@
             class="btn-primary w-full mt-5 py-3.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             disabled>
             <span class="material-symbols-outlined text-base">cloud_upload</span>
-            Upload & Analyse
+            {% if locale == 'ar' %}رفع وتحليل{% else %}Upload & Analyse{% endif %}
         </button>
     </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PHASE 1B: DATA DISCOVERY DASHBOARD
+═══════════════════════════════════════════════════════════ -->
+<div id="phase-1b" class="hidden">
+
+    <!-- ── Upload Success Header ── -->
+    <div class="disco-panel mb-5 border-[#5bd5fc]/20" style="border-color:rgba(91,213,252,0.2)">
+        <div class="absolute top-0 left-0 right-0 h-0.5"
+            style="background:linear-gradient(90deg,#4361ee,#5bd5fc,transparent);opacity:0.7"></div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style="background:rgba(91,213,252,0.12);border:1px solid rgba(91,213,252,0.28)">
+                    <span class="material-symbols-outlined text-xl"
+                        style="color:#5bd5fc;font-variation-settings:'FILL' 1">query_stats</span>
+                </div>
+                <div>
+                    <p class="font-headline font-bold text-white text-sm">{% if locale == 'ar' %}اكتمل الرفع — جاري تحليل صحة البيانات{% else %}Upload Complete — Analysing Data Health{% endif %}</p>
+                    <p class="font-mono text-[10px] tracking-widest uppercase" style="color:rgba(91,213,252,0.65)">
+                        {% if locale == 'ar' %}الوضع: استكشاف · بيانات خام فقط · 3 رسومات تفاعلية{% else %}Mode: Discovery · Raw Data Only · 3 Interactive Charts{% endif %}
+                    </p>
+                </div>
+            </div>
+            <!-- Quick stats chips -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span id="disco-chip-rows" class="disco-chip"
+                    style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.3);color:#4ade80">— {% if locale == 'ar' %}صفوف{% else %}rows{% endif %}</span>
+                <span id="disco-chip-cols" class="disco-chip"
+                    style="background:rgba(67,97,238,0.1);border-color:rgba(67,97,238,0.3);color:#738bfb">— {% if locale == 'ar' %}أعمدة{% else %}cols{% endif %}</span>
+                <span id="disco-chip-nulls" class="disco-chip"
+                    style="background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.35);color:#f87171;font-weight:600">— {% if locale == 'ar' %}خلايا غير نظيفة{% else %}dirty cells{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Row 1: Health Gauge + Missingness Heatmap ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+
+        <!-- Data Health Gauge -->
+        <div class="disco-panel" style="border-color:rgba(67,97,238,0.22)">
+            <div class="absolute top-0 left-0 right-0 h-0.5"
+                style="background:linear-gradient(90deg,#4361ee,transparent);opacity:0.55"></div>
+            <div class="flex items-center gap-2.5 px-4 py-3" style="border-bottom:1px solid rgba(68,70,85,0.15)">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style="background:rgba(67,97,238,0.15);border:1px solid rgba(67,97,238,0.28)">
+                    <span class="material-symbols-outlined text-sm"
+                        style="color:#4361ee;font-variation-settings:'FILL' 1">speed</span>
+                </div>
+                <div>
+                    <p class="font-label text-xs font-bold text-white">{% if locale == 'ar' %}مؤشر صحة البيانات{% else %}Data Health Score{% endif %}</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}الجودة الخام · 0-100% · خصم على الخلايا الفارغة والمكررة{% else %}Raw quality · 0–100% · Null + Duplicate penalty{% endif %}</p>
+                </div>
+            </div>
+            <div class="disco-chart-wrap">
+                <div id="disco-loading-health" class="disco-spinner">
+                    <div class="disco-spin" style="border-color:rgba(67,97,238,0.3);border-top-color:#4361ee"></div>
+                    <span class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}جاري حساب مؤشر الصحة...{% else %}Computing health score…{% endif %}</span>
+                </div>
+                <div id="disco-chart-health" style="width:100%;height:240px"></div>
+            </div>
+        </div>
+
+        <!-- Columns Missingness Bar Chart -->
+        <div class="disco-panel" style="border-color:rgba(248,113,113,0.18)">
+            <div class="absolute top-0 left-0 right-0 h-0.5"
+                style="background:linear-gradient(90deg,#f87171,transparent);opacity:0.45"></div>
+            <div class="flex items-center gap-2.5 px-4 py-3" style="border-bottom:1px solid rgba(68,70,85,0.15)">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25)">
+                    <span class="material-symbols-outlined text-sm"
+                        style="color:#f87171;font-variation-settings:'FILL' 1">bar_chart</span>
+                </div>
+                <div>
+                    <p class="font-label text-xs font-bold text-white">{% if locale == 'ar' %}الأعمدة الأكثر فقداً للبيانات{% else %}Missingness by Column{% endif %}</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}أكثر الأعمدة التي تحتوي على خلايا فارغة أو تالفة (%){% else %}Top columns containing empty or corrupted cells (%){% endif %}</p>
+                </div>
+            </div>
+            <div class="disco-chart-wrap" style="min-height:280px">
+                <div id="disco-loading-heatmap" class="disco-spinner">
+                    <div class="disco-spin" style="border-color:rgba(248,113,113,0.3);border-top-color:#f87171"></div>
+                    <span class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}جاري فحص خلايا النال...{% else %}Scanning null positions…{% endif %}</span>
+                </div>
+                <div id="disco-chart-heatmap" style="width:100%;height:280px"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Row 2: Column Type Distribution & Data Quality Insights ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <!-- Column Type Distribution -->
+        <div class="disco-panel" style="border-color:rgba(91,213,252,0.18)">
+            <div class="absolute top-0 left-0 right-0 h-0.5"
+                style="background:linear-gradient(90deg,#5bd5fc,transparent);opacity:0.45"></div>
+            <div class="flex items-center gap-2.5 px-4 py-3" style="border-bottom:1px solid rgba(68,70,85,0.15)">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style="background:rgba(91,213,252,0.12);border:1px solid rgba(91,213,252,0.25)">
+                    <span class="material-symbols-outlined text-sm"
+                        style="color:#5bd5fc;font-variation-settings:'FILL' 1">category</span>
+                </div>
+                <div>
+                    <p class="font-label text-xs font-bold text-white">{% if locale == 'ar' %}توزيع أنواع الأعمدة{% else %}Column Type Distribution{% endif %}</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}عددي · فئوي · تاريخ ووقت · نصي{% else %}Numeric · Categorical · DateTime · Text{% endif %}</p>
+                </div>
+            </div>
+            <div class="disco-chart-wrap" style="min-height:200px">
+                <div id="disco-loading-types" class="disco-spinner">
+                    <div class="disco-spin" style="border-color:rgba(91,213,252,0.3);border-top-color:#5bd5fc"></div>
+                    <span class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}جاري تحديد أنواع الأعمدة...{% else %}Mapping column types…{% endif %}</span>
+                </div>
+                <div id="disco-chart-types" style="width:100%;height:200px"></div>
+            </div>
+        </div>
+
+        <!-- Data Quality Profiler Insights -->
+        <div class="disco-panel" style="border-color:rgba(168,85,247,0.18)">
+            <div class="absolute top-0 left-0 right-0 h-0.5"
+                style="background:linear-gradient(90deg,#a855f7,transparent);opacity:0.45"></div>
+            <div class="flex items-center gap-2.5 px-4 py-3" style="border-bottom:1px solid rgba(68,70,85,0.15)">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25)">
+                    <span class="material-symbols-outlined text-sm"
+                        style="color:#a855f7;font-variation-settings:'FILL' 1">troubleshoot</span>
+                </div>
+                <div>
+                    <p class="font-label text-xs font-bold text-white">{% if locale == 'ar' %}رؤى جودة البيانات{% else %}Data Quality Insights{% endif %}</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}فحص تلقائي وتشخيص لمجموعة البيانات{% else %}Automated Dataset Scan &amp; Diagnostics{% endif %}</p>
+                </div>
+            </div>
+            <div class="p-4" style="min-height:200px">
+                <div id="disco-insights-loading" class="flex flex-col items-center justify-center h-32 gap-2">
+                    <div class="w-5 h-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+                    <span class="font-mono text-[10px] text-outline">{% if locale == 'ar' %}جاري تحليل تشخيصات الجودة...{% else %}Analysing quality diagnostics…{% endif %}</span>
+                </div>
+                <ul id="disco-insights-list" class="space-y-2.5 hidden">
+                    <!-- Populated dynamically by JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Insight Notice ── -->
+    <div class="flex items-start gap-3 px-1 mb-5">
+        <span class="material-symbols-outlined text-sm mt-0.5 flex-shrink-0"
+            style="color:rgba(91,213,252,0.6)">info</span>
+        <p class="font-mono text-[10px] text-outline leading-relaxed">
+            {% if locale == 'ar' %}
+            تعكس هذه الرسوم البيانية <strong class="text-on-surface-variant">البيانات الخام المرفوعة</strong> قبل إجراء أي عملية تنظيف. يرجى مراجعة مؤشر الصحة والرسوم البيانية لفهم المشاكل، ثم المتابعة لتحديد أهداف التنظيف.
+            {% else %}
+            These charts reflect the <strong class="text-on-surface-variant">raw uploaded data</strong> before any
+            cleaning.
+            Review the Health Score and Heatmap to understand problem areas,
+            then proceed to set your cleaning goals.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- ── Navigation Row ── -->
+    <div class="flex items-center justify-between gap-3">
+        <button onclick="goToPhase(1)" class="btn-secondary py-2.5 px-5 rounded-xl flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            {% if locale == 'ar' %}العودة إلى الرفع{% else %}Back to Upload{% endif %}
+        </button>
+        <button onclick="goToPhase(2)" class="btn-primary py-2.5 px-6 rounded-xl flex items-center gap-2">
+            {% if locale == 'ar' %}الانتقال إلى التحليل والأهداف{% else %}Proceed to Analysis &amp; Goals{% endif %}
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+    </div>
+
 </div>
 
 
@@ -278,21 +737,33 @@
      PHASE 2: ANALYZE & GOALS
 ═══════════════════════════════════════════════════════════ -->
 <div id="phase-2" class="hidden">
+    <!-- Red Alert Box for Cleaning Failures -->
+    <div id="cleaning-error-alert" class="hidden mb-6 p-4 rounded-xl bg-error/10 border border-error/30 text-error flex items-start gap-3">
+        <span class="material-symbols-outlined text-lg mt-0.5 flex-shrink-0" style="font-variation-settings:'FILL' 1">error</span>
+        <div class="flex-1">
+            <h4 class="font-headline font-bold text-sm text-on-surface mb-1">{% if locale == 'ar' %}فشل التنفيذ{% else %}Execution Failed{% endif %}</h4>
+            <p id="cleaning-error-message" class="font-body text-xs text-on-surface-variant/90 leading-relaxed"></p>
+        </div>
+        <button onclick="document.getElementById('cleaning-error-alert').classList.add('hidden')" class="text-outline hover:text-on-surface transition-colors">
+            <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <!-- Metadata Panel -->
         <div class="panel p-5">
-            <h3 class="font-headline font-bold text-white mb-1">Column Analysis</h3>
-            <p class="font-body text-xs text-outline mb-4">Detected schema from your uploaded file</p>
+            <h3 class="font-headline font-bold text-on-surface mb-1">{% if locale == 'ar' %}تحليل الأعمدة{% else %}Column Analysis{% endif %}</h3>
+            <p class="font-body text-xs text-outline mb-4">{% if locale == 'ar' %}المخطط المكتشف من ملفك المرفوع{% else %}Detected schema from your uploaded file{% endif %}</p>
             <div class="overflow-x-auto">
                 <table class="w-full meta-table">
                     <thead>
                         <tr class="border-b border-outline-variant/10">
-                            <th class="text-left py-2.5 pr-3">Column</th>
-                            <th class="text-left py-2.5 pr-3">Type</th>
-                            <th class="text-left py-2.5 pr-3">Dirty Cells</th>
-                            <th class="text-left py-2.5 pr-3">Status</th>
-                            <th class="text-left py-2.5">Health</th>
+                            <th class="text-left py-2.5 pr-3">{% if locale == 'ar' %}العمود{% else %}Column{% endif %}</th>
+                            <th class="text-left py-2.5 pr-3">{% if locale == 'ar' %}النوع{% else %}Type{% endif %}</th>
+                            <th class="text-left py-2.5 pr-3">{% if locale == 'ar' %}الخلايا غير النظيفة{% else %}Dirty Cells{% endif %}</th>
+                            <th class="text-left py-2.5 pr-3">{% if locale == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                            <th class="text-left py-2.5">{% if locale == 'ar' %}الصحة{% else %}Health{% endif %}</th>
                         </tr>
                     </thead>
                     <tbody id="meta-table-body" class="font-mono text-xs text-on-surface-variant">
@@ -304,83 +775,172 @@
             <!-- File Stats -->
             <div class="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-outline-variant/10">
                 <div class="text-center">
-                    <p id="stat-rows" class="font-mono font-bold text-white text-lg">—</p>
-                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Rows</p>
+                    <p id="stat-rows" class="font-mono font-bold text-on-surface text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الصفوف{% else %}Rows{% endif %}</p>
                 </div>
                 <div class="text-center">
-                    <p id="stat-cols" class="font-mono font-bold text-white text-lg">—</p>
-                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Columns</p>
+                    <p id="stat-cols" class="font-mono font-bold text-on-surface text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الأعمدة{% else %}Columns{% endif %}</p>
                 </div>
                 <div class="text-center">
-                    <p id="stat-nulls" class="font-mono font-bold text-white text-lg">—</p>
-                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Total Nulls</p>
+                    <p id="stat-nulls" class="font-mono font-bold text-on-surface text-lg">—</p>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}إجمالي الخلايا الفارغة{% else %}Total Nulls{% endif %}</p>
                 </div>
             </div>
         </div>
 
         <!-- Goals Panel -->
-        <div class="panel p-5 flex flex-col gap-5">
-            <div>
-                <h3 class="font-headline font-bold text-white mb-1">Cleaning Goal <span
-                        class="font-mono text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded ml-1">optional</span>
-                </h3>
-                <p class="font-body text-xs text-outline mb-3">Describe in plain language what you want SOL to achieve
-                </p>
-                <textarea id="goal-input" rows="4"
-                    class="w-full bg-surface-container-lowest border border-outline-variant/30 focus:border-primary-container/50 focus:ring-1 focus:ring-primary-container/30 rounded-xl px-4 py-3 text-white text-sm font-body placeholder:text-outline/50 transition-all resize-none outline-none"
-                    placeholder='e.g. "Normalize all phone numbers to E.164 format, fill missing emails with unknown@sol.ai, and remove duplicate rows."'></textarea>
-            </div>
-
-            <!-- Strategy Selector -->
-            <div>
-                <p class="font-mono text-[10px] text-outline tracking-widest uppercase mb-3">Cleaning Strategy</p>
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="alpha"
-                        onclick="selectStrategy(this)">
-                        <p class="font-mono text-xs font-bold text-outline">ALPHA</p>
-                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Light clean</p>
-                    </div>
-                    <div class="strategy-pill selected rounded-xl p-3 text-center" data-strategy="beta"
-                        onclick="selectStrategy(this)">
-                        <p class="font-mono text-xs font-bold text-primary">BETA</p>
-                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Balanced ★</p>
-                    </div>
-                    <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="gamma"
-                        onclick="selectStrategy(this)">
-                        <p class="font-mono text-xs font-bold text-tertiary">GAMMA</p>
-                        <p class="font-mono text-[9px] text-outline/60 mt-0.5">Aggressive</p>
+        <div class="panel p-5 flex flex-col gap-5 relative overflow-hidden min-h-[500px]" id="goals-panel-container">
+            <!-- ── View 1: Configuration ── -->
+            <div id="goals-config-view" class="flex flex-col gap-5 w-full transition-all duration-300">
+                <div>
+                    <h3 class="font-headline font-bold text-on-surface mb-1">{% if locale == 'ar' %}هدف التنظيف{% else %}Cleaning Goal{% endif %} <span
+                            class="font-mono text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded ml-1">{% if locale == 'ar' %}اختياري{% else %}optional{% endif %}</span>
+                    </h3>
+                    <p class="font-body text-xs text-outline mb-3">{% if locale == 'ar' %}صف باللغة الطبيعية ما تريد من SOL تحقيقه{% else %}Describe in plain language what you want SOL to achieve{% endif %}</p>
+                    <textarea id="goal-input" rows="4"
+                        class="w-full bg-surface-container-lowest border border-outline-variant/30 focus:border-primary-container/50 focus:ring-1 focus:ring-primary-container/30 rounded-xl px-4 py-3 text-on-surface text-sm font-body placeholder:text-outline/50 transition-all resize-none outline-none"
+                        placeholder='{% if locale == "ar" %}مثال: "قم بتهيئة جميع أرقام الهواتف إلى تنسيق E.164، واملأ رسائل البريد الإلكتروني المفقودة بـ unknown@sol.ai، واحذف الصفوف المكررة."{% else %}e.g. "Normalize all phone numbers to E.164 format, fill missing emails with unknown@sol.ai, and remove duplicate rows."{% endif %}'></textarea>
+                    <div class="flex flex-wrap gap-1.5 mt-2.5">
+                        <span class="goal-chip" onclick="applyGoalChip(this)">{% if locale == 'ar' %}تهيئة التواريخ إلى YYYY-MM-DD{% else %}Normalize dates to YYYY-MM-DD{% endif %}</span>
+                        <span class="goal-chip" onclick="applyGoalChip(this)">{% if locale == 'ar' %}تعبئة قيم null بمتوسط العمود{% else %}Fill nulls with column mean{% endif %}</span>
+                        <span class="goal-chip" onclick="applyGoalChip(this)">{% if locale == 'ar' %}توحيد رسائل البريد الإلكتروني إلى أحرف صغيرة{% else %}Standardize emails to lowercase{% endif %}</span>
+                        <span class="goal-chip" onclick="applyGoalChip(this)">{% if locale == 'ar' %}حذف الصفوف المكررة{% else %}Remove duplicate rows{% endif %}</span>
+                        <span class="goal-chip" onclick="applyGoalChip(this)">{% if locale == 'ar' %}تصفية القيم الشاذة (Outliers){% else %}Filter outliers{% endif %}</span>
                     </div>
                 </div>
+
+                <!-- Strategy Selector -->
+                <div>
+                    <p class="font-mono text-[10px] text-outline tracking-widest uppercase mb-3">{% if locale == 'ar' %}إستراتيجية التنظيف{% else %}Cleaning Strategy{% endif %}</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="alpha"
+                            onclick="selectStrategy(this)">
+                            <p class="font-mono text-xs font-bold text-outline">ALPHA</p>
+                            <p class="font-mono text-[9px] text-outline/60 mt-0.5">{% if locale == 'ar' %}تنظيف خفيف{% else %}Light clean{% endif %}</p>
+                        </div>
+                        <div class="strategy-pill selected best-strategy relative overflow-hidden rounded-xl p-3 text-center" data-strategy="beta"
+                            onclick="selectStrategy(this)">
+                            <div class="best-badge">{% if locale == 'ar' %}موصى به{% else %}RECOMMENDED{% endif %}</div>
+                            <p class="font-mono text-xs font-bold text-[#f59e0b]">BETA</p>
+                            <p class="font-mono text-[9px] text-outline/60 mt-0.5">{% if locale == 'ar' %}متوازن ★{% else %}Balanced ★{% endif %}</p>
+                        </div>
+                        <div class="strategy-pill rounded-xl p-3 text-center" data-strategy="gamma"
+                            onclick="selectStrategy(this)">
+                            <p class="font-mono text-xs font-bold text-tertiary">GAMMA</p>
+                            <p class="font-mono text-[9px] text-outline/60 mt-0.5">{% if locale == 'ar' %}حازم (Aggressive){% else %}Aggressive{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy Details Box -->
+                <div id="strategy-details-box"
+                    class="mt-2 p-4 rounded-xl bg-primary-container/5 border border-primary-container/10 hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="font-mono text-[10px] text-primary tracking-widest uppercase">{% if locale == 'ar' %}خطوات المنطق المخطط لها{% else %}Planned Logic Actions{% endif %}</p>
+                        <button type="button" onclick="showInlineStrategyDetails()" class="text-[9px] text-[#f59e0b] font-mono tracking-wider hover:text-white transition-colors flex items-center gap-1.5 outline-none border border-[#f59e0b]/20 bg-[#f59e0b]/5 px-2.5 py-1 rounded-lg">
+                            <span class="material-symbols-outlined text-[11px]">arrow_forward</span> {% if locale == 'ar' %}عرض الخطة الكاملة{% else %}Show Full Plan{% endif %}
+                        </button>
+                    </div>
+                    <ul id="strategy-summaries-list" class="space-y-1.5 list-none">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <button onclick="runCleaning()"
+                    class="btn-primary mt-auto py-3.5 rounded-xl flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">play_arrow</span>
+                    {% if locale == 'ar' %}تشغيل محرك SOL{% else %}Run SOL Engine →{% endif %}
+                </button>
             </div>
 
-            <!-- Strategy Details Box (New) -->
-            <div id="strategy-details-box"
-                class="mt-2 p-4 rounded-xl bg-primary-container/5 border border-primary-container/10 hidden animate-fade-in">
-                <p class="font-mono text-[10px] text-primary tracking-widest uppercase mb-2">Planned Logic Actions:</p>
-                <ul id="strategy-summaries-list" class="space-y-1.5 list-none">
-                    <!-- Populated by JS -->
-                </ul>
-            </div>
+            <!-- ── View 2: Detailed Strategy View ── -->
+            <div id="goals-details-view" class="hidden flex flex-col gap-4 w-full transition-all duration-300 animate-fade-in">
+                <!-- Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-outline-variant/10">
+                    <button type="button" onclick="hideInlineStrategyDetails()" class="flex items-center gap-1 text-xs text-outline hover:text-on-surface transition-colors font-mono outline-none">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> {% if locale == 'ar' %}عودة{% else %}Back{% endif %}
+                    </button>
+                    <h4 id="inline-strategy-title" class="font-headline font-bold text-on-surface text-sm">{% if locale == 'ar' %}تفاصيل الإستراتيجية{% else %}Strategy Details{% endif %}</h4>
+                </div>
 
-            <button onclick="runCleaning()"
-                class="btn-primary mt-auto py-3.5 rounded-xl flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-base">play_arrow</span>
-                Run SOL Engine →
-            </button>
+                <p id="inline-strategy-intro" class="font-body text-xs text-on-surface-variant/90 leading-relaxed bg-primary-container/5 border border-primary-container/10 p-3 rounded-xl">
+                    <!-- Dynamic intro -->
+                </p>
+
+                <!-- Metadata Badges -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="panel p-2 flex flex-col items-center justify-center text-center bg-surface-container/30">
+                        <span class="material-symbols-outlined text-primary text-sm mb-0.5">content_copy</span>
+                        <p class="text-[8px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}إزالة التكرار{% else %}Deduplication{% endif %}</p>
+                        <p id="inline-strategy-dedup" class="text-[10px] font-bold text-on-surface mt-0.5">--</p>
+                    </div>
+                    <div class="panel p-2 flex flex-col items-center justify-center text-center bg-surface-container/30">
+                        <span class="material-symbols-outlined text-[#f59e0b] text-sm mb-0.5">track_changes</span>
+                        <p class="text-[8px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}مواءمة الأهداف{% else %}Goal Alignment{% endif %}</p>
+                        <p id="inline-strategy-goal" class="text-[10px] font-bold text-on-surface mt-0.5">--</p>
+                    </div>
+                    <div class="panel p-2 flex flex-col items-center justify-center text-center bg-surface-container/30">
+                        <span class="material-symbols-outlined text-secondary text-sm mb-0.5">table_chart</span>
+                        <p class="text-[8px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}الأعمدة النشطة{% else %}Active Columns{% endif %}</p>
+                        <p id="inline-strategy-cols" class="text-[10px] font-bold text-on-surface mt-0.5">--</p>
+                    </div>
+                </div>
+
+                <!-- Operations -->
+                <div class="space-y-2">
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}ملخص العمليات المخططة{% else %}Planned Operations Summary{% endif %}</p>
+                    <div class="pr-1">
+                        <ul id="inline-strategy-list" class="space-y-1.5 list-none">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Column-Specific Actions -->
+                <div class="space-y-2">
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}إجراءات الأعمدة المحددة{% else %}Column-Specific Actions{% endif %}</p>
+                    <div class="overflow-x-auto rounded-xl border border-outline-variant/10 bg-[#14162a]/50">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="sticky top-0 bg-[#14162a] z-10">
+                                <tr class="border-b border-outline-variant/10 bg-surface-container/20">
+                                    <th class="p-2 font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}العمود{% else %}Column{% endif %}</th>
+                                    <th class="p-2 font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الإجراء{% else %}Action{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inline-strategy-columns-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Run directly from here -->
+                <button onclick="runCleaning()"
+                    class="btn-primary mt-2 py-3.5 rounded-xl flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">play_arrow</span>
+                    {% if locale == 'ar' %}تشغيل محرك SOL{% else %}Run SOL Engine →{% endif %}
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Narrator Pre-Clean Panel (scoped inside phase-2) -->
     <div id="narrator-pre-panel" class="hidden mt-4">
         <div class="panel p-5 border border-tertiary-container/30 relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60"></div>
+            <div
+                class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60">
+            </div>
             <div class="flex items-center gap-3 mb-4">
-                <div class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
-                    <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL' 1">auto_stories</span>
+                <div
+                    class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-tertiary text-lg"
+                        style="font-variation-settings:'FILL' 1">auto_stories</span>
                 </div>
                 <div>
                     <p class="font-headline font-bold text-white text-sm">راوي البيانات</p>
-                    <p class="font-mono text-[9px] text-outline tracking-widest uppercase">SOL Data Narrator · Arabic AI Insights</p>
+                    <p class="font-mono text-[9px] text-outline tracking-widest uppercase">SOL Data Narrator · Arabic AI
+                        Insights</p>
                 </div>
                 <button onclick="fetchPreNarrative()" id="narrator-pre-btn"
                     class="ml-auto text-xs bg-tertiary-container/20 text-tertiary px-3 py-1.5 rounded-lg hover:bg-tertiary-container/40 transition-colors flex items-center gap-1 cursor-pointer">
@@ -389,11 +949,13 @@
                 </button>
             </div>
             <div id="narrator-pre-content" class="hidden">
-                <div id="narrator-pre-loading" class="hidden flex items-center gap-2 text-outline text-xs font-mono mb-3">
+                <div id="narrator-pre-loading"
+                    class="hidden flex items-center gap-2 text-outline text-xs font-mono mb-3">
                     <div class="w-3 h-3 border border-tertiary border-t-transparent rounded-full animate-spin"></div>
                     جاري التحليل بالعربية...
                 </div>
-                <div id="narrator-pre-text" class="prose-sm text-on-surface-variant leading-relaxed text-sm font-body" dir="rtl" style="text-align:right"></div>
+                <div id="narrator-pre-text" class="prose-sm text-on-surface-variant leading-relaxed text-sm font-body"
+                    dir="rtl" style="text-align:right"></div>
             </div>
         </div>
     </div>
@@ -411,21 +973,114 @@
 
     <!-- Narrator Post-Clean Panel -->
     <div id="narrator-post-panel" class="mb-6 panel p-5 border border-tertiary-container/30 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60"></div>
+        <div
+            class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-tertiary to-transparent opacity-60">
+        </div>
         <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
-                <span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings:'FILL' 1">auto_stories</span>
+            <div
+                class="w-9 h-9 rounded-xl bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-tertiary text-lg"
+                    style="font-variation-settings:'FILL' 1">auto_stories</span>
             </div>
             <div>
                 <p class="font-headline font-bold text-white text-sm">تقرير التحويل — راوي البيانات</p>
-                <p class="font-mono text-[9px] text-outline tracking-widest uppercase">Post-Cleaning Arabic Narrative</p>
+                <p class="font-mono text-[9px] text-outline tracking-widest uppercase">Post-Cleaning Arabic Narrative
+                </p>
             </div>
         </div>
         <div id="narrator-post-loading" class="flex items-center gap-2 text-outline text-xs font-mono">
             <div class="w-3 h-3 border border-tertiary border-t-transparent rounded-full animate-spin"></div>
             جاري توليد تقرير التحويل بالعربية...
         </div>
-        <div id="narrator-post-text" class="hidden prose-sm text-on-surface-variant leading-relaxed text-sm font-body" dir="rtl" style="text-align:right"></div>
+        <div id="narrator-post-text" class="hidden prose-sm text-on-surface-variant leading-relaxed text-sm font-body"
+            dir="rtl" style="text-align:right"></div>
+    </div>
+
+    <!-- Enterprise Quality & Security Guardrails -->
+    <div id="enterprise-guardrails-panel"
+        class="mb-6 panel p-5 border border-primary/20 relative overflow-hidden hidden">
+        <div
+            class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#4361ee] via-[#7b2ff7] to-transparent opacity-60">
+        </div>
+        <div class="flex flex-col md:flex-row gap-6 items-stretch">
+            <!-- Confidence Score Ring/Card -->
+            <div
+                class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container/50 border border-outline-variant/10 min-w-[180px]">
+                <span class="font-mono text-[10px] text-outline uppercase tracking-wider mb-2">{% if locale == 'ar' %}ثقة الحقيقة{% else %}Truth Confidence{% endif %}</span>
+                <div class="relative flex items-center justify-center w-20 h-20">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="40" cy="40" r="34" stroke="rgba(68, 70, 85, 0.2)" stroke-width="6"
+                            fill="transparent" />
+                        <circle id="confidence-progress" cx="40" cy="40" r="34" stroke="#4ade80" stroke-width="6"
+                            fill="transparent" stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round"
+                            class="transition-all duration-1000" />
+                    </svg>
+                    <span id="confidence-pct-text"
+                        class="absolute font-headline font-black text-white text-lg">100%</span>
+                </div>
+                <span id="confidence-desc"
+                    class="font-mono text-[9px] text-[#4ade80] mt-2 uppercase tracking-wide">Excellent Quality</span>
+            </div>
+
+            <!-- Guardrail Stats / Lists -->
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Blocked Actions List -->
+                <div class="p-3 rounded-xl bg-error/5 border border-error/20 flex flex-col">
+                    <div class="flex items-center gap-1.5 mb-2 text-error">
+                        <span class="material-symbols-outlined text-sm"
+                            style="font-variation-settings:'FILL' 1">security</span>
+                        <span class="font-label text-xs font-bold uppercase tracking-wider">{% if locale == 'ar' %}محظور بالسياسة{% else %}Blocked by Policy{% endif %}</span>
+                    </div>
+                    <ul id="guardrail-blocked-list"
+                        class="space-y-1 text-[11px] font-mono text-outline flex-1 overflow-y-auto max-h-[120px]">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <!-- Warnings List -->
+                <div class="p-3 rounded-xl bg-yellow-500/5 border border-yellow-500/20 flex flex-col">
+                    <div class="flex items-center gap-1.5 mb-2 text-yellow-500">
+                        <span class="material-symbols-outlined text-sm"
+                            style="font-variation-settings:'FILL' 1">warning</span>
+                        <span class="font-label text-xs font-bold uppercase tracking-wider">{% if locale == 'ar' %}تحذيرات التحقق{% else %}Validation Warnings{% endif %}</span>
+                    </div>
+                    <ul id="guardrail-warnings-list"
+                        class="space-y-1 text-[11px] font-mono text-outline flex-1 overflow-y-auto max-h-[120px]">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <!-- Actions List -->
+                <div class="p-3 rounded-xl bg-[#4ade80]/5 border border-[#4ade80]/20 flex flex-col">
+                    <div class="flex items-center gap-1.5 mb-2 text-[#4ade80]">
+                        <span class="material-symbols-outlined text-sm"
+                            style="font-variation-settings:'FILL' 1">task_alt</span>
+                        <span class="font-label text-xs font-bold uppercase tracking-wider">{% if locale == 'ar' %}العمليات المكتملة{% else %}Actions Completed{% endif %}</span>
+                    </div>
+                    <ul id="guardrail-actions-list"
+                        class="space-y-1 text-[11px] font-mono text-outline flex-1 overflow-y-auto max-h-[120px]">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Log Ledger (New Panel) -->
+    <div id="audit-log-panel" class="mb-6 panel p-5 border border-primary/20 relative overflow-hidden hidden">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#5bd5fc] via-[#4361ee] to-transparent opacity-60"></div>
+        <div class="flex items-start gap-3.5 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-[#5bd5fc]/10 flex items-center justify-center text-[#5bd5fc] border border-[#5bd5fc]/20">
+                <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">history_toggle_off</span>
+            </div>
+            <div>
+                <h4 class="font-headline font-bold text-white text-base">{% if locale == 'ar' %}سجل المراجعة والتدقيق{% else %}Audit Log Ledger{% endif %}</h4>
+                <p class="font-mono text-[9px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}سجل فوري لجميع التعديلات التي تم تطبيقها على مجموعة البيانات{% else %}Real-time ledger of all modifications applied to the dataset{% endif %}</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto max-h-[250px] overflow-y-auto custom-scrollbar" id="audit-log-list">
+            <!-- Populated by JS -->
+        </div>
     </div>
 
     <!-- Before / After Preview -->
@@ -433,7 +1088,7 @@
         <div class="panel overflow-hidden">
             <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant/10">
                 <div class="w-2 h-2 rounded-full bg-error"></div>
-                <span class="font-label text-sm font-bold text-white">Before Cleaning</span>
+                <span class="font-label text-sm font-bold text-white">{% if locale == 'ar' %}قبل التنظيف{% else %}Before Cleaning{% endif %}</span>
                 <span id="before-badge"
                     class="font-mono text-[9px] text-outline bg-surface-container px-2 py-0.5 rounded ml-auto"></span>
             </div>
@@ -448,7 +1103,7 @@
         <div class="panel overflow-hidden">
             <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant/10">
                 <div class="w-2 h-2 rounded-full bg-[#4ade80]"></div>
-                <span class="font-label text-sm font-bold text-white">After Cleaning</span>
+                <span class="font-label text-sm font-bold text-white">{% if locale == 'ar' %}بعد التنظيف{% else %}After Cleaning{% endif %}</span>
                 <span id="after-badge"
                     class="font-mono text-[9px] text-outline bg-surface-container px-2 py-0.5 rounded ml-auto"></span>
             </div>
@@ -462,9 +1117,10 @@
     </div>
 
     <div class="flex gap-3 justify-end mt-4">
-        <button onclick="goToPhase(2)" class="btn-secondary py-2.5 px-5 rounded-xl">← Adjust Goals</button>
+        <button onclick="goToPhase(2)" class="btn-secondary py-2.5 px-5 rounded-xl">{% if locale == 'ar' %}تعديل الأهداف{% else %}← Adjust Goals{% endif %}</button>
+        <button onclick="downloadPDFReport()" class="btn-secondary py-2.5 px-5 rounded-xl flex items-center gap-1.5"><span class="material-symbols-outlined text-base">picture_as_pdf</span>{% if locale == 'ar' %}تحميل تقرير PDF{% else %}Download PDF Report{% endif %}</button>
         <button onclick="goToPhase(4)" class="btn-primary py-2.5 px-5 rounded-xl flex items-center gap-2"><span
-                class="material-symbols-outlined text-base">check_circle</span>Looks Good →</button>
+                class="material-symbols-outlined text-base">check_circle</span>{% if locale == 'ar' %}يبدو جيداً{% else %}Looks Good →{% endif %}</button>
     </div>
 </div>
 
@@ -472,636 +1128,1683 @@
 <!-- ═══════════════════════════════════════════════════════════
      PHASE 4: EXPORT
 ═══════════════════════════════════════════════════════════ -->
-<div id="phase-4" class="hidden max-w-2xl mx-auto">
-    <div class="panel p-8 text-center mb-6">
-        <div
-            class="w-16 h-16 rounded-full bg-[#4ade80]/10 border border-[#4ade80]/20 flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-3xl text-[#4ade80]"
-                style="font-variation-settings:'FILL' 1">verified</span>
+<div id="phase-4" class="hidden max-w-5xl mx-auto space-y-6">
+    <!-- Success Hero Banner -->
+    <div class="panel p-8 text-center relative overflow-hidden border border-emerald-500/20 bg-emerald-500/5 rounded-2xl shadow-2xl">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none"></div>
+        <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
+            <span class="material-symbols-outlined text-3xl text-emerald-400" style="font-variation-settings:'FILL' 1">verified</span>
         </div>
-        <h3 class="font-headline font-bold text-xl text-white mb-1">Dataset Cleaned Successfully</h3>
-        <p id="export-summary" class="font-body text-on-surface-variant text-sm"></p>
+        <h3 class="font-headline font-bold text-2xl text-white mb-2 tracking-tight">{% if locale == 'ar' %}اكتمل تنظيف ومعالجة البيانات بنجاح{% else %}Data cleaning and processing completed successfully{% endif %}</h3>
+        <p class="font-mono text-[10px] text-emerald-400/90 tracking-widest uppercase mb-1">Data Processing & Imputation Complete</p>
+        <p id="export-summary" class="font-body text-on-surface-variant text-sm mt-3 bg-surface-container-lowest/50 py-2.5 px-4 rounded-xl border border-outline-variant/10 inline-block"></p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <!-- Download CSV -->
-        <div class="panel p-5 flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-lg bg-secondary-container/20 border border-secondary-container/30 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-secondary"
-                        style="font-variation-settings:'FILL' 1">download</span>
-                </div>
-                <div>
-                    <p class="font-label font-bold text-white text-sm">Download File</p>
-                    <p class="font-mono text-[10px] text-outline">Select format & export</p>
-                </div>
+    <!-- Key Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="panel p-4 flex items-center gap-4 border border-blue-500/15 bg-blue-500/2">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <span class="material-symbols-outlined text-xl">build_circle</span>
             </div>
-            <select id="export-fmt"
-                class="bg-surface-container-lowest border border-outline-variant/30 text-white text-xs rounded-lg py-2 px-3 font-mono outline-none focus:border-primary-container/50">
-                <option value="original">Original Format</option>
-                <option value="csv">CSV</option>
-                <option value="xlsx">Excel (XLSX)</option>
-                <option value="json">JSON</option>
-                <option value="parquet">Parquet</option>
-            </select>
-            <button onclick="downloadFile()"
-                class="btn-primary py-2.5 rounded-xl flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-base">download</span>
-                Download Cleaned File
-            </button>
+            <div>
+                <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الحقول المصلحة{% else %}Repaired Cells{% endif %}</p>
+                <p id="export-stat-fixed" class="font-label font-bold text-lg text-white">0</p>
+            </div>
         </div>
+        <div class="panel p-4 flex items-center gap-4 border border-emerald-500/15 bg-emerald-500/2">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <span class="material-symbols-outlined text-xl">table_rows</span>
+            </div>
+            <div>
+                <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الأسطر المحفوظة{% else %}Preserved Rows{% endif %}</p>
+                <p id="export-stat-rows" class="font-label font-bold text-lg text-white">0</p>
+            </div>
+        </div>
+        <div class="panel p-4 flex items-center gap-4 border border-purple-500/15 bg-purple-500/2">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <span class="material-symbols-outlined text-xl">verified_user</span>
+            </div>
+            <div>
+                <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}مؤشر الجودة الجديد{% else %}Quality Index{% endif %}</p>
+                <p id="export-stat-quality" class="font-label font-bold text-lg text-white">0%</p>
+            </div>
+        </div>
+    </div>
 
-        <!-- Sync to DB -->
-        <div class="panel p-5 flex flex-col gap-3 opacity-50">
-            <div class="flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-lg bg-tertiary-container/20 border border-tertiary-container/30 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-tertiary"
-                        style="font-variation-settings:'FILL' 1">cable</span>
+    <!-- 2-Column Interaction Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Column: Export/Download Portal -->
+        <div class="panel p-6 flex flex-col gap-4 border border-outline-variant/10">
+            <div class="flex items-center gap-3 pb-3 border-b border-outline-variant/10">
+                <div class="w-10 h-10 rounded-xl bg-primary-container/10 border border-primary-container/20 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-xl">download_for_offline</span>
                 </div>
                 <div>
-                    <p class="font-label font-bold text-white text-sm">Sync to Database</p>
-                    <p class="font-mono text-[10px] text-outline">Requires DB Connectors</p>
+                    <h4 class="font-headline font-bold text-white text-base">{% if locale == 'ar' %}تصدير وتنزيل الملف{% else %}Export File{% endif %}</h4>
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">Select output format & retrieve data</p>
                 </div>
             </div>
-            <p
-                class="font-mono text-[10px] text-outline bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/20">
-                Connect a database first via the DB Connectors module to enable this feature.</p>
-            <button disabled
-                class="btn-secondary py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
-                <span class="material-symbols-outlined text-base">lock</span>
-                Sync Unavailable
-            </button>
-        </div>
-    <!-- ML Advisor Integration -->
-    <div id="ml-advisor-card" class="panel p-6 mb-6 border border-primary/20 bg-primary/5 hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div class="flex items-start justify-between gap-4 mb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">psychology</span>
+            
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="block font-mono text-[10px] text-outline uppercase tracking-widest">{% if locale == 'ar' %}اختر التنسيق{% else %}Select Format{% endif %}</label>
+                    <select id="export-fmt" class="w-full bg-surface-container-lowest border border-outline-variant/30 text-white text-sm rounded-xl py-3 px-4 font-mono outline-none focus:border-primary-container/50 focus:ring-1 focus:ring-primary-container/30 transition-all">
+                        <option value="original">{% if locale == 'ar' %}التنسيق الأصلي{% else %}Original Format{% endif %}</option>
+                        <option value="csv">CSV (Comma-Separated)</option>
+                        <option value="xlsx">Excel Workbook (XLSX)</option>
+                        <option value="json">JSON Document</option>
+                        <option value="parquet">Parquet Columnar Format</option>
+                    </select>
                 </div>
-                <div>
-                    <h4 class="font-headline font-bold text-white text-lg leading-tight">AI Strategic Recommendation</h4>
-                    <p class="font-mono text-[10px] text-primary uppercase tracking-widest">Model Architect v1.0</p>
+                
+                <div class="p-3 bg-surface-container/30 border border-outline-variant/10 rounded-xl space-y-2">
+                    <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}إعدادات التصدير{% else %}Export Settings{% endif %}</p>
+                    <div class="flex items-center justify-between text-xs text-on-surface-variant">
+                        <span>{% if locale == 'ar' %}تضمين علامات البيانات الوصفية للشذوذ{% else %}Include anomaly metadata tags{% endif %}</span>
+                        <input type="checkbox" checked class="rounded border-outline-variant bg-surface-container text-primary focus:ring-0 focus:ring-offset-0">
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-on-surface-variant">
+                        <span>{% if locale == 'ar' %}تمكين ضغط GZIP{% else %}Enable GZIP compression{% endif %}</span>
+                        <input type="checkbox" class="rounded border-outline-variant bg-surface-container text-primary focus:ring-0 focus:ring-offset-0">
+                    </div>
                 </div>
-            </div>
-            <div class="text-right">
-                <p id="ml-score" class="text-2xl font-black text-white leading-none">--%</p>
-                <p class="text-[9px] font-mono text-outline uppercase tracking-tighter">Topology Match</p>
+                
+                <button onclick="downloadFile()" class="btn-primary w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm">
+                    <span class="material-symbols-outlined text-lg">download</span>
+                    {% if locale == 'ar' %}تنزيل مجموعة البيانات المنظفة{% else %}Download Cleaned Dataset{% endif %}
+                </button>
+                <button onclick="downloadPDFReport()" class="btn-secondary w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm mt-2">
+                    <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                    {% if locale == 'ar' %}تنزيل تقرير PDF للتدقيق{% else %}Download PDF Audit Report{% endif %}
+                </button>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="space-y-1">
-                <p class="text-[10px] font-mono text-outline uppercase tracking-[0.2em]">Suggested Architecture</p>
-                <p id="ml-model" class="text-white font-bold text-base">Analyzing dataset topology...</p>
+        <!-- Right Column: AI Insights & DB Sync -->
+        <div class="flex flex-col gap-6">
+            <!-- ML Advisor Recommendation -->
+            <div id="ml-advisor-card" class="panel p-6 border border-primary/25 bg-primary/5 rounded-2xl flex flex-col gap-4 transition-all duration-300 hidden">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                          <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1">psychology</span>
+                        </div>
+                        <div>
+                            <h4 class="font-headline font-bold text-white text-sm leading-tight">{% if locale == 'ar' %}توصية نموذج الذكاء الاصطناعي{% else %}AI model recommendation{% endif %}</h4>
+                            <p class="font-mono text-[9px] text-primary uppercase tracking-widest">Model Advisor v1.0</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p id="ml-score" class="text-xl font-black text-white leading-none">--%</p>
+                        <p class="text-[8px] font-mono text-outline uppercase tracking-tighter">{% if locale == 'ar' %}تطابق الهيكل (Topology){% else %}Topology Match{% endif %}</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 text-xs bg-surface-container-lowest/40 p-4 border border-outline-variant/10 rounded-xl">
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}النموذج المقترح{% else %}Suggested Model{% endif %}</p>
+                        <p id="ml-model" class="text-white font-bold text-sm">{% if locale == 'ar' %}جاري تحليل هيكل مجموعة البيانات...{% else %}Analyzing dataset topology...{% endif %}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-mono text-outline uppercase tracking-wider">{% if locale == 'ar' %}التحليل الاستراتيجي{% else %}Strategic Logic{% endif %}</p>
+                        <p id="ml-reasoning" class="text-on-surface-variant text-xs leading-relaxed italic">{% if locale == 'ar' %}جاري تقييم الخصائص والتوزيعات...{% else %}Evaluating features and distributions...{% endif %}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between pt-2">
+                    <p class="text-[10px] text-outline">{% if locale == 'ar' %}التحليل العميق متاح في ML Advisor.{% else %}Deep analysis available in ML Advisor.{% endif %}</p>
+                    <a href="/app/ml-advisor" class="text-primary text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 hover:underline">
+                        {% if locale == 'ar' %}افتح لوحة التحكم{% else %}Open Dashboard{% endif %}
+                        <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                    </a>
+                </div>
             </div>
-            <div class="space-y-1">
-                <p class="text-[10px] font-mono text-outline uppercase tracking-[0.2em]">Strategic Reasoning</p>
-                <p id="ml-reasoning" class="text-on-surface-variant text-xs leading-relaxed italic">Evaluating features and distributions...</p>
-            </div>
-        </div>
 
-        <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10">
-            <p class="text-[10px] text-outline italic">Deep analysis available in the ML Advisor module.</p>
-            <a href="/app/ml-advisor" class="text-primary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 hover:underline">
-                Open Strategy Dashboard
-                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </a>
         </div>
     </div>
 
-    <!-- ══ Premium Action Bar ══ -->
-    <div class="mt-6 space-y-3">
-
-        <!-- Primary CTAs — two big cards -->
-        <div class="grid grid-cols-2 gap-4">
-
-            <!-- ── View Audit Report ── -->
-            <button id="btn-view-audit" onclick="openAuditReport()"
-                class="group relative overflow-hidden rounded-2xl p-5 flex flex-col items-start gap-3 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
-                style="background:linear-gradient(135deg,rgba(11,13,26,.95),rgba(22,26,50,.95));border:1px solid rgba(91,213,252,0.25);box-shadow:0 0 0 0 rgba(91,213,252,0);"
-                onmouseenter="this.style.boxShadow='0 0 40px -8px rgba(91,213,252,0.35)';this.style.borderColor='rgba(91,213,252,0.55)'"
-                onmouseleave="this.style.boxShadow='0 0 0 0 rgba(91,213,252,0)';this.style.borderColor='rgba(91,213,252,0.25)'">
-
-                <!-- Glow blob -->
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style="background:radial-gradient(circle,rgba(91,213,252,0.12) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
-
-                <!-- Icon -->
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style="background:linear-gradient(135deg,rgba(91,213,252,0.15),rgba(67,97,238,0.2));border:1px solid rgba(91,213,252,0.3);">
-                    <span class="material-symbols-outlined text-2xl" style="color:#5bd5fc;font-variation-settings:'FILL' 1">summarize</span>
-                </div>
-
-                <!-- Text -->
-                <div>
-                    <p class="font-headline font-bold text-base text-white leading-tight">View Audit Report</p>
-                    <p class="font-mono text-[10px] mt-0.5 leading-relaxed" style="color:rgba(91,213,252,0.7)">Quality scores · AI reasoning<br>Column intelligence · Certificate</p>
-                </div>
-
-                <!-- Arrow -->
-                <span class="material-symbols-outlined text-sm absolute bottom-4 right-4 transition-transform duration-300 group-hover:translate-x-1"
-                    style="color:rgba(91,213,252,0.5)">arrow_forward</span>
+    <!-- Sleek Action Hub -->
+    <div class="pt-4 border-t border-outline-variant/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <a href="/app/dashboard" class="order-3 sm:order-1 text-xs text-outline hover:text-white transition-colors flex items-center gap-1 hover:underline">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            {% if locale == 'ar' %}العودة إلى لوحة التحكم{% else %}Back to Dashboard{% endif %}
+        </a>
+        
+        <div class="order-1 sm:order-2 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button id="btn-view-audit" onclick="openAuditReport()" class="btn-primary py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-xs font-bold shadow-lg shadow-primary-container/15 hover:shadow-primary-container/30 transition-all">
+                <span class="material-symbols-outlined text-sm">summarize</span>
+                {% if locale == 'ar' %}عرض تقرير التدقيق الكامل{% else %}View Complete Audit Report{% endif %}
             </button>
-
-            <!-- ── Clean Another File ── -->
-            <button onclick="resetStudio()"
-                class="group relative overflow-hidden rounded-2xl p-5 flex flex-col items-start gap-3 text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
-                style="background:linear-gradient(135deg,rgba(11,13,26,.95),rgba(22,24,38,.95));border:1px solid rgba(68,70,85,0.35);box-shadow:0 0 0 0 rgba(133,64,255,0);"
-                onmouseenter="this.style.boxShadow='0 0 40px -8px rgba(133,64,255,0.25)';this.style.borderColor='rgba(133,64,255,0.45)'"
-                onmouseleave="this.style.boxShadow='0 0 0 0 rgba(133,64,255,0)';this.style.borderColor='rgba(68,70,85,0.35)'">
-
-                <!-- Glow blob -->
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style="background:radial-gradient(circle,rgba(133,64,255,0.10) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
-
-                <!-- Icon -->
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style="background:linear-gradient(135deg,rgba(133,64,255,0.15),rgba(186,195,255,0.1));border:1px solid rgba(133,64,255,0.3);">
-                    <span class="material-symbols-outlined text-2xl" style="color:#d2bbff;font-variation-settings:'FILL' 1">refresh</span>
-                </div>
-
-                <!-- Text -->
-                <div>
-                    <p class="font-headline font-bold text-base text-white leading-tight">Clean Another File</p>
-                    <p class="font-mono text-[10px] mt-0.5 leading-relaxed text-outline">Upload a new dataset<br>and start a fresh session</p>
-                </div>
-
-                <!-- Arrow -->
-                <span class="material-symbols-outlined text-sm absolute bottom-4 right-4 transition-transform duration-300 group-hover:translate-x-1 text-outline">arrow_forward</span>
+            
+            <button onclick="resetStudio()" class="btn-secondary py-3 px-6 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+                {% if locale == 'ar' %}تنظيف مجموعة بيانات جديدة{% else %}Clean New Dataset{% endif %}
             </button>
         </div>
-
-        <!-- Secondary — ghost link -->
-        <a href="/app/dashboard" class="block">
-            <div class="flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 hover:bg-surface-container/50 cursor-pointer"
-                style="border:1px solid rgba(68,70,85,0.2);">
-                <span class="material-symbols-outlined text-sm text-outline">dashboard</span>
-                <span class="font-mono text-xs text-outline hover:text-on-surface-variant transition-colors">Back to Dashboard</span>
-            </div>
-        </a>
-
     </div>
 </div>
 
+    <!-- Credentials Modal -->
+    <div id="credentials-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,.7); backdrop-filter:blur(8px)">
+      <div class="w-full max-w-md mx-4 rounded-2xl p-6 bg-surface-container-lowest border border-primary/20 relative">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-secondary to-transparent opacity-75"></div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-2xl">vpn_key</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-bold text-white text-lg">{% if locale == 'ar' %}بيانات الاعتماد عن بعد مطلوبة{% else %}Remote Credentials Required{% endif %}</h3>
+            <p class="font-mono text-[9px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}مفاتيح تكامل Kaggle و Groq{% else %}Kaggle & Groq integration keys{% endif %}</p>
+          </div>
+        </div>
+        
+        <p class="font-body text-xs text-outline mb-5">
+          {% if locale == 'ar' %}
+          يتم تشغيل عمليات التنظيف عن بعد على بيئات عمل Kaggle (Kernels). يرجى تكوين مفاتيح واجهة برمجة التطبيقات أدناه. سيتم حفظ بيانات الاعتماد بأمان في التكوين المحلي للخلفية (Backend).
+          {% else %}
+          Remote cleaning runs are executed on Kaggle kernels. Please configure your API keys below. Credentials will be securely saved to your local backend configuration.
+          {% endif %}
+        </p>
 
-<!-- ═══ JAVASCRIPT ═══ -->
-<script>
-    // ── State ──
-    const state = {
-        datasetId: null,
-        cleanedId: null,
-        auditId: null,
-        metadata: null,
-        rawData: [],
-        cleanedData: [],
-        diffMap: {},
-        nanMap: {},
-        strategy: 'beta',
-        phase: 1,
-        file: null,
-        previews: null,
-    };
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block font-mono text-[10px] text-outline tracking-widest uppercase mb-2">{% if locale == 'ar' %}اسم مستخدم Kaggle{% else %}Kaggle Username{% endif %}</label>
+            <input type="text" id="modal-kaggle-username" 
+              class="w-full bg-surface-container border border-outline-variant/30 focus:border-primary/50 rounded-xl px-4 py-2.5 text-white text-sm font-body placeholder:text-outline/40 outline-none transition-all" 
+              placeholder="e.g. your_kaggle_username">
+          </div>
+          <div>
+            <label class="block font-mono text-[10px] text-outline tracking-widest uppercase mb-2">{% if locale == 'ar' %}مفتاح Kaggle API{% else %}Kaggle API Key (Token){% endif %}</label>
+            <input type="password" id="modal-kaggle-key" 
+              class="w-full bg-surface-container border border-outline-variant/30 focus:border-primary/50 rounded-xl px-4 py-2.5 text-white text-sm font-body placeholder:text-outline/40 outline-none transition-all" 
+              placeholder="Enter Kaggle key (API token)">
+          </div>
+          <div>
+            <label class="block font-mono text-[10px] text-outline tracking-widest uppercase mb-2">{% if locale == 'ar' %}مفتاح Groq API{% else %}Groq API Key{% endif %}</label>
+            <input type="password" id="modal-groq-key" 
+              class="w-full bg-surface-container border border-outline-variant/30 focus:border-primary/50 rounded-xl px-4 py-2.5 text-white text-sm font-body placeholder:text-outline/40 outline-none transition-all" 
+              placeholder="Enter Groq API Key (gsk_...)">
+          </div>
+        </div>
 
-    // ── Utilities ──
-    function showToast(msg, type = 'info') {
-        const t = document.getElementById('toast');
-        const icons = { info: 'info', success: 'check_circle', error: 'error' };
-        const colors = { info: 'text-secondary', success: 'text-[#4ade80]', error: 'text-error' };
-        document.getElementById('toast-msg').textContent = msg;
-        const icon = document.getElementById('toast-icon');
-        icon.textContent = icons[type] || 'info';
-        icon.className = `material-symbols-outlined text-lg ${colors[type] || 'text-secondary'}`;
-        t.classList.remove('hidden');
-        setTimeout(() => t.classList.add('hidden'), 3500);
-    }
+        <div class="flex gap-3">
+          <button onclick="hideCredentialsModal()" 
+            class="flex-1 py-2.5 rounded-xl border border-outline-variant/30 font-mono text-xs text-outline hover:text-white transition-colors">
+            {% if locale == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+          </button>
+          <button onclick="saveAndProceedCleaning()" 
+            class="flex-1 py-2.5 rounded-xl font-mono text-xs font-bold text-white btn-primary flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-sm">play_arrow</span>
+            {% if locale == 'ar' %}حفظ وتشغيل{% else %}Save & Run{% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
 
-    function showLoading(msg = 'Processing...') {
-        document.getElementById('loading-msg').textContent = msg;
-        document.getElementById('loading-overlay').classList.remove('hidden');
-        document.getElementById('loading-overlay').classList.add('flex');
-    }
-    function hideLoading() {
-        document.getElementById('loading-overlay').classList.add('hidden');
-        document.getElementById('loading-overlay').classList.remove('flex');
-    }
 
-    function goToPhase(n) {
-        [1, 2, 3, 4].forEach(i => {
-            document.getElementById(`phase-${i}`).classList.add('hidden');
-            const s = document.getElementById(`step-${i}`);
-            s.classList.remove('step-active', 'step-done', 'step-idle');
-            s.classList.add(i < n ? 'step-done' : i === n ? 'step-active' : 'step-idle');
-        });
-        document.getElementById(`phase-${n}`).classList.remove('hidden');
-        state.phase = n;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
-    function selectStrategy(el) {
-        document.querySelectorAll('.strategy-pill').forEach(p => p.classList.remove('selected'));
-        el.classList.add('selected');
-        state.strategy = el.dataset.strategy;
 
-        // Match the color for the text labels
-        const labels = { alpha: 'text-outline', beta: 'text-primary', gamma: 'text-tertiary' };
-        el.querySelector('p:first-child').className = `font-mono text-xs font-bold ${labels[state.strategy]}`;
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+        // ── State ──
+        const state = {
+            datasetId: null,
+            cleanedId: null,
+            auditId: null,
+            taskId: null,
+            metadata: null,
+            rawData: [],
+            cleanedData: [],
+            diffMap: {},
+            nanMap: {},
+            strategy: 'beta',
+            phase: 1,
+            file: null,
+            previews: null,
+            approvedActions: [],
+            isCleaning: false,
+            pollingInterval: null,
+            timerInterval: null,
+            showAllColumns: false,
+            showAllSummaries: false,
+            taskResult: null,
+            preNarrativeHtml: null,
+            postNarrativeHtml: null
+        };
 
-        updateStrategyUI();
-    }
+        const STORAGE_KEY = 'sol_cleaning_studio_state';
 
-    async function fetchPreviews() {
-        if (!state.datasetId || !state.metadata) return;
-        try {
-            const res = await fetch('/api/strategies/preview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    metadata: state.metadata,
-                    goal: document.getElementById('goal-input').value.trim()
-                })
-            });
-            if (res.ok) {
-                state.previews = await res.json();
-                updateStrategyUI();
-            }
-        } catch (e) { console.error("Preview failed", e); }
-    }
-
-    function updateStrategyUI() {
-        const box = document.getElementById('strategy-details-box');
-        const list = document.getElementById('strategy-summaries-list');
-
-        if (!state.previews || !state.previews[state.strategy]) {
-            box.classList.add('hidden');
-            return;
+        function saveState() {
+            const saveObj = {
+                datasetId: state.datasetId,
+                cleanedId: state.cleanedId,
+                auditId: state.auditId,
+                taskId: state.taskId,
+                metadata: state.metadata,
+                rawData: state.rawData,
+                cleanedData: state.cleanedData,
+                diffMap: state.diffMap,
+                nanMap: state.nanMap,
+                strategy: state.strategy,
+                phase: state.phase,
+                previews: state.previews,
+                approvedActions: state.approvedActions,
+                showAllColumns: state.showAllColumns,
+                showAllSummaries: state.showAllSummaries,
+                taskResult: state.taskResult,
+                preNarrativeHtml: state.preNarrativeHtml,
+                postNarrativeHtml: state.postNarrativeHtml,
+                goalValue: document.getElementById('goal-input') ? document.getElementById('goal-input').value : ""
+            };
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saveObj));
         }
 
-        const plan = state.previews[state.strategy];
-        box.classList.remove('hidden');
+        function loadState() {
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+            try {
+                const loaded = JSON.parse(saved);
+                state.datasetId = loaded.datasetId;
+                state.cleanedId = loaded.cleanedId;
+                state.auditId = loaded.auditId;
+                state.taskId = loaded.taskId;
+                state.metadata = loaded.metadata;
+                state.rawData = loaded.rawData;
+                state.cleanedData = loaded.cleanedData;
+                state.diffMap = loaded.diffMap;
+                state.nanMap = loaded.nanMap;
+                state.strategy = loaded.strategy;
+                state.phase = loaded.phase;
+                state.previews = loaded.previews;
+                state.approvedActions = loaded.approvedActions;
+                state.showAllColumns = loaded.showAllColumns;
+                state.showAllSummaries = loaded.showAllSummaries;
+                state.taskResult = loaded.taskResult;
+                state.preNarrativeHtml = loaded.preNarrativeHtml;
+                state.postNarrativeHtml = loaded.postNarrativeHtml;
 
-        if (plan.summaries && plan.summaries.length > 0) {
-            list.innerHTML = plan.summaries.map(s => `
-                <li class="flex items-start gap-2 text-[11px] font-body text-on-surface-variant/80">
+                if (document.getElementById('goal-input') && loaded.goalValue) {
+                    document.getElementById('goal-input').value = loaded.goalValue;
+                }
+
+                if (state.datasetId) {
+                    const pills = document.querySelectorAll('.strategy-pill');
+                    pills.forEach(p => {
+                        if (p.dataset.strategy === state.strategy) {
+                            p.classList.add('selected');
+                            const firstP = p.querySelector('p:first-child');
+                            if (firstP) {
+                                const labels = { alpha: 'text-outline', beta: 'text-[#f59e0b]', gamma: 'text-tertiary' };
+                                firstP.className = `font-mono text-xs font-bold ${labels[state.strategy] || 'text-outline'}`;
+                            }
+                        } else {
+                            p.classList.remove('selected');
+                            const firstP = p.querySelector('p:first-child');
+                            if (firstP) {
+                                firstP.className = 'font-mono text-xs font-bold text-outline';
+                            }
+                        }
+                    });
+
+                    if (state.metadata) {
+                        renderMetadata(state.metadata);
+                    }
+
+                    goToPhase(state.phase);
+
+                    if (state.phase === '1b' || state.phase === 2 || state.phase === 3 || state.phase === 4) {
+                        try {
+                            const _m = state.metadata || {};
+                            const _rows = (_m.row_count ?? state.rawData.length ?? 0).toLocaleString();
+                            const _cols = (_m.columns_info || []).length;
+                            const _nulls = (_m.columns_info || []).reduce((s, c) => s + (c.missing_count || 0), 0);
+                            const _el = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+                            _el('disco-chip-rows', `${_rows} rows`);
+                            _el('disco-chip-cols', `${_cols} cols`);
+                            _el('disco-chip-nulls', `${_nulls.toLocaleString()} dirty cells`);
+                        } catch (_) {}
+                        loadDiscoveryCharts(state.datasetId);
+                        if (state.metadata) {
+                            renderDiscoveryInsights(state.metadata);
+                        }
+                        const narratorPre = document.getElementById('narrator-pre-panel');
+                        if (narratorPre) narratorPre.classList.remove('hidden');
+                    }
+
+                    if (state.previews) {
+                        updateStrategyUI();
+                    }
+
+                    if (state.preNarrativeHtml) {
+                        const preText = document.getElementById('narrator-pre-text');
+                        const preCont = document.getElementById('narrator-pre-content');
+                        const preLoad = document.getElementById('narrator-pre-loading');
+                        if (preText && preCont) {
+                            preCont.classList.remove('hidden');
+                            preText.innerHTML = state.preNarrativeHtml;
+                            if (preLoad) preLoad.classList.add('hidden');
+                        }
+                    }
+
+                    if (state.taskResult) {
+                        renderValidation(state.taskResult);
+                    }
+
+                    if (state.postNarrativeHtml) {
+                        const postText = document.getElementById('narrator-post-text');
+                        const postLoad = document.getElementById('narrator-post-loading');
+                        if (postText) {
+                            postText.innerHTML = state.postNarrativeHtml;
+                            postText.classList.remove('hidden');
+                            if (postLoad) postLoad.classList.add('hidden');
+                        }
+                    }
+                }
+            } catch(e) { console.error("Error loading state:", e); }
+        }
+
+        // ── Utilities ──
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            const icons = { info: 'info', success: 'check_circle', error: 'error' };
+            const colors = { info: 'text-secondary', success: 'text-[#4ade80]', error: 'text-error' };
+            document.getElementById('toast-msg').textContent = msg;
+            const icon = document.getElementById('toast-icon');
+            icon.textContent = icons[type] || 'info';
+            icon.className = `material-symbols-outlined text-lg ${colors[type] || 'text-secondary'}`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        function showLoading(msg = 'Processing...') {
+            document.getElementById('loading-msg').textContent = msg;
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('loading-overlay').classList.add('flex');
+        }
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('loading-overlay').classList.remove('flex');
+            const progContainer = document.getElementById('loading-progress-container');
+            const progText = document.getElementById('loading-progress-text');
+            if (progContainer) progContainer.classList.add('hidden');
+            if (progText) progText.classList.add('hidden');
+            stopLiveTimer();
+            const linkContainer = document.getElementById('live-kernel-container');
+            if (linkContainer) linkContainer.classList.add('hidden');
+        }
+
+        function startLiveTimer() {
+            const timerEl = document.getElementById('loading-timer');
+            if (timerEl) {
+                timerEl.classList.remove('hidden');
+                timerEl.textContent = 'Elapsed Time: 00:00:00';
+            }
+            const startTime = Date.now();
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                const elapsedMs = Date.now() - startTime;
+                const totalSecs = Math.floor(elapsedMs / 1000);
+                const hrs = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+                const secs = String(totalSecs % 60).padStart(2, '0');
+                if (timerEl) {
+                    timerEl.textContent = `Elapsed Time: ${hrs}:${mins}:${secs}`;
+                }
+            }, 1000);
+        }
+
+        function stopLiveTimer() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+            const timerEl = document.getElementById('loading-timer');
+            if (timerEl) {
+                timerEl.classList.add('hidden');
+            }
+        }
+
+        function goToPhase(n) {
+            [1, '1b', 2, 3, 4].forEach(i => {
+                const phaseEl = document.getElementById(`phase-${i}`);
+                if (phaseEl) phaseEl.classList.add('hidden');
+            });
+            [1, 2, 3, 4].forEach(i => {
+                const s = document.getElementById(`step-${i}`);
+                if (!s) return;
+                s.classList.remove('step-active', 'step-done', 'step-idle');
+                const numericN = n === '1b' ? 1.5 : n;
+                const numericI = i;
+                s.classList.add(numericI < numericN ? 'step-done' : numericI === Math.ceil(numericN) ? 'step-active' : 'step-idle');
+            });
+            const step1b = document.getElementById('step-1b');
+            if (step1b) {
+                step1b.classList.remove('step-active', 'step-done', 'step-idle');
+                step1b.classList.add(n === '1b' ? 'step-active' : (n !== 1 ? 'step-done' : 'step-idle'));
+            }
+
+            document.getElementById(`phase-${n}`).classList.remove('hidden');
+            state.phase = n;
+            saveState();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function applyGoalChip(element) {
+            const input = document.getElementById('goal-input');
+            let text = element.innerText;
+            if (input.value.trim() !== "") {
+                input.value = input.value.trim().replace(/[\.,\s]+$/, '') + ", " + text.toLowerCase();
+            } else {
+                input.value = text;
+            }
+            input.focus();
+            saveState();
+        }
+
+        function selectStrategy(el) {
+            document.querySelectorAll('.strategy-pill').forEach(p => {
+                p.classList.remove('selected');
+                const firstP = p.querySelector('p:first-child');
+                if (firstP) {
+                    firstP.className = 'font-mono text-xs font-bold text-outline';
+                }
+            });
+            el.classList.add('selected');
+            state.strategy = el.dataset.strategy;
+
+            const labels = { alpha: 'text-outline', beta: 'text-[#f59e0b]', gamma: 'text-tertiary' };
+            const activeP = el.querySelector('p:first-child');
+            if (activeP) {
+                activeP.className = `font-mono text-xs font-bold ${labels[state.strategy]}`;
+            }
+
+            updateStrategyUI();
+            saveState();
+        }
+
+        async function fetchPreviews() {
+            if (!state.datasetId || !state.metadata) return;
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = localStorage.getItem('sol_auth_token');
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                const res = await fetch('/api/strategies/preview', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        metadata: state.metadata,
+                        goal: document.getElementById('goal-input').value.trim()
+                    })
+                });
+                if (res.ok) {
+                    state.previews = await res.json();
+                    updateStrategyUI();
+                }
+            } catch (e) { console.error("Preview failed", e); }
+        }
+
+        function updateStrategyUI() {
+            const box = document.getElementById('strategy-details-box');
+            const list = document.getElementById('strategy-summaries-list');
+
+            if (!state.previews || !state.previews[state.strategy]) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const plan = state.previews[state.strategy];
+            box.classList.remove('hidden');
+
+            const summaries = plan.summaries || [];
+            const maxVisible = 10;
+            const hasMore = summaries.length > maxVisible;
+            const visibleSummaries = state.showAllSummaries ? summaries : summaries.slice(0, maxVisible);
+
+            if (summaries.length > 0) {
+                list.innerHTML = visibleSummaries.map(s => `
+                <li class="flex items-start gap-2 text-[11px] font-body text-on-surface-variant/80 animate-fade-in">
                     <span class="material-symbols-outlined text-primary text-[14px] mt-0.5" style="font-variation-settings:'FILL' 1">check_circle</span>
                     ${s}
                 </li>
             `).join('');
-        } else {
-            list.innerHTML = `<li class="text-[11px] text-outline italic">No specific logic actions detected for this strategy.</li>`;
-        }
-    }
 
-    // ── Phase 1: Upload ──
-    const dropZone = document.getElementById('drop-zone');
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
-    dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.classList.remove('dragging');
-        const file = e.dataTransfer.files[0];
-        if (file) handleFileSelect(file);
-    });
-
-    document.getElementById('file-input').addEventListener('change', function () {
-        if (this.files[0]) handleFileSelect(this.files[0]);
-    });
-
-    function handleFileSelect(file) {
-        state.file = file;
-        document.getElementById('file-name-label').textContent = file.name;
-        document.getElementById('file-size-label').textContent = `${(file.size / 1024).toFixed(1)} KB`;
-        document.getElementById('file-preview').classList.remove('hidden');
-        document.getElementById('btn-upload').removeAttribute('disabled');
-    }
-
-    function clearFile() {
-        state.file = null;
-        document.getElementById('file-input').value = '';
-        document.getElementById('file-preview').classList.add('hidden');
-        document.getElementById('btn-upload').setAttribute('disabled', true);
-    }
-
-    async function uploadFile() {
-        if (!state.file) return;
-        showLoading('Uploading & analysing your dataset...');
-        try {
-            const fd = new FormData();
-            fd.append('file', state.file);
-            const res = await fetch('/api/upload', { method: 'POST', body: fd });
-            if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed'); }
-            const data = await res.json();
-            state.datasetId = data.dataset_id;
-            state.metadata = data.metadata;
-            state.rawData = data.raw_data;
-            state.nanMap = data.nan_map || {};
-            renderMetadata(data.metadata);
-
-            // Generate previews immediately to show current plan
-            await fetchPreviews();
-
-            hideLoading();
-            goToPhase(2);
-            // Show narrator panel (it lives inside phase-2, hidden by default)
-            document.getElementById('narrator-pre-panel').classList.remove('hidden');
-            showToast('File uploaded & analysed successfully!', 'success');
-        } catch (err) {
-            hideLoading();
-            showToast(err.message, 'error');
-        }
-    }
-
-    // ── Phase 2: Metadata render ──
-    function renderMetadata(meta) {
-        const body = document.getElementById('meta-table-body');
-        const cols = meta.columns_info || [];
-        let totalDirty = 0;
-
-        body.innerHTML = cols.map(col => {
-            const rawName  = col.name || col.column_name || '—';
-            const dtype    = col.physical_type || col.detected_type || col.type || '—';
-            const dirty    = col.missing_count ?? 0;
-            const dirtyPct = col.missing_percentage ?? col.null_percentage ?? 0;
-            const total    = meta.row_count ?? (state.rawData.length) ?? 1;
-            totalDirty    += dirty;
-
-            let badgeHtml = '';
-            let healthColor = '#4ade80';
-            if (dirty === 0) {
-                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#4ade80]/10 text-[#4ade80] border border-[#4ade80]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">check_circle</span>CLEAN</span>`;
-                healthColor = '#4ade80';
-            } else if (dirtyPct < 10) {
-                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">warning</span>MINOR</span>`;
-                healthColor = '#facc15';
+                // Render/Toggle the "Show More" Button for summaries
+                let toggleBtn = document.getElementById('strategy-summaries-toggle-btn');
+                if (hasMore) {
+                    if (!toggleBtn) {
+                        toggleBtn = document.createElement('button');
+                        toggleBtn.id = 'strategy-summaries-toggle-btn';
+                        toggleBtn.className = 'mt-2.5 font-mono text-[10px] text-primary hover:text-[#5bd5fc] transition-colors flex items-center gap-1 outline-none hover:underline';
+                        toggleBtn.onclick = () => {
+                            state.showAllSummaries = !state.showAllSummaries;
+                            updateStrategyUI();
+                        };
+                        box.appendChild(toggleBtn);
+                    }
+                    const remaining = summaries.length - maxVisible;
+                    toggleBtn.innerHTML = state.showAllSummaries 
+                        ? `<span class="material-symbols-outlined text-xs">expand_less</span> Show Less`
+                        : `<span class="material-symbols-outlined text-xs">expand_more</span> Show More (+${remaining} operations)`;
+                    toggleBtn.classList.remove('hidden');
+                } else if (toggleBtn) {
+                    toggleBtn.classList.add('hidden');
+                }
             } else {
-                badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#f87171]/10 text-[#f87171] border border-[#f87171]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">error</span>DIRTY</span>`;
-                healthColor = '#f87171';
+                list.innerHTML = `<li class="text-[11px] text-outline italic">No specific logic actions detected for this strategy.</li>`;
+                const toggleBtn = document.getElementById('strategy-summaries-toggle-btn');
+                if (toggleBtn) toggleBtn.classList.add('hidden');
             }
-            const barW = Math.min(100, dirtyPct);
+        }
 
-            return `
+        // ── Phase 1: Upload ──
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileSelect(file);
+        });
+
+        document.getElementById('file-input').addEventListener('change', function () {
+            if (this.files[0]) handleFileSelect(this.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            state.file = file;
+            document.getElementById('file-name-label').textContent = file.name;
+            document.getElementById('file-size-label').textContent = `${(file.size / 1024).toFixed(1)} KB`;
+            
+            // Hide upload box & show file details card
+            document.getElementById('drop-zone').classList.add('hidden');
+            const preview = document.getElementById('file-preview');
+            preview.classList.remove('hidden');
+            preview.classList.add('flex');
+            
+            // Dynamic format badge
+            const ext = file.name.split('.').pop().toLowerCase();
+            const formatBadge = document.getElementById('file-format-badge-container');
+            if (formatBadge) {
+                const formats = {
+                    csv: '<span class="font-mono text-[10px] px-2.5 py-1 bg-primary-container/20 text-primary border border-primary-container/30 rounded-lg">CSV FORMAT</span>',
+                    xlsx: '<span class="font-mono text-[10px] px-2.5 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg">EXCEL WORKBOOK</span>',
+                    xls: '<span class="font-mono text-[10px] px-2.5 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg">EXCEL WORKBOOK</span>',
+                    json: '<span class="font-mono text-[10px] px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg">JSON DOCUMENT</span>',
+                    parquet: '<span class="font-mono text-[10px] px-2.5 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg">PARQUET COLUMNAR</span>'
+                };
+                formatBadge.innerHTML = formats[ext] || `<span class="font-mono text-[10px] px-2.5 py-1 bg-surface-container text-outline border border-outline-variant/20 rounded-lg">${ext.toUpperCase()} FILE</span>`;
+            }
+
+            // Style the preview icon dynamically based on extension
+            const iconContainer = document.getElementById('file-preview-icon-container');
+            const iconSpan = document.getElementById('file-preview-icon');
+            if (iconContainer && iconSpan) {
+                iconContainer.className = "float-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300";
+                
+                const themeMap = {
+                    csv: { icon: 'table_chart', classes: 'bg-primary/10 border border-primary/25 text-primary' },
+                    xlsx: { icon: 'table_view', classes: 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400' },
+                    xls: { icon: 'table_view', classes: 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400' },
+                    json: { icon: 'code', classes: 'bg-amber-500/10 border border-amber-500/25 text-amber-400' },
+                    parquet: { icon: 'schema', classes: 'bg-purple-500/10 border border-purple-500/25 text-purple-400' }
+                };
+                
+                const theme = themeMap[ext] || { icon: 'description', classes: 'bg-surface-variant/20 border border-outline-variant/30 text-outline' };
+                iconSpan.textContent = theme.icon;
+                iconContainer.className += ' ' + theme.classes;
+            }
+            
+            document.getElementById('btn-upload').removeAttribute('disabled');
+        }
+
+        function clearFile() {
+            state.file = null;
+            document.getElementById('file-input').value = '';
+            
+            // Show upload box & hide file details card
+            document.getElementById('drop-zone').classList.remove('hidden');
+            const preview = document.getElementById('file-preview');
+            preview.classList.add('hidden');
+            preview.classList.remove('flex');
+            
+            document.getElementById('btn-upload').setAttribute('disabled', true);
+        }
+
+        async function uploadFile() {
+            if (!state.file) return;
+            showLoading('Uploading & analysing your dataset...');
+            try {
+                const fd = new FormData();
+                fd.append('file', state.file);
+                const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed'); }
+                const data = await res.json();
+                state.datasetId = data.dataset_id;
+                state.metadata = data.metadata;
+                state.rawData = data.raw_data;
+                state.nanMap = data.nan_map || {};
+                renderMetadata(data.metadata);
+
+                // Generate previews immediately to show current plan
+                await fetchPreviews();
+
+                hideLoading();
+
+                // ── DISCOVERY_VIEW: go to phase-1b first, then load charts ──
+                goToPhase('1b');
+
+                // ─ Populate Discovery chips from upload response ─
+                try {
+                    const _m = data.metadata || {};
+                    const _rows = (_m.row_count ?? data.raw_data.length ?? 0).toLocaleString();
+                    const _cols = (_m.columns_info || []).length;
+                    const _nulls = (_m.columns_info || []).reduce((s, c) => s + (c.missing_count || 0), 0);
+                    const _el = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+                    _el('disco-chip-rows', `${_rows} rows`);
+                    _el('disco-chip-cols', `${_cols} cols`);
+                    _el('disco-chip-nulls', `${_nulls.toLocaleString()} dirty cells`);
+                } catch (_) { }
+
+                showToast('Upload complete! Reviewing data health…', 'success');
+                localStorage.setItem('sol_dataset_id', state.datasetId);
+
+                // Load discovery charts (non-blocking)
+                loadDiscoveryCharts(state.datasetId);
+                renderDiscoveryInsights(data.metadata);
+
+                // Show narrator panel (lives inside phase-2, loaded when user proceeds)
+                document.getElementById('narrator-pre-panel').classList.remove('hidden');
+            } catch (err) {
+                hideLoading();
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Discovery chart loader for inline phase-1b panels ──
+        const PLOTLY_DARK_CONFIG = {
+            responsive: true, scrollZoom: false, displayModeBar: false,
+        };
+
+        async function loadDiscoveryCharts(dsId) {
+            try {
+                const res = await fetch(`/api/viz/${dsId}/discovery`);
+                if (!res.ok) return;
+                const data = await res.json();
+                renderDiscoChart('disco-chart-health', 'disco-loading-health', data.health_gauge);
+                renderDiscoChart('disco-chart-heatmap', 'disco-loading-heatmap', data.missingness_heatmap);
+                renderDiscoChart('disco-chart-types', 'disco-loading-types', data.type_distribution);
+            } catch (e) {
+                console.warn('[VizEngine discovery]', e);
+            }
+        }
+
+        function renderDiscoChart(divId, loadingId, figJson) {
+            const loadEl = document.getElementById(loadingId);
+            if (loadEl) loadEl.style.display = 'none';
+            if (!figJson) return;
+            const fig = typeof figJson === 'string' ? JSON.parse(figJson) : figJson;
+            if (fig.layout) {
+                fig.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+                fig.layout.plot_bgcolor = 'rgba(0,0,0,0)';
+                fig.layout.font = { 
+                    family: 'Inter, system-ui, -apple-system, sans-serif', 
+                    color: '#e2e3f0', 
+                    size: 10 
+                };
+                
+                // Allow dynamic height and margin overrides for proper text legibility
+                if (divId === 'disco-chart-heatmap') {
+                    fig.layout.height = 280;
+                    fig.layout.margin = { l: 140, r: 25, t: 15, b: 35 };
+                } else if (divId === 'disco-chart-types') {
+                    fig.layout.height = 200;
+                    fig.layout.margin = { l: 85, r: 15, t: 15, b: 25 };
+                } else if (divId === 'disco-chart-health') {
+                    fig.layout.height = 240;
+                    fig.layout.margin = { l: 15, r: 15, t: 30, b: 15 };
+                } else {
+                    fig.layout.height = fig.layout.height || 220;
+                    fig.layout.margin = { l: 40, r: 15, t: 25, b: 35 };
+                }
+            }
+            if (typeof Plotly !== 'undefined') {
+                Plotly.react(divId, fig.data || [], fig.layout || {}, PLOTLY_DARK_CONFIG);
+            }
+        }
+
+        function renderDiscoveryInsights(meta) {
+            const listEl = document.getElementById('disco-insights-list');
+            const loadingEl = document.getElementById('disco-insights-loading');
+            if (!listEl) return;
+            
+            if (loadingEl) loadingEl.classList.add('hidden');
+            listEl.classList.remove('hidden');
+            
+            const cols = (meta && meta.columns_info) || [];
+            const rows = (meta && meta.rows) || 0;
+            
+            let insights = [];
+            
+            // 1. Check for missing values
+            const missingCols = cols.filter(c => c.missing_count > 0);
+            const totalMissing = cols.reduce((s, c) => s + (c.missing_count || 0), 0);
+            const totalCells = rows * cols.length;
+            const overallMissingPct = totalCells > 0 ? (totalMissing / totalCells) * 100 : 0;
+            
+            if (missingCols.length > 0) {
+                insights.push({
+                    type: 'warning',
+                    icon: 'warning',
+                    color: 'text-amber-400',
+                    bgColor: 'rgba(252,211,77,0.1)',
+                    borderColor: 'rgba(252,211,77,0.2)',
+                    title: `Missing Data Detected / تم رصد بيانات مفقودة`,
+                    desc: `Found <strong>${totalMissing.toLocaleString()}</strong> missing values across <strong>${missingCols.length}</strong> columns (${overallMissingPct.toFixed(1)}% of total dataset).`
+                });
+            } else {
+                insights.push({
+                    type: 'success',
+                    icon: 'check_circle',
+                    color: 'text-emerald-400',
+                    bgColor: 'rgba(52,211,153,0.1)',
+                    borderColor: 'rgba(52,211,153,0.2)',
+                    title: `Complete Dataset / بيانات مكتملة بالكامل`,
+                    desc: `Outstanding! No missing or null values were found in any of the columns.`
+                });
+            }
+            
+            // 2. Constant columns check
+            const constantCols = cols.filter(c => c.unique_values === 1);
+            if (constantCols.length > 0) {
+                const names = constantCols.map(c => c.name).join(', ');
+                insights.push({
+                    type: 'danger',
+                    icon: 'report',
+                    color: 'text-red-400',
+                    bgColor: 'rgba(248,113,113,0.1)',
+                    borderColor: 'rgba(248,113,113,0.2)',
+                    title: `Constant Columns / أعمدة ذات قيمة واحدة ثابتة`,
+                    desc: `Columns <strong>${names}</strong> contain only 1 unique value. They provide zero predictive variance.`
+                });
+            }
+            
+            // 3. High cardinality text/categorical columns
+            const highCardCols = cols.filter(c => c.unique_values > 100 && (c.semantic_type === 'Categorical' || c.semantic_type === 'Text'));
+            if (highCardCols.length > 0) {
+                const names = highCardCols.map(c => c.name).slice(0, 3).join(', ') + (highCardCols.length > 3 ? '...' : '');
+                insights.push({
+                    type: 'info',
+                    icon: 'info',
+                    color: 'text-sky-400',
+                    bgColor: 'rgba(56,189,248,0.1)',
+                    borderColor: 'rgba(56,189,248,0.2)',
+                    title: `High Cardinality / تباين كبير في القيم`,
+                    desc: `Columns like <strong>${names}</strong> have high cardinality. Cleaning recommended prior to model training.`
+                });
+            }
+            
+            // 4. Target candidates
+            const candidates = cols.filter(c => c.is_target_candidate);
+            if (candidates.length > 0) {
+                insights.push({
+                    type: 'success',
+                    icon: 'ads_click',
+                    color: 'text-purple-400',
+                    bgColor: 'rgba(168,85,247,0.1)',
+                    borderColor: 'rgba(168,85,247,0.2)',
+                    title: `Target Candidate Columns / أعمدة صالحة للتحليل`,
+                    desc: `We identified <strong>${candidates.length}</strong> clean categorical/numeric columns suitable as machine learning targets.`
+                });
+            }
+            
+            // Render the items
+            // Render the items
+            if (insights.length === 0) {
+                listEl.innerHTML = `<li class="text-xs text-outline italic py-8 text-center">No dataset issues or anomalies detected.</li>`;
+            } else {
+                listEl.innerHTML = insights.map(ins => {
+                    let borderLeftColor = '';
+                    if (ins.type === 'warning') borderLeftColor = '#fbbf24';
+                    else if (ins.type === 'success') borderLeftColor = '#34d399';
+                    else if (ins.type === 'danger') borderLeftColor = '#f87171';
+                    else borderLeftColor = '#38bdf8';
+
+                    return `
+                        <li class="insight-card flex gap-3 p-3 rounded-xl border animate-fade-in" style="background:${ins.bgColor};border-color:${ins.borderColor};border-left: 4px solid ${borderLeftColor}">
+                            <span class="material-symbols-outlined ${ins.color} text-lg mt-0.5" style="font-variation-settings:'FILL' 1">${ins.icon}</span>
+                            <div class="flex-1">
+                                <p class="font-headline font-bold text-white text-xs leading-normal">${ins.title}</p>
+                                <p class="font-body text-[11px] text-on-surface-variant/80 mt-0.5 leading-relaxed">${ins.desc}</p>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ── Phase 2: Metadata render ──
+        function renderMetadata(meta) {
+            const body = document.getElementById('meta-table-body');
+            const cols = meta.columns_info || [];
+            let totalDirty = 0;
+
+            const maxVisible = 10;
+            const hasMore = cols.length > maxVisible;
+            const visibleCols = state.showAllColumns ? cols : cols.slice(0, maxVisible);
+
+            body.innerHTML = visibleCols.map(col => {
+                const rawName = col.name || col.column_name || '—';
+                const dtype = col.physical_type || col.detected_type || col.type || '—';
+                const dirty = col.missing_count ?? 0;
+                const dirtyPct = col.missing_percentage ?? col.null_percentage ?? 0;
+                const total = meta.row_count ?? (state.rawData.length) ?? 1;
+                totalDirty += dirty;
+
+                let badgeHtml = '';
+                let healthColor = '#4ade80';
+                if (dirty === 0) {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#4ade80]/10 text-[#4ade80] border border-[#4ade80]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">check_circle</span>CLEAN</span>`;
+                    healthColor = '#4ade80';
+                } else if (dirtyPct < 10) {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">warning</span>MINOR</span>`;
+                    healthColor = '#facc15';
+                } else {
+                    badgeHtml = `<span class="inline-flex items-center gap-1 font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#f87171]/10 text-[#f87171] border border-[#f87171]/20"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL' 1">error</span>DIRTY</span>`;
+                    healthColor = '#f87171';
+                }
+                const barW = Math.max(0, 100 - dirtyPct);
+
+                return `
             <tr class="border-b border-outline-variant/5 hover:bg-surface-container/30 transition-colors">
                 <td class="py-2.5 pr-3 text-white font-medium text-xs">${rawName}</td>
                 <td class="py-2.5 pr-3"><span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-outline border border-outline-variant/20">${dtype}</span></td>
                 <td class="py-2.5 pr-3">${dirty > 0
-                    ? `<span class="text-[#f87171] font-mono text-xs font-bold">${dirty}</span><span class="text-outline font-mono text-[9px]"> (${dirtyPct.toFixed(1)}%)</span>`
-                    : `<span class="text-[#4ade80] font-mono text-xs">0</span>`}</td>
+                        ? `<span class="text-[#f87171] font-mono text-xs font-bold">${dirty}</span><span class="text-outline font-mono text-[9px]"> (${dirtyPct.toFixed(1)}%)</span>`
+                        : `<span class="text-[#4ade80] font-mono text-xs">0</span>`}</td>
                 <td class="py-2.5 pr-3">${badgeHtml}</td>
                 <td class="py-2.5"><div class="w-16 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${barW}%;background:${healthColor}"></div></div></td>
             </tr>`;
-        }).join('');
+            }).join('');
 
-        const rows = meta.row_count ?? state.rawData.length;
-        document.getElementById('stat-rows').textContent = rows.toLocaleString();
-        document.getElementById('stat-cols').textContent = cols.length;
-        document.getElementById('stat-nulls').textContent = totalDirty.toLocaleString();
-    }
-
-    // ── Phase 3: Run Cleaning ──
-    async function runCleaning() {
-        if (!state.datasetId) return;
-        showLoading('Running SOL Engine...');
-        try {
-            const fd = new FormData();
-            fd.append('dataset_id', state.datasetId);
-            fd.append('strategy', state.strategy);
-            const goal = document.getElementById('goal-input').value.trim();
-            if (goal) fd.append('goal', goal);
-
-            const res = await fetch('/api/clean', { method: 'POST', body: fd });
-            if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Cleaning failed'); }
-            const data = await res.json();
-            state.cleanedId = data.cleaned_dataset_id;
-            state.auditId   = data.audit_id || null;
-            state.rawData = data.raw_data;
-            state.cleanedData = data.cleaned_data;
-            state.diffMap = data.diff_map || {};
-            state.nanMap = data.nan_map || {};
-
-            // Persist dataset_id for the audit page
-            if (state.datasetId) {
-                localStorage.setItem('sol_last_dataset_id', state.datasetId);
+            // Accumulate totalDirty for the sliced portion if hidden
+            if (!state.showAllColumns && hasMore) {
+                cols.slice(maxVisible).forEach(col => {
+                    totalDirty += (col.missing_count ?? 0);
+                });
             }
 
-            renderValidation(data);
-            hideLoading();
-            goToPhase(3);
-            showToast('Cleaning complete! Review the results below.', 'success');
-            // Auto-trigger Arabic post-cleaning narrative with full plan details
-            const fullReport = {
-                ...(data.audit_report || {}),
-                ...(data.report      || {}),
-                cleaning_strategy: (data.report || {}).cleaning_strategy || {}
-            };
-            fetchPostNarrative(data.stats || {}, fullReport);
-        } catch (err) {
-            hideLoading();
-            showToast(err.message, 'error');
+            // Render/Toggle the "Show More" Button
+            let toggleBtn = document.getElementById('meta-table-toggle-btn');
+            if (hasMore) {
+                if (!toggleBtn) {
+                    toggleBtn = document.createElement('button');
+                    toggleBtn.id = 'meta-table-toggle-btn';
+                    toggleBtn.className = 'mt-3.5 font-mono text-xs text-primary hover:text-[#5bd5fc] transition-colors flex items-center gap-1.5 outline-none border border-outline-variant/20 bg-surface-container/20 px-3 py-1.5 rounded-xl hover:bg-surface-container/40';
+                    toggleBtn.onclick = () => {
+                        state.showAllColumns = !state.showAllColumns;
+                        renderMetadata(state.metadata);
+                    };
+                    body.parentNode.parentNode.appendChild(toggleBtn);
+                }
+                const remaining = cols.length - maxVisible;
+                toggleBtn.innerHTML = state.showAllColumns 
+                    ? `<span class="material-symbols-outlined text-sm">expand_less</span> Show Less`
+                    : `<span class="material-symbols-outlined text-sm">expand_more</span> Show More (+${remaining} columns)`;
+                toggleBtn.classList.remove('hidden');
+            } else if (toggleBtn) {
+                toggleBtn.classList.add('hidden');
+            }
+
+            const rows = meta.row_count ?? state.rawData.length;
+            document.getElementById('stat-rows').textContent = rows.toLocaleString();
+            document.getElementById('stat-cols').textContent = cols.length;
+            document.getElementById('stat-nulls').textContent = totalDirty.toLocaleString();
         }
-    }
 
-    function renderValidation(data) {
-        const { raw_data, cleaned_data, diff_map, stats } = data;
+        // ── Phase 3: Run Cleaning ──
+        async function runCleaning() {
+            if (!state.datasetId) return;
+            if (state.isCleaning) {
+                console.warn("Cleaning is already in progress.");
+                return;
+            }
+            state.isCleaning = true;
 
-        // Stats bar
-        const statsEl = document.getElementById('cleaning-stats');
-        const s = stats || {};
-        statsEl.innerHTML = [
-            { label: 'Rows Before', val: (s.rows_before ?? 0).toLocaleString(), color: 'text-white' },
-            { label: 'Rows After', val: (s.rows_after ?? 0).toLocaleString(), color: 'text-[#4ade80]' },
-            { label: 'Missing Before', val: (s.missing_before ?? 0).toLocaleString(), color: 'text-error/80' },
-            { label: 'Cells Fixed', val: (s.cells_fixed ?? 0).toLocaleString(), color: 'text-primary' },
-        ].map(c => `
+            const isAr = ('{{ locale }}' === 'ar');
+
+            // Hide previous error alert
+            const errorAlert = document.getElementById('cleaning-error-alert');
+            if (errorAlert) errorAlert.classList.add('hidden');
+
+            // ─── Pre-flight credentials check ───
+            try {
+                const credCheck = await fetch('/api/settings/check-credentials', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` }
+                });
+                if (credCheck.ok) {
+                    const creds = await credCheck.json();
+                    const hasKaggle = creds.kaggle_username && creds.kaggle_key;
+                    const hasGroq = creds.groq_api_key;
+                    if (!hasKaggle || !hasGroq) {
+                        state.isCleaning = false;
+                        showCredentialsModal();
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Credentials check error", err);
+            }
+
+            if (state.phase === 2) {
+                state.approvedActions = [];
+            }
+            showLoading(isAr ? 'جاري تشغيل محرك SOL...' : 'Running SOL Engine...');
+            startLiveTimer();
+            const progContainer = document.getElementById('loading-progress-container');
+            const progBar = document.getElementById('loading-progress-bar');
+            const progText = document.getElementById('loading-progress-text');
+            if (progContainer) progContainer.classList.remove('hidden');
+            if (progText) progText.classList.remove('hidden');
+            if (progBar) progBar.style.width = '0%';
+            if (progText) progText.textContent = '0% Complete';
+
+            try {
+                const fd = new FormData();
+                fd.append('dataset_id', state.datasetId);
+                fd.append('strategy', state.strategy);
+                const goal = document.getElementById('goal-input').value.trim();
+                if (goal) fd.append('goal', goal);
+                if (state.approvedActions && state.approvedActions.length > 0) {
+                    fd.append('approved_actions', JSON.stringify(state.approvedActions));
+                }
+
+                const res = await fetch('/api/clean', { method: 'POST', body: fd });
+                if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Cleaning failed'); }
+                const responseData = await res.json();
+                const taskId = responseData.task_id;
+                
+                pollTaskStatus(taskId);
+            } catch (err) {
+                state.isCleaning = false;
+                hideLoading();
+                const errorAlert = document.getElementById('cleaning-error-alert');
+                const errorMsg = document.getElementById('cleaning-error-message');
+                if (errorAlert && errorMsg) {
+                    errorMsg.textContent = err.message || 'Submission error occurred.';
+                    errorAlert.classList.remove('hidden');
+                }
+                showToast(err.message, 'error');
+            }
+        }
+
+        function pollTaskStatus(taskId) {
+            state.taskId = taskId;
+            saveState();
+            if (state.pollingInterval) {
+                clearInterval(state.pollingInterval);
+                state.pollingInterval = null;
+            }
+
+            state.pollingInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/tasks/${taskId}/status`);
+                    if (!res.ok) {
+                        clearInterval(state.pollingInterval);
+                        state.pollingInterval = null;
+                        state.isCleaning = false;
+                        hideLoading();
+                        const errorAlert = document.getElementById('cleaning-error-alert');
+                        const errorMsg = document.getElementById('cleaning-error-message');
+                        if (errorAlert && errorMsg) {
+                            errorMsg.textContent = 'Failed to retrieve task status from the server.';
+                            errorAlert.classList.remove('hidden');
+                        }
+                        showToast('Failed to poll task status', 'error');
+                        return;
+                    }
+                    const task = await res.json();
+                    
+                    // Update dynamic states depending on presence of kernel_url
+                    if (task.status === 'processing' || task.status === 'pending') {
+                        const msgEl = document.getElementById('loading-msg');
+                        const linkContainer = document.getElementById('live-kernel-container');
+                        const linkEl = document.getElementById('live-kernel-link');
+                        
+                        const isAr = ('{{ locale }}' === 'ar');
+                        if (!task.kernel_url) {
+                            // Condition A (Uploading Phase)
+                            if (msgEl) {
+                                msgEl.textContent = isAr
+                                    ? "جارِ رفع البيانات وتجهيز الكيرنل على كاجل..."
+                                    : "Uploading dataset and preparing Kernel...";
+                            }
+                            if (linkContainer) {
+                                linkContainer.classList.add('hidden');
+                            }
+                        } else {
+                            // Condition B (Execution Phase)
+                            if (msgEl) {
+                                msgEl.textContent = isAr
+                                    ? "جاري التنظيف... الكيرنل يعمل الآن"
+                                    : "Kernel is now executing...";
+                            }
+                            if (linkContainer && linkEl) {
+                                linkEl.href = task.kernel_url;
+                                linkContainer.classList.remove('hidden');
+                            }
+                        }
+                    }
+
+                    const progress = task.progress || 0;
+                    
+                    const progBar = document.getElementById('loading-progress-bar');
+                    const progText = document.getElementById('loading-progress-text');
+                    if (progBar) progBar.style.width = `${progress}%`;
+                    if (progText) progText.textContent = `${progress}% Complete`;
+                    
+                    if (task.status === 'completed') {
+                        clearInterval(state.pollingInterval);
+                        state.pollingInterval = null;
+                        state.isCleaning = false;
+                        hideLoading();
+                        
+                        const data = task.result;
+                        state.cleanedId = data.cleaned_dataset_id;
+                        state.auditId = data.audit_id || null;
+                        state.rawData = data.raw_data;
+                        state.cleanedData = data.cleaned_data;
+                        state.diffMap = data.diff_map || {};
+                        state.nanMap = data.nan_map || {};
+
+                        state.taskResult = data;
+
+                        if (state.datasetId) {
+                            localStorage.setItem('sol_last_dataset_id', state.datasetId);
+                        }
+
+                        renderValidation(data);
+                        goToPhase(3);
+                        saveState();
+                        showToast('Cleaning complete! Review the results below.', 'success');
+                        
+                        const fullReport = {
+                            ...(data.audit_report || {}),
+                            ...(data.report || {}),
+                            cleaning_strategy: (data.report || {}).cleaning_strategy || {}
+                        };
+                        fetchPostNarrative(data.stats || {}, fullReport);
+                    } else if (task.status === 'failed') {
+                        clearInterval(state.pollingInterval);
+                        state.pollingInterval = null;
+                        state.isCleaning = false;
+                        hideLoading();
+                        
+                        const errorAlert = document.getElementById('cleaning-error-alert');
+                        const errorMsg = document.getElementById('cleaning-error-message');
+                        if (errorAlert && errorMsg) {
+                            errorMsg.textContent = task.error || 'Unknown remote execution error occurred.';
+                            errorAlert.classList.remove('hidden');
+                        }
+                        showToast(`Cleaning task failed: ${task.error}`, 'error');
+                    }
+                } catch (err) {
+                    clearInterval(state.pollingInterval);
+                    state.pollingInterval = null;
+                    state.isCleaning = false;
+                    hideLoading();
+                    
+                    const errorAlert = document.getElementById('cleaning-error-alert');
+                    const errorMsg = document.getElementById('cleaning-error-message');
+                    if (errorAlert && errorMsg) {
+                        errorMsg.textContent = err.message || 'Connection error occurred.';
+                        errorAlert.classList.remove('hidden');
+                    }
+                    showToast(err.message, 'error');
+                }
+            }, 1000);
+        }
+
+        function renderValidation(data) {
+            const { raw_data, cleaned_data, diff_map, stats, report } = data;
+            const rep = report || {};
+
+            // Stats bar
+            const statsEl = document.getElementById('cleaning-stats');
+            const s = stats || {};
+            statsEl.innerHTML = [
+                { label: 'Rows Before', val: (s.rows_before ?? 0).toLocaleString(), color: 'text-white' },
+                { label: 'Rows After', val: (s.rows_after ?? 0).toLocaleString(), color: 'text-[#4ade80]' },
+                { label: 'Missing Before', val: (s.missing_before ?? 0).toLocaleString(), color: 'text-error/80' },
+                { label: 'Cells Fixed', val: (s.cells_fixed ?? 0).toLocaleString(), color: 'text-primary' },
+            ].map(c => `
             <div class="panel px-4 py-3 text-center">
                 <p class="font-mono text-xl font-bold ${c.color}">${c.val}</p>
                 <p class="font-mono text-[9px] text-outline uppercase tracking-wider mt-1">${c.label}</p>
             </div>`).join('');
 
-        const cols = raw_data.length ? Object.keys(raw_data[0]) : [];
-        const limit = Math.min(50, raw_data.length);
+            // Populate Enterprise Guardrails Panel
+            const guardrailsPanel = document.getElementById('enterprise-guardrails-panel');
+            if (guardrailsPanel) {
+                guardrailsPanel.classList.remove('hidden');
 
-        function buildTable(headEl, bodyEl, rows, highlightFn) {
-            headEl.innerHTML = `<tr>${cols.map(c => `<th class="text-left py-2 px-3 font-mono text-[9px] text-outline tracking-widest uppercase whitespace-nowrap border-b border-outline-variant/10">${c}</th>`).join('')}</tr>`;
-            bodyEl.innerHTML = rows.slice(0, limit).map((row, ri) =>
-                `<tr class="border-b border-outline-variant/5 hover:bg-surface-container/30">
-                    ${cols.map(col => {
-                    const cls = highlightFn(ri, col);
-                    const val = row[col] ?? '<span class="text-outline">null</span>';
-                    return `<td class="py-2 px-3 font-mono text-[11px] whitespace-nowrap ${cls}">${val}</td>`;
-                }).join('')}
-                </tr>`
-            ).join('');
-        }
+                // Truth Confidence Score
+                const confVal = rep.truth_confidence_score ?? 100.0;
+                const pctText = document.getElementById('confidence-pct-text');
+                if (pctText) pctText.textContent = `${confVal.toFixed(0)}%`;
 
-        document.getElementById('before-badge').textContent = `${raw_data.length} rows`;
-        document.getElementById('after-badge').textContent = `${cleaned_data.length} rows`;
+                const confCircle = document.getElementById('confidence-progress');
+                if (confCircle) {
+                    // Circle circumference is 2 * PI * r = 2 * 3.14159 * 34 = 213.6
+                    const dashOffset = 213.6 - (213.6 * confVal) / 100.0;
+                    confCircle.style.strokeDashoffset = dashOffset;
 
-        buildTable(
-            document.getElementById('before-head'),
-            document.getElementById('before-body'),
-            raw_data,
-            (ri, col) => (diff_map[col] && diff_map[col].includes(ri) ? 'diff-cell-null' : '')
-        );
-        buildTable(
-            document.getElementById('after-head'),
-            document.getElementById('after-body'),
-            cleaned_data,
-            (ri, col) => (diff_map[col] && diff_map[col].includes(ri) ? 'diff-cell-changed' : '')
-        );
+                    // Color mapping
+                    if (confVal >= 90) {
+                        confCircle.setAttribute('stroke', '#4ade80');
+                        confCircle.style.setProperty('--circle-shadow-color', '#4ade80');
+                        document.getElementById('confidence-desc').className = "font-mono text-[9px] text-[#4ade80] mt-2 uppercase tracking-wide";
+                        document.getElementById('confidence-desc').textContent = "Excellent Quality";
+                    } else if (confVal >= 70) {
+                        confCircle.setAttribute('stroke', '#facc15');
+                        confCircle.style.setProperty('--circle-shadow-color', '#facc15');
+                        document.getElementById('confidence-desc').className = "font-mono text-[9px] text-[#facc15] mt-2 uppercase tracking-wide";
+                        document.getElementById('confidence-desc').textContent = "Moderate Quality";
+                    } else {
+                        confCircle.setAttribute('stroke', '#f87171');
+                        confCircle.style.setProperty('--circle-shadow-color', '#f87171');
+                        document.getElementById('confidence-desc').className = "font-mono text-[9px] text-[#f87171] mt-2 uppercase tracking-wide";
+                        document.getElementById('confidence-desc').textContent = "Risk Detected";
+                    }
+                }
 
-        // Export summary
-        document.getElementById('export-summary').textContent =
-            `${(s.cells_fixed ?? 0).toLocaleString()} cells repaired · Strategy: ${(data.strategy_used || state.strategy).toUpperCase()} · ${(s.rows_after ?? 0).toLocaleString()} rows ready`;
-        
-        _triggerMLAdvisor();
-    }
+                // Blocked Actions
+                const blockedList = document.getElementById('guardrail-blocked-list');
+                if (blockedList) {
+                    const blocked = rep.blocked_actions || [];
+                    if (blocked.length === 0) {
+                        blockedList.innerHTML = '<li class="text-outline/40 italic text-[10px]">No blocked actions.</li>';
+                    } else {
+                        blockedList.innerHTML = blocked.map(b => `
+                        <li class="flex items-start gap-1">
+                            <span class="text-error font-bold">•</span>
+                            <span class="truncate text-[10px]" title="${b}">${b}</span>
+                        </li>`).join('');
+                    }
+                }
 
-    // ── Phase 4: Download ──
-    async function downloadFile() {
-        if (!state.datasetId) return;
-        const fmt = document.getElementById('export-fmt').value;
-        const url = `/api/export/${state.datasetId}?fmt=${fmt}`;
-        const a = document.createElement('a');
-        a.href = url;
-        a.click();
-        showToast('Download started!', 'success');
-    }
+                // Warnings
+                const warningsList = document.getElementById('guardrail-warnings-list');
+                if (warningsList) {
+                    const warnings = rep.warnings || [];
+                    if (warnings.length === 0) {
+                        warningsList.innerHTML = '<li class="text-outline/40 italic text-[10px]">No warnings.</li>';
+                    } else {
+                        warningsList.innerHTML = warnings.map(w => `
+                        <li class="flex items-start gap-1">
+                            <span class="text-yellow-500 font-bold">•</span>
+                            <span class="truncate text-[10px]" title="${w}">${w}</span>
+                        </li>`).join('');
+                    }
+                }
 
-    function resetStudio() {
-        state.datasetId = null;
-        state.cleanedId = null;
-        state.auditId   = null;
-        state.file = null;
-        clearFile();
-        document.getElementById('goal-input').value = '';
-        goToPhase(1);
-    }
-
-    function openAuditReport() {
-        const id = state.datasetId;
-        if (!id) {
-            showToast('No dataset cleaned yet.', 'error');
-            return;
-        }
-        // Save to localStorage so the audit page can read it if needed
-        localStorage.setItem('sol_last_dataset_id', id);
-        window.location.href = `/app/audit?id=${id}`;
-    }
-
-
-    async function _triggerMLAdvisor() {
-        if (!state.datasetId) return;
-        const card = document.getElementById('ml-advisor-card');
-        card.classList.remove('hidden');
-        
-        try {
-            const formData = new FormData();
-            formData.append('dataset_id', state.datasetId);
-            const res = await fetch('/api/ml/recommend', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
-                body: formData
-            });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.recommendations && data.recommendations.length > 0) {
-                    const top = data.recommendations[0];
-                    document.getElementById('ml-model').textContent = top.model;
-                    document.getElementById('ml-score').textContent = top.score + '%';
-                    document.getElementById('ml-reasoning').textContent = top.reasoning;
+                // Completed Actions
+                const actionsList = document.getElementById('guardrail-actions-list');
+                if (actionsList) {
+                    const actions = rep.actions || [];
+                    if (actions.length === 0) {
+                        actionsList.innerHTML = '<li class="text-outline/40 italic text-[10px]">No actions.</li>';
+                    } else {
+                        actionsList.innerHTML = actions.map(a => `
+                        <li class="flex items-start gap-1">
+                            <span class="text-[#4ade80] font-bold">•</span>
+                            <span class="truncate text-[10px]" title="${a}">${a}</span>
+                        </li>`).join('');
+                    }
                 }
             }
-        } catch (e) {
-            console.error("ML Advisor integration error:", e);
-        }
-    }
 
-    // ════════════════════════════════════════════════════
-    //  SOL Data Narrator — Arabic AI Narrative Functions
-    // ════════════════════════════════════════════════════
-
-    /** Minimal Markdown → HTML renderer (bold, headings, bullets, blockquotes) */
-    function renderMarkdown(md) {
-        if (!md) return '';
-        return md
-            .replace(/^#{3}\s+(.+)$/gm,  '<h4 class="text-white font-bold text-sm mt-4 mb-1">$1</h4>')
-            .replace(/^#{2}\s+(.+)$/gm,  '<h3 class="text-white font-bold text-base mt-5 mb-1.5 border-b border-outline-variant/10 pb-1">$1</h3>')
-            .replace(/^#{1}\s+(.+)$/gm,  '<h2 class="text-white font-bold text-lg mt-5 mb-2">$1</h2>')
-            .replace(/\*\*(.+?)\*\*/g,   '<strong class="text-white">$1</strong>')
-            .replace(/^>\s+(.+)$/gm,     '<blockquote class="border-r-2 border-tertiary pr-3 text-on-surface-variant italic my-2">$1</blockquote>')
-            .replace(/^[-*]\s+(.+)$/gm,  '<li class="flex gap-2 items-start"><span class="text-tertiary mt-0.5">•</span><span>$1</span></li>')
-            .replace(/(<li[\s\S]*?<\/li>)/gm, '<ul class="space-y-1 my-2">$1</ul>')
-            .replace(/\n\n/g, '</p><p class="mb-2">')
-            .replace(/\n/g, '<br>');
-    }
-
-    // ── Pre-Cleaning: allow manual trigger via button ──
-
-    async function fetchPreNarrative() {
-        if (!state.datasetId) return;
-        const btn  = document.getElementById('narrator-pre-btn');
-        const load = document.getElementById('narrator-pre-loading');
-        const text = document.getElementById('narrator-pre-text');
-        const cont = document.getElementById('narrator-pre-content');
-
-        cont.classList.remove('hidden');
-        load.classList.remove('hidden');
-        text.innerHTML = '';
-        if (btn) btn.disabled = true;
-
-        try {
-            const fd = new FormData();
-            fd.append('dataset_id', state.datasetId);
-            const res = await fetch('/api/narrator/pre-clean', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
-                body: fd
-            });
-            if (res.ok) {
-                const data = await res.json();
-                text.innerHTML = renderMarkdown(data.narrative);
-                load.classList.add('hidden');
-            } else {
-                load.classList.add('hidden');
-                text.innerHTML = '<p class="text-outline text-xs">تعذّر توليد التقرير. حاول مرة أخرى.</p>';
+            // Populate Audit Log panel
+            const auditLogPanel = document.getElementById('audit-log-panel');
+            const auditLogList = document.getElementById('audit-log-list');
+            if (auditLogPanel && auditLogList) {
+                const auditLog = data.audit_log;
+                if (auditLog && auditLog.actions_log && auditLog.actions_log.length > 0) {
+                    auditLogPanel.classList.remove('hidden');
+                    auditLogList.innerHTML = `
+                        <table class="w-full text-xs text-left border-collapse font-sans">
+                            <thead>
+                                <tr class="border-b border-outline-variant/10 text-outline text-[10px] uppercase tracking-wider bg-surface-container-low/50">
+                                    <th class="py-2.5 px-3 font-semibold">Column Name</th>
+                                    <th class="py-2.5 px-3 font-semibold">Issue Detected</th>
+                                    <th class="py-2.5 px-3 font-semibold">Resolution Method</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/10 text-slate-300">
+                                ${auditLog.actions_log.map(entry => `
+                                    <tr class="hover:bg-surface-container/30 transition-colors">
+                                        <td class="py-2.5 px-3 font-semibold text-white">${entry.column || "Dataset-wide"}</td>
+                                        <td class="py-2.5 px-3 font-mono text-[11px] text-amber-400/90">${entry.issue || "N/A"}</td>
+                                        <td class="py-2.5 px-3 text-outline">${entry.resolution || "N/A"}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    auditLogPanel.classList.add('hidden');
+                }
             }
-        } catch (e) {
-            load.classList.add('hidden');
-            text.innerHTML = '<p class="text-outline text-xs">خطأ في الاتصال.</p>';
-        }
-        if (btn) btn.disabled = false;
-    }
 
-    // ── Post-Cleaning: auto-trigger after cleaning completes ──
-    async function fetchPostNarrative(cleanStats, auditReport) {
-        const load = document.getElementById('narrator-post-loading');
-        const text = document.getElementById('narrator-post-text');
+            const cols = raw_data.length ? Object.keys(raw_data[0]) : [];
+            const limit = Math.min(50, raw_data.length);
 
-        try {
-            const fd = new FormData();
-            fd.append('dataset_id', state.datasetId);
-            fd.append('strategy', state.strategy);
-            fd.append('stats_json', JSON.stringify(cleanStats || {}));
-            fd.append('report_json', JSON.stringify(auditReport || {}));
-            const res = await fetch('/api/narrator/post-clean', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
-                body: fd
-            });
-            if (res.ok) {
-                const data = await res.json();
-                text.innerHTML = renderMarkdown(data.narrative);
-                if (load) load.classList.add('hidden');
-                text.classList.remove('hidden');
-            } else {
-                if (load) load.classList.add('hidden');
+            function buildTable(headEl, bodyEl, rows, highlightFn, isAfterTable) {
+                headEl.innerHTML = `<tr>${cols.map(c => `<th class="text-left py-2 px-3 font-mono text-[9px] text-outline tracking-widest uppercase whitespace-nowrap border-b border-outline-variant/10">${c}</th>`).join('')}</tr>`;
+                bodyEl.innerHTML = rows.slice(0, limit).map((row, ri) => {
+                    const isAnomaly = isAfterTable && (row['is_anomaly'] === 1 || row['is_anomaly'] === '1' || row['is_anomaly'] === true);
+                    const rowClass = isAnomaly ? 'row-anomaly border-b border-outline-variant/5 hover:bg-surface-container/30' : 'border-b border-outline-variant/5 hover:bg-surface-container/30';
+                    return `<tr class="${rowClass}">
+                    ${cols.map(col => {
+                        const cellHighlight = highlightFn(ri, col);
+                        const cls = typeof cellHighlight === 'object' ? cellHighlight.class : cellHighlight;
+                        const title = typeof cellHighlight === 'object' ? `title="${cellHighlight.title}" class="cell-tooltip"` : '';
+                        const val = row[col] ?? '<span class="text-outline">null</span>';
+                        return `<td class="py-2 px-3 font-mono text-[11px] whitespace-nowrap ${cls}" ${title}>${val}</td>`;
+                    }).join('')}
+                </tr>`;
+                }).join('');
             }
-        } catch(e) {
-            if (load) load.classList.add('hidden');
-            console.warn('Narrator post error:', e);
+
+            document.getElementById('before-badge').textContent = `${raw_data.length} rows`;
+            document.getElementById('after-badge').textContent = `${cleaned_data.length} rows`;
+
+            buildTable(
+                document.getElementById('before-head'),
+                document.getElementById('before-body'),
+                raw_data,
+                (ri, col) => (diff_map[col] && diff_map[col].includes(ri) ? { class: 'diff-cell-null', title: 'Modified in clean version' } : ''),
+                false
+            );
+            buildTable(
+                document.getElementById('after-head'),
+                document.getElementById('after-body'),
+                cleaned_data,
+                (ri, col) => {
+                    if (diff_map[col] && diff_map[col].includes(ri)) {
+                        const strat = rep.cleaning_strategy ? rep.cleaning_strategy[col] : null;
+                        if (!strat) return { class: 'diff-cell-changed', title: 'Value modified' };
+                        if (strat.includes('impute') || strat === 'smart_impute') {
+                            return { class: 'cell-imputed', title: 'Imputed / Null Filled' };
+                        }
+                        if (strat.includes('fuzzy') || strat === 'fuzzy_fix') {
+                            return { class: 'cell-fuzzy', title: 'Fuzzy Text Fixed' };
+                        }
+                        if (strat.includes('date') || strat.includes('coerce') || strat.includes('type')) {
+                            return { class: 'cell-coerced', title: 'Standardized / Type Cast' };
+                        }
+                        return { class: 'diff-cell-changed', title: 'Value modified' };
+                    }
+                    return '';
+                },
+                true
+            );
+
+            // Export summary
+            document.getElementById('export-summary').textContent =
+                `${(s.cells_fixed ?? 0).toLocaleString()} cells repaired · Strategy: ${(data.strategy_used || state.strategy).toUpperCase()} · ${(s.rows_after ?? 0).toLocaleString()} rows ready`;
+
+            _triggerMLAdvisor();
         }
-    }
-</script>
-{% endblock %}
+
+        // ── Phase 4: Download ──
+        async function downloadFile() {
+            if (!state.datasetId) return;
+            const fmt = document.getElementById('export-fmt').value;
+            const url = `/api/export/${state.datasetId}?fmt=${fmt}`;
+            const a = document.createElement('a');
+            a.href = url;
+            a.click();
+            showToast('Download started!', 'success');
+        }
+
+        async function downloadPDFReport() {
+            if (!state.taskId) {
+                showToast('No task execution found.', 'error');
+                return;
+            }
+            const locale = '{{ locale }}' || 'en';
+            const url = `/api/tasks/${state.taskId}/report-pdf?locale=${locale}`;
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SOL_Cleaning_Report_${state.taskId}.pdf`;
+            a.click();
+            showToast('PDF report download started!', 'success');
+        }
+
+        function resetStudio() {
+            state.datasetId = null;
+            state.cleanedId = null;
+            state.auditId = null;
+            state.file = null;
+            state.approvedActions = [];
+            state.taskResult = null;
+            state.preNarrativeHtml = null;
+            state.postNarrativeHtml = null;
+            sessionStorage.removeItem(STORAGE_KEY);
+            clearFile();
+            document.getElementById('goal-input').value = '';
+            goToPhase(1);
+        }
+
+        function openAuditReport() {
+            const id = state.datasetId;
+            if (!id) {
+                showToast('No dataset cleaned yet.', 'error');
+                return;
+            }
+            // Save to localStorage so the audit page can read it if needed
+            localStorage.setItem('sol_last_dataset_id', id);
+            window.location.href = `/app/audit?id=${id}`;
+        }
+
+
+        async function _triggerMLAdvisor() {
+            if (!state.datasetId) return;
+            const card = document.getElementById('ml-advisor-card');
+            card.classList.remove('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('dataset_id', state.datasetId);
+                const res = await fetch('/api/ml/recommend', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                    body: formData
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        const top = data.recommendations[0];
+                        document.getElementById('ml-model').textContent = top.model;
+                        document.getElementById('ml-score').textContent = top.score + '%';
+                        document.getElementById('ml-reasoning').textContent = top.reasoning;
+                    }
+                }
+            } catch (e) {
+                console.error("ML Advisor integration error:", e);
+            }
+        }
+
+        // ════════════════════════════════════════════════════
+        //  SOL Data Narrator — Arabic AI Narrative Functions
+        // ════════════════════════════════════════════════════
+
+        /** Minimal Markdown → HTML renderer (bold, headings, bullets, blockquotes) */
+        function renderMarkdown(md) {
+            if (!md) return '';
+            return md
+                .replace(/^#{3}\s+(.+)$/gm, '<h4 class="text-white font-bold text-sm mt-4 mb-1">$1</h4>')
+                .replace(/^#{2}\s+(.+)$/gm, '<h3 class="text-white font-bold text-base mt-5 mb-1.5 border-b border-outline-variant/10 pb-1">$1</h3>')
+                .replace(/^#{1}\s+(.+)$/gm, '<h2 class="text-white font-bold text-lg mt-5 mb-2">$1</h2>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                .replace(/^>\s+(.+)$/gm, '<blockquote class="border-r-2 border-tertiary pr-3 text-on-surface-variant italic my-2">$1</blockquote>')
+                .replace(/^[-*]\s+(.+)$/gm, '<li class="flex gap-2 items-start"><span class="text-tertiary mt-0.5">•</span><span>$1</span></li>')
+                .replace(/(<li[\s\S]*?<\/li>)/gm, '<ul class="space-y-1 my-2">$1</ul>')
+                .replace(/\n\n/g, '</p><p class="mb-2">')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ── Pre-Cleaning: allow manual trigger via button ──
+
+        async function fetchPreNarrative() {
+            if (!state.datasetId) return;
+            const btn = document.getElementById('narrator-pre-btn');
+            const load = document.getElementById('narrator-pre-loading');
+            const text = document.getElementById('narrator-pre-text');
+            const cont = document.getElementById('narrator-pre-content');
+
+            cont.classList.remove('hidden');
+            load.classList.remove('hidden');
+            text.innerHTML = '';
+            if (btn) btn.disabled = true;
+
+            try {
+                const fd = new FormData();
+                fd.append('dataset_id', state.datasetId);
+                const res = await fetch('/api/narrator/pre-clean', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                    body: fd
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    text.innerHTML = renderMarkdown(data.narrative);
+                    state.preNarrativeHtml = text.innerHTML;
+                    saveState();
+                    load.classList.add('hidden');
+                } else {
+                    load.classList.add('hidden');
+                    text.innerHTML = '<p class="text-outline text-xs">تعذّر توليد التقرير. حاول مرة أخرى.</p>';
+                }
+            } catch (e) {
+                load.classList.add('hidden');
+                text.innerHTML = '<p class="text-outline text-xs">خطأ في الاتصال.</p>';
+            }
+            if (btn) btn.disabled = false;
+        }
+
+        // ── Post-Cleaning: auto-trigger after cleaning completes ──
+        async function fetchPostNarrative(cleanStats, auditReport) {
+            const load = document.getElementById('narrator-post-loading');
+            const text = document.getElementById('narrator-post-text');
+
+            try {
+                const fd = new FormData();
+                fd.append('dataset_id', state.datasetId);
+                const fd_strategy = state.strategy;
+                fd.append('strategy', fd_strategy);
+                fd.append('stats_json', JSON.stringify(cleanStats || {}));
+                fd.append('report_json', JSON.stringify(auditReport || {}));
+                const res = await fetch('/api/narrator/post-clean', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` },
+                    body: fd
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    text.innerHTML = renderMarkdown(data.narrative);
+                    state.postNarrativeHtml = text.innerHTML;
+                    saveState();
+                    if (load) load.classList.add('hidden');
+                    text.classList.remove('hidden');
+                } else {
+                    if (load) load.classList.add('hidden');
+                }
+            } catch (e) {
+                if (load) load.classList.add('hidden');
+                console.warn('Narrator post error:', e);
+            }
+        }
+
+        // ════════════════════════════════════════════════════
+        //  Remote Credentials Modal UI Controllers
+        // ════════════════════════════════════════════════════
+        async function showCredentialsModal() {
+            try {
+                const res = await fetch('/api/settings/check-credentials', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.kaggle_username) {
+                        document.getElementById('modal-kaggle-username').value = data.kaggle_username;
+                    }
+                    if (data.kaggle_key) {
+                        document.getElementById('modal-kaggle-key').value = data.kaggle_key;
+                    }
+                    if (data.groq_api_key) {
+                        document.getElementById('modal-groq-key').value = data.groq_api_key;
+                    }
+                }
+            } catch(e) {
+                console.error("Error loading credentials into modal", e);
+            }
+            document.getElementById('credentials-modal').classList.remove('hidden');
+        }
+
+        function hideCredentialsModal() {
+            document.getElementById('credentials-modal').classList.add('hidden');
+        }
+
+        async function saveAndProceedCleaning() {
+            const username = document.getElementById('modal-kaggle-username').value.trim();
+            const key = document.getElementById('modal-kaggle-key').value.trim();
+            const groq = document.getElementById('modal-groq-key').value.trim();
+
+            if (!username || !key || !groq) {
+                showToast("All fields are required to run on Kaggle.", "error");
+                return;
+            }
+
+            try {
+                const r = await fetch('/api/settings/credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('sol_auth_token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        kaggle_username: username,
+                        kaggle_key: key,
+                        groq_api_key: groq
+                    })
+                });
+                if (r.ok) {
+                    showToast("Credentials saved! Initiating cleaning run...", "success");
+                    hideCredentialsModal();
+                    runCleaning();
+                } else {
+                    const data = await r.json();
+                    showToast(data.detail || "Failed to save credentials.", "error");
+                }
+            } catch(e) {
+                showToast("Failed to save credentials.", "error");
+            }
+        }
+
+        function showInlineStrategyDetails() {
+            try {
+                if (!state.previews || !state.previews[state.strategy]) {
+                    showToast("No strategy preview data available yet. Please wait for the analysis to load.", "error");
+                    return;
+                }
+                const plan = state.previews[state.strategy] || {};
+                
+                const titleEl = document.getElementById('inline-strategy-title');
+                const introEl = document.getElementById('inline-strategy-intro');
+                const listEl = document.getElementById('inline-strategy-list');
+                const dedupEl = document.getElementById('inline-strategy-dedup');
+                const goalEl = document.getElementById('inline-strategy-goal');
+                const colsEl = document.getElementById('inline-strategy-cols');
+                const tbodyEl = document.getElementById('inline-strategy-columns-tbody');
+                
+                const strategyNames = {
+                    alpha: 'ALPHA (Light Clean) Strategy Plan',
+                    beta: 'BETA (Balanced Choice) Strategy Plan',
+                    gamma: 'GAMMA (Aggressive Imputation) Strategy Plan'
+                };
+                
+                const strategyIntros = {
+                    alpha: 'The ALPHA strategy executes a non-intrusive light clean. It focuses on basic data hygiene, standard row deduplication, and parsing well-structured columns without altering physical distributions or imputing statistics.',
+                    beta: 'The BETA strategy executes a balanced clean. In addition to basic deduplication, it runs robust statistical anomaly detection, fills missing cells with intelligent calculations (mode, mean, median), and normalizes dates or text fields.',
+                    gamma: 'The GAMMA strategy executes aggressive data cleaning. It automatically handles outliers, applies predictive imputations using machine learning models, normalizes all text fields, and fills null values across all dimensions.'
+                };
+                
+                if (titleEl) titleEl.textContent = strategyNames[state.strategy] || 'Strategy Plan Details';
+                if (introEl) introEl.innerHTML = `<p class="font-body text-xs text-on-surface-variant/90 leading-relaxed">${strategyIntros[state.strategy] || ''}</p>`;
+                
+                // Set metadata badges
+                if (dedupEl) {
+                    dedupEl.innerHTML = plan.remove_duplicates 
+                        ? '<span class="text-[#4ade80] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#4ade80]"></span>Enabled</span>' 
+                        : '<span class="text-outline flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>Disabled</span>';
+                }
+                
+                if (goalEl) {
+                    goalEl.innerHTML = plan.goal_injected 
+                        ? '<span class="text-[#f59e0b] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#f59e0b]"></span>Aligned</span>' 
+                        : '<span class="text-outline flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>None</span>';
+                }
+                
+                const colActions = plan.cleaning_strategy || {};
+                const colCount = Object.keys(colActions).length;
+                if (colsEl) colsEl.textContent = `${colCount} Columns`;
+        
+                // Summaries list
+                const summaries = plan.summaries || [];
+                if (listEl) {
+                    if (summaries.length > 0) {
+                        listEl.innerHTML = summaries.map(s => `
+                            <li class="flex items-start gap-2.5 text-xs font-body text-on-surface-variant/95 py-1.5 border-b border-outline-variant/5">
+                                <span class="material-symbols-outlined text-primary text-[15px] mt-0.5" style="font-variation-settings:'FILL' 1">check_circle</span>
+                                <span>${s}</span>
+                            </li>
+                        `).join('');
+                    } else {
+                        listEl.innerHTML = `<li class="text-xs text-outline italic py-2">No operations planned for this strategy.</li>`;
+                    }
+                }
+        
+                // Columns table body
+                if (tbodyEl) {
+                    if (colCount > 0) {
+                        const badgeMap = {
+                            smart_impute: '<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">Smart Impute</span>',
+                            remove_outliers: '<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-500/10 text-red-400 border border-red-500/20">Outlier Rem</span>',
+                            fuzzy_fix: '<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20">Fuzzy Fix</span>'
+                        };
+                        
+                        tbodyEl.innerHTML = Object.entries(colActions).map(([col, action]) => {
+                            const badge = badgeMap[action] || `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container text-outline border border-outline-variant/20">${action}</span>`;
+                            return `
+                                <tr class="border-b border-outline-variant/5 hover:bg-surface-container/10 transition-colors">
+                                    <td class="p-2 font-mono font-medium text-white break-all">${col}</td>
+                                    <td class="p-2">${badge}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        tbodyEl.innerHTML = `
+                            <tr>
+                                <td colspan="2" class="p-4 text-center text-outline italic">No column-specific actions planned.</td>
+                            </tr>
+                        `;
+                    }
+                }
+                
+                // Toggle view
+                document.getElementById('goals-config-view').classList.add('hidden');
+                document.getElementById('goals-details-view').classList.remove('hidden');
+            } catch (err) {
+                console.error("Error opening inline strategy details:", err);
+                showToast("Could not display strategy plan details: " + err.message, "error");
+            }
+        }
+        
+        function hideInlineStrategyDetails() {
+            document.getElementById('goals-details-view').classList.add('hidden');
+            document.getElementById('goals-config-view').classList.remove('hidden');
+        }
+
+        // Initialize state on load
+        loadState();
+        if (document.getElementById('goal-input')) {
+            document.getElementById('goal-input').addEventListener('input', () => {
+                saveState();
+            });
+        }
+    </script>
+    {% endblock %}

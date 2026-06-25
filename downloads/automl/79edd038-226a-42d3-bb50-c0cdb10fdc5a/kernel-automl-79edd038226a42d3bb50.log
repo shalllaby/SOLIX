@@ -1,0 +1,43 @@
+[{"stream_name":"stdout","time":19.793317027,"data":"=== REMOTE KAGGLE AUTOML PIPELINE STARTING ===\n"}
+,{"stream_name":"stdout","time":19.793404705,"data":"Listing /kaggle/input:\n"}
+,{"stream_name":"stdout","time":19.793411901,"data":"  Root: /kaggle/input, Dirs: ['datasets'], Files: []\n"}
+,{"stream_name":"stdout","time":19.793416308,"data":"  Root: /kaggle/input/datasets, Dirs: ['mohamedshalaby11'], Files: []\n"}
+,{"stream_name":"stdout","time":19.793420367,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11, Dirs: ['dataset-automl-79edd038226a42d3bb50'], Files: []\n"}
+,{"stream_name":"stdout","time":19.799386136,"data":"  Root: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50, Dirs: [], Files: ['y_test.csv', 'X_test.csv', 'y_train.csv', 'X_train.csv']\n"}
+,{"stream_name":"stdout","time":19.802346785,"data":"Found CSV files: ['/kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50/y_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50/X_test.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50/y_train.csv', '/kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50/X_train.csv']\n"}
+,{"stream_name":"stdout","time":19.802383712,"data":"Discovered input directory: /kaggle/input/datasets/mohamedshalaby11/dataset-automl-79edd038226a42d3bb50\n"}
+,{"stream_name":"stdout","time":20.04131853,"data":"Class distribution: {np.int64(0): np.int64(1583), np.int64(1): np.int64(2197), np.int64(2): np.int64(3871)} | Imbalance ratio: 2.45x | Balancing active: True | Weights: {k: round(v, 4) for k, v in CLASS_WEIGHT_DICT.items()}\n"}
+,{"stream_name":"stdout","time":20.041353324,"data":"Train Shape: (7651, 36) | Task: multiclass | Classes: 3\n"}
+,{"stream_name":"stdout","time":20.041364831,"data":"Models scheduled for training: ['LogisticRegression', 'KNN', 'SVM', 'RandomForest', 'ExtraTrees', 'XGBoost', 'CatBoost']\n"}
+,{"stream_name":"stdout","time":20.041367978,"data":"Training LogisticRegression...\n"}
+,{"stream_name":"stdout","time":23.942569943,"data":"  --\u003e LogisticRegression Completed | Composite Score: 0.7671\n"}
+,{"stream_name":"stdout","time":24.111692788,"data":"Training KNN...\n"}
+,{"stream_name":"stdout","time":25.155361292,"data":"  --\u003e KNN Completed | Composite Score: 0.7314\n"}
+,{"stream_name":"stdout","time":25.270236365,"data":"Training SVM...\n"}
+,{"stream_name":"stdout","time":58.186816901,"data":"  --\u003e SVM Completed | Composite Score: 0.7706\n"}
+,{"stream_name":"stdout","time":58.305965166,"data":"Training RandomForest...\n"}
+,{"stream_name":"stdout","time":64.274290713,"data":"  --\u003e RandomForest Completed | Composite Score: 0.7827\n"}
+,{"stream_name":"stdout","time":64.39322448,"data":"Training ExtraTrees...\n"}
+,{"stream_name":"stdout","time":65.811241244,"data":"  --\u003e ExtraTrees Completed | Composite Score: 0.7661\n"}
+,{"stream_name":"stdout","time":65.931130669,"data":"Training XGBoost...\n"}
+,{"stream_name":"stdout","time":68.810259792,"data":"  --\u003e XGBoost Completed | Composite Score: 0.5989\n"}
+,{"stream_name":"stdout","time":68.928984295,"data":"Training CatBoost...\n"}
+,{"stream_name":"stdout","time":74.451766299,"data":"  --\u003e CatBoost Completed | Composite Score: 0.7814\n"}
+,{"stream_name":"stdout","time":74.570308985,"data":"Top 3 baseline models selected for deep tuning: ['RandomForest', 'CatBoost', 'SVM']\n"}
+,{"stream_name":"stdout","time":74.570349902,"data":"Executing deep tuning sweep for: RandomForest...\n"}
+,{"stream_name":"stdout","time":94.196765794,"data":"  Tuning complete for RandomForest. Best params: {'n_estimators': 150, 'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 15}\n"}
+,{"stream_name":"stdout","time":100.913768173,"data":"  --\u003e Tuned_RandomForest Completed | Composite Score: 0.7827\n"}
+,{"stream_name":"stdout","time":100.913839668,"data":"Executing deep tuning sweep for: CatBoost...\n"}
+,{"stream_name":"stdout","time":100.914912827,"data":"  --\u003e Tuning failed for CatBoost: Cannot clone object CatBoostClassifier(class_weights=[1.611076016003369, 1.1608253679259597, 0.6588306208559374], iterations=100, loss_function='MultiClass', random_state=42, verbose=0), as the constructor either does not set or modifies parameter class_weights\n"}
+,{"stream_name":"stdout","time":100.914948712,"data":"Executing deep tuning sweep for: SVM...\n"}
+,{"stream_name":"stdout","time":163.956970984,"data":"  Tuning complete for SVM. Best params: {'gamma': 'auto', 'C': 10.0}\n"}
+,{"stream_name":"stdout","time":179.249222032,"data":"  --\u003e Tuned_SVM Completed | Composite Score: 0.7943\n"}
+,{"stream_name":"stdout","time":179.252047604,"data":"Ultimate Champion model 'Tuned_SVM' saved successfully to /kaggle/working/best_model.pkl.\n"}
+,{"stream_name":"stdout","time":179.25281149,"data":"Detailed metrics saved successfully to /kaggle/working/metrics.json.\n"}
+,{"stream_name":"stderr","time":183.456840703,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":183.456910144,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":183.891916188,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":183.891960632,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":184.782070248,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":185.960983016,"data":"[NbConvertApp] Writing 388068 bytes to __results__.html\n"}
+]

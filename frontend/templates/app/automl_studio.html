@@ -1,0 +1,1855 @@
+{% extends "app/_layout.html" %}
+
+{% block title %}{% if locale == 'ar' %}استوديو التعلم الآلي — عميل SOL{% else %}AutoML Studio — SOL Agent{% endif %}{% endblock %}
+
+{% block page_title_text %}{% if locale == 'ar' %}استوديو التعلم الآلي{% else %}AutoML Studio{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / الوحدات الذكية / استوديو التعلم الآلي{% else %}SOL / Smart Modules / AutoML Studio{% endif %}{% endblock %}
+{% block nav_automl %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    .neural-bg {
+        background: radial-gradient(circle at 50% 50%, rgba(67, 97, 238, 0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .glass-card {
+        background: var(--surface-container-low);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--outline-variant);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12);
+    }
+    .neon-border {
+        position: relative;
+        overflow: hidden;
+    }
+    .neon-border::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+        opacity: 0.6;
+        filter: blur(3px);
+    }
+    .gradient-text {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .step-pill-active {
+        background: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.15);
+        transform: translateY(-1px);
+    }
+    .step-pill-inactive {
+        background: var(--surface-container-lowest);
+        border-color: var(--outline-variant);
+        color: var(--outline);
+    }
+    .step-pill-inactive:hover {
+        border-color: var(--outline);
+        background: var(--surface-container-low);
+    }
+
+    /* ── Custom Range & Slider ── */
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+        background: var(--outline-variant);
+        height: 6px;
+        border-radius: 3px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        margin-top: -5px;
+        background-color: var(--secondary);
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(91, 213, 252, 0.3);
+        transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.25);
+    }
+
+    /* ── Pulsing Dots for Status ── */
+    @keyframes pulse-dot {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.25); opacity: 0.6; }
+    }
+    .pulse-green {
+        animation: pulse-dot 2s infinite ease-in-out;
+        background-color: #4ade80;
+    }
+    .pulse-amber {
+        animation: pulse-dot 2s infinite ease-in-out;
+        background-color: #f59e0b;
+    }
+    .pulse-rose {
+        animation: pulse-dot 2s infinite ease-in-out;
+        background-color: #f43f5e;
+    }
+
+    /* ── Spinner Cog ── */
+    @keyframes rotate-cog {
+        to { transform: rotate(360deg); }
+    }
+    .cog-spinner {
+        animation: rotate-cog 3s linear infinite;
+    }
+
+    /* ── Configurator Table ── */
+    .configurator-table th {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--outline);
+        text-transform: uppercase;
+        border-bottom: 2px solid var(--outline-variant);
+    }
+    .configurator-table tbody tr {
+        transition: background-color 0.2s;
+    }
+    .configurator-table tbody tr:hover {
+        background-color: var(--surface-container-high);
+    }
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen pb-20">
+    <div class="absolute inset-0 neural-bg"></div>
+
+    <div class="max-w-6xl mx-auto relative z-10 space-y-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
+                    <span class="material-symbols-outlined text-sm">model_training</span>
+                    {% if locale == 'ar' %}سلسلة عمليات التعلم الآلي المتكاملة (AutoML){% else %}End-to-End AutoML pipeline{% endif %}
+                </div>
+                <h1 class="text-4xl font-black text-on-surface tracking-tight">AutoML <span class="gradient-text">{% if locale == 'ar' %}استوديو{% else %}Studio{% endif %}</span></h1>
+                <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed">
+                    {% if locale == 'ar' %}بناء، تحسين، ونشر نماذج تصنيف وتنبؤ عالية الأداء متوافقة تماماً مع بنية SOL.{% else %}Build, optimize, and deploy high-performance tabular classifiers and regressors native to the SOL Architecture.{% endif %}
+                </p>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="resetPipeline()" class="px-4 py-2 rounded-xl bg-surface-container border border-outline-variant/20 text-xs font-bold text-outline hover:text-white transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">restart_alt</span>
+                    {% if locale == 'ar' %}إعادة تعيين السلسلة{% else %}Reset Pipeline{% endif %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-2 border-b border-outline-variant/10 pb-4">
+            <div id="step-btn-1" class="step-pill-active border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(1)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 01{% else %}Step 01{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}الرفع والتحليل{% else %}Upload & Profile{% endif %}</div>
+                </div>
+            <div id="step-btn-2" class="step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(2)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 02{% else %}Step 02{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}المحلل الذكي{% else %}AI Profiler{% endif %}</div>
+                </div>
+            <div id="step-btn-3" class="step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(3)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 03{% else %}Step 03{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}فرز الخوارزميات{% else %}Model Triage{% endif %}</div>
+                </div>
+            <div id="step-btn-4" class="step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(4)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 04{% else %}Step 04{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}تدريب النموذج الأساسي{% else %}Train baseline{% endif %}</div>
+                </div>
+            <div id="step-btn-5" class="step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(5)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 05{% else %}Step 05{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}تحسين النموذج الأفضل{% else %}Optimize Champ{% endif %}</div>
+                </div>
+            <div id="step-btn-6" class="step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all" onclick="navigateToStep(6)">
+                    <div class="text-[10px] font-mono uppercase">{% if locale == 'ar' %}الخطوة 06{% else %}Step 06{% endif %}</div>
+                    <div class="text-xs font-bold truncate">{% if locale == 'ar' %}البيئة التجريبية والتصدير{% else %}Playground & Export{% endif %}</div>
+            </div>
+        </div>
+
+        <!-- Main Card Container -->
+        <div class="glass-card neon-border rounded-2xl p-8 space-y-8 min-h-[500px]">
+            
+            <!-- STEP 1: UPLOAD & INITIAL PROFILE -->
+            <div id="step-container-1" class="step-content space-y-6">
+                <div id="dataset-upload-box" class="text-center py-10 max-w-xl mx-auto space-y-4 transition-all duration-300">
+                    <div class="w-16 h-16 rounded-full bg-surface-container/50 flex items-center justify-center mx-auto hover:scale-110 transition-transform duration-300">
+                        <span class="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">{% if locale == 'ar' %}رفع مجموعة بيانات جدولية{% else %}Upload Tabular Dataset{% endif %}</h2>
+                    <p class="text-outline text-sm">{% if locale == 'ar' %}اختر ملف CSV أو Excel أو JSON. سيقوم نظام SOL تلقائياً بتحليل توزيع ومواصفات الأعمدة.{% else %}Select a CSV, Excel, or JSON dataset. SOL will automatically parse column configurations and profile distributions.{% endif %}</p>
+                    
+                    <div class="pt-4">
+                        <input type="file" id="dataset-upload-input" accept=".csv,.xlsx,.xls,.json" class="hidden" onchange="handleDatasetUpload(event)">
+                        <button onclick="document.getElementById('dataset-upload-input').click()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
+                            {% if locale == 'ar' %}اختر ملفاً{% else %}Choose File{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div id="profile-results-section" class="hidden space-y-6 pt-6 border-t border-outline-variant/10">
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">analytics</span>
+                        {% if locale == 'ar' %}الخصائص الهيكلية لمجموعة البيانات{% else %}Dataset Topology Profile{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10">
+                            <div class="text-[10px] text-outline uppercase">{% if locale == 'ar' %}اسم مجموعة البيانات{% else %}Dataset Name{% endif %}</div>
+                            <div id="profile-name" class="text-sm font-bold text-white truncate">--</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10">
+                            <div class="text-[10px] text-outline uppercase">{% if locale == 'ar' %}إجمالي العينات (الصفوف){% else %}Total Samples (Rows){% endif %}</div>
+                            <div id="profile-rows" class="text-sm font-bold text-white font-mono">--</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10">
+                            <div class="text-[10px] text-outline uppercase">{% if locale == 'ar' %}الخصائص (الأعمدة){% else %}Features (Columns){% endif %}</div>
+                            <div id="profile-cols" class="text-sm font-bold text-white font-mono">--</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10">
+                            <div class="text-[10px] text-outline uppercase">{% if locale == 'ar' %}فئوية / رقمية{% else %}Categorical / Numerical{% endif %}</div>
+                            <div id="profile-split" class="text-sm font-bold text-white font-mono">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Proceed action and countdown text -->
+                    <div class="pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div id="auto-proceed-text" class="text-xs text-outline flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-400 text-sm animate-pulse">hourglass_empty</span>
+                            {% if locale == 'ar' %}المتابعة التلقائية بالإعداد القياسي خلال <span id="countdown-sec" class="font-mono font-bold text-white">5</span> ثوانٍ...{% else %}Auto-proceeding with standard setup in <span id="countdown-sec" class="font-mono font-bold text-white">5</span> seconds...{% endif %}
+                        </div>
+                        <button onclick="interveneAndProceed()" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all flex items-center gap-2">
+                            {% if locale == 'ar' %}الذهاب لاختيار العمود الهدف{% else %}Proceed to Target Selection{% endif %}
+                            <span class="material-symbols-outlined text-xs">{% if locale == 'ar' %}arrow_back{% else %}arrow_forward{% endif %}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: AI PROFILER -->
+            <div id="step-container-2" class="step-content hidden space-y-6">
+                <div class="space-y-2">
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">psychology</span>
+                        {% if locale == 'ar' %}محلل البيانات الدلالي الذكي (LLM){% else %}LLM Semantic Data Profiler{% endif %}
+                    </h3>
+                    <p class="text-outline text-sm">{% if locale == 'ar' %}الاتصال بـ Groq AI للتحقق من تسريب العمود الهدف، تلميحات أهمية الخصائص، واقتراح إعدادات تجهيز البيانات.{% else %}Connect to Groq AI to check target leakage, feature importance pre-hints, and suggest data prep configurations.{% endif %}</p>
+                </div>
+
+                <!-- API Connections Status Widget -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Groq Status -->
+                    <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span id="groq-status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span>
+                            <div>
+                                <div class="text-[10px] text-outline uppercase font-mono">{% if locale == 'ar' %}مفتاح Groq API{% else %}Groq API Key{% endif %}</div>
+                                <div id="groq-status-text" class="text-xs font-bold text-white">{% if locale == 'ar' %}جاري التحقق من الحالة...{% else %}Checking status...{% endif %}</div>
+                            </div>
+                        </div>
+                        <a href="/app/settings" target="_blank" class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/20 hover:border-primary/50 text-[10px] font-bold text-outline hover:text-white transition-all flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-xs">settings</span>
+                            {% if locale == 'ar' %}إدارة الإعدادات{% else %}Manage Settings{% endif %}
+                        </a>
+                    </div>
+
+                    <!-- Kaggle Status -->
+                    <div class="p-4 rounded-xl bg-surface-container/30 border border-outline-variant/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span id="kaggle-status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span>
+                            <div>
+                                <div class="text-[10px] text-outline uppercase font-mono">{% if locale == 'ar' %}تكامل Kaggle MLOps{% else %}Kaggle MLOps Integration{% endif %}</div>
+                                <div id="kaggle-status-text" class="text-xs font-bold text-white">{% if locale == 'ar' %}جاري التحقق من الحالة...{% else %}Checking status...{% endif %}</div>
+                            </div>
+                        </div>
+                        <a href="/app/settings" target="_blank" class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/20 hover:border-primary/50 text-[10px] font-bold text-outline hover:text-white transition-all flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-xs">settings</span>
+                            {% if locale == 'ar' %}إدارة الإعدادات{% else %}Manage Settings{% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Profiler Trigger Banner -->
+                <div id="ai-profiler-trigger-container" class="hidden p-6 rounded-xl bg-surface-container/30 border border-outline-variant/15 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                    <div class="space-y-1 text-center md:text-left">
+                        <h4 class="text-white font-bold text-sm flex items-center justify-center md:justify-start gap-2">
+                            <span class="material-symbols-outlined text-amber-400">psychology</span>
+                            {% if locale == 'ar' %}المحلل الدلالي الذكي غير نشط{% else %}AI Semantic Data Profiler is Inactive (No){% endif %}
+                        </h4>
+                        <p class="text-outline text-xs">
+                            {% if locale == 'ar' %}تم تطبيق التحليل القياسي افتراضياً. اضغط على "[I] تشغيل المحلل الذكي" أدناه لإجراء فحوصات الذكاء الاصطناعي المتقدمة (رصد تسريب الهدف، تصنيفات الأعمدة الدلالية، إلخ).{% else %}Standard profiling was applied by default. Click "[I] Run AI Profiler" below to run advanced AI checks (target leakage detection, semantic column categorizations, etc.).{% endif %}
+                        </p>
+                    </div>
+                    <button id="btn-run-ai-profiler" onclick="runAIProfiler()" class="w-full md:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-wider hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-xs">psychology</span>
+                        {% if locale == 'ar' %}[I] تشغيل المحلل الذكي{% else %}[I] Run AI Profiler{% endif %}
+                    </button>
+                </div>
+
+                <!-- Pulsing Loading Card for AI Profiler -->
+                <div id="ai-profiler-loading" class="hidden p-8 rounded-xl bg-surface-container/20 border border-outline-variant/10 space-y-4 text-center">
+                    <div class="flex justify-center">
+                        <div class="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm animate-pulse">{% if locale == 'ar' %}المحلل الذكي يقوم بتحليل البيانات...{% else %}AI Profiler is analyzing your dataset...{% endif %}</h4>
+                    <p class="text-outline text-xs max-w-md mx-auto">{% if locale == 'ar' %}تقييم التعريفات الدلالية، وتحديد تسريب الهدف المحتمل، وفحص ضوضاء البيانات، واقتراح خصائص التدريب والاختبار.{% else %}Evaluating semantic definitions, identifying potential target leakage, checking data noise, and recommending train/test features.{% endif %}</p>
+                </div>
+
+                <div id="ai-profiler-results" class="hidden space-y-6 pt-6 border-t border-outline-variant/10">
+                    <!-- Executive Summary & Domain -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2 p-6 rounded-xl bg-surface-container-high/40 border border-outline-variant/10 space-y-4">
+                            <h4 class="text-primary font-bold text-sm flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm font-bold">assignment</span>
+                                {% if locale == 'ar' %}ملخص البيانات التنفيذي{% else %}Executive Dataset Summary{% endif %}
+                            </h4>
+                            <div id="ai-summary-text" class="text-xs text-on-surface-variant leading-relaxed space-y-2 font-medium">
+                                <!-- Injected bilingual summary -->
+                            </div>
+                        </div>
+                        <div class="p-6 rounded-xl bg-surface-container-high/40 border border-outline-variant/10 space-y-4">
+                            <h4 class="text-secondary font-bold text-sm flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">domain</span>
+                                {% if locale == 'ar' %}المجال المكتشف{% else %}Detected Domain{% endif %}
+                            </h4>
+                            <div id="ai-domain-badge" class="inline-flex px-3 py-1.5 rounded-lg bg-secondary/10 text-secondary border border-secondary/20 text-xs font-bold font-mono">
+                                --
+                            </div>
+                            <div id="ai-leakage-text" class="text-xs text-outline leading-relaxed">
+                                <!-- Injected target leakage risks -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column Configurator Table -->
+                    <div class="p-6 rounded-xl bg-surface-container-high/40 border border-outline-variant/10 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-white font-bold text-sm flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">edit_attributes</span>
+                                    {% if locale == 'ar' %}أداة تكوين الأعمدة التفاعلية{% else %}Interactive Column Configurator{% endif %}
+                                </h4>
+                                <p class="text-[10px] text-outline">{% if locale == 'ar' %}تحقق من حالة توصية الذكاء الاصطناعي، أو تجاوز قرارات تضمين التدريب، أو افرض التحويل الرقمي.{% else %}Verify the AI recommendation status, override training inclusions, or force numeric coercion.{% endif %}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="setAllColumnsCheckbox(true)" class="px-2.5 py-1 rounded bg-surface border border-outline-variant/20 text-[10px] font-bold text-outline hover:text-white transition-all">
+                                    {% if locale == 'ar' %}تحديد الكل{% else %}Select All{% endif %}
+                                </button>
+                                <button onclick="setAllColumnsCheckbox(false)" class="px-2.5 py-1 rounded bg-surface border border-outline-variant/20 text-[10px] font-bold text-outline hover:text-white transition-all">
+                                    {% if locale == 'ar' %}إلغاء تحديد الكل{% else %}Deselect All{% endif %}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="border-b border-outline-variant/15 text-outline text-[10px] uppercase font-mono">
+                                        <th class="py-2.5 px-3 w-12 text-center">{% if locale == 'ar' %}تدريب{% else %}Train{% endif %}</th>
+                                        <th class="py-2.5 px-3">{% if locale == 'ar' %}العمود{% else %}Column{% endif %}</th>
+                                        <th class="py-2.5 px-3">{% if locale == 'ar' %}النوع{% else %}Type{% endif %}</th>
+                                        <th class="py-2.5 px-3">{% if locale == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                                        <th class="py-2.5 px-3">{% if locale == 'ar' %}المبرر والسبب{% else %}Reasoning{% endif %}</th>
+                                        <th class="py-2.5 px-3 w-32 text-center">{% if locale == 'ar' %}فرض التحويل الرقمي{% else %}Force Numeric{% endif %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ai-column-rows" class="divide-y divide-outline-variant/10 text-on-surface">
+                                    <!-- Dynamic rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Data Catalog -->
+                    <div class="p-6 rounded-xl bg-surface-container/20 border border-outline-variant/10 space-y-6">
+                        <div>
+                            <h4 class="text-white font-bold text-sm flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">database</span>
+                                {% if locale == 'ar' %}كتالوج البيانات وشرح أنواعها{% else %}Dataset Catalog &amp; Data Types Explanation{% endif %}
+                            </h4>
+                            <p class="text-[10px] text-outline">{% if locale == 'ar' %}ملف هيكلي يوضح نسب البيانات المفقودة، وعدد القيم الفريدة، وعينات من توزيع القيم.{% else %}A structural profile showing missing ratios, unique value card-counts, and sample value distributions.{% endif %}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Numerical Group -->
+                            <div class="space-y-3">
+                                <h5 class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                                    {% if locale == 'ar' %}الأعمدة الرقمية{% else %}Numerical Columns{% endif %}
+                                </h5>
+                                <div id="catalog-numerical-list" class="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                                    <!-- Numerical items -->
+                                </div>
+                            </div>
+
+                            <!-- Categorical Group -->
+                            <div class="space-y-3">
+                                <h5 class="text-xs font-bold text-purple-400 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                    {% if locale == 'ar' %}الأعمدة الفئوية{% else %}Categorical Columns{% endif %}
+                                </h5>
+                                <div id="catalog-categorical-list" class="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                                    <!-- Categorical items -->
+                                </div>
+                            </div>
+
+                            <!-- Datetime / Other Group -->
+                            <div class="space-y-3">
+                                <h5 class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                    {% if locale == 'ar' %}أعمدة التواريخ والأخرى{% else %}Datetime &amp; Other Columns{% endif %}
+                                </h5>
+                                <div id="catalog-datetime-list" class="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                                    <!-- Datetime/Other items -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target & Task Type Confirmation Section -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4 max-w-2xl mt-6">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}اختر المتغير المستهدف ونوع المهمة{% else %}Select Target Variable &amp; Task Type{% endif %}</h4>
+                        <p class="text-outline text-xs">{% if locale == 'ar' %}أكد أو تجاوز العمود المستهدف ونوع المهمة المقترحة من قبل المحلل الذكي. سيتم تكوين نماذج الفرز بناءً على ذلك تلقائياً.{% else %}Confirm or override the target column and task type suggested by the AI Profiler. Downstream triage models will configure automatically.{% endif %}</p>
+                        
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}العمود المستهدف{% else %}Target Column{% endif %}</label>
+                                <select id="select-target-column" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs outline-none focus:ring-1 focus:ring-primary" onchange="onTargetChanged()">
+                                    <!-- Dynamic options -->
+                                </select>
+                            </div>
+                            <div class="w-1/3">
+                                <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}نوع المهمة{% else %}Task Type{% endif %}</label>
+                                <select id="select-task-type" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs outline-none focus:ring-1 focus:ring-primary">
+                                    <option value="">{% if locale == 'ar' %}استنتاج تلقائي{% else %}Auto-Infer{% endif %}</option>
+                                    <option value="binary">{% if locale == 'ar' %}تصنيف ثنائي{% else %}Binary Classification{% endif %}</option>
+                                    <option value="multiclass">{% if locale == 'ar' %}تصنيف متعدد الفئات{% else %}Multiclass Classification{% endif %}</option>
+                                    <option value="regression">{% if locale == 'ar' %}تنبؤ مستمر (Regression){% else %}Regression{% endif %}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex justify-between items-center">
+                            <div class="text-xs text-outline">
+                                {% if locale == 'ar' %}
+                                سيتم التدريب باستخدام <span id="override-count-include" class="text-white font-bold font-mono">0</span> أعمدة وتجاهل <span id="override-count-exclude" class="text-rose-400 font-bold font-mono">0</span> أعمدة.
+                                {% else %}
+                                Training will proceed with <span id="override-count-include" class="text-white font-bold font-mono">0</span> columns and ignore <span id="override-count-exclude" class="text-rose-400 font-bold font-mono">0</span> columns.
+                                {% endif %}
+                            </div>
+                            <button onclick="confirmTargetAndProceed()" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                                {% if locale == 'ar' %}تأكيد وتشغيل الفرز{% else %}Confirm &amp; Run Triage{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: MODEL TRIAGE -->
+            <div id="step-container-3" class="step-content hidden space-y-6">
+                <div class="space-y-2">
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">verified</span>
+                        {% if locale == 'ar' %}فرز واختيار الخوارزميات{% else %}Algorithm Selection &amp; Triage{% endif %}
+                    </h3>
+                    <p class="text-outline text-sm">{% if locale == 'ar' %}الخوارزميات المعتمدة مقابل النماذج المستبعدة، تتم تصفيتها ديناميكياً باستخدام قيود حجم البيانات، مقاييس الفئات، وقيود التعقيد.{% else %}Approved algorithms vs Rejected models, filtered dynamically using dataset size bounds, category metrics, and complexity constraints.{% endif %}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Approved -->
+                    <div class="p-6 rounded-xl bg-surface-container/20 border border-emerald-500/20 space-y-4">
+                        <h4 class="text-emerald-400 font-bold text-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            {% if locale == 'ar' %}الخوارزميات المعتمدة{% else %}Approved Algorithms{% endif %}
+                        </h4>
+                        <div id="approved-models-list" class="space-y-2 text-xs">
+                            <!-- Checkboxes of approved models -->
+                        </div>
+                    </div>
+
+                    <!-- Rejected -->
+                    <div class="p-6 rounded-xl bg-surface-container/20 border border-rose-500/20 space-y-4">
+                        <h4 class="text-rose-400 font-bold text-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined">cancel</span>
+                            {% if locale == 'ar' %}النماذج المستبعدة{% else %}Excluded / Rejected Models{% endif %}
+                        </h4>
+                        <div id="rejected-models-list" class="space-y-2 text-xs text-outline">
+                            <!-- Readonly list of rejected models -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="navigateToStep(4)" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                        {% if locale == 'ar' %}إعداد وتدريب{% else %}Configure &amp; Train{% endif %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: TRAIN BASELINE -->
+            <div id="step-container-4" class="step-content hidden space-y-6">
+                <div class="space-y-2">
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">settings_applications</span>
+                        {% if locale == 'ar' %}إعدادات السلسلة والتدريب{% else %}Pipeline Settings &amp; Training{% endif %}
+                    </h3>
+                    <p class="text-outline text-sm">{% if locale == 'ar' %}اضبط طرق المعالجة المسبقة، وتقسيم البيانات، وابدأ تدريب النماذج المتوازي في خيوط معالجة معزولة.{% else %}Tune preprocessing methods, splits, and launch parallel model fitting in isolated sandbox execution threads.{% endif %}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Prep configs -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}تهيئة المعالجة المسبقة{% else %}Preprocessing Configuration{% endif %}</h4>
+                        
+                        <div>
+                            <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}تحجيم القيم الرقمية{% else %}Numerical Scaling{% endif %}</label>
+                            <select id="scaling-method" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs outline-none">
+                                <option value="standard">{% if locale == 'ar' %}التحجيم القياسي (Standard Scaler){% else %}Standard Scaler{% endif %}</option>
+                                <option value="minmax">{% if locale == 'ar' %}التحجيم الأدنى والأقصى (MinMax){% else %}MinMax Scaler{% endif %}</option>
+                                <option value="robust">{% if locale == 'ar' %}التحجيم المتين (Robust Scaler){% else %}Robust Scaler{% endif %}</option>
+                                <option value="none">{% if locale == 'ar' %}بدون تحجيم{% else %}No Scaling{% endif %}</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}ترميز القيم الفئوية{% else %}Categorical Encoding{% endif %}</label>
+                            <select id="encoding-method" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-3 text-white text-xs outline-none">
+                                <option value="onehot">One-Hot Encoding</option>
+                                <option value="ordinal">Ordinal Encoding</option>
+                                <option value="target">Target Encoding</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Split configurations -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}إعدادات تقسيم البيانات للتدريب والاختبار{% else %}Train-Test Split Settings{% endif %}</h4>
+                        
+                        <div>
+                            <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}حجم عينة الاختبار والتحقق{% else %}Validation Test Split Size{% endif %}</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="test-size-range" min="0.1" max="0.4" step="0.05" value="0.2" class="flex-1" oninput="document.getElementById('test-size-val').innerText = Math.round(this.value * 100) + '%'">
+                                <span id="test-size-val" class="text-xs font-bold text-primary font-mono w-10 text-right">20%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}طيات التحقق المتقاطع (CV Folds){% else %}Cross-Validation Folds{% endif %}</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="cv-folds-range" min="2" max="10" step="1" value="5" class="flex-1" oninput="document.getElementById('cv-folds-val').innerText = this.value">
+                                <span id="cv-folds-val" class="text-xs font-bold text-primary font-mono w-10 text-right">5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget configurations -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}حدود زمن التنفيذ{% else %}Execution Limits{% endif %}</h4>
+                        
+                        <div>
+                            <label class="block text-[10px] font-mono text-outline uppercase mb-2">{% if locale == 'ar' %}أقصى وقت مسموح به (بالثواني){% else %}Timeout Budget (Seconds){% endif %}</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="timeout-range" min="60" max="600" step="30" value="300" class="flex-1" oninput="document.getElementById('timeout-val').innerText = this.value + 's'">
+                                <span id="timeout-val" class="text-xs font-bold text-primary font-mono w-10 text-right">300s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center py-6">
+                    <button id="btn-train-baseline" onclick="triggerBaselineTraining()" class="px-10 py-5 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center gap-3">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                        {% if locale == 'ar' %}إطلق محرك التدريب{% else %}Launch Training Engine{% endif %}
+                    </button>
+                </div>
+
+                <!-- Leaderboard Result Grid -->
+                <div id="training-leaderboard-section" class="hidden space-y-6 pt-6 border-t border-outline-variant/10">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-white font-bold text-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">leaderboard</span>
+                            {% if locale == 'ar' %}لوحة متصدري أداء النماذج{% else %}Model Performance Leaderboard{% endif %}
+                        </h4>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-outline-variant/15 text-outline text-[10px] uppercase font-mono">
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}الخوارزمية{% else %}Algorithm{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}النتيجة المركبة{% else %}Composite Score{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}مقياس التحقق{% else %}Val Metric{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}متوسط التحقق المتقاطع ± الانحراف{% else %}CV Score Mean ± Std{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}فجوة التعميم{% else %}Generalization Gap{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}زمن التدريب{% else %}Fit Time{% endif %}</th>
+                                    <th class="py-3 px-4">{% if locale == 'ar' %}سلامة التعميم{% else %}Generalization Health{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-table-rows" class="divide-y divide-outline-variant/10 text-on-surface">
+                                <!-- Dynamic leaderboard entries -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="navigateToStep(5)" class="px-6 py-3 rounded-xl bg-secondary text-on-secondary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                            {% if locale == 'ar' %}المتابعة إلى التحسين{% else %}Proceed to Optimization{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: OPTIMIZE CHAMPION -->
+            <div id="step-container-5" class="step-content hidden space-y-6">
+                <div class="space-y-2">
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">model_training</span>
+                        {% if locale == 'ar' %}الضبط العميق للنموذج وتفاصيل البطل{% else %}Deep Model Tuning &amp; Champion Profile{% endif %}
+                    </h3>
+                    <p class="text-outline text-sm">{% if locale == 'ar' %}إجراء مسح موضعي للمعلمات الفائقة عبر RandomizedSearchCV على النموذج الأعلى درجة واستعراض توزيع أهمية الخصائص.{% else %}Perform localized hyperparameter sweep via RandomizedSearchCV on the top scoring model and view feature importance distribution.{% endif %}</p>
+                </div>
+
+                <div class="p-6 rounded-xl bg-surface-container/20 border border-outline-variant/10 max-w-xl space-y-4">
+                    <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}النموذج البطل:{% else %}Champion Model:{% endif %} <span id="champion-model-name" class="text-primary">--</span></h4>
+                    <p class="text-outline text-xs">{% if locale == 'ar' %}تقوم مرحلة الضبط هذه بتدريب احتمالات متعددة باستخدام البحث العشوائي لاستخراج مجموعة المعلمات المثلى.{% else %}This tuning stage fits multiple permutations using Randomized Search to extract optimal parameter sets.{% endif %}</p>
+                    
+                    <div>
+                        <button id="btn-deep-optimize" onclick="triggerTuning()" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">tune</span>
+                            {% if locale == 'ar' %}تحسين النموذج البطل{% else %}Optimize Champion Model{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tuning metrics / Feature importance view -->
+                <div id="optimize-results-section" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-outline-variant/10">
+                    <!-- Tuned metrics comparisons -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}مقارنة الأداء بعد الضبط{% else %}Tuned Performance Comparison{% endif %}</h4>
+                        <div id="tuned-metrics-list" class="space-y-3 text-xs">
+                            <!-- Side-by-side metric comparison -->
+                        </div>
+                    </div>
+
+                    <!-- Feature importance profile -->
+                    <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-4">
+                        <h4 class="text-white font-bold text-sm">{% if locale == 'ar' %}أهم 10 خصائص وتأثيرها (Feature Importance){% else %}Top 10 Feature Importance Profile{% endif %}</h4>
+                        <div id="feature-importance-chart" class="space-y-4">
+                            <!-- Interactive CSS/HTML dynamic bar charts -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="navigateToStep(6)" class="px-6 py-3 rounded-xl bg-secondary text-on-secondary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                        {% if locale == 'ar' %}الذهاب إلى البيئة التجريبية والتصدير{% else %}Go to Playground &amp; Export{% endif %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 6: PLAYGROUND & EXPORT -->
+            <div id="step-container-6" class="step-content hidden grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Inference playground -->
+                <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-6">
+                    <div class="space-y-2 border-b border-outline-variant/10 pb-3">
+                        <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">input</span>
+                            {% if locale == 'ar' %}بيئة تجريب الاستدلال{% else %}Inference Playground{% endif %}
+                        </h3>
+                        <p class="text-outline text-xs">{% if locale == 'ar' %}تشغيل استعلامات تنبؤية فورية باستخدام مدخلات تطابق بنية البيانات المرفوعة.{% else %}Run real-time predictive queries using inputs matching the dataset schema.{% endif %}</p>
+                    </div>
+
+                    <form id="inference-form" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-xs">
+                        <!-- Auto-generated inference inputs -->
+                    </form>
+
+                    <div class="pt-4 border-t border-outline-variant/10 flex justify-between items-center">
+                        <button onclick="runInference()" type="button" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all">
+                            {% if locale == 'ar' %}تنبؤ{% else %}Submit Prediction{% endif %}
+                        </button>
+                        
+                        <div id="inference-outcome" class="text-right">
+                            <div class="text-[10px] text-outline uppercase font-mono">{% if locale == 'ar' %}نتيجة التنبؤ{% else %}Prediction Outcome{% endif %}</div>
+                            <div id="inference-prediction-text" class="text-lg font-black text-primary">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Center -->
+                <div class="p-6 rounded-xl bg-surface-container/30 border border-outline-variant/10 space-y-6 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="space-y-2 border-b border-outline-variant/10 pb-3">
+                            <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">download</span>
+                                {% if locale == 'ar' %}مركز التصدير{% else %}Export Center{% endif %}
+                            </h3>
+                            <p class="text-outline text-xs">{% if locale == 'ar' %}تصدير حاوية مخرجات التعلم الآلي الكاملة. تشمل النموذج البطل، كائنات المعالجة المسبقة المتسلسلة، سجلات تعيين الخصائص، قوالب بايثون، وسجلات الأخطاء.{% else %}Export the full AutoML artifacts pipeline container. Contains the champion model, serialized preprocessors, feature mapping logs, python templates, and fail trace records.{% endif %}</p>
+                        </div>
+
+                        <div class="space-y-2 text-xs text-on-surface-variant">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                                {% if locale == 'ar' %}النموذج البطل المتسلسل (ملف joblib ثنائي){% else %}Serialized Champion Model (joblib binary){% endif %}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                                {% if locale == 'ar' %}سلسلة عمليات تعيين الخصائص والتحجيم{% else %}Column Mapping &amp; Scaling pipeline{% endif %}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                                {% if locale == 'ar' %}التقرير التنفيذي بصيغة PDF{% else %}Executive PDF Report{% endif %}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                                {% if locale == 'ar' %}تقارير أخطاء التنفيذ الفاشل{% else %}Failed execution error reports{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <button onclick="downloadZipExport()" class="w-full py-4 rounded-xl bg-gradient-to-r from-secondary to-secondary-container text-on-secondary font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-3">
+                            <span class="material-symbols-outlined">folder_zip</span>
+                            {% if locale == 'ar' %}تحميل حزمة ZIP{% else %}Download ZIP Package{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading overlay inside card -->
+            <div id="card-loading-overlay" class="hidden absolute inset-0 bg-surface-container-lowest/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 rounded-2xl z-50">
+                <div class="relative">
+                    <div class="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-xl animate-pulse">neurology</span>
+                    </div>
+                </div>
+                <div class="text-center w-64 space-y-2">
+                    <h4 id="overlay-title" class="font-bold text-white uppercase tracking-widest text-xs">Processing...</h4>
+                    <p id="overlay-text" class="text-[10px] text-outline mt-1">Please wait</p>
+                    
+                    <!-- Progress Bar Container -->
+                    <div id="overlay-progress-container" class="w-full bg-surface-container rounded-full h-1.5 hidden mt-2">
+                        <div id="overlay-progress-bar" class="bg-gradient-to-r from-primary to-secondary h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="overlay-progress-percent" class="text-[10px] font-mono text-outline hidden">0%</div>
+
+                    <!-- Kaggle Kernel Link Container -->
+                    <div id="overlay-kaggle-container" class="hidden pt-3 border-t border-outline-variant/10 mt-3 animate-fade-in">
+                        <a id="overlay-kaggle-link" href="#" target="_blank" class="w-full py-2.5 rounded-xl bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary hover:text-white text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-xs">open_in_new</span>
+                            View Kaggle Kernel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeSessionId = null;
+    let datasetProfile = null;
+    let targetCandidates = [];
+    let triageResults = null;
+    let trainingResults = null;
+    let currentStep = 1;
+
+    let userBlacklist = [];
+    let userForceNumeric = [];
+    let credentialsConfigured = { groq: false, kaggle: false };
+    let aiProfilerRun = false;
+    let aiProfilerResult = null;
+    let autoProceedTimer = null;
+    let skipAIProfilerFlag = false;
+
+    const STORAGE_KEY = 'sol_automl_studio_state';
+
+    function saveState() {
+        const saveObj = {
+            activeSessionId,
+            datasetProfile,
+            targetCandidates,
+            triageResults,
+            trainingResults,
+            currentStep,
+            userBlacklist,
+            userForceNumeric,
+            aiProfilerRun,
+            aiProfilerResult,
+            skipAIProfilerFlag
+        };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saveObj));
+    }
+
+    async function loadState() {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (!saved) {
+            await initSession();
+            return;
+        }
+        try {
+            const loaded = JSON.parse(saved);
+            activeSessionId = loaded.activeSessionId;
+            datasetProfile = loaded.datasetProfile;
+            targetCandidates = loaded.targetCandidates;
+            triageResults = loaded.triageResults;
+            trainingResults = loaded.trainingResults;
+            currentStep = loaded.currentStep;
+            userBlacklist = loaded.userBlacklist;
+            userForceNumeric = loaded.userForceNumeric;
+            aiProfilerRun = loaded.aiProfilerRun;
+            aiProfilerResult = loaded.aiProfilerResult;
+            skipAIProfilerFlag = loaded.skipAIProfilerFlag;
+
+            console.log("AutoML state restored from cache for session:", activeSessionId);
+            await fetchCredentialsStatus();
+
+            const isAr = getLocale() === 'ar';
+
+            if (datasetProfile) {
+                // Render details
+                const pName = datasetProfile.name || (datasetProfile.column_details && Object.keys(datasetProfile.column_details).length > 0 ? "dataset.csv" : "Dataset");
+                document.getElementById('profile-name').innerText = pName;
+                document.getElementById('profile-rows').innerText = datasetProfile.shape[0].toLocaleString();
+                document.getElementById('profile-cols').innerText = datasetProfile.shape[1].toLocaleString();
+                
+                let numCats = Object.values(datasetProfile.column_details).filter(c => c.type === 'categorical').length;
+                let numNums = Object.values(datasetProfile.column_details).filter(c => c.type === 'numerical').length;
+                document.getElementById('profile-split').innerText = isAr 
+                    ? `${numCats} فئوية / ${numNums} رقمية` 
+                    : `${numCats} Categorical / ${numNums} Numerical`;
+
+                // Hide the upload box and show details
+                document.getElementById('dataset-upload-box').classList.add('hidden');
+                document.getElementById('profile-results-section').classList.remove('hidden');
+
+                if (aiProfilerResult) {
+                    renderAIProfilerResults({ result: aiProfilerResult });
+                } else if (skipAIProfilerFlag) {
+                    setupStandardProfiler();
+                }
+
+                if (triageResults) {
+                    const approvedList = document.getElementById('approved-models-list');
+                    const rejectedList = document.getElementById('rejected-models-list');
+
+                    approvedList.innerHTML = triageResults.approved_models.map(m => `
+                        <label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container/40 hover:bg-surface-container-high border border-outline-variant/10 cursor-pointer">
+                            <input type="checkbox" name="train-models" value="${m}" checked class="mt-1 rounded text-primary focus:ring-primary bg-surface border-outline-variant/30">
+                            <div>
+                                <div class="font-bold text-white">${m}</div>
+                                <div class="text-[10px] text-outline mt-0.5">${triageResults.reasoning[m]}</div>
+                            </div>
+                        </label>
+                    `).join('');
+
+                    rejectedList.innerHTML = triageResults.rejected_models.map(m => `
+                        <div class="p-3 rounded-lg bg-surface-container/20 border border-outline-variant/5">
+                            <div class="font-bold text-outline">${m}</div>
+                            <div class="text-[10px] text-outline/60 mt-0.5">${triageResults.reasoning[m]}</div>
+                        </div>
+                    `).join('');
+                }
+
+                if (trainingResults) {
+                    renderLeaderboard(trainingResults);
+                    const pdfHeaderBtn = document.getElementById('btn-header-pdf');
+                    if (pdfHeaderBtn) pdfHeaderBtn.classList.remove('hidden');
+                }
+
+                // Navigate to stored step
+                navigateToStep(currentStep);
+            }
+        } catch(e) {
+            console.error("Error loading AutoML state:", e);
+            await initSession();
+        }
+    }
+
+    function getToken() {
+        return localStorage.getItem('sol_auth_token') || getCookie('sol_auth_token');
+    }
+
+    function getCookie(name) {
+        return document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='))?.split('=')[1] || '';
+    }
+
+    async function fetchCredentialsStatus() {
+        try {
+            const token = getToken();
+            const res = await fetch('/api/settings/check-credentials', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Could not fetch credentials");
+            const data = await res.json();
+            const isAr = getLocale() === 'ar';
+            
+            // Update Groq Status
+            const groqDot = document.getElementById('groq-status-dot');
+            const groqText = document.getElementById('groq-status-text');
+            if (data.groq_api_key) {
+                credentialsConfigured.groq = true;
+                groqDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
+                groqText.innerHTML = `<span class="text-emerald-400">${isAr ? 'مفعل ومثبت' : 'Configured'}</span> <span class="text-[10px] text-outline">(${data.groq_api_key})</span>`;
+            } else {
+                credentialsConfigured.groq = false;
+                groqDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]";
+                groqText.innerHTML = `<span class="text-amber-400">${isAr ? 'غير متاح' : 'Not Configured'}</span> <span class="text-[10px] text-outline">(${isAr ? 'باستخدام البديل القياسي' : 'using fallback/manual'})</span>`;
+            }
+
+            // Update Kaggle Status
+            const kaggleDot = document.getElementById('kaggle-status-dot');
+            const kaggleText = document.getElementById('kaggle-status-text');
+            const hasKaggle = data.kaggle_username && data.kaggle_key;
+            if (hasKaggle) {
+                credentialsConfigured.kaggle = true;
+                kaggleDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
+                kaggleText.innerHTML = `<span class="text-emerald-400">${isAr ? 'مفعل ومثبت' : 'Configured'}</span> <span class="text-[10px] text-outline">(${data.kaggle_username})</span>`;
+            } else {
+                credentialsConfigured.kaggle = false;
+                kaggleDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]";
+                kaggleText.innerHTML = `<span class="text-amber-400">${isAr ? 'غير متاح' : 'Not Configured'}</span>`;
+            }
+        } catch (e) {
+            console.error("Failed to check credentials status:", e);
+            const isAr = getLocale() === 'ar';
+            document.getElementById('groq-status-text').innerText = isAr ? "فشل التحقق" : "Status check failed";
+            document.getElementById('kaggle-status-text').innerText = isAr ? "فشل التحقق" : "Status check failed";
+        }
+    }
+
+    async function initSession() {
+        try {
+            const res = await fetch('/api/automl/session/new', { method: 'POST' });
+            const data = await res.json();
+            activeSessionId = data.session_id;
+            console.log("AutoML session initialized:", activeSessionId);
+            await fetchCredentialsStatus();
+        } catch(e) {
+            console.error("Failed to start AutoML session:", e);
+        }
+    }
+
+    function resetPipeline() {
+        const isAr = getLocale() === 'ar';
+        if(confirm(isAr ? "هل أنت متأكد من إعادة تعيين سلسلة عمليات التدريب؟ سيتم مسح جميع النماذج المدربة." : "Are you sure you want to reset the pipeline? This will clear all trained models.")) {
+            sessionStorage.removeItem(STORAGE_KEY);
+            window.location.reload();
+        }
+    }
+
+    function navigateToStep(step) {
+        const isAr = getLocale() === 'ar';
+        // Enforce dependencies
+        if (step > 1 && !datasetProfile) {
+            alert(isAr ? "يرجى رفع مجموعة بيانات أولاً." : "Please upload a dataset first.");
+            return;
+        }
+        if (step >= 3 && !triageResults) {
+            alert(isAr ? "يرجى اختيار المتغير المستهدف وتشغيل الفرز أولاً." : "Please select a target and run triage first.");
+            return;
+        }
+        if (step > 4 && (!trainingResults || !trainingResults.leaderboard || trainingResults.leaderboard.length === 0)) {
+            alert(isAr ? "يرجى تدريب النماذج الأساسية أولاً." : "Please train baseline models first.");
+            return;
+        }
+
+        // Cancel auto-advance timer if navigating away from Step 1
+        if (step !== 1 && autoProceedTimer) {
+            clearInterval(autoProceedTimer);
+        }
+
+        // Toggle active tabs
+        for (let i = 1; i <= 6; i++) {
+            const container = document.getElementById(`step-container-${i}`);
+            const btn = document.getElementById(`step-btn-${i}`);
+            if (i === step) {
+                container.classList.remove('hidden');
+                btn.className = "step-pill-active border rounded-xl p-3 text-center cursor-pointer transition-all";
+            } else {
+                container.classList.add('hidden');
+                btn.className = "step-pill-inactive border rounded-xl p-3 text-center cursor-pointer transition-all";
+            }
+        }
+        currentStep = step;
+
+        if (step === 2 && !aiProfilerRun) {
+            aiProfilerRun = true;
+            setupStandardProfiler();
+        }
+        if (step === 6) {
+            buildPlaygroundForm();
+        }
+        saveState();
+    }
+
+    function showOverlay(title, text) {
+        document.getElementById('overlay-title').innerText = title;
+        document.getElementById('overlay-text').innerText = text;
+        document.getElementById('overlay-progress-container').classList.add('hidden');
+        document.getElementById('overlay-progress-percent').classList.add('hidden');
+        document.getElementById('overlay-kaggle-container').classList.add('hidden');
+        document.getElementById('card-loading-overlay').classList.remove('hidden');
+    }
+
+    function hideOverlay() {
+        document.getElementById('card-loading-overlay').classList.add('hidden');
+    }
+
+    // --- STEP 1: UPLOAD ---
+    async function handleDatasetUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const isAr = getLocale() === 'ar';
+        showOverlay(
+            isAr ? "جاري رفع البيانات" : "Uploading Dataset", 
+            isAr ? "تحليل بنية وتوزيع الملف..." : "Analyzing file structure and distribution..."
+        );
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        fd.append('file', file);
+
+        try {
+            const res = await fetch('/api/automl/upload', {
+                method: 'POST',
+                body: fd
+            });
+
+            if (!res.ok) throw new Error("Upload failed");
+            
+            const data = await res.json();
+            datasetProfile = data.profile;
+            targetCandidates = data.candidates;
+            aiProfilerRun = false;
+
+            // Render details
+            document.getElementById('profile-name').innerText = data.dataset_name;
+            document.getElementById('profile-rows').innerText = datasetProfile.shape[0].toLocaleString();
+            document.getElementById('profile-cols').innerText = datasetProfile.shape[1].toLocaleString();
+            
+            let numCats = Object.values(datasetProfile.column_details).filter(c => c.type === 'categorical').length;
+            let numNums = Object.values(datasetProfile.column_details).filter(c => c.type === 'numerical').length;
+            document.getElementById('profile-split').innerText = isAr 
+                ? `${numCats} فئوية / ${numNums} رقمية` 
+                : `${numCats} Categorical / ${numNums} Numerical`;
+
+            // Hide the upload box and show details, then proceed automatically
+            document.getElementById('dataset-upload-box').classList.add('hidden');
+            document.getElementById('profile-results-section').classList.remove('hidden');
+            aiProfilerResult = null;
+            skipAIProfilerFlag = false;
+
+            saveState();
+            startAutoProceedTimer();
+        } catch(e) {
+            console.error(e);
+            alert(isAr ? "خطأ في قراءة مجموعة البيانات. يرجى تجربة ملف CSV أو Excel صالح." : "Error parsing dataset. Please try a valid CSV or Excel.");
+        } finally {
+            hideOverlay();
+        }
+    }
+
+    function startAutoProceedTimer() {
+        if (autoProceedTimer) clearInterval(autoProceedTimer);
+        
+        let secondsLeft = 5;
+        const countdownText = document.getElementById('countdown-sec');
+        if (countdownText) {
+            countdownText.innerText = secondsLeft;
+        }
+        
+        autoProceedTimer = setInterval(() => {
+            secondsLeft--;
+            if (countdownText) {
+                countdownText.innerText = secondsLeft;
+            }
+            
+            if (secondsLeft <= 0) {
+                clearInterval(autoProceedTimer);
+                proceedStandardProfiler();
+            }
+        }, 1000);
+    }
+
+    function proceedStandardProfiler() {
+        if (autoProceedTimer) clearInterval(autoProceedTimer);
+        skipAIProfilerFlag = true;
+        aiProfilerRun = true;
+        
+        setupStandardProfiler();
+        navigateToStep(2);
+    }
+
+    function interveneAndProceed() {
+        if (autoProceedTimer) clearInterval(autoProceedTimer);
+        skipAIProfilerFlag = false;
+        aiProfilerRun = true;
+        
+        navigateToStep(2);
+        runAIProfiler();
+    }
+
+    function setupStandardProfiler() {
+        aiProfilerResult = { blacklist: [], force_numeric: [] };
+        userBlacklist = [];
+        userForceNumeric = [];
+        const isAr = getLocale() === 'ar';
+        
+        const targetSelect = document.getElementById('select-target-column');
+        targetSelect.innerHTML = targetCandidates.map(c => `
+            <option value="${c.column}">${c.column} (${isAr ? (c.inferred_type === 'continuous' ? 'مستمر' : (c.inferred_type === 'binary' ? 'ثنائي' : 'متعدد الفئات')) : c.inferred_type} - ${isAr ? 'التقييم' : 'Score'}: ${Math.round(c.suitability_score)})</option>
+        `).join('');
+        
+        if (targetCandidates.length > 0) {
+            targetSelect.value = targetCandidates[0].column;
+            onTargetChanged();
+        } else {
+            renderColumnTable();
+        }
+        
+        document.getElementById('ai-profiler-results').classList.remove('hidden');
+        document.getElementById('ai-profiler-loading').classList.add('hidden');
+        document.getElementById('ai-profiler-trigger-container').classList.remove('hidden');
+        
+        document.getElementById('ai-summary-text').innerHTML = `
+            <div class="p-3 rounded-lg bg-surface-container border border-outline-variant/15 text-outline text-xs">
+                ${isAr ? 'تم تخطي المحلل الدلالي الذكي. تم استنتاج هيكلية الأعمدة وملاءمتها للمتغير المستهدف مباشرة من هيكل البيانات.' : 'AI Semantic Data Profiler was skipped. Column mapping and target suitability were inferred directly from the dataset profile.'}
+            </div>
+        `;
+        document.getElementById('ai-domain-badge').innerText = isAr ? 'مجال قياسي' : 'Standard Domain';
+        document.getElementById('ai-leakage-text').innerHTML = isAr ? 'تم تخطي تحليل تسريب الهدف.' : 'Target Leakage analysis skipped.';
+    }
+
+    function onTargetChanged() {
+        const target = document.getElementById('select-target-column').value;
+        const candidate = targetCandidates.find(c => c.column === target);
+        if (candidate) {
+            let infType = candidate.inferred_type === 'continuous' ? 'regression' : 
+                          (candidate.inferred_type === 'binary' ? 'binary' : 'multiclass');
+            document.getElementById('select-task-type').value = infType;
+        }
+        if (datasetProfile) {
+            renderColumnTable();
+        }
+    }
+
+    async function confirmTargetAndProceed() {
+        const target = document.getElementById('select-target-column').value;
+        const taskType = document.getElementById('select-task-type').value;
+
+        const isAr = getLocale() === 'ar';
+        showOverlay(
+            isAr ? "تهيئة المتغير المستهدف" : "Configuring Target", 
+            isAr ? "توجيه الخوارزميات بناءً على نوع المتغير..." : "Routing algorithms based on variable type..."
+        );
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        fd.append('target_col', target);
+        fd.append('task_type', taskType);
+
+        try {
+            const res = await fetch('/api/automl/triage', {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            triageResults = data.triage;
+
+            // Render Triage Checkboxes
+            const approvedList = document.getElementById('approved-models-list');
+            const rejectedList = document.getElementById('rejected-models-list');
+
+            approvedList.innerHTML = triageResults.approved_models.map(m => `
+                <label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container/40 hover:bg-surface-container-high border border-outline-variant/10 cursor-pointer">
+                    <input type="checkbox" name="train-models" value="${m}" checked class="mt-1 rounded text-primary focus:ring-primary bg-surface border-outline-variant/30">
+                    <div>
+                        <div class="font-bold text-white">${m}</div>
+                        <div class="text-[10px] text-outline mt-0.5">${triageResults.reasoning[m]}</div>
+                    </div>
+                </label>
+            `).join('');
+
+            rejectedList.innerHTML = triageResults.rejected_models.map(m => `
+                <div class="p-3 rounded-lg bg-surface-container/20 border border-outline-variant/5">
+                    <div class="font-bold text-outline">${m}</div>
+                    <div class="text-[10px] text-outline/60 mt-0.5">${triageResults.reasoning[m]}</div>
+                </div>
+            `).join('');
+
+            navigateToStep(3);
+        } catch(e) {
+            console.error(e);
+            alert(isAr ? "فشلت عملية تهيئة الفرز." : "Triage configuration failed.");
+        } finally {
+            hideOverlay();
+        }
+    }
+
+    // --- INTERACTIVE COLUMN CONFIGURATION & CATALOG RENDERING ---
+    function renderColumnTable() {
+        if (!datasetProfile) return;
+
+        const isAr = getLocale() === 'ar';
+        const tbody = document.getElementById('ai-column-rows');
+        tbody.innerHTML = '';
+
+        const targetCol = document.getElementById('select-target-column').value;
+        const columns = Object.keys(datasetProfile.column_details);
+
+        columns.forEach(col => {
+            const isTarget = col === targetCol;
+            const isBlacklisted = userBlacklist.includes(col);
+            const isForcedNumeric = userForceNumeric.includes(col);
+
+            let aiExclusion = null;
+            if (aiProfilerResult && aiProfilerResult.blacklist) {
+                aiExclusion = aiProfilerResult.blacklist.find(b => b.column_name === col);
+            }
+
+            let statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">${isAr ? 'مقبول / صالح' : 'Kept / Valid'}</span>`;
+            let reasoning = isAr ? 'يوصي الذكاء الاصطناعي بتضمين هذه الخاصية في التدريب.' : 'AI recommends including this feature in training.';
+
+            if (isTarget) {
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary border border-primary/30">${isAr ? 'المستهدف' : 'Target'}</span>`;
+                reasoning = isAr ? 'المتغير المستهدف الذي سيتم التنبؤ به.' : 'Selected target variable to predict.';
+            } else if (aiExclusion) {
+                let catLabel = aiExclusion.reason_category.replace(/_/g, ' ');
+                let badgeColor = 'bg-rose-500/15 text-rose-400 border border-rose-500/20'; // fallback
+                if (aiExclusion.reason_category === 'data_leakage') {
+                    badgeColor = 'bg-rose-500/15 text-rose-400 border border-rose-500/20';
+                } else if (aiExclusion.reason_category === 'post_event') {
+                    badgeColor = 'bg-orange-500/15 text-orange-400 border border-orange-500/20';
+                } else if (aiExclusion.reason_category === 'unique_identifier') {
+                    badgeColor = 'bg-amber-500/15 text-amber-400 border border-amber-500/20';
+                } else if (aiExclusion.reason_category === 'high_cardinality_noise') {
+                    badgeColor = 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20';
+                } else if (aiExclusion.reason_category === 'constant') {
+                    badgeColor = 'bg-slate-500/15 text-slate-400 border border-slate-500/20';
+                }
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeColor} uppercase">${catLabel}</span>`;
+                reasoning = aiExclusion.reasoning;
+            } else if (isBlacklisted) {
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/25">${isAr ? 'مستبعد' : 'Excluded'}</span>`;
+                reasoning = isAr ? 'مستبعد من مجموعة بيانات التدريب.' : 'Excluded from training dataset.';
+            }
+
+            const colType = datasetProfile.column_details[col].type;
+            let typeBadge = '';
+            if (colType.includes('Numerical')) {
+                typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400">${isAr ? 'رقمي' : 'Numerical'}</span>`;
+            } else if (colType.includes('Categorical')) {
+                typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] bg-purple-500/10 text-purple-400">${isAr ? 'فئوي' : 'Categorical'}</span>`;
+            } else {
+                typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] bg-yellow-500/10 text-yellow-400">${colType}</span>`;
+            }
+
+            const isChecked = !isBlacklisted && !isTarget;
+            const disabledAttr = isTarget ? 'disabled checked' : '';
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-surface-container/20 align-middle">
+                    <td class="py-3 px-3 text-center">
+                        <input type="checkbox" data-col="${col}" class="column-inclusion-checkbox rounded text-primary focus:ring-primary bg-surface border-outline-variant/30" 
+                            ${isChecked ? 'checked' : ''} ${disabledAttr} onchange="onColumnCheckboxChanged(this)">
+                    </td>
+                    <td class="py-3 px-3 font-bold text-white">${col}</td>
+                    <td class="py-3 px-3">${typeBadge}</td>
+                    <td class="py-3 px-3">${statusBadge}</td>
+                    <td class="py-3 px-3 text-on-surface-variant font-mono text-[11px] leading-relaxed whitespace-pre-wrap">${reasoning}</td>
+                    <td class="py-3 px-3 text-center">
+                        <input type="checkbox" data-col="${col}" class="column-numeric-checkbox rounded text-secondary focus:ring-secondary bg-surface border-outline-variant/30"
+                            ${isForcedNumeric ? 'checked' : ''} ${isTarget ? 'disabled' : ''} onchange="onColumnNumericChanged(this)">
+                    </td>
+                </tr>
+            `;
+        });
+
+        renderDataCatalog();
+        updateOverrideCounts();
+    }
+
+    function renderAIProfilerResults(data) {
+        const r = data.result;
+        aiProfilerResult = r;
+
+        // Render Summary & Domain
+        document.getElementById('ai-summary-text').innerText = r.summary || 'No summary available.';
+        document.getElementById('ai-domain-badge').innerText = r.domain_detected || 'Unknown Domain';
+        document.getElementById('ai-leakage-text').innerHTML = `<strong>Target Leakage Risks:</strong> ${r.leakage_analysis || 'None detected'}`;
+
+        // Overwrite user lists from AI suggestions initially
+        userBlacklist = [];
+        userForceNumeric = [];
+
+        r.blacklist.forEach(item => {
+            if (item.column_name) {
+                userBlacklist.push(item.column_name);
+            }
+        });
+
+        if (r.force_numeric) {
+            r.force_numeric.forEach(col => {
+                userForceNumeric.push(col);
+            });
+        }
+
+        const isAr = getLocale() === 'ar';
+        // Populate target candidates (delayed from handleDatasetUpload)
+        const targetSelect = document.getElementById('select-target-column');
+        targetSelect.innerHTML = targetCandidates.map(c => `
+            <option value="${c.column}">${c.column} (${isAr ? (c.inferred_type === 'continuous' ? 'مستمر' : (c.inferred_type === 'binary' ? 'ثنائي' : 'متعدد الفئات')) : c.inferred_type} - ${isAr ? 'التقييم' : 'Score'}: ${Math.round(c.suitability_score)})</option>
+        `).join('');
+
+        // Auto-select target column & task type
+        if (r.suggested_target && r.suggested_target.column_name) {
+            document.getElementById('select-target-column').value = r.suggested_target.column_name;
+        }
+        if (r.task_type) {
+            document.getElementById('select-task-type').value = r.task_type;
+        }
+
+        renderColumnTable();
+        document.getElementById('ai-profiler-results').classList.remove('hidden');
+        saveState();
+    }
+
+    function renderDataCatalog() {
+        const numList = document.getElementById('catalog-numerical-list');
+        const catList = document.getElementById('catalog-categorical-list');
+        const dtList = document.getElementById('catalog-datetime-list');
+
+        numList.innerHTML = '';
+        catList.innerHTML = '';
+        dtList.innerHTML = '';
+
+        const isAr = getLocale() === 'ar';
+
+        Object.entries(datasetProfile.column_details).forEach(([col, details]) => {
+            const missingText = details.missing_count > 0 ? 
+                `<span class="text-rose-400 font-bold font-mono">${details.missing_count} (${details.missing_pct.toFixed(1)}%)</span>` :
+                `<span class="text-emerald-400 font-bold font-mono">0 (0%)</span>`;
+            
+            const cardHtml = `
+                <div class="p-3 rounded-xl bg-surface-container/40 border border-outline-variant/10 text-[11px] space-y-1.5 hover:bg-surface-container-high/40 transition-all">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-white truncate max-w-[150px]">${col}</span>
+                        <span class="text-[9px] text-outline font-mono uppercase bg-surface-container px-1.5 py-0.5 rounded">${isAr && details.type.includes('Numerical') ? 'رقمي' : (isAr && details.type.includes('Categorical') ? 'فئوي' : details.type)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 text-outline/85 text-[10px]">
+                        <div>${isAr ? 'المفقود:' : 'Missing:'} ${missingText}</div>
+                        <div>${isAr ? 'الفريد:' : 'Unique:'} <span class="text-white font-mono font-bold">${details.unique_count}</span></div>
+                    </div>
+                    <div class="text-[10px] text-outline/65 truncate">
+                        <span class="font-bold">${isAr ? 'العينات:' : 'Samples:'}</span> 
+                        <code class="text-secondary-container-on font-mono text-[9px] truncate block mt-0.5">${details.sample_values.join(', ') || 'N/A'}</code>
+                    </div>
+                </div>
+            `;
+
+            if (details.type.includes('Numerical')) {
+                numList.innerHTML += cardHtml;
+            } else if (details.type.includes('Categorical')) {
+                catList.innerHTML += cardHtml;
+            } else {
+                dtList.innerHTML += cardHtml;
+            }
+        });
+
+        if (!numList.innerHTML) numList.innerHTML = `<p class="italic text-[10px] text-outline/50">${isAr ? 'لا توجد خصائص رقمية.' : 'No numerical features found.'}</p>`;
+        if (!catList.innerHTML) catList.innerHTML = `<p class="italic text-[10px] text-outline/50">${isAr ? 'لا توجد خصائص فئوية.' : 'No categorical features found.'}</p>`;
+        if (!dtList.innerHTML) dtList.innerHTML = `<p class="italic text-[10px] text-outline/50">${isAr ? 'لا توجد خصائص تواريخ/أخرى.' : 'No datetime/other features found.'}</p>`;
+    }
+
+    function onColumnCheckboxChanged(elem) {
+        const col = elem.getAttribute('data-col');
+        if (elem.checked) {
+            userBlacklist = userBlacklist.filter(c => c !== col);
+        } else {
+            if (!userBlacklist.includes(col)) {
+                userBlacklist.push(col);
+            }
+        }
+        updateOverrideCounts();
+        saveState();
+    }
+
+    function onColumnNumericChanged(elem) {
+        const col = elem.getAttribute('data-col');
+        if (elem.checked) {
+            if (!userForceNumeric.includes(col)) {
+                userForceNumeric.push(col);
+            }
+        } else {
+            userForceNumeric = userForceNumeric.filter(c => c !== col);
+        }
+        updateOverrideCounts();
+        saveState();
+    }
+
+    function setAllColumnsCheckbox(status) {
+        const targetCol = document.getElementById('select-target-column').value;
+        const checkboxes = document.querySelectorAll('.column-inclusion-checkbox');
+        checkboxes.forEach(cb => {
+            const col = cb.getAttribute('data-col');
+            if (col !== targetCol) {
+                cb.checked = status;
+                if (status) {
+                    userBlacklist = userBlacklist.filter(c => c !== col);
+                } else {
+                    if (!userBlacklist.includes(col)) {
+                        userBlacklist.push(col);
+                    }
+                }
+            }
+        });
+        updateOverrideCounts();
+        saveState();
+    }
+
+    function updateOverrideCounts() {
+        const targetCol = document.getElementById('select-target-column').value;
+        const included = Object.keys(datasetProfile.column_details).filter(c => c !== targetCol && !userBlacklist.includes(c)).length;
+        const excluded = userBlacklist.length;
+
+        document.getElementById('override-count-include').innerText = included;
+        document.getElementById('override-count-exclude').innerText = excluded;
+    }
+
+    async function runAIProfiler() {
+        document.getElementById('ai-profiler-trigger-container').classList.add('hidden');
+        document.getElementById('ai-profiler-loading').classList.remove('hidden');
+        document.getElementById('ai-profiler-results').classList.add('hidden');
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        const isAr = getLocale() === 'ar';
+
+        try {
+            const res = await fetch('/api/automl/profile/ai', {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            
+            if (data.status === 'no_key') {
+                console.warn("No Groq API key configured. Skipped AI profiling.");
+                document.getElementById('ai-summary-text').innerHTML = `
+                    <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+                        ${isAr ? 'مفتاح Groq API غير مهيأ. تم تخطي التحليل الذكي واستخدام الخصائص الهيكلية القياسية بدلاً من ذلك.' : 'Groq API Key not configured. AI Profiling skipped. Using standard dataset topology instead.'}
+                    </div>
+                `;
+                aiProfilerResult = { blacklist: [], force_numeric: [] };
+                const targetSelect = document.getElementById('select-target-column');
+                targetSelect.innerHTML = targetCandidates.map(c => `
+                    <option value="${c.column}">${c.column} (${isAr ? (c.inferred_type === 'continuous' ? 'مستمر' : (c.inferred_type === 'binary' ? 'ثنائي' : 'متعدد الفئات')) : c.inferred_type} - ${isAr ? 'التقييم' : 'Score'}: ${Math.round(c.suitability_score)})</option>
+                `).join('');
+                if (targetCandidates.length > 0) {
+                    targetSelect.value = targetCandidates[0].column;
+                    onTargetChanged();
+                } else {
+                    renderColumnTable();
+                }
+                document.getElementById('ai-profiler-results').classList.remove('hidden');
+            } else if (data.status === 'ok') {
+                renderAIProfilerResults(data);
+            } else {
+                console.error("AI Profiling failed:", data.message);
+                aiProfilerResult = { blacklist: [], force_numeric: [] };
+                const targetSelect = document.getElementById('select-target-column');
+                targetSelect.innerHTML = targetCandidates.map(c => `
+                    <option value="${c.column}">${c.column} (${isAr ? (c.inferred_type === 'continuous' ? 'مستمر' : (c.inferred_type === 'binary' ? 'ثنائي' : 'متعدد الفئات')) : c.inferred_type} - ${isAr ? 'التقييم' : 'Score'}: ${Math.round(c.suitability_score)})</option>
+                `).join('');
+                if (targetCandidates.length > 0) {
+                    targetSelect.value = targetCandidates[0].column;
+                    onTargetChanged();
+                } else {
+                    renderColumnTable();
+                }
+                document.getElementById('ai-profiler-results').classList.remove('hidden');
+            }
+        } catch(e) {
+            console.error(e);
+            document.getElementById('ai-summary-text').innerHTML = `
+                <div class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                    ${isAr ? 'فشل الاتصال بمحلل الذكاء الاصطناعي. تم الرجوع للخصائص القياسية للبيانات.' : 'Failed to connect to AI Profiler. Using standard dataset topology instead.'}
+                </div>
+            `;
+            aiProfilerResult = { blacklist: [], force_numeric: [] };
+            const targetSelect = document.getElementById('select-target-column');
+            targetSelect.innerHTML = targetCandidates.map(c => `
+                <option value="${c.column}">${c.column} (${isAr ? (c.inferred_type === 'continuous' ? 'مستمر' : (c.inferred_type === 'binary' ? 'ثنائي' : 'متعدد الفئات')) : c.inferred_type} - ${isAr ? 'التقييم' : 'Score'}: ${Math.round(c.suitability_score)})</option>
+            `).join('');
+            if (targetCandidates.length > 0) {
+                targetSelect.value = targetCandidates[0].column;
+                onTargetChanged();
+            } else {
+                renderColumnTable();
+            }
+            document.getElementById('ai-profiler-results').classList.remove('hidden');
+        } finally {
+            document.getElementById('ai-profiler-loading').classList.add('hidden');
+            saveState();
+        }
+    }
+
+    // --- STEP 4: TRAINING ---
+    async function triggerBaselineTraining() {
+        const isAr = getLocale() === 'ar';
+        const checkedBoxes = document.querySelectorAll('input[name="train-models"]:checked');
+        const selected = Array.from(checkedBoxes).map(cb => cb.value);
+        if (selected.length === 0) {
+            alert(isAr ? "يرجى اختيار خوارزمية واحدة على الأقل للتدريب." : "Please approve at least one algorithm to train.");
+            return;
+        }
+
+        showOverlay(
+            isAr ? "تدريب النماذج" : "Training Models", 
+            isAr ? "تدريب الخوارزميات الأساسية في خيوط معزولة..." : "Fitting baseline algorithms on isolated threads..."
+        );
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        fd.append('selected_models', JSON.stringify(selected));
+        fd.append('scaling_method', document.getElementById('scaling-method').value);
+        fd.append('encoding_method', document.getElementById('encoding-method').value);
+        fd.append('test_size', document.getElementById('test-size-range').value);
+        fd.append('cv_folds', document.getElementById('cv-folds-range').value);
+        fd.append('timeout_limit', document.getElementById('timeout-range').value);
+        
+        fd.append('blacklist', JSON.stringify(userBlacklist));
+        fd.append('force_numeric', JSON.stringify(userForceNumeric));
+
+        try {
+            const res = await fetch('/api/automl/train', {
+                method: 'POST',
+                body: fd
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.detail || (isAr ? "فشل تنفيذ عملية التدريب الأساسية." : "Baseline training execution failed."));
+            }
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let buffer = "";
+            let receivedResult = false;
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                
+                const lines = buffer.split("\n");
+                buffer = lines.pop(); // Save the last incomplete line
+                
+                for (const line of lines) {
+                    const cleanLine = line.trim();
+                    if (!cleanLine.startsWith("data: ")) continue;
+                    
+                    try {
+                        const jsonStr = cleanLine.substring(6);
+                        const msg = JSON.parse(jsonStr);
+                        
+                        if (msg.event === 'kaggle_url') {
+                            showKaggleLink(msg.url);
+                        } else if (msg.event === 'result') {
+                            trainingResults = msg.data;
+                            renderLeaderboard(msg.data);
+                            const pdfHeaderBtn = document.getElementById('btn-header-pdf');
+                            if (pdfHeaderBtn) pdfHeaderBtn.classList.remove('hidden');
+                            receivedResult = true;
+                        } else if (msg.event === 'error') {
+                            throw new Error(msg.message || (isAr ? "حدث خطأ غير معروف أثناء التدريب." : "Unknown training error occurred."));
+                        } else if (msg.step) {
+                            updateTrainingProgress(msg.step, msg.desc, msg.percent);
+                        }
+                    } catch (err) {
+                        console.error("Error parsing stream line:", cleanLine, err);
+                        if (err.message && err.message.includes("training error")) {
+                            throw err;
+                        }
+                    }
+                }
+            }
+
+            if (!receivedResult) {
+                throw new Error(isAr ? "أغلقت القناة قبل استلام نتائج التدريب." : "Stream closed without returning training results.");
+            }
+            saveState();
+        } catch(e) {
+            console.error(e);
+            alert(e.message || (isAr ? "فشل تنفيذ عملية التدريب الأساسية." : "Baseline training execution failed."));
+        } finally {
+            hideOverlay();
+        }
+    }
+
+    function updateTrainingProgress(step, desc, percent) {
+        document.getElementById('overlay-title').innerText = step;
+        document.getElementById('overlay-text').innerText = desc;
+        
+        const progContainer = document.getElementById('overlay-progress-container');
+        const progBar = document.getElementById('overlay-progress-bar');
+        const progPercent = document.getElementById('overlay-progress-percent');
+        
+        progContainer.classList.remove('hidden');
+        progPercent.classList.remove('hidden');
+        
+        progBar.style.width = percent + '%';
+        progPercent.innerText = percent + '%';
+    }
+
+    function showKaggleLink(url) {
+        const kaggleContainer = document.getElementById('overlay-kaggle-container');
+        const kaggleLink = document.getElementById('overlay-kaggle-link');
+        
+        if (url && url !== 'local_fallback') {
+            kaggleLink.href = url;
+            kaggleContainer.classList.remove('hidden');
+        } else {
+            kaggleContainer.classList.add('hidden');
+        }
+    }
+
+    function renderLeaderboard(data) {
+        const isAr = getLocale() === 'ar';
+        const tbody = document.getElementById('leaderboard-table-rows');
+        const targetMetric = data.task_type === 'regression' ? 'r2' : 'f1';
+        
+        tbody.innerHTML = data.leaderboard.map((row, idx) => {
+            let statusBadge = row.status_indicator === 'Stable' ? 'bg-emerald-500/10 text-emerald-400' :
+                              (row.status_indicator === 'Heavy Overfitting' ? 'bg-rose-500/10 text-rose-400' : 'bg-amber-500/10 text-amber-400');
+            
+            return `
+                <tr class="${idx === 0 ? 'bg-primary/5 border-l-2 border-primary' : ''} hover:bg-surface-container/20">
+                    <td class="py-4 px-4 font-bold text-white flex items-center gap-2">
+                        ${idx === 0 ? '<span class="material-symbols-outlined text-sm text-primary">star</span>' : ''}
+                        ${row.model_name}
+                    </td>
+                    <td class="py-4 px-4 font-mono font-bold text-white">${Math.round(row.composite_score * 100)}%</td>
+                    <td class="py-4 px-4 font-mono text-outline">${Math.round(row.val_metrics[targetMetric] * 100)}%</td>
+                    <td class="py-4 px-4 font-mono text-outline">${Math.round(row.cv_mean * 100)}% ± ${Math.round(row.cv_std * 100)}%</td>
+                    <td class="py-4 px-4 font-mono text-outline">${Math.round(row.generalization_gap * 100)}%</td>
+                    <td class="py-4 px-4 font-mono text-outline">${row.fit_time.toFixed(2)}s</td>
+                    <td class="py-4 px-4">
+                        <span class="px-2 py-1 rounded text-[10px] font-mono uppercase ${statusBadge}">${isAr ? (row.status_indicator === 'Stable' ? 'مستقر' : (row.status_indicator === 'Heavy Overfitting' ? 'تجاوز حد التدريب' : 'تحذير بسيط')) : row.status_indicator}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        document.getElementById('champion-model-name').innerText = data.best_model_name;
+        document.getElementById('training-leaderboard-section').classList.remove('hidden');
+        buildPlaygroundForm();
+    }
+
+    // --- STEP 5: OPTIMIZE ---
+    async function triggerTuning() {
+        const isAr = getLocale() === 'ar';
+        showOverlay(
+            isAr ? "تحسين النموذج البطل" : "Optimizing Champion", 
+            isAr ? "تشغيل مسح عشوائي للمعلمات الفائقة..." : "Running randomized hyperparameter sweep..."
+        );
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        fd.append('cv_folds', document.getElementById('cv-folds-range').value);
+
+        try {
+            const res = await fetch('/api/automl/optimize', {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            
+            const list = document.getElementById('tuned-metrics-list');
+            const targetMetric = trainingResults.task_type === 'regression' ? 'r2' : 'f1';
+            const oldRow = trainingResults.leaderboard.find(r => r.model_name === trainingResults.best_model_name);
+            const m = data.metrics;
+
+            list.innerHTML = `
+                <div class="grid grid-cols-3 gap-2 border-b border-outline-variant/15 pb-2 text-[10px] font-mono text-outline uppercase">
+                    <div>${isAr ? 'المقياس' : 'Metric'}</div>
+                    <div>${isAr ? 'الأساسي' : 'Baseline'}</div>
+                    <div class="text-primary font-bold">${isAr ? 'المحسن' : 'Optimized'}</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 py-1">
+                    <div>${isAr ? 'النتيجة المركبة' : 'Composite Score'}</div>
+                    <div class="font-mono">${Math.round(oldRow.composite_score * 100)}%</div>
+                    <div class="font-mono text-primary font-bold">${Math.round(m.composite_score * 100)}%</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 py-1">
+                    <div>Val ${targetMetric.toUpperCase()}</div>
+                    <div class="font-mono">${Math.round(oldRow.val_metrics[targetMetric] * 100)}%</div>
+                    <div class="font-mono text-primary font-bold">${Math.round(m.val_metrics[targetMetric] * 100)}%</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 py-1">
+                    <div>CV Mean</div>
+                    <div class="font-mono">${Math.round(oldRow.cv_mean * 100)}%</div>
+                    <div class="font-mono text-primary font-bold">${Math.round(m.cv_mean * 100)}%</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 py-1">
+                    <div>Generalization Gap</div>
+                    <div class="font-mono">${Math.round(oldRow.generalization_gap * 100)}%</div>
+                    <div class="font-mono text-primary font-bold">${Math.round(m.generalization_gap * 100)}%</div>
+                </div>
+            `;
+
+            const featChart = document.getElementById('feature-importance-chart');
+            featChart.innerHTML = data.feature_importance.slice(0, 5).map(fi => `
+                <div class="space-y-1">
+                    <div class="flex justify-between text-[11px]">
+                        <span class="font-bold text-white truncate max-w-[150px]">${fi.feature}</span>
+                        <span class="text-outline font-mono">${(fi.importance * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style="width: ${fi.importance * 100}%"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            buildPlaygroundForm();
+            document.getElementById('optimize-results-section').classList.remove('hidden');
+        } catch(e) {
+            console.error(e);
+            alert(isAr ? "فشل تحسين النموذج البطل." : "Tuning sweep failed.");
+        } finally {
+            hideOverlay();
+        }
+    }
+
+    // --- STEP 6: PLAYGROUND & EXPORT ---
+    async function buildPlaygroundForm() {
+        try {
+            const isAr = getLocale() === 'ar';
+            const fd = new FormData();
+            fd.append('session_id', activeSessionId);
+            const res = await fetch('/api/automl/dataset/columns', {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            const form = document.getElementById('inference-form');
+
+            form.innerHTML = Object.entries(data.columns).map(([col, details]) => {
+                if (details.type === 'numerical') {
+                    return `
+                        <div class="space-y-1">
+                            <label class="block font-bold text-white">${col}</label>
+                            <input type="number" name="inf-${col}" min="${details.min}" max="${details.max}" value="${details.median}" step="any" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-2.5 text-white">
+                            <p class="text-[9px] text-outline/60">${isAr ? 'الأدنى:' : 'Min:'} ${details.min} | ${isAr ? 'الأقصى:' : 'Max:'} ${details.max}</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="space-y-1">
+                            <label class="block font-bold text-white">${col}</label>
+                            <select name="inf-${col}" class="w-full bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-2.5 text-white">
+                                ${details.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                }
+            }).join('');
+        } catch(e) {
+            console.error("Error creating playground form:", e);
+        }
+    }
+
+    async function runInference() {
+        const isAr = getLocale() === 'ar';
+        const form = document.getElementById('inference-form');
+        const inputs = {};
+        
+        Array.from(form.elements).forEach(el => {
+            if (el.name && el.name.startsWith('inf-')) {
+                const col = el.name.replace('inf-', '');
+                inputs[col] = el.type === 'number' ? parseFloat(el.value) : el.value;
+            }
+        });
+
+        const fd = new FormData();
+        fd.append('session_id', activeSessionId);
+        fd.append('input_data', JSON.stringify(inputs));
+
+        try {
+            const res = await fetch('/api/automl/predict', {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            
+            let resultText = data.prediction;
+            if (data.probabilities) {
+                let highestProb = Math.max(...Object.values(data.probabilities));
+                resultText += isAr 
+                    ? ` (${isAr ? 'درجة الثقة:' : 'Confidence:'} ${Math.round(highestProb * 100)}%)`
+                    : ` (Confidence: ${Math.round(highestProb * 100)}%)`;
+            }
+            document.getElementById('inference-prediction-text').innerText = resultText;
+        } catch(e) {
+            console.error(e);
+            alert(isAr ? "فشل حساب التنبؤ." : "Inference calculation failed.");
+        }
+    }
+
+    function downloadZipExport() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/automl/export/zip';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'session_id';
+        input.value = activeSessionId;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function downloadPdfReport() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/automl/export/pdf';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'session_id';
+        input.value = activeSessionId;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    window.onload = loadState;
+</script>
+{% endblock %}

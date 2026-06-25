@@ -1,0 +1,31 @@
+# Git & IDE configs
+.git
+.gitignore
+.vscode
+.idea
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local databases and logs
+*.db
+*.sqlite
+backend/data/*.db
+logs/
+*.log
+
+# Python Virtual Environments
+venv/
+.venv/
+env/
+
+# OS-specific files
+Thumbs.db
+.DS_Store
+
+# Archives
+*.zip
+*.rar
+*.tar.gz

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service (SQLite & Qdrant are fully embedded)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dataset_advisor_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./advisor.db
+      - VECTOR_DB_URL=local_storage
+      - VECTOR_DB_PATH=./qdrant_storage
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - KAGGLE_API_KEY=${KAGGLE_API_KEY}
+    volumes:
+      - ./backend:/app
+      - huggingface_cache:/root/.cache/huggingface
+    restart: always
+
+volumes:
+  huggingface_cache:

@@ -1,0 +1,257 @@
+{% extends "public/_public_layout.html" %}
+
+{% block page_title %}Feedback & Insights{% endblock %}
+
+{% block nav_feedback_active %}text-primary bg-surface-container/50{% endblock %}
+
+{% block head %}
+<style>
+    input.glass-input, textarea.glass-input {
+        background-color: var(--surface-container-low) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    input.glass-input:focus, textarea.glass-input:focus {
+        border-color: var(--primary) !important;
+        background-color: var(--surface-container-high) !important;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.25) !important;
+        --tw-ring-color: transparent !important;
+    }
+    input.glass-input::placeholder, textarea.glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.35) !important;
+    }
+    input.glass-input.input-error, textarea.glass-input.input-error {
+        border-color: rgb(var(--error-rgb)) !important;
+        box-shadow: 0 0 10px rgba(var(--error-rgb), 0.15) !important;
+    }
+    .glowing-btn {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .glowing-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+    }
+    .glowing-btn:hover::before {
+        left: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[calc(100vh-140px)] flex items-center justify-center py-16 px-6 overflow-hidden">
+    <!-- Kinetic Neon Background Orbs -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-tertiary/10 rounded-full blur-[120px] animate-pulse pointer-events-none" style="animation-delay: 1.5s;"></div>
+
+    <div class="w-full max-w-xl relative z-10">
+        <div class="glass-card rounded-3xl p-8 md:p-10 space-y-8 border border-white/5 shadow-2xl relative">
+            <div class="text-center space-y-3">
+                <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-primary font-bold">Feedback Loop</span>
+                <h1 class="text-3xl font-headline font-black text-white tracking-tight">Share Your Experience</h1>
+                <p class="text-on-surface-variant text-sm max-w-sm mx-auto leading-relaxed">
+                    Help us shape the future of SOLIX. Share your feedback, feature requests, or report issues.
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="feedback-form" class="space-y-6" novalidate>
+                <div class="space-y-1">
+                    <label for="name" class="font-mono text-[10px] uppercase tracking-widest text-outline">Full Name <span class="text-error">*</span></label>
+                    <input type="text" id="name" name="name" required
+                        class="w-full glass-input rounded-xl px-4 py-3.5 text-sm text-white placeholder-outline/45 focus:outline-none"
+                        placeholder="John Doe">
+                    <p id="name-error" class="text-error text-xs font-mono hidden mt-1"></p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label for="email" class="font-mono text-[10px] uppercase tracking-widest text-outline">Email Address <span class="text-error">*</span></label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full glass-input rounded-xl px-4 py-3.5 text-sm text-white placeholder-outline/45 focus:outline-none"
+                            placeholder="john@example.com">
+                        <p id="email-error" class="text-error text-xs font-mono hidden mt-1"></p>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="phone" class="font-mono text-[10px] uppercase tracking-widest text-outline">Phone Number <span class="text-outline/45">(Optional)</span></label>
+                        <input type="tel" id="phone" name="phone"
+                            class="w-full glass-input rounded-xl px-4 py-3.5 text-sm text-white placeholder-outline/45 focus:outline-none"
+                            placeholder="+1 (555) 000-0000">
+                        <p id="phone-error" class="text-error text-xs font-mono hidden mt-1"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="message" class="font-mono text-[10px] uppercase tracking-widest text-outline">Your Feedback <span class="text-error">*</span></label>
+                    <textarea id="message" name="message" rows="5" required
+                        class="w-full glass-input rounded-xl px-4 py-3.5 text-sm text-white placeholder-outline/45 focus:outline-none resize-none"
+                        placeholder="Tell us what you think or what we can improve..."></textarea>
+                    <p id="message-error" class="text-error text-xs font-mono hidden mt-1"></p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn"
+                    class="w-full py-4 bg-gradient-to-r from-primary to-[#6840f7] text-white font-headline font-bold text-sm rounded-xl shadow-[0_0_20px_rgba(67,97,238,0.25)] hover:shadow-[0_0_35px_rgba(67,97,238,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-300 glowing-btn flex items-center justify-center gap-2">
+                    <span>Send Message</span>
+                    <span class="material-symbols-outlined text-sm">send</span>
+                </button>
+            </form>
+
+            <!-- Status message container -->
+            <div id="status-toast" class="absolute inset-0 bg-surface-container/95 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-8 text-center hidden transition-all duration-300">
+                <div id="status-icon" class="w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <!-- Icon loaded via JS -->
+                </div>
+                <h3 id="status-title" class="text-xl font-headline font-bold text-white mb-2">Success</h3>
+                <p id="status-msg" class="text-on-surface-variant text-sm max-w-xs mb-6 leading-relaxed">
+                    Thank you! Your feedback has been recorded.
+                </p>
+                <button id="reset-btn" class="px-6 py-2.5 bg-surface-container-high hover:bg-surface-container-highest text-white font-mono text-xs rounded-full border border-white/5 transition-all">
+                    Submit Another Feedback
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("feedback-form");
+        const statusToast = document.getElementById("status-toast");
+        const statusIcon = document.getElementById("status-icon");
+        const statusTitle = document.getElementById("status-title");
+        const statusMsg = document.getElementById("status-msg");
+        const resetBtn = document.getElementById("reset-btn");
+        const submitBtn = document.getElementById("submit-btn");
+
+        const fields = {
+            name: {
+                input: document.getElementById("name"),
+                error: document.getElementById("name-error"),
+                validate: (v) => v.trim().length >= 2 ? "" : "Name must be at least 2 characters"
+            },
+            email: {
+                input: document.getElementById("email"),
+                error: document.getElementById("email-error"),
+                validate: (v) => {
+                    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return regex.test(v.trim()) ? "" : "Please enter a valid email address";
+                }
+            },
+            phone: {
+                input: document.getElementById("phone"),
+                error: document.getElementById("phone-error"),
+                validate: (v) => {
+                    if (!v.trim()) return ""; // Optional field
+                    const regex = /^[+\d\s().-]{7,20}$/;
+                    return regex.test(v.trim()) ? "" : "Please enter a valid phone number";
+                }
+            },
+            message: {
+                input: document.getElementById("message"),
+                error: document.getElementById("message-error"),
+                validate: (v) => v.trim().length >= 10 ? "" : "Message must be at least 10 characters long"
+            }
+        };
+
+        // Real-time Validation on input change
+        Object.keys(fields).forEach(key => {
+            const field = fields[key];
+            field.input.addEventListener("input", () => {
+                const err = field.validate(field.input.value);
+                if (err) {
+                    field.error.textContent = err;
+                    field.error.classList.remove("hidden");
+                    field.input.classList.add("input-error");
+                } else {
+                    field.error.classList.add("hidden");
+                    field.input.classList.remove("input-error");
+                }
+            });
+        });
+
+        // Form Submit
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            // Trigger all validations
+            let isValid = true;
+            const formData = new FormData();
+            
+            Object.keys(fields).forEach(key => {
+                const field = fields[key];
+                const value = field.input.value;
+                const err = field.validate(value);
+                if (err) {
+                    field.error.textContent = err;
+                    field.error.classList.remove("hidden");
+                    field.input.classList.add("input-error");
+                    isValid = false;
+                }
+                formData.append(key, value);
+            });
+
+            if (!isValid) return;
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Sending...</span><span class="animate-spin material-symbols-outlined text-sm">progress_activity</span>`;
+
+            try {
+                const response = await fetch("/api/feedback", {
+                    method: "POST",
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success state
+                    statusIcon.innerHTML = `<span class="material-symbols-outlined text-4xl text-success">check_circle</span>`;
+                    statusIcon.className = "w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4";
+                    statusTitle.textContent = "Thank You!";
+                    statusTitle.className = "text-xl font-headline font-bold text-white mb-2";
+                    statusMsg.textContent = "Your feedback has been submitted successfully to the SOLIX team.";
+                    form.reset();
+                } else {
+                    // Error state from server
+                    statusIcon.innerHTML = `<span class="material-symbols-outlined text-4xl text-error">error</span>`;
+                    statusIcon.className = "w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mb-4";
+                    statusTitle.textContent = "Submission Failed";
+                    statusTitle.className = "text-xl font-headline font-bold text-white mb-2";
+                    statusMsg.textContent = result.detail || "An unexpected error occurred. Please try again.";
+                }
+            } catch (err) {
+                // Network error
+                statusIcon.innerHTML = `<span class="material-symbols-outlined text-4xl text-error">cloud_off</span>`;
+                statusIcon.className = "w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mb-4";
+                statusTitle.textContent = "Connection Error";
+                statusMsg.textContent = "Could not reach the server. Please check your internet connection.";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Send Message</span><span class="material-symbols-outlined text-sm">send</span>`;
+                statusToast.classList.remove("hidden");
+            }
+        });
+
+        // Reset Toast
+        resetBtn.addEventListener("click", () => {
+            statusToast.classList.add("hidden");
+            Object.keys(fields).forEach(key => {
+                const field = fields[key];
+                field.error.classList.add("hidden");
+                field.input.classList.remove("input-error");
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+6.8 Database Design
+This chapter explains the database design of the project. The database is one of the most important components of the system because it stores the information required by the application and allows the backend to access, process, and manage this information in an organized way. The database design includes the overall structure, the main tables, the relationship between tables, and the SQL commands used to create and manage the data.
+6.8.1 Database Overview
+A database is a structured system used to store, organize, manage, and retrieve data efficiently. In this project, the database acts as the central storage area for users, uploaded files, and cleaning reports. It ensures that the data is saved in a clear structure and can be accessed quickly when needed by the backend.
+The database is important because it allows the system to keep user information, file details, and processing results in a secure and organized form. Without a database, the system would not be able to remember users, track uploaded files, or save the results of data cleaning operations.
+The project can use common relational database systems such as MySQL, PostgreSQL, or SQLite. These databases store information in tables that contain rows and columns. This structure makes it easier to manage data and connect related information together.
+Data inside the system can be classified into structured and unstructured data. Structured data is arranged in tables with rows and columns, such as user names and email addresses. Unstructured data includes files such as documents, images, and other uploaded materials. The system stores file information in the database, while the actual file may be saved in a folder or storage location.
+6.8.2 Tables Structure
+The database is divided into several tables. Each table is responsible for storing a specific type of information. This separation helps the system stay organized, reduces data duplication, and improves performance. The main tables in this project are the User Table, Uploaded Files Table, and Cleaning Reports Table.
+Table Name
+Purpose
+Main Stored Data
+User Table
+Stores user account information.
+User ID, name, email, password
+Uploaded Files Table
+Stores information about files uploaded by users.
+File name, file type, size, path, upload date
+Cleaning Reports Table
+Stores the results generated after file cleaning.
+Report ID, file ID, errors, removed data, result
+
+A database table consists of columns and rows. Columns define the type of information that will be stored, while rows represent the actual records. For example, in the User Table, each row represents one user, and each column represents a detail about that user.
+A Primary Key is used to uniquely identify each record inside a table. For example, the user_id in the User Table identifies each user separately. A Foreign Key is used to connect one table with another. For example, the Uploaded Files Table can use user_id as a Foreign Key to show which user uploaded each file.
+6.8.3 User Table
+The User Table stores the basic information of the users who interact with the system. This table is essential because it allows the application to identify users, manage login information, and connect each user with their uploaded files and reports.
+Field Name
+Data Type
+Description
+Notes
+user_id
+INTEGER
+Unique number for each user.
+Primary Key
+Username
+VARCHAR
+Name of the user.
+Required
+Email
+VARCHAR
+User email address.
+Used for login
+Password
+VARCHAR
+Encrypted user password.
+Protected for security
+created_at
+DATETIME
+Date and time of account creation.
+Optional
+
+The user_id field is used to identify every user in a unique way. The email field is important because it can be used for login and communication. The password field should be encrypted before being stored in the database in order to protect the users and prevent unauthorized access.
+6.8.4 Uploaded Files Table
+The Uploaded Files Table stores information about the files uploaded by users. The purpose of this table is not necessarily to store the full file itself inside the database, but to store important information about the file, such as its name, type, size, storage path, and upload date.
+Field Name
+Data Type
+Description
+Notes
+file_id
+INTEGER
+Unique number for each uploaded file.
+Primary Key
+user_id
+INTEGER
+Identifies the user who uploaded the file.
+Foreign Key
+file_name
+VARCHAR
+Original name of the uploaded file.
+Required
+file_type
+VARCHAR
+Type or extension of the file.
+Example: CSV, XLSX
+file_size
+INTEGER
+Size of the uploaded file.
+Optional
+file_path
+VARCHAR
+Location where the file is saved.
+Improves performance
+uploaded_at
+DATETIME
+Date and time of upload.
+Required
+
+Saving the file path instead of the full file inside the database reduces database size and improves system performance. The uploaded file is linked to the user by using user_id. This makes it possible to know which user uploaded each file.
+6.8.5 Cleaning Reports Table
+The Cleaning Reports Table stores the results generated after processing and cleaning uploaded files. Data cleaning means removing errors, duplicate values, missing values, and incorrect records from the dataset. This process improves the quality of the data and makes it more suitable for analysis or artificial intelligence processing.
+Field Name
+Data Type
+Description
+Notes
+report_id
+INTEGER
+Unique number for each cleaning report.
+Primary Key
+file_id
+INTEGER
+The file connected to the report.
+Foreign Key
+errors_found
+INTEGER
+Number of detected errors.
+Generated result
+removed_rows
+INTEGER
+Number of rows removed during cleaning.
+Generated result
+cleaning_result
+TEXT
+Summary of the cleaning process.
+Report content
+processed_at
+DATETIME
+Date and time of processing.
+Required
+
+Cleaning reports are important because they give the user a clear summary of what happened to the uploaded data. The report can show the number of errors, the amount of removed data, the processing time, and the final result of the cleaning operation.
+6.8.6 SQL Code Explanation
+SQL, which stands for Structured Query Language, is used to create, manage, and manipulate databases. It allows the developer to create tables, insert data, retrieve records, update information, and delete data when needed.
+The most common SQL commands used in this project include CREATE TABLE, INSERT INTO, SELECT, UPDATE, and DELETE. Each command has a specific function in managing the database.
+CREATE TABLE users (    user_id INTEGER PRIMARY KEY,    username VARCHAR(100) NOT NULL,    email VARCHAR(150) UNIQUE NOT NULL,    password VARCHAR(255) NOT NULL,    created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+
+The CREATE TABLE command is used to create a new table in the database. In this example, the users table is created with fields for user ID, username, email, password, and account creation date.
+INSERT INTO users (username, email, password)VALUES ('Ahmed', 'ahmed@example.com', 'encrypted_password');
+
+The INSERT INTO command is used to add new records to a table. In this example, a new user is added to the users table.
+SELECT * FROM users;
+
+
+
+The SELECT command is used to retrieve data from the database. The star symbol means that all columns will be displayed.
+UPDATE usersSET email = 'newemail@example.com'WHERE user_id = 1;
+
+The UPDATE command is used to modify existing data in the table. The WHERE condition is important because it identifies which record should be updated.
+DELETE FROM usersWHERE user_id = 1;
+
+The DELETE command is used to remove data from the table. It should be used carefully because deleted data may not be recovered easily.
+

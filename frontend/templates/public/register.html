@@ -1,146 +1,193 @@
 {% extends 'public/_public_layout.html' %}
 
 {% block page_title %}Create Account{% endblock %}
-{% block meta_description %}Create your free SOL Data Agent account and start cleaning data today.{% endblock %}
+{% block meta_description %}Create your free SOLIX account and start cleaning data today.{% endblock %}
 
 {# ── Auth mode: suppress navbar & footer ── #}
 {% block navbar %}{% endblock %}
 {% block footer %}{% endblock %}
 {% block footer_spacer %}{% endblock %}
 {% block page_wrapper_open %}<main class="min-h-screen flex flex-row overflow-hidden">{% endblock %}
-{% block page_wrapper_close %}</main>{% endblock %}
+    {% block page_wrapper_close %}</main>{% endblock %}
 
 {% block content %}
-    {# Kinetic Observatory left panel #}
-    {% include 'public/_auth_left_panel.html' %}
+{# Kinetic Observatory left panel #}
+{% include 'public/_auth_left_panel.html' %}
 
-    <!-- RIGHT: Register Form -->
-    <section class="flex-1 flex flex-col items-center justify-center px-6 py-10 md:px-12 lg:px-20 bg-surface overflow-y-auto">
-        <!-- Mobile logo -->
-        <div class="md:hidden flex items-center gap-2.5 mb-8 w-full max-w-md">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_16px_rgba(67,97,238,0.4)]">
-                <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings:'FILL' 1">hub</span>
-            </div>
-            <span class="font-headline font-black text-lg tracking-tighter text-white uppercase">SOL DATA</span>
+<!-- RIGHT: Register Form -->
+<section
+    class="flex-1 flex flex-col items-center justify-center px-6 py-10 md:px-12 lg:px-20 bg-surface overflow-y-auto">
+    <!-- Mobile logo -->
+    <div class="md:hidden flex items-center mb-8 w-full max-w-md">
+        <img src="/static/solix (2).png" alt="SOLIX"
+             style="height:44px; width:auto; object-fit:contain; mix-blend-mode:screen; filter:drop-shadow(0 0 8px rgba(91,213,252,0.40));">
+    </div>
+
+    <div class="w-full max-w-md space-y-6">
+        <!-- Heading -->
+        <div class="space-y-1.5">
+            <h2 class="text-3xl font-headline font-bold text-white tracking-tight">Create account</h2>
+            <p class="text-on-surface-variant font-body text-sm">Start cleaning data for free today — no credit card
+                required</p>
         </div>
 
-        <div class="w-full max-w-md space-y-6">
-            <!-- Heading -->
-            <div class="space-y-1.5">
-                <h2 class="text-3xl font-headline font-bold text-white tracking-tight">Create account</h2>
-                <p class="text-on-surface-variant font-body text-sm">Start cleaning data for free today — no credit card required</p>
-            </div>
+        <!-- Social buttons -->
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="window.location.href='/api/v1/auth/google/login'"
+                class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
+                <img alt="Google" class="w-4 h-4 grayscale group-hover:grayscale-0 transition-all"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0BGf9zpy3rwHxNzXOsA59mRszt5LRAiy2hU9iJWNNotH6P7rtPYPfEquiRaI6ZToHcZvqc415jzLjhIWRfuOKJMBudhrtq3TPjJVVDPLRfdJdG4vmjy9_BoEmY61tHUrG-hJgjXIpEOKLmKHWXOqOYv0-NH90buxh4Iqv58Om3lEj64yf4ZzEze_k6vmpHyYyeUiLhfKb_NSGkW2UjZ5zqxkeHDkXfFUErNzoaWxhvl9-xotcV_GyzxBQa2uP6PO9ya__sN2Y" />
+                <span class="font-label text-sm font-bold text-white">Google</span>
+            </button>
+            <button onclick="window.location.href='/api/v1/auth/github/login'"
+                class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
+                <img alt="GitHub" class="w-4 h-4 invert grayscale group-hover:grayscale-0 transition-all"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpI-V-Raw94HJQ8WQe7qI-lOJ847BdJxd0itbn1yxSN0ErZ229AzHt20sDOR-VoeEva7BbgMWdGJ0IcAqJSv4tlWRGp50P1zZkSIdxcdxVU11UcyHkoTi4bQoFaKLdHkYqBTzeme6kHQp4_mx6qXUynoC6y__PxIO5u9DkoiSjX2ykzPRevex5oKL_mnf4SwnS1EHJpAcSkciGrfzVuu2DN7rne0A8yGArZH32zoKISKqU3yJbawT8HRr_vEZqfMCRefC1eaw-" />
+                <span class="font-label text-sm font-bold text-white">GitHub</span>
+            </button>
+        </div>
 
-            <!-- Social buttons -->
+        <!-- Divider -->
+        <div class="relative flex items-center gap-3">
+            <div class="flex-grow border-t border-outline-variant/12"></div>
+            <span class="font-mono text-[10px] text-outline tracking-widest uppercase flex-shrink-0">Or continue with
+                email</span>
+            <div class="flex-grow border-t border-outline-variant/12"></div>
+        </div>
+
+        <!-- Animated In-form Notification -->
+        <div id="authAlert" class="hidden rounded-xl p-4 border flex items-start gap-3 transition-all duration-300 transform scale-95 opacity-0">
+            <span id="alertIcon" class="material-symbols-outlined text-[20px] mt-0.5"></span>
+            <div class="flex-1">
+                <h4 id="alertTitle" class="text-sm font-bold text-white leading-tight"></h4>
+                <p id="alertDesc" class="text-xs text-white/70 mt-1"></p>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="space-y-4">
+            <!-- First + Last name -->
             <div class="grid grid-cols-2 gap-3">
-                <button class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
-                    <img alt="Google" class="w-4 h-4 grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0BGf9zpy3rwHxNzXOsA59mRszt5LRAiy2hU9iJWNNotH6P7rtPYPfEquiRaI6ZToHcZvqc415jzLjhIWRfuOKJMBudhrtq3TPjJVVDPLRfdJdG4vmjy9_BoEmY61tHUrG-hJgjXIpEOKLmKHWXOqOYv0-NH90buxh4Iqv58Om3lEj64yf4ZzEze_k6vmpHyYyeUiLhfKb_NSGkW2UjZ5zqxkeHDkXfFUErNzoaWxhvl9-xotcV_GyzxBQa2uP6PO9ya__sN2Y" />
-                    <span class="font-label text-sm font-bold text-white">Google</span>
-                </button>
-                <button class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high hover:border-outline-variant/40 transition-all duration-200 active:scale-[0.97] group">
-                    <img alt="GitHub" class="w-4 h-4 invert grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpI-V-Raw94HJQ8WQe7qI-lOJ847BdJxd0itbn1yxSN0ErZ229AzHt20sDOR-VoeEva7BbgMWdGJ0IcAqJSv4tlWRGp50P1zZkSIdxcdxVU11UcyHkoTi4bQoFaKLdHkYqBTzeme6kHQp4_mx6qXUynoC6y__PxIO5u9DkoiSjX2ykzPRevex5oKL_mnf4SwnS1EHJpAcSkciGrfzVuu2DN7rne0A8yGArZH32zoKISKqU3yJbawT8HRr_vEZqfMCRefC1eaw-" />
-                    <span class="font-label text-sm font-bold text-white">GitHub</span>
-                </button>
-            </div>
-
-            <!-- Divider -->
-            <div class="relative flex items-center gap-3">
-                <div class="flex-grow border-t border-outline-variant/12"></div>
-                <span class="font-mono text-[10px] text-outline tracking-widest uppercase flex-shrink-0">Or continue with email</span>
-                <div class="flex-grow border-t border-outline-variant/12"></div>
-            </div>
-
-            <!-- Registration Form -->
-            <form id="registerForm" class="space-y-4">
-                <!-- First + Last name -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">First Name</label>
-                        <input name="first_name" type="text" placeholder="John" autocomplete="given-name"
-                               class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Last Name</label>
-                        <input name="last_name" type="text" placeholder="Doe" autocomplete="family-name"
-                               class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
-                    </div>
-                </div>
-                <!-- Email -->
                 <div class="space-y-1.5">
-                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Email Address</label>
-                    <input name="email" type="email" placeholder="you@domain.io" autocomplete="email"
-                           class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
+                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">First
+                        Name</label>
+                    <input id="firstNameInput" name="first_name" type="text" placeholder="John" autocomplete="given-name"
+                        class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
+                    <p id="firstNameError" class="text-[11px] text-[#ff5c8a] hidden mt-1 ml-1"></p>
                 </div>
-                <!-- Password -->
                 <div class="space-y-1.5">
-                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Password</label>
-                    <div class="relative">
-                        <input id="regPassword" name="password" type="password" autocomplete="new-password"
-                               class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white font-body text-sm transition-all duration-200 outline-none pr-11" />
-                        <button type="button" onclick="togglePwd('regPassword', this)"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">visibility</span>
-                        </button>
-                    </div>
-                    <!-- Strength meter -->
-                    <div class="flex gap-1.5 pt-1 px-0.5" id="strengthMeter">
-                        <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
-                        <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
-                        <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
-                        <div class="h-1 flex-1 rounded-full bg-outline-variant/25 transition-all duration-300"></div>
-                    </div>
-                    <p class="font-mono text-[10px] text-secondary tracking-tight">STRENGTH: STRONG</p>
+                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Last Name</label>
+                    <input id="lastNameInput" name="last_name" type="text" placeholder="Doe" autocomplete="family-name"
+                        class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none" />
+                    <p id="lastNameError" class="text-[11px] text-[#ff5c8a] hidden mt-1 ml-1"></p>
                 </div>
-                <!-- Confirm password -->
-                <div class="space-y-1.5">
-                    <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Confirm Password</label>
-                    <div class="relative">
-                        <input id="regConfirmPassword" name="confirm_password" type="password" autocomplete="new-password"
-                               class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white font-body text-sm transition-all duration-200 outline-none pr-11" />
-                        <button type="button" onclick="togglePwd('regConfirmPassword', this)"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">visibility</span>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-1.5 px-0.5 pt-0.5">
-                        <span class="material-symbols-outlined text-[13px] text-secondary" style="font-variation-settings:'FILL' 1">verified</span>
-                        <span class="font-mono text-[10px] text-secondary uppercase tracking-tight">Passwords Match</span>
-                    </div>
-                </div>
-                <!-- Terms -->
-                <label class="flex items-start gap-3 cursor-pointer group">
-                    <div class="relative mt-0.5 flex-shrink-0">
-                        <input type="checkbox" name="terms" class="peer sr-only" />
-                        <div class="w-[18px] h-[18px] rounded bg-surface-container-low border border-outline-variant/30 peer-checked:bg-primary-container peer-checked:border-primary-container transition-all"></div>
-                        <span class="material-symbols-outlined absolute inset-0 text-white hidden peer-checked:flex items-center justify-center pointer-events-none" style="font-size:12px;">check</span>
-                    </div>
-                    <span class="text-xs text-on-surface-variant leading-relaxed">I agree to the
-                        <a class="text-primary hover:underline" href="/pricing">Terms of Service</a> and
-                        <a class="text-primary hover:underline" href="/pricing">Privacy Policy</a></span>
-                </label>
-                <!-- Submit -->
-                <button type="submit"
-                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white font-label font-bold text-sm tracking-wide shadow-[0_0_28px_rgba(67,97,238,0.30)] hover:shadow-[0_0_42px_rgba(67,97,238,0.52)] hover:brightness-110 active:scale-[0.98] transition-all duration-200">
-                    Create Free Account
-                </button>
-            </form>
-
-            <!-- Switch to login -->
-            <p class="text-center text-sm text-on-surface-variant">
-                Already have an account?
-                <a href="/login" class="text-primary font-bold hover:text-primary-container hover:underline transition-colors ml-1">Sign in →</a>
-            </p>
-
-            <!-- Minimal footer strip -->
-            <div class="pt-2 flex justify-between items-center opacity-35">
-                <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">&copy; 2026 SOL DATA SYSTEMS</span>
-                <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">v2.6.0-STABLE</span>
             </div>
+            <!-- Email -->
+            <div class="space-y-1.5">
+                <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Email Address</label>
+                <div class="relative">
+                    <input id="registerEmail" name="email" type="email" placeholder="you@domain.io" autocomplete="email"
+                        class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white placeholder:text-outline/50 font-body text-sm transition-all duration-200 outline-none pr-10" />
+                    <span id="emailCheck" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-success opacity-0 transition-opacity pointer-events-none" style="font-size:18px;">check_circle</span>
+                </div>
+                <p id="emailError" class="text-[11px] text-[#ff5c8a] hidden mt-1 ml-1"></p>
+            </div>
+            <!-- Password -->
+            <div class="space-y-1.5">
+                <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Password</label>
+                <div class="relative">
+                    <input id="regPassword" name="password" type="password" autocomplete="new-password"
+                        class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white font-body text-sm transition-all duration-200 outline-none pr-11" />
+                    <button type="button" onclick="togglePwd('regPassword', this)"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                    </button>
+                </div>
+                <!-- Strength meter -->
+                <div class="flex gap-1.5 pt-1 px-0.5" id="strengthMeter">
+                    <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
+                    <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
+                    <div class="h-1 flex-1 rounded-full bg-secondary-container transition-all duration-300"></div>
+                    <div class="h-1 flex-1 rounded-full bg-outline-variant/25 transition-all duration-300"></div>
+                </div>
+                <p id="strengthText" class="font-mono text-[10px] text-secondary tracking-tight">STRENGTH: WEAK</p>
+                <p id="passwordError" class="text-[11px] text-[#ff5c8a] hidden mt-1 ml-1"></p>
+            </div>
+            <!-- Confirm password -->
+            <div class="space-y-1.5">
+                <label class="font-mono text-[10px] text-outline tracking-widest uppercase ml-0.5">Confirm
+                    Password</label>
+                <div class="relative">
+                    <input id="regConfirmPassword" name="confirm_password" type="password" autocomplete="new-password"
+                        class="w-full bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl px-4 py-3 text-white font-body text-sm transition-all duration-200 outline-none pr-11" />
+                    <button type="button" onclick="togglePwd('regConfirmPassword', this)"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                    </button>
+                </div>
+                <div id="matchIndicator" class="flex items-center gap-1.5 px-0.5 pt-0.5 opacity-0 transition-opacity">
+                    <span id="matchIcon" class="material-symbols-outlined text-[13px] text-secondary"
+                        style="font-variation-settings:'FILL' 1">verified</span>
+                    <span id="matchText" class="font-mono text-[10px] text-secondary uppercase tracking-tight">Passwords Match</span>
+                </div>
+                <p id="confirmPasswordError" class="text-[11px] text-[#ff5c8a] hidden mt-1 ml-1"></p>
+            </div>
+            <!-- Terms -->
+            <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="relative mt-0.5 flex-shrink-0">
+                    <input type="checkbox" name="terms" class="peer sr-only" />
+                    <div
+                        class="w-[18px] h-[18px] rounded bg-surface-container-low border border-outline-variant/30 peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
+                    </div>
+                    <span
+                        class="material-symbols-outlined absolute inset-0 text-white hidden peer-checked:flex items-center justify-center pointer-events-none"
+                        style="font-size:12px;">check</span>
+                </div>
+                <span class="text-xs text-on-surface-variant leading-relaxed">I agree to the
+                    <a class="text-primary hover:underline" href="/pricing">Terms of Service</a> and
+                    <a class="text-primary hover:underline" href="/pricing">Privacy Policy</a></span>
+            </label>
+            <!-- Submit -->
+            <button id="registerSubmitBtn" type="submit"
+                class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white font-label font-bold text-sm tracking-wide shadow-[0_0_28px_rgba(67,97,238,0.30)] hover:shadow-[0_0_42px_rgba(67,97,238,0.52)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
+                <span>Create Free Account</span>
+            </button>
+        </form>
+
+        <!-- Switch to login -->
+        <p class="text-center text-sm text-on-surface-variant">
+            Already have an account?
+            <a href="/login"
+                class="text-primary font-bold hover:text-primary-container hover:underline transition-colors ml-1">Sign
+                in →</a>
+        </p>
+
+        <!-- Minimal footer strip -->
+        <div class="pt-2 flex justify-between items-center opacity-35">
+            <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">&copy; 2026 SOLIX —
+                Virtual Data Engineer</span>
+            <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-outline">v2.6.0-STABLE</span>
         </div>
-    </section>
+    </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
+<style>
+    /* Glowing loader */
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.2);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
 <script>
     function togglePwd(id, btn) {
         const inp = document.getElementById(id);
@@ -149,41 +196,254 @@
         else { inp.type = 'password'; icon.textContent = 'visibility'; }
     }
 
-    const form = document.getElementById('registerForm');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = form.querySelector('button[type="submit"]');
-            const origText = btn.innerHTML;
-            btn.innerHTML = '<span style="opacity:0.6">Creating Account...</span>';
-            btn.disabled = true;
-            try {
-                const inputs = form.querySelectorAll('input[name]');
-                const data = {};
-                inputs.forEach(i => { data[i.name] = i.value; });
-                if (data.password !== data.confirm_password) {
-                    alert("Passwords do not match");
-                    btn.innerHTML = origText; btn.disabled = false; return;
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- Alert Helper ---
+        const authAlert = document.getElementById("authAlert");
+        const alertIcon = document.getElementById("alertIcon");
+        const alertTitle = document.getElementById("alertTitle");
+        const alertDesc = document.getElementById("alertDesc");
+
+        function showInFormAlert(title, desc, type) {
+            authAlert.classList.remove("hidden");
+            
+            if (type === "success") {
+                authAlert.className = "rounded-xl p-4 border flex items-start gap-3 transition-all duration-300 transform bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
+                alertIcon.textContent = "check_circle";
+                alertIcon.className = "material-symbols-outlined text-[20px] mt-0.5 text-emerald-400";
+            } else {
+                authAlert.className = "rounded-xl p-4 border flex items-start gap-3 transition-all duration-300 transform bg-rose-500/10 border-rose-500/30 text-rose-400";
+                alertIcon.textContent = "error";
+                alertIcon.className = "material-symbols-outlined text-[20px] mt-0.5 text-rose-400";
+            }
+
+            alertTitle.textContent = title;
+            alertDesc.textContent = desc;
+
+            setTimeout(() => {
+                authAlert.classList.remove("scale-95", "opacity-0");
+                authAlert.classList.add("scale-100", "opacity-100");
+            }, 50);
+        }
+
+        // --- Inputs & Errors ---
+        const firstName = document.getElementById("firstNameInput");
+        const lastName = document.getElementById("lastNameInput");
+        const emailInput = document.getElementById("registerEmail");
+        const emailCheck = document.getElementById("emailCheck");
+        const regPassword = document.getElementById("regPassword");
+        const regConfirmPassword = document.getElementById("regConfirmPassword");
+        const strengthMeter = document.getElementById("strengthMeter");
+        const strengthText = document.getElementById("strengthText");
+        const matchIndicator = document.getElementById("matchIndicator");
+        const matchIcon = document.getElementById("matchIcon");
+        const matchText = document.getElementById("matchText");
+
+        const firstNameError = document.getElementById("firstNameError");
+        const lastNameError = document.getElementById("lastNameError");
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+        const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+        // Clear error helpers
+        [firstName, lastName].forEach(inp => {
+            inp.addEventListener("input", () => {
+                const errEl = inp.id === "firstNameInput" ? firstNameError : lastNameError;
+                if (inp.value.trim()) {
+                    errEl.classList.add("hidden");
+                    inp.classList.remove("border-rose-500/40");
                 }
-                const res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ first_name: data.first_name, last_name: data.last_name, email: data.email, password: data.password })
-                });
-                const resData = await res.json();
-                if (res.ok && resData.token) {
-                    localStorage.setItem('sol_auth_token', resData.token);
-                    window.location.href = '/app/dashboard';
-                } else {
-                    alert(resData.detail || resData.message || 'Registration failed');
-                    btn.innerHTML = origText; btn.disabled = false;
-                }
-            } catch (err) {
-                console.error(err);
-                alert('An error occurred. Please try again.');
-                btn.innerHTML = origText; btn.disabled = false;
+            });
+        });
+
+        // Email validation
+        emailInput.addEventListener("input", () => {
+            const val = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (val === "") {
+                emailCheck.classList.add("opacity-0");
+                emailInput.classList.remove("border-emerald-500/40", "border-rose-500/40");
+                emailError.classList.add("hidden");
+            } else if (emailRegex.test(val)) {
+                emailCheck.classList.remove("opacity-0");
+                emailInput.classList.add("border-emerald-500/40");
+                emailInput.classList.remove("border-rose-500/40");
+                emailError.classList.add("hidden");
+            } else {
+                emailCheck.classList.add("opacity-0");
+                emailInput.classList.add("border-rose-500/40");
+                emailInput.classList.remove("border-emerald-500/40");
+                emailError.textContent = "Please enter a valid email address.";
+                emailError.classList.remove("hidden");
             }
         });
-    }
+
+        // Password strength meter
+        regPassword.addEventListener("input", () => {
+            const pwd = regPassword.value;
+            passwordError.classList.add("hidden");
+            regPassword.classList.remove("border-rose-500/40");
+
+            let score = 0;
+            if (pwd.length >= 8) score++;
+            if (/[A-Z]/.test(pwd)) score++;
+            if (/[0-9]/.test(pwd)) score++;
+            if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+            const bars = strengthMeter.querySelectorAll("div");
+            bars.forEach((bar, idx) => {
+                bar.className = "h-1 flex-1 rounded-full transition-all duration-300";
+                if (idx < score) {
+                    if (score <= 1) bar.classList.add("bg-rose-500");
+                    else if (score <= 3) bar.classList.add("bg-amber-500");
+                    else bar.classList.add("bg-emerald-500");
+                } else {
+                    bar.classList.add("bg-outline-variant/25");
+                }
+            });
+
+            if (pwd.length === 0) {
+                strengthText.textContent = "STRENGTH: WEAK";
+                strengthText.className = "font-mono text-[10px] text-secondary tracking-tight";
+            } else if (score <= 1) {
+                strengthText.textContent = "STRENGTH: WEAK";
+                strengthText.className = "font-mono text-[10px] text-rose-400 tracking-tight";
+            } else if (score <= 3) {
+                strengthText.textContent = "STRENGTH: MEDIUM";
+                strengthText.className = "font-mono text-[10px] text-amber-400 tracking-tight";
+            } else {
+                strengthText.textContent = "STRENGTH: STRONG";
+                strengthText.className = "font-mono text-[10px] text-emerald-400 tracking-tight";
+            }
+
+            checkPasswordsMatch();
+        });
+
+        // Confirm Password Match
+        regConfirmPassword.addEventListener("input", checkPasswordsMatch);
+
+        function checkPasswordsMatch() {
+            const pwd = regPassword.value;
+            const confirmPwd = regConfirmPassword.value;
+            
+            if (!confirmPwd) {
+                matchIndicator.classList.add("opacity-0");
+                confirmPasswordError.classList.add("hidden");
+                regConfirmPassword.classList.remove("border-rose-500/40", "border-emerald-500/40");
+                return;
+            }
+
+            matchIndicator.classList.remove("opacity-0");
+
+            if (pwd === confirmPwd) {
+                matchText.textContent = "Passwords Match";
+                matchText.className = "font-mono text-[10px] text-emerald-400 uppercase tracking-tight";
+                matchIcon.className = "material-symbols-outlined text-[13px] text-emerald-400";
+                regConfirmPassword.classList.add("border-emerald-500/40");
+                regConfirmPassword.classList.remove("border-rose-500/40");
+                confirmPasswordError.classList.add("hidden");
+            } else {
+                matchText.textContent = "Passwords Mismatch";
+                matchText.className = "font-mono text-[10px] text-rose-400 uppercase tracking-tight";
+                matchIcon.className = "material-symbols-outlined text-[13px] text-rose-400";
+                regConfirmPassword.classList.add("border-rose-500/40");
+                regConfirmPassword.classList.remove("border-emerald-500/40");
+            }
+        }
+
+        // --- Registration Form ---
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                let hasError = false;
+                
+                if (!firstName.value.trim()) {
+                    firstNameError.textContent = "First name is required.";
+                    firstNameError.classList.remove("hidden");
+                    firstName.classList.add("border-rose-500/40");
+                    hasError = true;
+                }
+                if (!lastName.value.trim()) {
+                    lastNameError.textContent = "Last name is required.";
+                    lastNameError.classList.remove("hidden");
+                    lastName.classList.add("border-rose-500/40");
+                    hasError = true;
+                }
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = "Email address is required.";
+                    emailError.classList.remove("hidden");
+                    emailInput.classList.add("border-rose-500/40");
+                    hasError = true;
+                }
+                if (!regPassword.value) {
+                    passwordError.textContent = "Password is required.";
+                    passwordError.classList.remove("hidden");
+                    regPassword.classList.add("border-rose-500/40");
+                    hasError = true;
+                }
+                if (regPassword.value !== regConfirmPassword.value) {
+                    confirmPasswordError.textContent = "Passwords must match.";
+                    confirmPasswordError.classList.remove("hidden");
+                    regConfirmPassword.classList.add("border-rose-500/40");
+                    hasError = true;
+                }
+
+                const termsCheck = registerForm.querySelector('input[name="terms"]');
+                if (!termsCheck.checked) {
+                    showInFormAlert("Terms & Conditions", "You must agree to the Terms of Service and Privacy Policy to proceed.", "error");
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                const submitBtn = document.getElementById('registerSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="spinner"></div><span>Building Data Sandbox...</span>';
+
+                try {
+                    const res = await fetch('/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            first_name: firstName.value, 
+                            last_name: lastName.value, 
+                            email: emailInput.value, 
+                            password: regPassword.value 
+                        })
+                    });
+                    const resData = await res.json();
+                    if (res.ok) {
+                        showInFormAlert("Account Built Successfully", "OTP code sent to email. Directing to verification...", "success");
+                        setTimeout(() => {
+                            window.location.href = resData.redirect_url || `/verify-otp?email=${encodeURIComponent(emailInput.value)}`;
+                        }, 1300);
+                    } else {
+                        let errorMsg = 'Registration failed';
+                        if (resData.detail) {
+                            if (Array.isArray(resData.detail)) {
+                                errorMsg = resData.detail.map(err => {
+                                    const field = err.loc && err.loc.length > 1 ? `${err.loc[1]}: ` : '';
+                                    return `${field}${err.msg}`;
+                                }).join('\n');
+                            } else {
+                                errorMsg = resData.detail;
+                            }
+                        } else if (resData.message) {
+                            errorMsg = resData.message;
+                        }
+                        showInFormAlert("Registration Error", errorMsg, "error");
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>Create Free Account</span>';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showInFormAlert("Connection Timeout", "Failed to connect to the server. Please try again.", "error");
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Create Free Account</span>';
+                }
+            });
+        }
+    });
 </script>
-{% endblock %}
+{% endblock %}

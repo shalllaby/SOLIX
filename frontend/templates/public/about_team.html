@@ -1,0 +1,411 @@
+{% extends "public/_public_layout.html" %}
+
+{% block page_title %}About SOL Team — Space Of Learning{% endblock %}
+{% block meta_description %}Meet the competitive AI team driving innovation, securing top positions in local &
+international hackathons, and developing next-gen data tools.{% endblock %}
+
+{% block head %}
+<style>
+    /* ── Glassmorphic UI & Glow Effects ─────────────────────────────────────────── */
+    .team-glass-card {
+        background: rgba(19, 22, 40, 0.65);
+        backdrop-filter: blur(20px) saturate(1.4);
+        border: 1px solid rgba(68, 70, 85, 0.2);
+        box-shadow: 0 0 40px -15px rgba(67, 97, 238, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .team-glass-card:hover {
+        border-color: rgba(91, 213, 252, 0.4);
+        box-shadow: 0 0 50px -10px rgba(91, 213, 252, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        transform: translateY(-5px);
+    }
+
+    .leader-card {
+        background: rgba(29, 31, 55, 0.75);
+        border: 1px solid rgba(123, 47, 247, 0.25);
+        box-shadow: 0 0 50px -10px rgba(123, 47, 247, 0.15);
+    }
+
+    .leader-card:hover {
+        border-color: rgba(123, 47, 247, 0.5);
+        box-shadow: 0 0 60px -5px rgba(123, 47, 247, 0.3);
+    }
+
+    .advisor-card {
+        background: rgba(17, 28, 45, 0.7);
+        border: 1px solid rgba(6, 214, 160, 0.25);
+        box-shadow: 0 0 50px -10px rgba(6, 214, 160, 0.15);
+    }
+
+    .advisor-card:hover {
+        border-color: rgba(6, 214, 160, 0.5);
+        box-shadow: 0 0 60px -5px rgba(6, 214, 160, 0.3);
+    }
+
+    /* ── Timeline ───────────────────────────────────────────────────────────────── */
+    .timeline-item {
+        position: relative;
+        padding-left: 2.5rem;
+        border-left: 2px solid rgba(68, 70, 85, 0.35);
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 2px solid var(--background);
+        box-shadow: 0 0 10px var(--primary);
+        transition: all 0.3s;
+    }
+
+    .timeline-item:hover::before {
+        background: var(--secondary);
+        box-shadow: 0 0 15px var(--secondary);
+        transform: scale(1.2);
+    }
+
+    /* ── Custom Animations ──────────────────────────────────────────────────────── */
+    @keyframes pulse-glow {
+
+        0%,
+        100% {
+            opacity: 0.3;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.6;
+            transform: scale(1.05);
+        }
+    }
+
+    .glow-bg {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(67, 97, 238, 0.12) 0%, transparent 70%);
+        filter: blur(80px);
+        animation: pulse-glow 10s infinite ease-in-out;
+        pointer-events: none;
+    }
+
+    .glow-bg-secondary {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(91, 213, 252, 0.08) 0%, transparent 70%);
+        filter: blur(60px);
+        animation: pulse-glow 8s infinite ease-in-out;
+        pointer-events: none;
+    }
+
+    /* ── Avatar Circular Masking ────────────────────────────────────────────────── */
+    .avatar-container-circle {
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        aspect-ratio: 1 / 1 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative overflow-x-hidden pt-12 pb-24">
+    <!-- Glowing background elements -->
+    <div class="glow-bg top-10 -left-60"></div>
+    <div class="glow-bg-secondary bottom-40 -right-40"></div>
+
+    <!-- ═══ HERO SECTION ═══════════════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 text-center relative z-10">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/20">
+                <span class="material-symbols-outlined text-primary text-sm"
+                    style="font-variation-settings:'FILL' 1">groups</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Meet the
+                    Innovators</span>
+            </div>
+
+            <h1 class="font-headline font-black text-5xl md:text-[68px] text-white leading-[1.02] tracking-tighter">
+                ABOUT <span
+                    class="bg-gradient-to-r from-[#4361ee] via-[#7b2ff7] to-[#00a3c8] bg-clip-text text-transparent">SOL
+                    TEAM</span>
+            </h1>
+
+            <p class="text-on-surface/75 text-lg max-w-3xl mx-auto leading-relaxed font-body">
+                SOL (Space Of Learning) is a specialized, competitive AI team driving technological innovation and
+                securing top positions in major local and international hackathons. The team was founded with a clear
+                vision to build advanced, AI-powered software solutions capable of competing on global stages.
+            </p>
+            <p class="text-on-surface/55 text-sm max-w-2xl mx-auto leading-relaxed">
+                In a short period, SOL has proven its excellence by achieving top ranks among hundreds of participants
+                from various institutions, relying on deep research, highly efficient teamwork, and a relentless pursuit
+                of engineering perfection.
+            </p>
+        </div>
+    </section>
+
+    <!-- ═══ TEAM STATS / AWARDS ════════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-12 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="font-headline font-black text-3xl text-white mb-2">Team Statistics & Milestones</h2>
+            <p class="text-outline font-mono text-xs tracking-widest uppercase font-bold">Award Summary & Financial
+                Support</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+            {% for val, label, sub, hex in [
+            ("1st Place", "NASA Space Apps", "Once", "#ffd166"),
+            ("3rd Place", "Data Pill Hackathon", "Once", "#06d6a0"),
+            ("4th Place", "Cairo ICT / EVA AI", "Twice", "#4361ee"),
+            ("5th Place", "GDG Delta Hackathon", "Once", "#7b2ff7"),
+            ("Global Nominee", "NASA Apps Global", "Once", "#5bd5fc"),
+            ("65K+ EGP", "Financial Funding", "Grants & Prizes", "#06d6a0")
+            ] %}
+            <div class="team-glass-card rounded-xl p-5 text-center flex flex-col justify-between">
+                <div class="text-2xl font-black text-white font-headline" style="color: {{hex}}">{{val}}</div>
+                <div class="mt-2">
+                    <p class="font-mono text-[11px] font-bold text-white uppercase tracking-wider">{{label}}</p>
+                    <p class="text-[10px] text-on-surface-variant/75 mt-0.5">{{sub}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══ UNIVERSITY SPONSORSHIP / ACADEMIC ADVISORS ═════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-12 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="font-headline font-black text-3xl text-white mb-2">Academic Supervision & Affiliation</h2>
+            <p class="text-outline font-mono text-xs tracking-widest uppercase font-bold">Helwan International
+                Technological University — Cairo Technological College</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <!-- Dr. Simon Ezzat -->
+            <div
+                class="advisor-card team-glass-card rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div
+                    class="w-24 h-24 avatar-container-circle border-2 border-[#06d6a0]/30 flex-shrink-0 bg-surface-container">
+                    <img src="/team-images/Dr.Simon Ezzat.png" alt="Dr. Simon Ezzat" class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <span
+                        class="font-mono text-[9px] px-2.5 py-0.5 rounded-full border border-[#06d6a0]/30 text-[#06d6a0] bg-[#06d6a0]/10 uppercase tracking-widest font-bold">Academic
+                        Advisor</span>
+                    <h3 class="text-white font-headline font-bold text-xl">Dr. Simon Ezzat</h3>
+                    <p class="text-on-surface-variant text-sm font-semibold">Faculty Supervisor</p>
+                    <p class="text-on-surface/60 text-xs leading-relaxed">Provides scientific and academic direction,
+                        supporting SOL's innovations and aligning research goals with practical enterprise AI solutions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Eng. Naglaa Saeed -->
+            <div
+                class="advisor-card team-glass-card rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div
+                    class="w-24 h-24 avatar-container-circle border-2 border-[#06d6a0]/30 flex-shrink-0 bg-surface-container">
+                    <img src="/team-images/Eng.Naglaa Saeed.png" alt="Eng. Naglaa Saeed"
+                        class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <span
+                        class="font-mono text-[9px] px-2.5 py-0.5 rounded-full border border-[#06d6a0]/30 text-[#06d6a0] bg-[#06d6a0]/10 uppercase tracking-widest font-bold">Supervising
+                        Engineer</span>
+                    <h3 class="text-white font-headline font-bold text-xl">Eng. Naglaa Saeed</h3>
+                    <p class="text-on-surface-variant text-sm font-semibold">Technical Assistant & Supervisor</p>
+                    <p class="text-on-surface/60 text-xs leading-relaxed">Monitors daily engineering activities,
+                        provides hands-on technical guidance, and coordinates organization structure for the developers.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ LEADERSHIP / FOUNDERS ══════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-12 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="font-headline font-black text-3xl text-white mb-2">Leadership & Founders</h2>
+            <p class="text-outline font-mono text-xs tracking-widest uppercase font-bold">The Visionaries Behind SOL</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <!-- Mohamed Shalaby -->
+            <div
+                class="leader-card team-glass-card rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div
+                    class="w-28 h-28 avatar-container-circle border-2 border-[#7b2ff7]/30 flex-shrink-0 bg-surface-container shadow-lg">
+                    <img src="/team-images/Mohamed Shalaby.png" alt="Mohamed Shalaby"
+                        class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <span
+                        class="font-mono text-[9px] px-2.5 py-0.5 rounded-full border border-[#7b2ff7]/30 text-[#bac3ff] bg-[#7b2ff7]/10 uppercase tracking-widest font-bold">Co-Founder
+                        & Team Lead</span>
+                    <h3 class="text-white font-headline font-bold text-xl">Mohamed Shalaby</h3>
+                    <p class="text-on-surface-variant text-xs font-mono">Helwan International Technological University
+                        (HITU)</p>
+                    <p class="text-on-surface/70 text-xs leading-relaxed">
+                        Co-Founder & overall Team Leader. Orchestrates backend pipelines, automation frameworks, AI
+                        architecture integration, UI/UX, documentation, and frontend development.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mohamed Babiker -->
+            <div
+                class="leader-card team-glass-card rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div
+                    class="w-28 h-28 avatar-container-circle border-2 border-[#7b2ff7]/30 flex-shrink-0 bg-surface-container shadow-lg">
+                    <img src="/team-images/Mohamed Babiker.png" alt="Mohamed Babiker"
+                        class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <span
+                        class="font-mono text-[9px] px-2.5 py-0.5 rounded-full border border-[#7b2ff7]/30 text-[#bac3ff] bg-[#7b2ff7]/10 uppercase tracking-widest font-bold">Co-Founder
+                        & AI Lead</span>
+                    <h3 class="text-white font-headline font-bold text-xl">Mohamed Babiker</h3>
+                    <p class="text-on-surface-variant text-xs font-mono">Menoufia University — Faculty of Artificial
+                        Intelligence (2026 Graduate)</p>
+                    <p class="text-on-surface/70 text-xs leading-relaxed">
+                        Co-Founder & Lead AI Scientist. Guides model training pipelines, deep learning algorithms,
+                        statistical data analysis, and advanced pattern processing.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ HACKATHON TIMELINE ════════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 relative z-10">
+        <div class="text-center mb-14">
+            <h2 class="font-headline font-black text-3xl md:text-4xl text-white mb-2">Track Record of Success</h2>
+            <p class="text-outline font-mono text-xs tracking-widest uppercase font-bold">Our Journey in Major
+                Hackathons</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto space-y-8">
+            {% for title, date, rank, desc, hex in [
+            ("NASA Space Apps Challenge – Shebeen El-Kom", "4 - 6 October 2025", "1st Place (TOP 1) & Global Nominee",
+            "Represented Egypt internationally after winning first place among more than 100 competing teams.",
+            "#ffd166"),
+            ("Cairo ICT Intersection Hackathon", "17 - 19 November 2025", "4th Place (TOP 4)", "Presented innovative
+            smart solutions for digital transformation that earned high praise from the judging panel.", "#5bd5fc"),
+            ("EVA AI Hackathon", "31 January – 5 February 2026", "4th Place (TOP 4)", "Received 40,000 EGP in financial
+            support to build an AI-based diagnostic prioritization model.", "#06d6a0"),
+            ("Biggest Google Egypt Hackathon – GDG Delta", "14 - 16 February 2026", "5th Place (TOP 5)", "Competed
+            strongly and secured a top spot in Egypt's largest tech hackathon with 610+ participants.", "#7b2ff7"),
+            ("Data Pill Hackathon", "April 2026", "3rd Place (TOP 3)", "Achieved third place with the SANAD project,
+            receiving a financial prize of 10,000 EGP.", "#4361ee")
+            ] %}
+            <div class="timeline-item">
+                <div class="team-glass-card rounded-2xl p-6 space-y-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-white font-headline font-bold text-lg">{{title}}</h3>
+                        <span class="font-mono text-xs text-outline">{{date}}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm"
+                            style="color: {{hex}}; font-variation-settings: 'FILL' 1">emoji_events</span>
+                        <span class="font-bold text-sm" style="color: {{hex}}">{{rank}}</span>
+                    </div>
+                    <p class="text-on-surface/60 text-xs leading-relaxed">{{desc}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══ TEAM MEMBERS GRID ══════════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 relative z-10">
+        <div class="text-center mb-14">
+            <h2 class="font-headline font-black text-3xl md:text-4xl text-white mb-2">Meet Our Brilliant Team</h2>
+            <p class="text-outline font-mono text-xs tracking-widest uppercase font-bold">SOL Developers, Designers, &
+                Engineers</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {% for name, roles, img in [
+            ("Mohamed Shalaby", ["Head Of AI", "BACKEND", "Head Of AUTOMATION", "UI/UX", "documentation", "Frontend",
+            "Team Lead"], "Mohamed Shalaby.png"),
+            ("Mohsen Hassan", ["AI", "BACKEND", "documentation", "Frontend"], "Mohsen Hassan.png"),
+            ("Mohamed Elassal", ["AI"], "Mohamed Elassal .png"),
+            ("Abdelrhman Gharieb", ["AI", "Small Frontend"], "Abdelrhman Gharieb.png"),
+            ("Mohamed Mokhtar", ["BACKEND", "AI"], "Mohamed Mokhtar.png"),
+            ("Assem Hatem", ["UI/UX", "BACKEND"], "Assem Hatem.png"),
+            ("Amr Omar", ["Head Of Frontend"], "Amr Omar.png"),
+            ("Mohamed Khaled", ["Head Of Documentation"], "Mohamed Khaled.png"),
+            ("Ashrakat Khalid", ["Frontend", "Head of Documentation"], "Ashrakat khaild.png"),
+            ("Fatma Hussein", ["Frontend"], "Fatma Hussein.png"),
+            ("Fatma Mahmoud", ["Head Of Frontend", "Small BACKEND"], "Fatma Mahmoud.png"),
+            ("Malak Elsayed", ["Frontend"], "Malak elsayd.png"),
+            ("Safaa Mohamed", ["Head Of UI/UX", "Frontend", "AUTOMATION", "Small BACKEND"], "Safaa Mohamed.jpeg"),
+            ("Mayar Mamdouh", ["AI", "AUTOMATION", "Small BACKEND"], "Mayar Mamdouh.png"),
+            ("Menna Mahmoud", ["AI", "AUTOMATION", "Small BACKEND"], "Menna Mahmoud.png"),
+            ("Habiba Mohamed", ["AI", "AUTOMATION", "Small BACKEND"], "Habiba Mohamed.png")
+            ] %}
+            <div
+                class="team-glass-card rounded-3xl p-6 flex flex-col items-center text-center transition-all duration-300">
+                <!-- Circular Photo Template with glow ring -->
+                <div
+                    class="relative w-36 h-36 avatar-container-circle border-2 border-primary/30 p-1 bg-surface-container/30 shadow-lg group mb-4">
+                    <div class="w-full h-full rounded-full overflow-hidden">
+                        <img src="/team-images/{{img}}" alt="{{name}}"
+                            class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                            onerror="this.onerror=null; this.src='/static/favicon.svg';">
+                    </div>
+                </div>
+                <!-- Member Info -->
+                <h3 class="text-white font-headline font-bold text-base leading-tight mb-3">{{name}}</h3>
+                <!-- Member Roles -->
+                <div class="flex flex-wrap justify-center gap-1.5 w-full">
+                    {% for role in roles %}
+                    <span
+                        class="font-mono text-[9px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant hover:bg-primary-container/10 hover:text-primary transition-colors">{{role}}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═══ TEAM VISION ══════════════════════════════════════════════════════════ -->
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-16 relative z-10">
+        <div class="glass-card rounded-3xl p-10 md:p-14 text-center max-w-5xl mx-auto overflow-hidden relative">
+            <div class="relative z-10 space-y-6">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(91,213,252,0.4)]">
+                    <span class="material-symbols-outlined text-white text-xl"
+                        style="font-variation-settings:'FILL' 1">visibility</span>
+                </div>
+                <h2 class="font-headline font-black text-3xl text-white">OUR VISION</h2>
+                <p class="text-on-surface/75 text-base max-w-3xl mx-auto leading-relaxed">
+                    We at SOL aim to represent the region both locally and globally in AI competitions, launching
+                    products powered by advanced technologies that create real impact. The team aspires to build a
+                    continuous learning ecosystem, expand research and development, and turn innovative ideas into
+                    viable, real-world solutions.
+                </p>
+                <div class="pt-4">
+                    <a href="/register">
+                        <button
+                            class="px-8 py-3.5 bg-gradient-to-r from-primary-container to-[#6840f7] text-white font-bold rounded-xl shadow-[0_0_30px_rgba(67,97,238,0.35)] hover:shadow-[0_0_48px_rgba(67,97,238,0.55)] hover:scale-102 transition-all duration-200">
+                            Join Our Journey →
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <!-- Decorative light lines -->
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/10 rounded-full blur-[80px]"></div>
+            <div class="absolute -left-20 -top-20 w-80 h-80 bg-secondary/10 rounded-full blur-[80px]"></div>
+        </div>
+    </section>
+</div>
+{% endblock %}

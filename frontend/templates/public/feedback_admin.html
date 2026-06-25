@@ -1,0 +1,319 @@
+{% extends "public/_public_layout.html" %}
+
+{% block page_title %}Feedback Management Portal{% endblock %}
+
+{% block head %}
+<meta name="robots" content="noindex, nofollow">
+<style>
+    input.admin-input {
+        background-color: var(--surface-container-low) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        transition: all 0.3s;
+    }
+    input.admin-input:focus {
+        border-color: var(--primary) !important;
+        background-color: var(--surface-container-high) !important;
+        box-shadow: 0 0 15px rgba(67, 97, 238, 0.25) !important;
+        --tw-ring-color: transparent !important;
+    }
+    input.admin-input::placeholder {
+        color: rgba(255, 255, 255, 0.35) !important;
+    }
+    .feedback-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .feedback-card:hover {
+        border-color: rgba(67, 97, 238, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        background: rgba(255, 255, 255, 0.03);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[calc(100vh-140px)] flex flex-col items-center py-16 px-6 overflow-hidden">
+    <!-- Neon Background Orbs -->
+    <div class="absolute top-1/3 left-1/4 w-[450px] h-[450px] bg-primary/5 rounded-full blur-[140px] pointer-events-none animate-pulse"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-[450px] h-[450px] bg-secondary/5 rounded-full blur-[140px] pointer-events-none animate-pulse" style="animation-delay: 2s;"></div>
+
+    <div class="w-full max-w-5xl relative z-10 flex-1 flex flex-col">
+        
+        {# ──────────────── LACK OF AUTHENTICATION: LOGIN SCREEN ──────────────── #}
+        {% if not authenticated %}
+        <div class="m-auto w-full max-w-md">
+            <div class="glass-card rounded-3xl p-8 md:p-10 border border-white/5 shadow-2xl relative">
+                <div class="text-center space-y-3 mb-8">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-primary text-[28px]">admin_panel_settings</span>
+                    </div>
+                    <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-outline">Restricted Access</span>
+                    <h1 class="text-2xl font-headline font-black text-white tracking-tight">Admin Authentication</h1>
+                    <p class="text-on-surface-variant text-xs leading-relaxed max-w-[280px] mx-auto">
+                        Please enter the administrator passcode to access the Feedback Management System.
+                    </p>
+                </div>
+
+                <form action="/feedback-admin-portal-solix/login" method="POST" class="space-y-6">
+                    <div class="space-y-1">
+                        <label for="password" class="font-mono text-[10px] uppercase tracking-widest text-outline">Passcode</label>
+                        <input type="password" id="password" name="password" required
+                            class="w-full admin-input rounded-xl px-4 py-3.5 text-sm text-center text-white placeholder-outline/35 focus:outline-none tracking-widest"
+                            placeholder="••••••••••••">
+                    </div>
+
+                    {% if request.query_params.get('error') %}
+                    <div class="bg-error/10 border border-error/25 text-error text-xs font-mono rounded-lg p-3 text-center">
+                        Invalid admin passcode. Please try again.
+                    </div>
+                    {% endif %}
+
+                    <button type="submit"
+                        class="w-full py-3.5 bg-gradient-to-r from-primary to-[#6840f7] text-white font-headline font-bold text-sm rounded-xl shadow-[0_0_15px_rgba(67,97,238,0.2)] hover:shadow-[0_0_25px_rgba(67,97,238,0.35)] hover:brightness-110 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
+                        <span>Authenticate</span>
+                        <span class="material-symbols-outlined text-sm">vpn_key</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# ──────────────── AUTHENTICATED: DASHBOARD SCREEN ──────────────── #}
+        {% else %}
+        <div class="space-y-8 w-full flex-1 flex flex-col">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
+                <div class="space-y-1">
+                    <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-primary font-bold">Admin Panel</span>
+                    <h1 class="text-3xl font-headline font-black text-white tracking-tight">Feedback Hub</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form action="/feedback-admin-portal-solix/logout" method="POST">
+                        <button type="submit"
+                            class="px-5 py-2.5 bg-surface-container-high hover:bg-surface-container-highest text-white font-mono text-xs rounded-xl border border-white/5 transition-all flex items-center gap-2">
+                            <span>Sign Out</span>
+                            <span class="material-symbols-outlined text-sm">logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Summary metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 border border-white/5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-mono text-[9px] uppercase tracking-widest text-outline">Total Feedback</p>
+                            <h3 class="text-3xl font-headline font-black text-white mt-1">{{ feedbacks|length }}</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary">forum</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 border border-white/5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-mono text-[9px] uppercase tracking-widest text-outline">Recent Submissions</p>
+                            <h3 class="text-3xl font-headline font-black text-white mt-1" id="recent-count">0</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-secondary">update</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 border border-white/5 sm:col-span-2 md:col-span-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-mono text-[9px] uppercase tracking-widest text-outline">Active Database</p>
+                            <h3 class="text-sm font-headline font-bold text-success mt-2 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-success animate-ping"></span>
+                                SQLite Live
+                            </h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-success">database</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar & Search -->
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="w-full sm:max-w-md relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline/60 text-sm">search</span>
+                    <input type="text" id="search-input"
+                        class="w-full admin-input rounded-xl pl-11 pr-4 py-3 text-xs text-white placeholder-outline/35 focus:outline-none"
+                        placeholder="Search by Name, Email or Content...">
+                </div>
+                <div class="font-mono text-[10px] text-outline/55">
+                    Showing <span id="displayed-count">{{ feedbacks|length }}</span> of {{ feedbacks|length }} submissions
+                </div>
+            </div>
+
+            <!-- Feedbacks Grid -->
+            <div class="space-y-4 flex-1" id="feedbacks-container">
+                {% for fb in feedbacks %}
+                <div class="feedback-card rounded-2xl p-6 space-y-4 relative overflow-hidden group" data-name="{{ fb.name|lower }}" data-email="{{ fb.email|lower }}" data-message="{{ fb.message|lower }}" data-date="{{ fb.created_at.isoformat() }}">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <!-- Sender metadata -->
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-sm font-headline font-bold text-white">{{ fb.name }}</h4>
+                                <span class="w-1.5 h-1.5 rounded-full bg-outline/20"></span>
+                                <span class="font-mono text-[10px] text-outline/70 formatted-date" data-utc="{{ fb.created_at.isoformat() }}">
+                                    {{ fb.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-on-surface-variant font-mono">
+                                <a href="mailto:{{ fb.email }}" class="hover:text-primary transition-colors flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">mail</span>
+                                    {{ fb.email }}
+                                </a>
+                                {% if fb.phone %}
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">phone</span>
+                                    {{ fb.phone }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button onclick="deleteFeedback('{{ fb.id }}', this.closest('.feedback-card'))"
+                                class="p-2 text-outline/40 hover:text-error hover:bg-error/10 rounded-lg transition-all flex items-center justify-center"
+                                title="Delete Feedback">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Message Body -->
+                    <div class="text-xs text-on-surface-variant leading-relaxed bg-white/[0.01] border border-white/[0.02] p-4 rounded-xl font-body whitespace-pre-wrap">
+                        {{ fb.message }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="glass-card rounded-2xl p-16 text-center border border-white/5 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto">
+                        <span class="material-symbols-outlined text-outline text-[24px]">inbox</span>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-headline font-bold text-white">No submissions found</h4>
+                        <p class="text-on-surface-variant text-xs max-w-xs mx-auto">
+                            There are currently no user feedbacks in the database.
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if authenticated %}
+<script>
+    // Format UTC Dates to Local User Timezone nicely
+    document.querySelectorAll('.formatted-date').forEach(el => {
+        const utcStr = el.getAttribute('data-utc');
+        if (utcStr) {
+            try {
+                const date = new Date(utcStr + 'Z'); // parse as UTC
+                if (!isNaN(date.getTime())) {
+                    el.textContent = date.toLocaleString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    });
+
+    // Calculate recent submissions count (last 24 hours)
+    const countRecent = () => {
+        let count = 0;
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        
+        document.querySelectorAll('.feedback-card').forEach(card => {
+            const dateStr = card.getAttribute('data-date');
+            if (dateStr) {
+                const itemDate = new Date(dateStr + 'Z');
+                if (itemDate >= oneDayAgo) count++;
+            }
+        });
+        document.getElementById('recent-count').textContent = count;
+    };
+    countRecent();
+
+    // Live search filter
+    const searchInput = document.getElementById('search-input');
+    const container = document.getElementById('feedbacks-container');
+    const displayCount = document.getElementById('displayed-count');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        const cards = container.querySelectorAll('.feedback-card');
+        let matches = 0;
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name') || "";
+            const email = card.getAttribute('data-email') || "";
+            const msg = card.getAttribute('data-message') || "";
+
+            if (name.includes(query) || email.includes(query) || msg.includes(query)) {
+                card.classList.remove('hidden');
+                matches++;
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+        displayCount.textContent = matches;
+    });
+
+    // Delete feedback request
+    async function deleteFeedback(id, cardElement) {
+        if (!confirm("Are you sure you want to delete this feedback entry? This action cannot be undone.")) return;
+
+        try {
+            const response = await fetch(`/feedback-admin-portal-solix/delete/${id}`, {
+                method: "POST"
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                cardElement.style.transform = "scale(0.9) translateY(-10px)";
+                cardElement.style.opacity = "0";
+                setTimeout(() => {
+                    cardElement.remove();
+                    // Update counts
+                    const cards = container.querySelectorAll('.feedback-card');
+                    displayCount.textContent = cards.length;
+                    document.querySelector('h3').textContent = cards.length; // total
+                    countRecent();
+                    if (cards.length === 0) {
+                        location.reload(); // reload to show empty state
+                    }
+                }, 300);
+            } else {
+                alert(result.detail || "Failed to delete feedback entry.");
+            }
+        } catch (err) {
+            alert("Connection error. Failed to delete feedback entry.");
+        }
+    }
+</script>
+{% endif %}
+{% endblock %}

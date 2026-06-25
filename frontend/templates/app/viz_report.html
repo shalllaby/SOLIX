@@ -1,0 +1,1000 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}{% if locale == 'ar' %}تقرير التحليلات المرئية{% else %}Visual Analytics Report{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}التحليلات المرئية{% else %}Visual Analytics{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / التطبيق / تقرير التحليلات المرئية{% else %}SOL / App / Visual Analytics Report{% endif %}{% endblock %}
+
+{% block head %}
+<!-- Plotly CDN -->
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+<style>
+    /* ── Layout Tokens ── */
+    .viz-panel {
+        background: rgba(20, 22, 42, 0.55);
+        border: 1px solid rgba(68, 70, 85, 0.3);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        overflow: hidden;
+        position: relative;
+    }
+    .viz-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(67,97,238,0.2), rgba(91,213,252,0.08), rgba(67,97,238,0.05));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+    .viz-panel-header {
+        padding: 1rem 1.25rem 0.75rem;
+        border-bottom: 1px solid rgba(68,70,85,0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .viz-panel-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: #e2e3f0;
+        letter-spacing: 0.02em;
+    }
+    .viz-panel-subtitle {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: #8e8fa1;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 0.15rem;
+    }
+    .viz-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    /* Mode badge */
+    .mode-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+    }
+    .mode-badge-discovery {
+        background: rgba(67,97,238,0.15);
+        color: #4361ee;
+        border: 1px solid rgba(67,97,238,0.3);
+    }
+    .mode-badge-comparison {
+        background: rgba(74,222,128,0.12);
+        color: #4ade80;
+        border: 1px solid rgba(74,222,128,0.25);
+    }
+    /* Plotly container */
+    .plotly-wrap {
+        padding: 0.75rem;
+        min-height: 200px;
+    }
+    .chart-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .chart-loading .spin {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid rgba(67,97,238,0.3);
+        border-top-color: #4361ee;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Dataset selector */
+    .ds-input {
+        background: rgba(20,22,42,0.7);
+        border: 1px solid rgba(68,70,85,0.4);
+        border-radius: 0.6rem;
+        color: #e2e3f0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.85rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .ds-input:focus { border-color: rgba(67,97,238,0.6); }
+
+    .btn-load {
+        background: linear-gradient(135deg, #4361ee, #7b2ff7);
+        color: white;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        padding: 0.5rem 1.1rem;
+        border-radius: 0.6rem;
+        border: none;
+        cursor: pointer;
+        transition: filter 0.2s, transform 0.1s;
+    }
+    .btn-load:hover  { filter: brightness(1.12); }
+    .btn-load:active { transform: scale(0.97); }
+    .btn-mode {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 0.4rem 0.9rem;
+        border-radius: 0.5rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+    }
+    .btn-mode-discovery {
+        background: rgba(67,97,238,0.12);
+        color: #4361ee;
+        border-color: rgba(67,97,238,0.3);
+    }
+    .btn-mode-discovery.active,
+    .btn-mode-discovery:hover {
+        background: rgba(67,97,238,0.25);
+        border-color: #4361ee;
+    }
+    .btn-mode-comparison {
+        background: rgba(74,222,128,0.08);
+        color: #4ade80;
+        border-color: rgba(74,222,128,0.2);
+    }
+    .btn-mode-comparison.active,
+    .btn-mode-comparison:hover {
+        background: rgba(74,222,128,0.2);
+        border-color: #4ade80;
+    }
+    /* Grid layouts */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .grid-half-full {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .col-span-2 { grid-column: span 2; }
+
+    @media (max-width: 900px) {
+        .grid-2, .grid-half-full { grid-template-columns: 1fr; }
+        .col-span-2 { grid-column: span 1; }
+    }
+
+    /* Stat pill row */
+    .stat-row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+    }
+    .stat-pill {
+        background: rgba(20,22,42,0.6);
+        border: 1px solid rgba(68,70,85,0.3);
+        border-radius: 0.75rem;
+        padding: 0.7rem 1.2rem;
+        flex: 1;
+        min-width: 110px;
+        text-align: center;
+    }
+    .stat-val {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e2e3f0;
+        line-height: 1;
+    }
+    .stat-lbl {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8e8fa1;
+        margin-top: 0.25rem;
+    }
+    /* pulse animation for score */
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(67,97,238,0); }
+        50% { box-shadow: 0 0 14px 3px rgba(67,97,238,0.25); }
+    }
+    .pulse-anim { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+    /* error state */
+    .chart-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 180px;
+        color: #f87171;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        opacity: 0.75;
+    }
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        gap: 1rem;
+        text-align: center;
+    }
+    .empty-state .material-symbols-outlined {
+        font-size: 3rem;
+        color: #4361ee;
+        opacity: 0.5;
+    }
+    .toast-viz {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 9999;
+        background: rgba(20,22,42,0.95);
+        border: 1px solid rgba(68,70,85,0.4);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        color: #e2e3f0;
+        backdrop-filter: blur(12px);
+        transform: translateY(6rem);
+        opacity: 0;
+        transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toast-viz.show { transform: translateY(0); opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══ Toast ═══ -->
+<div id="viz-toast" class="toast-viz">
+    <span id="viz-toast-icon" class="material-symbols-outlined text-base">info</span>
+    <span id="viz-toast-msg">—</span>
+</div>
+
+<!-- ═══ PAGE HEADER ═══ -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-7">
+    <div>
+        <div class="flex items-center gap-3 mb-1">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+                style="background:linear-gradient(135deg,rgba(67,97,238,0.2),rgba(91,213,252,0.12));border:1px solid rgba(91,213,252,0.25)">
+                <span class="material-symbols-outlined text-[#5bd5fc] text-xl" style="font-variation-settings:'FILL' 1">insights</span>
+            </div>
+            <h1 class="font-headline font-black text-xl text-white tracking-tight">{% if locale == 'ar' %}التحليلات المرئية{% else %}Visual Analytics{% endif %}</h1>
+            <span id="mode-badge" class="mode-badge mode-badge-discovery">{% if locale == 'ar' %}الاستكشاف{% else %}Discovery{% endif %}</span>
+        </div>
+        <p class="font-mono text-xs text-outline ml-12">{% if locale == 'ar' %}مخططات Plotly تفاعلية · الوضع الداكن · التكبير والتمرير مفعل{% else %}Interactive Plotly charts · Dark Mode · Hover &amp; Zoom enabled{% endif %}</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-2 flex-wrap">
+        <!-- Mode toggle -->
+        <button id="btn-discovery" class="btn-mode btn-mode-discovery active" onclick="switchMode('discovery')">
+            ◉ {% if locale == 'ar' %}الاستكشاف{% else %}Discovery{% endif %}
+        </button>
+        <button id="btn-comparison" class="btn-mode btn-mode-comparison" onclick="switchMode('comparison')">
+            ⇄ {% if locale == 'ar' %}المقارنة{% else %}Comparison{% endif %}
+        </button>
+
+        <div style="width:1px;height:28px;background:rgba(68,70,85,0.4);margin:0 .25rem"></div>
+
+        <!-- Dataset ID input -->
+        <input id="ds-id-input" class="ds-input w-56" placeholder="{% if locale == 'ar' %}معرف البيانات...{% else %}Dataset ID…{% endif %}"
+               title="{% if locale == 'ar' %}ألصق معرف البيانات من استوديو التنظيف{% else %}Paste a dataset_id from the Cleaning Studio{% endif %}" />
+        <button class="btn-load flex items-center gap-1.5" onclick="loadVisuals()">
+            <span class="material-symbols-outlined text-sm">auto_graph</span>
+            {% if locale == 'ar' %}تحميل{% else %}Load{% endif %}
+        </button>
+    </div>
+</div>
+
+<!-- ═══ STAT PILLS ═══ -->
+<div class="stat-row" id="stat-row" style="display:none">
+    <div class="stat-pill pulse-anim" style="border-color:rgba(67,97,238,0.35)">
+        <div class="stat-val" id="sp-rows">—</div>
+        <div class="stat-lbl">{% if locale == 'ar' %}الصفوف{% else %}Rows{% endif %}</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-val" id="sp-cols">—</div>
+        <div class="stat-lbl">{% if locale == 'ar' %}الأعمدة{% else %}Columns{% endif %}</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-val" id="sp-nulls" style="color:#f87171">—</div>
+        <div class="stat-lbl">{% if locale == 'ar' %}خلايا تالفة{% else %}Dirty Cells{% endif %}</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-val" id="sp-health" style="color:#4ade80">—</div>
+        <div class="stat-lbl">{% if locale == 'ar' %}درجة الصحة{% else %}Health Score{% endif %}</div>
+    </div>
+</div>
+
+<!-- ═══ EMPTY STATE ═══ -->
+<div id="empty-state">
+    <div class="empty-state">
+        <span class="material-symbols-outlined">query_stats</span>
+        <p class="font-headline font-bold text-white text-lg">{% if locale == 'ar' %}لم يتم تحميل أي مجموعة بيانات{% else %}No Dataset Loaded{% endif %}</p>
+        <p class="font-body text-outline text-sm max-w-md">
+            {% if locale == 'ar' %}
+            قم بلصق <strong>معرف مجموعة البيانات (Dataset ID)</strong> من استوديو التنظيف أعلاه واضغط على 
+            <strong>تحميل</strong> لإنشاء مخططات تفاعلية.<br><br>
+            يتم نسخ المعرف تلقائياً بعد الرفع أو التنظيف.
+            {% else %}
+            Paste a <strong class="text-primary">Dataset ID</strong> from the Cleaning Studio above and press
+            <strong class="text-primary">Load</strong> to generate interactive charts.<br><br>
+            The ID is copied automatically after upload or cleaning.
+            {% endif %}
+        </p>
+        <a href="/app/studio"
+           class="inline-flex items-center gap-1.5 text-primary text-sm font-bold hover:underline">
+            <span class="material-symbols-outlined text-base">{% if locale == 'ar' %}arrow_forward{% else %}arrow_back{% endif %}</span>
+            {% if locale == 'ar' %}الذهاب إلى استوديو التنظيف{% else %}Go to Cleaning Studio{% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- ═══ DISCOVERY VIEW ═══ -->
+<div id="view-discovery" style="display:none">
+
+    <!-- Row 1: Health Gauge (1/2) + Columns Missingness Bar Chart (1/2) -->
+    <div class="grid-half-full mb-4">
+
+        <!-- Health Gauge -->
+        <div class="viz-panel" id="panel-health">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(67,97,238,0.15);border:1px solid rgba(67,97,238,0.3)">
+                    <span class="material-symbols-outlined text-[#4361ee] text-lg" style="font-variation-settings:'FILL' 1">speed</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}درجة صحة البيانات{% else %}Data Health Score{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}تقييم جودة البيانات الخام{% else %}Raw data quality assessment{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap" style="min-height:280px">
+                <div class="chart-loading" id="loading-health">
+                    <div class="spin"></div>
+                    <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري حساب مؤشر الصحة...{% else %}Computing health score…{% endif %}</span>
+                </div>
+                <div id="chart-health-gauge"></div>
+            </div>
+        </div>
+
+        <!-- Columns Missingness Bar Chart -->
+        <div class="viz-panel" id="panel-heatmap">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25)">
+                    <span class="material-symbols-outlined text-[#f87171] text-lg" style="font-variation-settings:'FILL' 1">bar_chart</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}البيانات المفقودة لكل عمود{% else %}Missingness by Column{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}الأعمدة الأعلى احتواءً على خلايا فارغة أو تالفة (%){% else %}Top columns containing empty or corrupted cells (%){% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap" style="min-height:280px">
+                <div class="chart-loading" id="loading-heatmap">
+                    <div class="spin"></div>
+                    <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري فحص الخلايا الفارغة...{% else %}Scanning nulls…{% endif %}</span>
+                </div>
+                <div id="chart-missingness-heatmap"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Column Type Distribution & Data Quality Insights -->
+    <div class="grid-half-full mb-4">
+        <!-- Column Type Distribution -->
+        <div class="viz-panel" id="panel-types-discovery">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(91,213,252,0.12);border:1px solid rgba(91,213,252,0.25)">
+                    <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">category</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}توزيع أنواع الأعمدة{% else %}Column Type Distribution{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}رقمي · فئوي · تاريخ ووقت · نصي{% else %}Numeric · Categorical · DateTime · Text{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap" style="min-height:200px">
+                <div class="chart-loading" id="loading-types-discovery">
+                    <div class="spin"></div>
+                    <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري تحديد أنواع الأعمدة...{% else %}Mapping column types…{% endif %}</span>
+                </div>
+                <div id="chart-type-distribution-discovery"></div>
+            </div>
+        </div>
+
+        <!-- Data Quality Profiler Insights -->
+        <div class="viz-panel" id="panel-insights-discovery">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25)">
+                    <span class="material-symbols-outlined text-[#a855f7] text-lg" style="font-variation-settings:'FILL' 1">troubleshoot</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}رؤى وتفاصيل جودة البيانات{% else %}Data Quality Insights{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}فحص وتشخيص تلقائي لمجموعة البيانات{% else %}Automated Dataset Scan &amp; Diagnostics{% endif %}</div>
+                </div>
+            </div>
+            <div class="p-4" style="min-height:200px">
+                <div id="disco-insights-loading" class="flex flex-col items-center justify-center h-32 gap-2">
+                    <div class="w-5 h-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+                    <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري تحليل تشخيصات الجودة...{% else %}Analysing quality diagnostics…{% endif %}</span>
+                </div>
+                <ul id="disco-insights-list" class="space-y-2.5 hidden">
+                    <!-- Populated dynamically by JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Correlation Matrix (Data Analyst View) -->
+    <div class="viz-panel mb-4" id="panel-correlation-discovery">
+        <div class="viz-panel-header">
+            <div class="viz-icon" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25)">
+                <span class="material-symbols-outlined text-[#ef4444] text-lg" style="font-variation-settings:'FILL' 1">grid_on</span>
+            </div>
+            <div>
+                <div class="viz-panel-title">{% if locale == 'ar' %}مصفوفة معامل الارتباط (بيرسون){% else %}Correlation Matrix (Pearson){% endif %}</div>
+                <div class="viz-panel-subtitle">{% if locale == 'ar' %}الارتباط الخطي بين الأعمدة الرقمية (قبل التنظيف){% else %}Linear correlation between numeric features (raw){% endif %}</div>
+            </div>
+        </div>
+        <div class="plotly-wrap">
+            <div class="chart-loading" id="loading-correlation-discovery">
+                <div class="spin"></div>
+                <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري حساب مصفوفة الارتباط...{% else %}Calculating correlation matrix…{% endif %}</span>
+            </div>
+            <div id="chart-correlation-discovery"></div>
+        </div>
+    </div>
+
+    <!-- CTA: Proceed to Cleaning -->
+    <div class="flex items-center justify-between px-1 mt-2 mb-2">
+        <p class="font-mono text-xs text-outline">{% if locale == 'ar' %}راجع مؤشرات الصحة أعلاه قبل المتابعة.{% else %}Review the health indicators above before proceeding.{% endif %}</p>
+        <a href="/app/studio"
+           class="inline-flex items-center gap-2 bg-gradient-to-r from-[#4361ee] to-[#7b2ff7] text-white font-bold text-xs px-5 py-2.5 rounded-xl hover:brightness-110 transition-all">
+            <span class="material-symbols-outlined text-sm">cleaning_services</span>
+            {% if locale == 'ar' %}الانتقال إلى استوديو التنظيف{% else %}Proceed to Cleaning Studio{% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- ═══ COMPARISON VIEW ═══ -->
+<div id="view-comparison" style="display:none">
+
+    <!-- Row 1: Quality Gauge (full) -->
+    <div class="viz-panel mb-4" id="panel-quality">
+        <div class="viz-panel-header">
+            <div class="viz-icon" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25)">
+                <span class="material-symbols-outlined text-[#4ade80] text-lg" style="font-variation-settings:'FILL' 1">verified</span>
+            </div>
+            <div>
+                <div class="viz-panel-title">{% if locale == 'ar' %}مؤشر الجودة الإجمالي{% else %}Overall Quality Score{% endif %}</div>
+                <div class="viz-panel-subtitle">{% if locale == 'ar' %}نسبة تحسن الجودة بعد تشغيل محرك SOL{% else %}Score improvement after SOL Engine ran{% endif %}</div>
+            </div>
+        </div>
+        <div class="plotly-wrap">
+            <div class="chart-loading" id="loading-quality">
+                <div class="spin"></div>
+                <span class="font-mono text-xs text-outline">{% if locale == 'ar' %}جاري حساب نسبة التحسن...{% else %}Calculating improvement…{% endif %}</span>
+            </div>
+            <div id="chart-quality-gauge"></div>
+        </div>
+    </div>
+
+    <!-- Row 2: Null Comparison + Cells Fixed -->
+    <div class="grid-2 mb-4">
+        <div class="viz-panel" id="panel-nulls">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25)">
+                    <span class="material-symbols-outlined text-[#f87171] text-lg" style="font-variation-settings:'FILL' 1">remove_circle</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}القيم المفقودة: قبل مقابل بعد{% else %}Missing Values: Before vs After{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}عدد القيم الفارغة لكل عمود{% else %}Null count per column{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-nulls">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-null-comparison"></div>
+            </div>
+        </div>
+
+        <div class="viz-panel" id="panel-fixed">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25)">
+                    <span class="material-symbols-outlined text-[#4ade80] text-lg" style="font-variation-settings:'FILL' 1">check_circle</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}الخلايا التي تم إصلاحها لكل عمود{% else %}Cells Fixed per Column{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}أعلى 15 عموداً من حيث عدد الإصلاحات{% else %}Top 15 columns by fix count{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-fixed">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-cells-fixed"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Box Plots + Type Dist -->
+    <div class="grid-2 mb-4">
+        <div class="viz-panel" id="panel-boxes">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(123,47,247,0.15);border:1px solid rgba(123,47,247,0.3)">
+                    <span class="material-symbols-outlined text-[#7b2ff7] text-lg" style="font-variation-settings:'FILL' 1">leaderboard</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}توزيع القيم الشاذة (Outliers){% else %}Outlier Distribution{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}مخططات الصندوق · قبل مقابل بعد{% else %}Box plots · Before vs After{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-boxes">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-outlier-boxplots"></div>
+            </div>
+        </div>
+
+        <div class="viz-panel" id="panel-types-comp">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(91,213,252,0.12);border:1px solid rgba(91,213,252,0.25)">
+                    <span class="material-symbols-outlined text-[#5bd5fc] text-lg" style="font-variation-settings:'FILL' 1">category</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}توزيع أنواع الأعمدة{% else %}Column Type Distribution{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}بنية مجموعة البيانات المنظفة{% else %}Cleaned dataset schema{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-types-comp">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-type-distribution-comp"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 4: Advanced Data Analyst Profiling -->
+    <div class="grid-2 mb-4">
+        <div class="viz-panel" id="panel-correlation-comparison">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(79,70,229,0.12);border:1px solid rgba(79,70,229,0.25)">
+                    <span class="material-symbols-outlined text-[#4f46e5] text-lg" style="font-variation-settings:'FILL' 1">grid_on</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}مصفوفة معامل الارتباط بعد التنظيف{% else %}Correlation Matrix (Cleaned){% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}الارتباط الخطي بين الأعمدة الرقمية بعد المعالجة{% else %}Linear correlation between numeric features (cleaned){% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-correlation-comparison">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-correlation-comparison"></div>
+            </div>
+        </div>
+
+        <div class="viz-panel" id="panel-distribution-drift">
+            <div class="viz-panel-header">
+                <div class="viz-icon" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.25)">
+                    <span class="material-symbols-outlined text-[#ec4899] text-lg" style="font-variation-settings:'FILL' 1">analytics</span>
+                </div>
+                <div>
+                    <div class="viz-panel-title">{% if locale == 'ar' %}مخطط مقارنة توزيع البيانات (انزياح التوزيع){% else %}Distribution Drift Comparison{% endif %}</div>
+                    <div class="viz-panel-subtitle">{% if locale == 'ar' %}مقارنة توزيع القيم قبل وبعد المعالجة{% else %}Value distributions before vs after cleaning{% endif %}</div>
+                </div>
+            </div>
+            <div class="plotly-wrap">
+                <div class="chart-loading" id="loading-distribution-drift">
+                    <div class="spin"></div>
+                </div>
+                <div id="chart-distribution-drift"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+// ── Plotly render config (dark, responsive, interactive) ──
+const PLOTLY_CONFIG = {
+    responsive: true,
+    scrollZoom: true,
+    displayModeBar: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ['select2d', 'lasso2d'],
+    toImageButtonOptions: { format: 'png', filename: 'sol_viz_report', scale: 2 },
+};
+
+// ── State ──
+let currentMode = 'discovery';
+let currentDatasetId = null;
+
+// ── On load: try to restore from localStorage ──
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('sol_dataset_id');
+    if (saved) {
+        document.getElementById('ds-id-input').value = saved;
+    }
+});
+
+// ── Mode toggle ──
+function switchMode(mode) {
+    currentMode = mode;
+    const badge = document.getElementById('mode-badge');
+    document.getElementById('btn-discovery').classList.toggle('active', mode === 'discovery');
+    document.getElementById('btn-comparison').classList.toggle('active', mode === 'comparison');
+    document.getElementById('view-discovery').style.display = mode === 'discovery' ? 'block' : 'none';
+    document.getElementById('view-comparison').style.display = mode === 'comparison' ? 'block' : 'none';
+
+    const isAr = getLocale() === 'ar';
+    if (mode === 'discovery') {
+        badge.textContent = isAr ? 'استكشاف' : 'Discovery';
+        badge.className = 'mode-badge mode-badge-discovery';
+    } else {
+        badge.textContent = isAr ? 'مقارنة' : 'Comparison';
+        badge.className = 'mode-badge mode-badge-comparison';
+    }
+
+    // Auto-load if we already have a dataset
+    if (currentDatasetId) loadVisuals();
+}
+
+// ── Main load function ──
+async function loadVisuals() {
+    const dsId = document.getElementById('ds-id-input').value.trim();
+    if (!dsId) {
+        showToast(getLocale() === 'ar' ? 'برجاء إدخال معرف البيانات' : 'Please enter a Dataset ID', 'error');
+        return;
+    }
+
+    currentDatasetId = dsId;
+    localStorage.setItem('sol_dataset_id', dsId);
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('stat-row').style.display     = 'flex';
+
+    // Hydrate stat row values dynamically from metadata
+    try {
+        const metaRes = await fetch(`/api/metadata/${dsId}`);
+        if (metaRes.ok) {
+            const meta = await metaRes.json();
+            const cols = meta.columns_info || [];
+            const rows = meta.rows || 0;
+            const totalMissing = cols.reduce((s, c) => s + (c.missing_count || 0), 0);
+            const totalCells = rows * cols.length;
+            const overallMissingPct = totalCells > 0 ? (totalMissing / totalCells) * 100 : 0;
+            const health = meta.quality_score !== undefined ? Math.round(meta.quality_score * 100) : Math.round(100 - overallMissingPct);
+            
+            document.getElementById('sp-rows').textContent = rows.toLocaleString();
+            document.getElementById('sp-cols').textContent = cols.length.toLocaleString();
+            document.getElementById('sp-nulls').textContent = totalMissing.toLocaleString();
+            document.getElementById('sp-health').textContent = health + '%';
+        }
+    } catch (e) {
+        console.error("Failed to load metadata for stat pills", e);
+    }
+
+    if (currentMode === 'discovery') {
+        document.getElementById('view-discovery').style.display  = 'block';
+        document.getElementById('view-comparison').style.display = 'none';
+        await loadDiscovery(dsId);
+    } else {
+        document.getElementById('view-discovery').style.display  = 'none';
+        document.getElementById('view-comparison').style.display = 'block';
+        await loadComparison(dsId);
+    }
+}
+
+// ── Discovery fetch & render ──
+async function loadDiscovery(dsId) {
+    showLoadingAll(['health', 'heatmap', 'types-discovery', 'correlation-discovery']);
+    
+    // Reset insights loading state
+    const loadingEl = document.getElementById('disco-insights-loading');
+    const listEl = document.getElementById('disco-insights-list');
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (listEl) listEl.classList.add('hidden');
+
+    try {
+        // Run both in parallel
+        const [res, metaRes] = await Promise.all([
+            fetch(`/api/viz/${dsId}/discovery`),
+            fetch(`/api/metadata/${dsId}`)
+        ]);
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || (getLocale() === 'ar' ? 'لم يتم العثور على بيانات الاستكشاف' : 'Discovery data not found'));
+        }
+        const data = await res.json();
+
+        renderChart('chart-health-gauge',            'loading-health',          data.health_gauge);
+        renderChart('chart-missingness-heatmap',     'loading-heatmap',         data.missingness_heatmap);
+        renderChart('chart-type-distribution-discovery', 'loading-types-discovery', data.type_distribution);
+        renderChart('chart-correlation-discovery',   'loading-correlation-discovery', data.correlation_heatmap);
+
+        if (metaRes.ok) {
+            const meta = await metaRes.json();
+            renderDiscoveryInsights(meta);
+        } else {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (listEl) {
+                listEl.classList.remove('hidden');
+                listEl.innerHTML = `<li class="text-xs text-outline italic py-8 text-center">${getLocale() === 'ar' ? 'فشل تحميل تفاصيل مجموعة البيانات.' : 'Failed to load dataset insights.'}</li>`;
+            }
+        }
+
+        showToast(getLocale() === 'ar' ? 'تم تحميل مخططات الاستكشاف بنجاح' : 'Discovery charts loaded', 'success');
+    } catch(e) {
+        showAllError(['loading-health','loading-heatmap','loading-types-discovery'], e.message);
+        showToast(e.message, 'error');
+        if (loadingEl) loadingEl.classList.add('hidden');
+    }
+}
+
+function renderDiscoveryInsights(meta) {
+    const listEl = document.getElementById('disco-insights-list');
+    const loadingEl = document.getElementById('disco-insights-loading');
+    if (!listEl) return;
+    
+    if (loadingEl) loadingEl.classList.add('hidden');
+    listEl.classList.remove('hidden');
+    
+    const cols = (meta && meta.columns_info) || [];
+    const rows = (meta && meta.rows) || 0;
+    
+    let insights = [];
+    const isAr = getLocale() === 'ar';
+    
+    // 1. Check for missing values
+    const missingCols = cols.filter(c => c.missing_count > 0);
+    const totalMissing = cols.reduce((s, c) => s + (c.missing_count || 0), 0);
+    const totalCells = rows * cols.length;
+    const overallMissingPct = totalCells > 0 ? (totalMissing / totalCells) * 100 : 0;
+    
+    if (missingCols.length > 0) {
+        insights.push({
+            type: 'warning',
+            icon: 'warning',
+            color: 'text-amber-400',
+            bgColor: 'rgba(252,211,77,0.1)',
+            borderColor: 'rgba(252,211,77,0.2)',
+            title: isAr ? `تم رصد بيانات مفقودة` : `Missing Data Detected`,
+            desc: isAr 
+                ? `تم العثور على <strong>${totalMissing.toLocaleString()}</strong> قيمة مفقودة في <strong>${missingCols.length}</strong> عمودًا (${overallMissingPct.toFixed(1)}% من إجمالي مجموعة البيانات).`
+                : `Found <strong>${totalMissing.toLocaleString()}</strong> missing values across <strong>${missingCols.length}</strong> columns (${overallMissingPct.toFixed(1)}% of total dataset).`
+        });
+    } else {
+        insights.push({
+            type: 'success',
+            icon: 'check_circle',
+            color: 'text-emerald-400',
+            bgColor: 'rgba(52,211,153,0.1)',
+            borderColor: 'rgba(52,211,153,0.2)',
+            title: isAr ? `بيانات مكتملة بالكامل` : `Complete Dataset`,
+            desc: isAr 
+                ? `ممتاز! لم يتم العثور على أي قيم مفقودة أو فارغة في أي من الأعمدة.`
+                : `Outstanding! No missing or null values were found in any of the columns.`
+        });
+    }
+    
+    // 2. Constant columns check
+    const constantCols = cols.filter(c => c.unique_values === 1);
+    if (constantCols.length > 0) {
+        const names = constantCols.map(c => c.name).join(', ');
+        insights.push({
+            type: 'danger',
+            icon: 'report',
+            color: 'text-red-400',
+            bgColor: 'rgba(248,113,113,0.1)',
+            borderColor: 'rgba(248,113,113,0.2)',
+            title: isAr ? `أعمدة ذات قيمة واحدة ثابتة` : `Constant Columns`,
+            desc: isAr 
+                ? `الأعمدة <strong>${names}</strong> تحتوي على قيمة فريدة واحدة فقط. لا تقدم أي تباين تنبؤي.`
+                : `Columns <strong>${names}</strong> contain only 1 unique value. They provide zero predictive variance.`
+        });
+    }
+    
+    // 3. High cardinality text/categorical columns
+    const highCardCols = cols.filter(c => c.unique_values > 100 && (c.semantic_type === 'Categorical' || c.semantic_type === 'Text'));
+    if (highCardCols.length > 0) {
+        const names = highCardCols.map(c => c.name).slice(0, 3).join(', ') + (highCardCols.length > 3 ? '...' : '');
+        insights.push({
+            type: 'info',
+            icon: 'info',
+            color: 'text-sky-400',
+            bgColor: 'rgba(56,189,248,0.1)',
+            borderColor: 'rgba(56,189,248,0.2)',
+            title: isAr ? `تباين كبير في القيم` : `High Cardinality`,
+            desc: isAr 
+                ? `الأعمدة مثل <strong>${names}</strong> تحتوي على تباين كبير في القيم. يوصى بتنظيفها قبل تدريب النموذج.`
+                : `Columns like <strong>${names}</strong> have high cardinality. Cleaning recommended prior to model training.`
+        });
+    }
+    
+    // 4. Target candidates
+    const candidates = cols.filter(c => c.is_target_candidate);
+    if (candidates.length > 0) {
+        insights.push({
+            type: 'success',
+            icon: 'ads_click',
+            color: 'text-purple-400',
+            bgColor: 'rgba(168,85,247,0.1)',
+            borderColor: 'rgba(168,85,247,0.2)',
+            title: isAr ? `أعمدة صالحة للتحليل كأهداف` : `Target Candidate Columns`,
+            desc: isAr 
+                ? `لقد حددنا <strong>${candidates.length}</strong> عمودًا فئويًا/رقميًا مناسبًا كأهداف لتعلم الآلة.`
+                : `We identified <strong>${candidates.length}</strong> clean categorical/numeric columns suitable as machine learning targets.`
+        });
+    }
+    
+    // Render the items
+    if (insights.length === 0) {
+        listEl.innerHTML = `<li class="text-xs text-outline italic py-8 text-center">${isAr ? 'لم يتم رصد أي مشكلات أو قيم شاذة.' : 'No dataset issues or anomalies detected.'}</li>`;
+    } else {
+        listEl.innerHTML = insights.map(ins => `
+            <li class="flex gap-3 p-3 rounded-xl border animate-fade-in" style="background:${ins.bgColor};border-color:${ins.borderColor}">
+                <span class="material-symbols-outlined ${ins.color} text-lg mt-0.5" style="font-variation-settings:'FILL' 1">${ins.icon}</span>
+                <div class="flex-1">
+                    <p class="font-headline font-bold text-white text-xs leading-normal">${ins.title}</p>
+                    <p class="font-body text-[11px] text-on-surface-variant/80 mt-0.5 leading-relaxed">${ins.desc}</p>
+                </div>
+            </li>
+        `).join('');
+    }
+}
+
+// ── Comparison fetch & render ──
+async function loadComparison(dsId) {
+    showLoadingAll(['quality', 'nulls', 'fixed', 'boxes', 'types-comp', 'correlation-comparison', 'distribution-drift']);
+    try {
+        const res = await fetch(`/api/viz/${dsId}/comparison`);
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || (getLocale() === 'ar' ? 'لم يتم العثور على بيانات المقارنة. نظف مجموعة البيانات أولاً.' : 'Comparison data not found. Clean the dataset first.'));
+        }
+        const data = await res.json();
+
+        renderChart('chart-quality-gauge',          'loading-quality', data.quality_gauge);
+        renderChart('chart-null-comparison',         'loading-nulls',   data.null_comparison);
+        renderChart('chart-cells-fixed',             'loading-fixed',   data.cells_fixed);
+        renderChart('chart-outlier-boxplots',        'loading-boxes',   data.outlier_boxplots);
+        renderChart('chart-type-distribution-comp',  'loading-types-comp', data.type_distribution);
+        renderChart('chart-correlation-comparison',  'loading-correlation-comparison', data.correlation_heatmap);
+        renderChart('chart-distribution-drift',      'loading-distribution-drift', data.distribution_drift);
+
+        showToast(getLocale() === 'ar' ? 'تم تحميل مخططات المقارنة بنجاح' : 'Comparison charts loaded', 'success');
+    } catch(e) {
+        showAllError(['loading-quality','loading-nulls','loading-fixed','loading-boxes','loading-types-comp', 'loading-correlation-comparison', 'loading-distribution-drift'], e.message);
+        showToast(e.message, 'error');
+    }
+}
+
+// ── Render a single Plotly figure ──
+function renderChart(divId, loadingId, figJson) {
+    // Hide spinner
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (!figJson) {
+        showError(loadingId, getLocale() === 'ar' ? 'لم يتم إرجاع أي بيانات' : 'No data returned');
+        return;
+    }
+
+    const fig = typeof figJson === 'string' ? JSON.parse(figJson) : figJson;
+
+    // Patch layout for SOL dark theme
+    if (fig.layout) {
+        fig.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+        fig.layout.plot_bgcolor  = 'rgba(0,0,0,0)';
+        fig.layout.font          = { 
+            family: 'Inter, system-ui, -apple-system, sans-serif', 
+            color: '#e2e3f0', 
+            size: 10 
+        };
+        
+        // Allow dynamic height and margin overrides for proper text legibility
+        if (divId === 'chart-missingness-heatmap') {
+            fig.layout.height = 280;
+            fig.layout.margin = { l: 140, r: 25, t: 15, b: 35 };
+        } else if (divId === 'chart-type-distribution-discovery' || divId === 'chart-type-distribution-comp') {
+            fig.layout.height = 180;
+            fig.layout.margin = { l: 85, r: 15, t: 15, b: 25 };
+        } else if (divId === 'chart-health-gauge' || divId === 'chart-quality-gauge') {
+            fig.layout.height = 240;
+            fig.layout.margin = { l: 15, r: 15, t: 30, b: 15 };
+        } else if (divId === 'chart-cells-fixed') {
+            fig.layout.height = Math.max(220, fig.layout.height || 220);
+            fig.layout.margin = { l: 100, r: 15, t: 15, b: 25 };
+        } else if (divId === 'chart-correlation-discovery' || divId === 'chart-correlation-comparison') {
+            fig.layout.height = 320;
+            fig.layout.margin = { l: 90, r: 25, t: 25, b: 65 };
+        } else if (divId === 'chart-distribution-drift') {
+            fig.layout.height = 320;
+            fig.layout.margin = { l: 50, r: 25, t: 25, b: 45 };
+        } else {
+            fig.layout.height = fig.layout.height || 220;
+            fig.layout.margin = { l: 40, r: 15, t: 25, b: 35 };
+        }
+    }
+
+    Plotly.react(divId, fig.data || [], fig.layout || {}, PLOTLY_CONFIG);
+}
+
+// ── Helpers ──
+function showLoadingAll(keys) {
+    keys.forEach(k => {
+        const el = document.getElementById(`loading-${k}`);
+        if (el) {
+            el.style.display = 'flex';
+            el.innerHTML = `<div class="spin"></div><span class="font-mono text-xs text-outline">${getLocale() === 'ar' ? 'جاري التحميل...' : 'Loading…'}</span>`;
+        }
+    });
+}
+
+function showAllError(loadingIds, msg) {
+    loadingIds.forEach(id => showError(id, msg));
+}
+
+function showError(loadingId, msg) {
+    const el = document.getElementById(loadingId);
+    if (el) {
+        el.style.display = 'flex';
+        el.innerHTML = `
+            <span class="material-symbols-outlined text-[#f87171] text-2xl">error_outline</span>
+            <span class="font-mono text-xs text-[#f87171]">${msg}</span>`;
+    }
+}
+
+// ── Toast ──
+let toastTimer = null;
+function showToast(msg, type = 'info') {
+    const icons = { info: 'info', success: 'check_circle', error: 'error' };
+    const colors = { info: '#5bd5fc', success: '#4ade80', error: '#f87171' };
+    document.getElementById('viz-toast-msg').textContent = msg;
+    const icon = document.getElementById('viz-toast-icon');
+    if (icon) {
+        icon.textContent = icons[type] || 'info';
+        icon.style.color = colors[type] || '#5bd5fc';
+    }
+    const toast = document.getElementById('viz-toast');
+    if (toast) {
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+}
+</script>
+
+{% endblock %}

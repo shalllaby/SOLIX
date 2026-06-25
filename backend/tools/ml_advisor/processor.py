@@ -7,14 +7,13 @@ import urllib.error
 import warnings
 from typing import List, Dict, Any, Optional
 from scipy import stats
+from groq import AsyncGroq
 
 warnings.filterwarnings("ignore")
 
 class MLAdvisorProcessor:
     def __init__(self, api_key: str = None):
-        # Use the key from the 'منه' project as a default fallback for high-fidelity reasoning
-        self.api_key = api_key or os.getenv("GROQ_API_KEY") or "your_api_key_here"
-        self.endpoint = "https://api.groq.com/openai/v1/chat/completions"
+        self.api_key = api_key
         self.model = "llama-3.3-70b-versatile"
 
     def profile_dataset(self, df: pd.DataFrame, target_column: str = None) -> Dict[str, Any]:
@@ -91,7 +90,7 @@ class MLAdvisorProcessor:
         # ── 4. Health Metrics ───────────────────────────────────────────────────
         missing_rates = df.isnull().mean().round(4).to_dict()
         missing_rates = {str(k): float(v) for k, v in missing_rates.items()}
-        overall_missing_pct = round(df.isnull().values.mean() * 100, 4)
+        overall_missing_pct = round(float(df.isnull().values.mean() * 100), 4)
 
         skewness: dict[str, float] = {}
         for col in numerical_cols[:20]:
@@ -117,9 +116,15 @@ class MLAdvisorProcessor:
             "target_column": target_column
         }
 
-    def get_recommendations(self, profile: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def get_recommendations(self, profile: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Uses LLM (Groq Llama-3.3-70b) to reason about the best ML models using 'منه' logic."""
         
+        resolved_key = self.api_key or os.getenv("GROQ_API_KEY")
+        if not resolved_key or resolved_key.strip() == "" or resolved_key == "your_api_key_here":
+            raise ValueError("Groq API Key is not configured. Please set it in Settings.")
+
+        client = AsyncGroq(api_key=resolved_key)
+
         system_prompt = """You are an expert Machine Learning Solutions Architect. Your task is to provide 
 a high-level strategic recommendation for building a predictive model based on 
 the provided dataset metadata.
@@ -153,65 +158,38 @@ Output Format (strict JSON):
 """
         user_message = f"Please analyse the following dataset metadata packet and provide your top-3 ML model recommendations in the required JSON format.\n\n```json\n{json.dumps(profile, indent=2)}\n```"
 
-        payload = json.dumps({
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message},
-            ],
-            "temperature": 0.2,
-            "max_tokens": 1024,
-            "response_format": {"type": "json_object"},
-        }).encode("utf-8")
-
-        req = urllib.request.Request(
-            self.endpoint,
-            data=payload,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
-                "User-Agent": "Mozilla/5.0",
-            },
-            method="POST",
-        )
-
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                body = json.loads(resp.read().decode("utf-8"))
-                content = body["choices"][0]["message"]["content"]
+            response = await client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ],
+                temperature=0.2,
+                max_tokens=1024,
+                response_format={"type": "json_object"},
+            )
+            
+            try:
+                from backend.utils.llm_logger import log_groq_response
+                log_groq_response(response, module_name="advisor")
+            except Exception as e_log:
+                print(f"Failed to log advisor token usage: {e_log}")
                 
-                # Parse JSON result
-                data = json.loads(content)
-                if isinstance(data, dict) and "recommendations" in data:
-                    recs = data["recommendations"]
-                    # Add reasoning if missing (fallback for UI compatibility)
-                    for r in recs:
-                        if "reasoning" not in r:
-                            r["reasoning"] = r.get("pros", "Strategic fit for dataset topology.")
-                    return recs
-                elif isinstance(data, list):
-                    return data
-                return []
+            content = response.choices[0].message.content or "{}"
+            
+            # Parse JSON result
+            data = json.loads(content)
+            if isinstance(data, dict) and "recommendations" in data:
+                recs = data["recommendations"]
+                # Add reasoning if missing (fallback for UI compatibility)
+                for r in recs:
+                    if "reasoning" not in r:
+                        r["reasoning"] = r.get("pros", "Strategic fit for dataset topology.")
+                return recs
+            elif isinstance(data, list):
+                return data
+            return []
         except Exception as e:
             print(f"ML Advisor API Error: {e}")
-            # Robust fallback logic
-            return [
-                {
-                    "model": "XGBoost Classifier",
-                    "score": 94,
-                    "pros": "High performance on tabular data, handles missing values natively.",
-                    "reasoning": "Standard industry choice for structured datasets with complex non-linear relationships."
-                },
-                {
-                    "model": "Random Forest",
-                    "score": 88,
-                    "pros": "Less prone to overfitting, provides feature importance out-of-the-box.",
-                    "reasoning": "Excellent baseline model that handles both categorical and numerical data effectively."
-                },
-                {
-                    "model": "LightGBM",
-                    "score": 91,
-                    "pros": "Faster training speed and higher efficiency with large datasets.",
-                    "reasoning": "Optimized gradient boosting framework for large-scale production environments."
-                }
-            ]
+            raise e

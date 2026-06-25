@@ -1,0 +1,347 @@
+{
+    "leaderboard": [
+        {
+            "model_name": "Tuned_DecisionTree",
+            "fit_time": 3.156153917312622,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 1.0,
+            "cv_std": 0.0,
+            "generalization_gap": 0.0,
+            "composite_score": 0.95,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "Tuned_LogisticRegression",
+            "fit_time": 0.12224149703979492,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 0.9999999999999999
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 1.0,
+            "cv_std": 0.0,
+            "generalization_gap": 0.0,
+            "composite_score": 0.95,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "DecisionTree",
+            "fit_time": 0.003664255142211914,
+            "train_metrics": {
+                "accuracy": 0.9625,
+                "precision": 1.0,
+                "recall": 0.9117647058823529,
+                "f1": 0.9538461538461539,
+                "roc_auc": 0.9846547314578006
+            },
+            "val_metrics": {
+                "accuracy": 0.95,
+                "precision": 1.0,
+                "recall": 0.8888888888888888,
+                "f1": 0.9411764705882353,
+                "roc_auc": 0.9797979797979798
+            },
+            "cv_mean": 0.951048951048951,
+            "cv_std": 0.040293315498987216,
+            "generalization_gap": 0.012669683257918618,
+            "composite_score": 0.9165968531558873,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "LogisticRegression",
+            "fit_time": 0.023543357849121094,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.9846153846153847,
+            "cv_std": 0.03076923076923075,
+            "generalization_gap": 0.0,
+            "composite_score": 0.9130769230769231,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "ExtraTrees",
+            "fit_time": 0.18924903869628906,
+            "train_metrics": {
+                "accuracy": 0.9625,
+                "precision": 1.0,
+                "recall": 0.9117647058823529,
+                "f1": 0.9538461538461539,
+                "roc_auc": 0.998081841432225
+            },
+            "val_metrics": {
+                "accuracy": 0.95,
+                "precision": 1.0,
+                "recall": 0.8888888888888888,
+                "f1": 0.9411764705882353,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.951048951048951,
+            "cv_std": 0.040293315498987216,
+            "generalization_gap": 0.012669683257918618,
+            "composite_score": 0.9015968531558873,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "CatBoost",
+            "fit_time": 0.23543405532836914,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.9846153846153847,
+            "cv_std": 0.03076923076923075,
+            "generalization_gap": 0.0,
+            "composite_score": 0.8980769230769231,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "Tuned_ExtraTrees",
+            "fit_time": 2.255929946899414,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.9846153846153847,
+            "cv_std": 0.03076923076923075,
+            "generalization_gap": 0.0,
+            "composite_score": 0.8980769230769231,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Recommended"
+            ]
+        },
+        {
+            "model_name": "SVM",
+            "fit_time": 0.006898164749145508,
+            "train_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "val_metrics": {
+                "accuracy": 1.0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.9664335664335665,
+            "cv_std": 0.04134753985760694,
+            "generalization_gap": 0.0,
+            "composite_score": 0.8852258867158197,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "RandomForest",
+            "fit_time": 0.23181867599487305,
+            "train_metrics": {
+                "accuracy": 0.9625,
+                "precision": 1.0,
+                "recall": 0.9117647058823529,
+                "f1": 0.9538461538461539,
+                "roc_auc": 0.9961636828644501
+            },
+            "val_metrics": {
+                "accuracy": 0.95,
+                "precision": 1.0,
+                "recall": 0.8888888888888888,
+                "f1": 0.9411764705882353,
+                "roc_auc": 1.0
+            },
+            "cv_mean": 0.871048951048951,
+            "cv_std": 0.13925294769495222,
+            "generalization_gap": 0.012669683257918618,
+            "composite_score": 0.7706372209599223,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "High Variance",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "KNN",
+            "fit_time": 0.002137422561645508,
+            "train_metrics": {
+                "accuracy": 0.8375,
+                "precision": 0.8387096774193549,
+                "recall": 0.7647058823529411,
+                "f1": 0.8,
+                "roc_auc": 0.9379795396419438
+            },
+            "val_metrics": {
+                "accuracy": 0.8,
+                "precision": 0.7777777777777778,
+                "recall": 0.7777777777777778,
+                "f1": 0.7777777777777778,
+                "roc_auc": 0.8888888888888888
+            },
+            "cv_mean": 0.6143656343656343,
+            "cv_std": 0.17129206145759615,
+            "generalization_gap": 0.022222222222222254,
+            "composite_score": 0.5855653033997686,
+            "status_indicator": "Stable",
+            "labels": [
+                "Stable",
+                "High Variance",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "LightGBM",
+            "fit_time": 0.05502629280090332,
+            "train_metrics": {
+                "accuracy": 0.8625,
+                "precision": 1.0,
+                "recall": 0.6764705882352942,
+                "f1": 0.8070175438596491,
+                "roc_auc": 0.926470588235294
+            },
+            "val_metrics": {
+                "accuracy": 0.8,
+                "precision": 1.0,
+                "recall": 0.5555555555555556,
+                "f1": 0.7142857142857143,
+                "roc_auc": 0.8383838383838383
+            },
+            "cv_mean": 0.30158730158730157,
+            "cv_std": 0.08278352260574791,
+            "generalization_gap": 0.09273182957393478,
+            "composite_score": 0.4871997689564911,
+            "status_indicator": "Slight Overfitting",
+            "labels": [
+                "Slight Overfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        },
+        {
+            "model_name": "XGBoost",
+            "fit_time": 0.10547471046447754,
+            "train_metrics": {
+                "accuracy": 0.575,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "roc_auc": 0.5453964194373402
+            },
+            "val_metrics": {
+                "accuracy": 0.55,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "roc_auc": 0.6515151515151516
+            },
+            "cv_mean": 0.05714285714285714,
+            "cv_std": 0.11428571428571428,
+            "generalization_gap": 0.0,
+            "composite_score": 0.09357142857142858,
+            "status_indicator": "Underfitting",
+            "labels": [
+                "Underfitting",
+                "High Variance",
+                "Experimental"
+            ]
+        }
+    ],
+    "model_status": {
+        "LogisticRegression": "completed",
+        "KNN": "completed",
+        "SVM": "completed",
+        "DecisionTree": "completed",
+        "RandomForest": "completed",
+        "ExtraTrees": "completed",
+        "XGBoost": "completed",
+        "LightGBM": "completed",
+        "CatBoost": "completed",
+        "Tuned_DecisionTree": "completed",
+        "Tuned_LogisticRegression": "completed",
+        "Tuned_ExtraTrees": "completed"
+    },
+    "model_errors": {}
+}

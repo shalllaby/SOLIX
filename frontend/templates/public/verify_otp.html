@@ -1,0 +1,290 @@
+{% extends 'public/_public_layout.html' %}
+
+{% block page_title %}Verify OTP{% endblock %}
+{% block meta_description %}Verify your email address to activate your SOLIX workspace.{% endblock %}
+
+{# ── Auth mode: suppress navbar & footer ── #}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block footer_spacer %}{% endblock %}
+{% block page_wrapper_open %}<main class="min-h-screen flex flex-row overflow-hidden">{% endblock %}
+    {% block page_wrapper_close %}</main>{% endblock %}
+
+{% block content %}
+{# Kinetic Observatory left panel #}
+{% include 'public/_auth_left_panel.html' %}
+
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-6px); }
+        40%, 80% { transform: translateX(6px); }
+    }
+    .shake {
+        animation: shake 0.4s ease-in-out;
+    }
+</style>
+
+<!-- RIGHT: OTP Form -->
+<section
+    class="flex-1 flex flex-col items-center justify-center px-6 py-10 md:px-12 lg:px-20 bg-surface overflow-y-auto">
+    <!-- Mobile logo -->
+    <div class="md:hidden flex items-center mb-10 w-full max-w-md">
+        <img src="/static/solix (2).png" alt="SOLIX"
+             style="height:44px; width:auto; object-fit:contain; mix-blend-mode:screen; filter:drop-shadow(0 0 8px rgba(91,213,252,0.40));">
+    </div>
+
+    <div class="w-full max-w-md space-y-7" id="otpCard">
+        <!-- Heading -->
+        <div class="space-y-1.5">
+            <h2 class="text-3xl font-headline font-bold text-white tracking-tight">Security Check</h2>
+            <p id="verifySubtitle" class="text-on-surface-variant font-body text-sm">Enter the 6-digit code sent to your email</p>
+        </div>
+
+        <div id="alertBox" class="hidden p-4 rounded-xl text-sm font-semibold tracking-wide transition-all"></div>
+
+        <form id="verifyForm" class="space-y-6">
+            <div class="otp-wrapper flex justify-between gap-3 my-6">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                <input type="text" class="otp-field w-12 h-14 bg-surface-container-low border border-outline-variant/20 focus:border-primary-container/60 focus:ring-2 focus:ring-primary-container/25 rounded-xl text-white text-2xl font-bold text-center outline-none transition-all duration-200" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+            </div>
+
+            <div class="text-center font-body text-xs text-on-surface-variant">
+                Code expires in: <span id="expireTimer" class="text-primary font-bold">05:00</span>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-[#7b2ff7] text-white font-label font-bold text-sm tracking-wide shadow-[0_0_28px_rgba(67,97,238,0.30)] hover:shadow-[0_0_40px_rgba(67,97,238,0.50)] hover:brightness-110 active:scale-[0.98] transition-all duration-200">
+                Verify Account
+            </button>
+        </form>
+
+        <div class="pt-4 flex flex-col gap-3 justify-center items-center">
+            <button type="button" id="resendBtn" 
+                class="px-5 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container hover:border-outline-variant/40 text-xs font-semibold text-white transition-all duration-200 active:scale-[0.97]" disabled>
+                Resend OTP (<span id="resendCooldown">60</span>s)
+            </button>
+            <a href="/login" class="text-xs text-primary font-bold hover:underline">Back to Sign In</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Extract email from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email') || '';
+    
+    if (email) {
+        document.getElementById('verifySubtitle').innerHTML = `Enter the 6-digit code sent to <br><span class="text-white font-bold">${email}</span>`;
+    }
+
+    const otpFields = document.querySelectorAll('.otp-field');
+    const form = document.getElementById('verifyForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    const resendCooldownText = document.getElementById('resendCooldown');
+    const expireTimerText = document.getElementById('expireTimer');
+    const alertBox = document.getElementById('alertBox');
+    const otpCard = document.getElementById('otpCard');
+
+    // Auto focus movement, backspace, and paste events
+    otpFields.forEach((field, index) => {
+        // Auto focus shift on type
+        field.addEventListener('input', (e) => {
+            const val = e.target.value;
+            // Clean non-numeric input
+            e.target.value = val.replace(/[^0-9]/g, '');
+            
+            if (e.target.value.length === 1 && index < otpFields.length - 1) {
+                otpFields[index + 1].focus();
+            }
+        });
+
+        // Backspace key navigation
+        field.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace') {
+                if (field.value.length === 0 && index > 0) {
+                    otpFields[index - 1].focus();
+                    otpFields[index - 1].value = '';
+                } else {
+                    field.value = '';
+                }
+                e.preventDefault();
+            }
+        });
+
+        // Paste support
+        field.addEventListener('paste', (e) => {
+            const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d{6}$/.test(pasteData)) {
+                for (let i = 0; i < otpFields.length; i++) {
+                    otpFields[i].value = pasteData[i];
+                }
+                otpFields[otpFields.length - 1].focus();
+            }
+            e.preventDefault();
+        });
+    });
+
+    // Auto-focus on the first box on load
+    if (otpFields.length > 0) {
+        otpFields[0].focus();
+    }
+
+    // OTP Expiration Countdown (5 minutes)
+    let expireSecondsRemaining = 300;
+    const expireInterval = setInterval(() => {
+        expireSecondsRemaining--;
+        if (expireSecondsRemaining <= 0) {
+            clearInterval(expireInterval);
+            expireTimerText.textContent = "Expired";
+            showAlert("The OTP has expired. Please request a new code.", "error");
+        } else {
+            const mins = String(Math.floor(expireSecondsRemaining / 60)).padStart(2, '0');
+            const secs = String(expireSecondsRemaining % 60).padStart(2, '0');
+            expireTimerText.textContent = `${mins}:${secs}`;
+        }
+    }, 1000);
+
+    // Resend OTP Cooldown Timer (60 seconds)
+    let cooldownSecondsRemaining = 60;
+    const cooldownInterval = setInterval(() => {
+        cooldownSecondsRemaining--;
+        if (cooldownSecondsRemaining <= 0) {
+            clearInterval(cooldownInterval);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = "Resend OTP";
+        } else {
+            resendCooldownText.textContent = cooldownSecondsRemaining;
+        }
+    }, 1000);
+
+    // Submit Action
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        alertBox.classList.add('hidden');
+
+        // Gather Code
+        let code = "";
+        otpFields.forEach(field => {
+            code += field.value;
+        });
+
+        if (code.length !== 6) {
+            showAlert("Please enter all 6 digits of the OTP code.", "error");
+            triggerShake();
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verifying...";
+
+        try {
+            const response = await fetch('/api/v1/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp: code })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                clearInterval(expireInterval);
+                showAlert("Verification successful! Redirecting...", "success");
+                
+                // Store token in local storage for legacy compatibility
+                if (data.token) {
+                    localStorage.setItem('sol_auth_token', data.token);
+                }
+                
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || '/app/dashboard';
+                }, 1200);
+            } else {
+                showAlert(data.detail || "Verification failed.", "error");
+                triggerShake();
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Verify Account";
+            }
+        } catch (error) {
+            showAlert("Network error. Please try again.", "error");
+            triggerShake();
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Verify Account";
+        }
+    });
+
+    // Resend Button Action
+    resendBtn.addEventListener('click', async () => {
+        alertBox.classList.add('hidden');
+        resendBtn.disabled = true;
+        resendBtn.textContent = "Sending...";
+
+        try {
+            const response = await fetch('/api/v1/auth/resend-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showAlert("A new verification code has been sent.", "success");
+                
+                // Reset expiration countdown (5 mins)
+                expireSecondsRemaining = 300;
+                
+                // Reset resend cooldown (60 seconds)
+                cooldownSecondsRemaining = 60;
+                resendBtn.innerHTML = `Resend OTP (<span id="resendCooldown">60</span>s)`;
+                
+                // Re-declare countdown interval for resend cooldown
+                const newCooldownInterval = setInterval(() => {
+                    cooldownSecondsRemaining--;
+                    if (cooldownSecondsRemaining <= 0) {
+                        clearInterval(newCooldownInterval);
+                        resendBtn.disabled = false;
+                        resendBtn.innerHTML = "Resend OTP";
+                    } else {
+                        document.getElementById('resendCooldown').textContent = cooldownSecondsRemaining;
+                    }
+                }, 1000);
+
+            } else {
+                showAlert(data.detail || "Failed to resend OTP.", "error");
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = "Resend OTP";
+            }
+        } catch (error) {
+            showAlert("Network error. Please try again.", "error");
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = "Resend OTP";
+        }
+    });
+
+    function showAlert(msg, type) {
+        alertBox.textContent = msg;
+        alertBox.classList.remove('hidden', 'bg-red-500/10', 'text-red-400', 'border', 'border-red-500/20', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/20');
+        
+        if (type === 'success') {
+            alertBox.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border', 'border-emerald-500/20');
+        } else {
+            alertBox.classList.add('bg-red-500/10', 'text-red-400', 'border', 'border-red-500/20');
+        }
+        alertBox.classList.remove('hidden');
+    }
+
+    function triggerShake() {
+        otpCard.classList.remove('shake');
+        void otpCard.offsetWidth; // Force reflow
+        otpCard.classList.add('shake');
+    }
+</script>
+{% endblock %}

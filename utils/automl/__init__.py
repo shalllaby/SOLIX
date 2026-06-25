@@ -1,0 +1,1 @@
+from utils.automl.pdf_generator import AutoMLPDFReportGenerator

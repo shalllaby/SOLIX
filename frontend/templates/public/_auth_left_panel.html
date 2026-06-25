@@ -4,7 +4,7 @@
   Include with: {% include 'public/_auth_left_panel.html' %}
   ══════════════════════════════════════════════════════
 #}
-<section class="hidden md:flex md:w-5/12 lg:w-[42%] relative flex-col justify-between p-12 bg-gradient-to-br from-[#09 0c28] via-[#0d1033] to-[#0b0d1a] border-r border-outline-variant/10 overflow-hidden flex-shrink-0"
+<section id="auth-left-section" class="hidden md:flex md:w-5/12 lg:w-[42%] relative flex-col justify-between p-12 bg-gradient-to-br from-[#090c28] via-[#0d1033] to-[#0b0d1a] border-r border-outline-variant/10 overflow-hidden flex-shrink-0"
          style="background: linear-gradient(135deg, #090c28 0%, #0d1033 50%, #0b0d1a 100%);">
     <!-- Ambient glow orbs -->
     <div class="absolute -top-24 -right-24 w-[420px] h-[420px] bg-primary-container/12 rounded-full blur-[130px] pointer-events-none"></div>
@@ -12,27 +12,28 @@
     <div class="absolute top-[45%] left-[20%] w-36 h-36 bg-tertiary-container/8 rounded-full blur-[70px] pointer-events-none"></div>
 
     <!-- Logo -->
-    <a href="/" class="z-10 flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center shadow-[0_0_24px_rgba(67,97,238,0.5)] group-hover:shadow-[0_0_36px_rgba(67,97,238,0.7)] transition-shadow duration-400">
-            <span class="material-symbols-outlined text-white text-[22px]" style="font-variation-settings:'FILL' 1">hub</span>
-        </div>
-        <h1 class="font-headline font-black text-xl tracking-tighter text-white uppercase group-hover:text-primary transition-colors duration-200">SOL DATA AGENT</h1>
+    <a href="/" class="z-10 flex items-center">
+        <img src="/static/solix (2).png" alt="SOLIX"
+             style="height:56px; width:auto; object-fit:contain; mix-blend-mode:screen; filter:drop-shadow(0 0 10px rgba(91,213,252,0.40)); transition:filter 0.3s,transform 0.3s;"
+             onmouseover="this.style.filter='drop-shadow(0 0 20px rgba(91,213,252,0.80))';"
+             onmouseout="this.style.filter='drop-shadow(0 0 10px rgba(91,213,252,0.40))';"
+        >
     </a>
 
     <!-- Kinetic Visual -->
     <div class="relative flex items-center justify-center flex-grow py-8 z-10">
-        <div class="relative w-[260px] h-[260px]">
+        <div id="parallax-visual-container" class="relative w-[260px] h-[260px] parallax-container">
             <!-- Dot grid -->
             <div class="absolute inset-0 rounded-2xl opacity-25"
                  style="background-image:radial-gradient(circle at 2px 2px,#444655 1px,transparent 0);background-size:22px 22px;"></div>
             <!-- Glass container -->
             <div class="floating-squares-bg rounded-2xl absolute inset-0 overflow-hidden">
                 <!-- Animated squares -->
-                <div class="absolute bg-primary-container/22 rounded-xl backdrop-blur-md border border-primary-container/28 shadow-[0_0_22px_rgba(67,97,238,0.30)] animate-float"
+                <div id="square-1" class="absolute bg-primary-container/22 rounded-xl backdrop-blur-md border border-primary-container/28 shadow-[0_0_22px_rgba(67,97,238,0.30)] animate-float parallax-layer"
                      style="width:72px;height:72px;top:18%;left:10%;animation-delay:0s;"></div>
-                <div class="absolute bg-secondary-container/18 rounded-2xl backdrop-blur-lg border border-secondary-container/22 shadow-[0_0_22px_rgba(0,163,200,0.25)] animate-float"
+                <div id="square-2" class="absolute bg-secondary-container/18 rounded-2xl backdrop-blur-lg border border-secondary-container/22 shadow-[0_0_22px_rgba(0,163,200,0.25)] animate-float parallax-layer"
                      style="width:88px;height:88px;bottom:10%;right:8%;animation-delay:1.3s;"></div>
-                <div class="absolute bg-tertiary-container/15 rounded-xl backdrop-blur-md border border-tertiary-container/18 animate-float"
+                <div id="square-3" class="absolute bg-tertiary-container/15 rounded-xl backdrop-blur-md border border-tertiary-container/18 animate-float parallax-layer"
                      style="width:44px;height:44px;top:52%;left:42%;animation-delay:0.7s;"></div>
             </div>
             <!-- Glowing dots -->
@@ -41,6 +42,100 @@
             <div class="absolute top-1/2 right-3 w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_10px_3px_rgba(210,187,255,0.5)] animate-glow-pulse" style="animation-delay:0.5s;"></div>
         </div>
     </div>
+
+<style>
+    /* 3D Parallax & Ripple Styles */
+    .parallax-container {
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .parallax-layer {
+        transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .auth-ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(91, 213, 252, 0.35) 0%, rgba(107, 72, 255, 0.08) 60%, transparent 100%);
+        pointer-events: none;
+        transform: translate(-50%, -50%) scale(0);
+        animation: authRippleEffect 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        z-index: 5;
+    }
+    @keyframes authRippleEffect {
+        to {
+            transform: translate(-50%, -50%) scale(6);
+            opacity: 0;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const leftPanel = document.getElementById("auth-left-section");
+        const parallaxContainer = document.getElementById("parallax-visual-container");
+        const layers = [
+            { el: document.getElementById("square-1"), speed: 0.05 },
+            { el: document.getElementById("square-2"), speed: -0.03 },
+            { el: document.getElementById("square-3"), speed: 0.08 }
+        ];
+
+        if (leftPanel && parallaxContainer) {
+            // Mousemove Tilt Parallax
+            leftPanel.addEventListener("mousemove", (e) => {
+                const rect = leftPanel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Normalise coordinates to -1 to 1
+                const xNorm = (x / rect.width) * 2 - 1;
+                const yNorm = (y / rect.height) * 2 - 1;
+                
+                // Tilt the container
+                parallaxContainer.style.transform = `rotateX(${yNorm * -8}deg) rotateY(${xNorm * 8}deg)`;
+                
+                // Move individual layers slightly
+                layers.forEach(layer => {
+                    if (layer.el) {
+                        const tx = xNorm * layer.speed * 80;
+                        const ty = yNorm * layer.speed * 80;
+                        layer.el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+                    }
+                });
+            });
+
+            // Reset transform on mouseleave
+            leftPanel.addEventListener("mouseleave", () => {
+                parallaxContainer.style.transform = "rotateX(0deg) rotateY(0deg)";
+                layers.forEach(layer => {
+                    if (layer.el) {
+                        layer.el.style.transform = "translate3d(0, 0, 0)";
+                    }
+                });
+            });
+
+            // Click ripple effect
+            leftPanel.addEventListener("click", (e) => {
+                const rect = leftPanel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement("div");
+                ripple.className = "auth-ripple";
+                ripple.style.width = "100px";
+                ripple.style.height = "100px";
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                leftPanel.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 800);
+            });
+        }
+    });
+</script>
 
     <!-- Tagline + Stats -->
     <div class="z-10 space-y-7">
@@ -55,8 +150,8 @@
                 <p class="font-headline font-bold text-base text-white">1GB</p>
             </div>
             <div>
-                <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Accuracy</p>
-                <p class="font-headline font-bold text-base text-white">99.9%</p>
+                <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Core Modules</p>
+                <p class="font-headline font-bold text-base text-white">10</p>
             </div>
             <div>
                 <p class="font-mono text-[9px] tracking-widest uppercase text-outline mb-0.5">Avg Latency</p>

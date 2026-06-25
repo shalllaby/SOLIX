@@ -1,0 +1,1474 @@
+{% extends "app/_layout.html" %}
+
+{% block page_title %}{% if locale == 'ar' %}المساعد الذكي SOL{% else %}SOL AI Assistant{% endif %}{% endblock %}
+{% block page_title_text %}{% if locale == 'ar' %}المساعد الذكي SOL{% else %}SOL AI Assistant{% endif %}{% endblock %}
+{% block breadcrumb %}{% if locale == 'ar' %}SOL / التطبيق / المساعد الذكي{% else %}SOL / App / AI Assistant{% endif %}{% endblock %}
+{% block nav_chatbot %}nav-active{% endblock %}
+
+{% block head %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --bot-bubble-bg: var(--surface-container-high);
+        --user-bubble-bg: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    }
+
+    .chatbot-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        height: 100%;
+        gap: 1.5rem;
+        overflow: hidden;
+    }
+
+    @media (max-width: 1024px) {
+        .chatbot-grid {
+            grid-template-columns: 1fr;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .chatbot-sidebar {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            inset-inline-start: 0;
+            width: 300px;
+            height: 100%;
+            z-index: 30;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--surface-container-low);
+            box-shadow: 20px 0 40px rgba(0, 0, 0, 0.35);
+            border-radius: 0 1.5rem 1.5rem 0;
+            display: flex !important; /* Override none/block conflicts */
+        }
+        html[dir="rtl"] .chatbot-sidebar {
+            transform: translateX(100%);
+            border-radius: 1.5rem 0 0 1.5rem;
+        }
+        .chatbot-sidebar.open {
+            transform: translateX(0) !important;
+        }
+    }
+
+    /* Sidebar info panel */
+    .chatbot-sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1.5rem;
+        backdrop-filter: blur(25px);
+        padding: 1.75rem;
+        gap: 1.5rem;
+        height: 100%;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.03);
+        overflow-y: auto;
+        transition: border-color 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chatbot-sidebar:hover {
+        border-color: rgba(var(--primary-rgb), 0.3);
+    }
+
+    /* Chat Pane */
+    .chatbot-chat-pane {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-container-low);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1.5rem;
+        backdrop-filter: blur(25px);
+        overflow: hidden;
+        height: 100%;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.03);
+        position: relative;
+        transition: border-color 0.3s ease;
+    }
+
+    .chatbot-chat-pane:hover {
+        border-color: rgba(var(--primary-rgb), 0.3);
+    }
+
+    /* Chat Header */
+    .chatbot-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--outline-variant);
+        background: rgba(0, 0, 0, 0.015);
+    }
+    @media (min-width: 640px) {
+        .chatbot-header {
+            padding: 1.25rem 1.75rem;
+        }
+    }
+
+    /* Messages Log */
+    .chatbot-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+    @media (min-width: 640px) {
+        .chatbot-messages {
+            padding: 1.75rem;
+            gap: 1.5rem;
+        }
+    }
+
+    .chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    .chatbot-messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .chatbot-messages::-webkit-scrollbar-thumb {
+        background: var(--outline-variant);
+        border-radius: 10px;
+    }
+
+    /* Message Wrap */
+    .msg-row {
+        display: flex;
+        width: 100%;
+    }
+    .msg-row.user {
+        justify-content: flex-end;
+    }
+    .msg-row.bot {
+        justify-content: flex-start;
+    }
+
+    .msg-box {
+        max-width: 82%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        position: relative;
+    }
+    @media (max-width: 640px) {
+        .msg-box {
+            max-width: 92%;
+        }
+    }
+
+    .msg-bubble {
+        padding: 0.85rem 1.1rem;
+        border-radius: 1.25rem;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        word-wrap: break-word;
+        opacity: 0;
+        transform: translateY(12px);
+        animation: bubble-fade 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @media (min-width: 640px) {
+        .msg-bubble {
+            padding: 1rem 1.35rem;
+            font-size: 0.925rem;
+        }
+    }
+
+    @keyframes bubble-fade {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .msg-row.user .msg-bubble {
+        background: var(--user-bubble-bg);
+        color: #ffffff;
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    .msg-row.bot .msg-bubble {
+        background: var(--bot-bubble-bg);
+        color: var(--on-surface);
+        border: 1px solid var(--outline-variant);
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    /* Message Action Buttons (Copy/Speak) */
+    .msg-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        margin-top: 0.25rem;
+    }
+
+    .msg-box:hover .msg-actions {
+        opacity: 1;
+    }
+
+    .msg-action-btn {
+        background: transparent;
+        border: none;
+        color: var(--outline);
+        cursor: pointer;
+        padding: 0.2rem;
+        border-radius: 0.375rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .msg-action-btn:hover {
+        color: var(--primary);
+        background: var(--surface-container-high);
+    }
+
+    .msg-time {
+        font-size: 0.7rem;
+        color: var(--outline);
+        margin: 0 0.25rem;
+    }
+
+    .msg-row.user .msg-time {
+        align-self: flex-end;
+    }
+    .msg-row.bot .msg-time {
+        align-self: flex-start;
+    }
+
+    /* Badges & Indicators */
+    .cache-badge {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Suggestions Cards */
+    .suggestion-btn {
+        background: var(--surface-container);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1rem;
+        padding: 0.9rem 1.15rem;
+        font-size: 0.85rem;
+        text-align: right;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--on-surface-variant);
+        font-weight: 500;
+    }
+    html[dir="ltr"] .suggestion-btn {
+        text-align: left;
+    }
+
+    .suggestion-btn:hover {
+        background: var(--surface-container-high);
+        border-color: var(--primary);
+        color: var(--on-surface);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Typing bubble */
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        padding: 0.4rem 0.6rem;
+    }
+    .dot-pulse {
+        width: 7px;
+        height: 7px;
+        background-color: var(--outline);
+        border-radius: 50%;
+        animation: dot-pulse-anim 1.4s infinite ease-in-out;
+    }
+    .dot-pulse:nth-child(1) { animation-delay: -0.32s; }
+    .dot-pulse:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes dot-pulse-anim {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+        40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* Welcome Container */
+    .welcome-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        max-width: 480px;
+        margin: auto;
+        gap: 1.5rem;
+        padding: 3rem 1.5rem;
+        background: rgba(var(--primary-rgb), 0.015);
+        border: 1px solid var(--outline-variant);
+        border-radius: 2rem;
+    }
+
+    /* Input Panel */
+    .chatbot-input-panel {
+        padding: 1.5rem;
+        border-top: 1px solid var(--outline-variant);
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--surface-container-high);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1.25rem;
+        padding: 0.5rem 0.6rem 0.5rem 1.25rem;
+        transition: all 0.25s ease;
+    }
+    .input-wrapper:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.12);
+        background: var(--surface-container-highest);
+    }
+
+    .chat-text-input {
+        flex: 1;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: var(--on-surface) !important;
+        font-size: 0.95rem;
+        padding: 0.5rem 0;
+        box-shadow: none !important;
+    }
+    .chat-text-input:focus {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    .action-circle-btn {
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .action-circle-btn:active {
+        transform: scale(0.95);
+    }
+
+    .send-btn-active {
+        background: var(--primary);
+        color: var(--on-primary);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+    }
+    .send-btn-active:hover {
+        opacity: 0.9;
+        box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.35);
+    }
+    .send-btn-active:disabled {
+        background: var(--surface-container-high);
+        color: var(--outline);
+        box-shadow: none;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .header-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: transparent;
+    }
+    .header-btn:hover {
+        background: var(--surface-container-high);
+        color: var(--on-surface);
+    }
+    .header-btn.active-off {
+        color: var(--error);
+        border-color: rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    /* Metric Card Grid */
+    .metric-card {
+        background: var(--surface-container);
+        border: 1px solid var(--outline-variant);
+        border-radius: 1rem;
+        padding: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: center;
+    }
+    /* Chat Session List styles */
+    .new-chat-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+        color: white !important;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+    }
+    .new-chat-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+    .session-list-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+        overflow: hidden;
+    }
+    .session-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        overflow-y: auto;
+        padding-inline-end: 0.25rem;
+    }
+    .session-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        border: 1px solid transparent;
+        background: rgba(0, 0, 0, 0.02);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--on-surface-variant);
+    }
+    .session-item:hover {
+        background: var(--surface-container-high);
+        color: var(--on-surface);
+        border-color: var(--outline-variant);
+    }
+    .session-item.active {
+        background: var(--surface-container-high);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    .session-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 0;
+    }
+    .session-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .session-delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: var(--outline);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.2rem;
+        border-radius: 0.25rem;
+    }
+    .session-item:hover .session-delete-btn {
+        opacity: 1;
+    }
+    .session-delete-btn:hover {
+        color: var(--error);
+        background: rgba(239, 68, 68, 0.1);
+    }
+    .sidebar-suggestion-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        background: var(--surface-container);
+        border: 1px solid var(--outline-variant);
+        color: var(--on-surface-variant);
+        cursor: pointer;
+        text-align: right;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    html[dir="ltr"] .sidebar-suggestion-btn {
+        text-align: left;
+    }
+    .sidebar-suggestion-btn:hover {
+        background: var(--surface-container-high);
+        color: var(--on-surface);
+        border-color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-grid">
+    <!-- Backdrop for mobile sidebar drawer -->
+    <div id="mobile-sidebar-backdrop" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden"></div>
+    <!-- Sidebar Panel -->
+    <div class="chatbot-sidebar">
+        <!-- Brand Section -->
+        <div class="flex flex-col items-center text-center pb-4 border-b border-outline-variant/10">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary to-violet-600 flex items-center justify-center text-white text-3xl shadow-lg mb-3">
+                <span class="material-symbols-outlined text-3.5xl">smart_toy</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface">{% if locale == 'ar' %}مساعد SOL الذكي{% else %}SOL Copilot{% endif %}</h3>
+            <p class="text-xs text-outline mt-1">{% if locale == 'ar' %}مساعد هندسة البيانات الافتراضي{% else %}Virtual Data Engineer Assistant{% endif %}</p>
+        </div>
+
+        <!-- [+ New Chat] Button -->
+        <button class="new-chat-btn mt-3" onclick="createNewChatSession()">
+            <span class="material-symbols-outlined text-base">add</span>
+            <span>{% if locale == 'ar' %}محادثة جديدة{% else %}New Chat{% endif %}</span>
+        </button>
+
+        <!-- Sessions List -->
+        <div class="session-list-section mt-4" style="max-height: 180px; display: flex; flex-direction: column;">
+            <span class="text-xs font-bold text-outline uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="material-symbols-outlined text-sm text-violet-500">history</span>
+                {% if locale == 'ar' %}سجل المحادثات{% else %}Chat History{% endif %}
+            </span>
+            <div class="session-list" id="chat-session-list" style="overflow-y: auto; flex: 1;">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- Suggested Queries Section -->
+        <div class="suggested-queries-section mt-4 border-t border-outline-variant/10 pt-4">
+            <span class="text-xs font-bold text-outline uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="material-symbols-outlined text-sm text-primary">tips_and_updates</span>
+                {% if locale == 'ar' %}استعلامات سريعة مقترحة{% else %}Suggested Queries{% endif %}
+            </span>
+            <div class="flex flex-col gap-2">
+                <button class="sidebar-suggestion-btn text-start p-2 rounded-lg border border-outline-variant/10 bg-surface-container/10 hover:bg-surface-container-high transition-colors flex items-center gap-2 text-xs text-on-surface-variant w-full" data-question="{% if locale == 'ar' %}ما هي رؤية وهدف منصة SOLIX؟{% else %}What is the vision and goal of SOLIX?{% endif %}" onclick="sendSuggestion(this)">
+                    <span class="material-symbols-outlined text-primary text-xs">info</span>
+                    <span class="truncate">{% if locale == 'ar' %}ما هي رؤية منصة SOLIX؟{% else %}What is the vision of SOLIX?{% endif %}</span>
+                </button>
+
+                <button class="sidebar-suggestion-btn text-start p-2 rounded-lg border border-outline-variant/10 bg-surface-container/10 hover:bg-surface-container-high transition-colors flex items-center gap-2 text-xs text-on-surface-variant w-full" data-question="{% if locale == 'ar' %}من هم أعضاء فريق العمل وما هي أدوارهم؟{% else %}Who are the team members and what are their roles?{% endif %}" onclick="sendSuggestion(this)">
+                    <span class="material-symbols-outlined text-violet-500 text-xs">group</span>
+                    <span class="truncate">{% if locale == 'ar' %}من هم أعضاء فريق العمل؟{% else %}Who are the team members?{% endif %}</span>
+                </button>
+
+                <button class="sidebar-suggestion-btn text-start p-2 rounded-lg border border-outline-variant/10 bg-surface-container/10 hover:bg-surface-container-high transition-colors flex items-center gap-2 text-xs text-on-surface-variant w-full" data-question="{% if locale == 'ar' %}ما هي إنجازات وجوائز فريق SOL في الهاكاثونات؟{% else %}What are the achievements and awards of the SOL team in hackathons?{% endif %}" onclick="sendSuggestion(this)">
+                    <span class="material-symbols-outlined text-amber-500 text-xs">trophy</span>
+                    <span class="truncate">{% if locale == 'ar' %}إنجازات وجوائز فريق SOL{% else %}SOL Team Achievements{% endif %}</span>
+                </button>
+
+                <button class="sidebar-suggestion-btn text-start p-2 rounded-lg border border-outline-variant/10 bg-surface-container/10 hover:bg-surface-container-high transition-colors flex items-center gap-2 text-xs text-on-surface-variant w-full" data-question="{% if locale == 'ar' %}من هم المشرفون الأكاديميون على المشروع والجامعة؟{% else %}Who are the academic supervisors of the project and university?{% endif %}" onclick="sendSuggestion(this)">
+                    <span class="material-symbols-outlined text-pink-500 text-xs">school</span>
+                    <span class="truncate">{% if locale == 'ar' %}من هم المشرفون الأكاديميون؟{% else %}Who are the academic supervisors?{% endif %}</span>
+                </button>
+
+                <button class="sidebar-suggestion-btn text-start p-2 rounded-lg border border-outline-variant/10 bg-surface-container/10 hover:bg-surface-container-high transition-colors flex items-center gap-2 text-xs text-on-surface-variant w-full" data-question="{% if locale == 'ar' %}ما هي التقنيات المستخدمة في البنية البرمجية لمنصة SOLIX؟{% else %}What are the technologies used in the software architecture of SOLIX?{% endif %}" onclick="sendSuggestion(this)">
+                    <span class="material-symbols-outlined text-emerald-500 text-xs">terminal</span>
+                    <span class="truncate">{% if locale == 'ar' %}ما هي التقنيات المستخدمة؟{% else %}What technologies are used?{% endif %}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Academic Info Section -->
+        <div class="mt-4 border-t border-outline-variant/10 pt-4">
+            <span class="text-xs font-bold text-outline uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="material-symbols-outlined text-sm text-violet-500">school</span>
+                {% if locale == 'ar' %}الجهة الأكاديمية والمشرفون{% else %}Academic Info & Supervisors{% endif %}
+            </span>
+            <div class="p-3 rounded-xl border border-outline-variant/10 bg-surface-container/10 text-[11px] text-on-surface-variant leading-relaxed">
+                <div class="mb-2">
+                    <strong class="text-on-surface flex items-center gap-1"><span class="material-symbols-outlined text-xs text-primary">domain</span> {% if locale == 'ar' %}الجهة:{% else %}Institution:{% endif %}</strong>
+                    <div class="ps-4">
+                        {% if locale == 'ar' %}جامعة حلوان التكنولوجية الدولية{% else %}Helwan International Technological University{% endif %}<br>
+                        {% if locale == 'ar' %}الكلية التكنولوجية بالقاهرة{% else %}Cairo Technological College{% endif %}
+                    </div>
+                </div>
+                <div>
+                    <strong class="text-on-surface flex items-center gap-1"><span class="material-symbols-outlined text-xs text-violet-500">person</span> {% if locale == 'ar' %}المشرفون الأكاديميون:{% else %}Supervisors:{% endif %}</strong>
+                    <div class="ps-4">
+                        • {% if locale == 'ar' %}د. سيمون عزت (خبير أكاديمي){% else %}Dr. Simone Ezzat (Academic Expert){% endif %}<br>
+                        • {% if locale == 'ar' %}م. نجلاء سعيد (مهندسة برمجيات){% else %}Eng. Naglaa Saeed (Software Engineer){% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Statistics Widget -->
+        <div class="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-outline-variant/10">
+            <div class="metric-card">
+                <span class="material-symbols-outlined text-sm text-primary">schedule</span>
+                <span class="text-[10px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}مدة الجلسة{% else %}Session Time{% endif %}</span>
+                <span id="session-time" class="text-sm font-bold font-mono text-on-surface">00:00</span>
+            </div>
+            <div class="metric-card">
+                <span class="material-symbols-outlined text-sm text-violet-500">chat_bubble</span>
+                <span class="text-[10px] text-outline uppercase tracking-wider">{% if locale == 'ar' %}الاستفسارات{% else %}Queries{% endif %}</span>
+                <span id="query-count" class="text-sm font-bold font-mono text-on-surface">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Window -->
+    <div class="chatbot-chat-pane">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-[0_0_8px_#10b981] animate-pulse"></div>
+                <div>
+                    <h3 class="text-sm font-bold text-on-surface leading-tight">{% if locale == 'ar' %}المساعد الافتراضي SOL{% else %}Virtual Assistant SOL{% endif %}</h3>
+                    <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}مساعد مهندسي البيانات | متصل{% else %}Data Engineers Assistant | Online{% endif %}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- Mobile Sidebar Toggle -->
+                <button class="header-btn lg:hidden" onclick="toggleMobileSidebar()" title="{% if locale == 'ar' %}معلومات وتفاصيل{% else %}Info & Details{% endif %}">
+                    <span class="material-symbols-outlined text-lg">info</span>
+                </button>
+                <!-- Export Chat -->
+                <button class="header-btn" onclick="exportConversation()" title="{% if locale == 'ar' %}تصدير المحادثة (Markdown){% else %}Export Chat (Markdown){% endif %}">
+                    <span class="material-symbols-outlined text-lg">download</span>
+                </button>
+                <!-- Sound Toggle -->
+                <button class="header-btn" id="sound-toggle-btn" onclick="toggleSound()" title="{% if locale == 'ar' %}كتم/تفعيل الصوت{% else %}Toggle Sound{% endif %}">
+                    <span class="material-symbols-outlined text-lg" id="sound-icon">volume_up</span>
+                </button>
+                <!-- Clear Chat -->
+                <button class="header-btn hover:!text-red-500 hover:!border-red-500/30" onclick="clearChatLog()" title="{% if locale == 'ar' %}مسح المحادثة{% else %}Clear Chat{% endif %}">
+                    <span class="material-symbols-outlined text-lg">delete</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chatbot-messages" id="chat-messages-container">
+            <!-- Welcome screen -->
+            <div class="welcome-container" id="chatbot-welcome-screen" style="max-height: 85%; overflow-y: auto; padding: 1rem; width: 100%; max-width: 680px; margin: auto;">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-primary/10 to-violet-600/10 flex items-center justify-center border border-primary/20 animate-bounce mx-auto">
+                    <span class="material-symbols-outlined text-3xl text-primary">smart_toy</span>
+                </div>
+                <h2 class="text-xl font-bold text-on-surface text-center mt-2">{% if locale == 'ar' %}أهلاً بك في مساعد SOL الذكي!{% else %}Welcome to SOL AI Assistant!{% endif %}</h2>
+                <p class="text-xs text-outline leading-relaxed text-center max-w-md mx-auto mt-1">
+                    {% if locale == 'ar' %}
+                    أنا هنا للإجابة عن جميع استفساراتك حول منصة SOLIX وهيكل فريق عمل SOL TEAM، والمشرفين الأكاديميين والجهة الجامعية، إلى جانب التقنيات المستخدمة. تفضل بطرح سؤالك!
+                    {% else %}
+                    I'm here to answer your queries about the SOLIX platform, the SOL TEAM working structure, academic supervisors, university details, and the technologies used. Go ahead and ask your question!
+                    {% endif %}
+                </p>
+
+                <!-- Welcome Screen Suggestions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6 w-full text-left">
+                    <button class="suggestion-btn text-start p-3 rounded-xl border border-outline-variant/15 bg-surface-container/20 hover:bg-surface-container-high transition-colors flex items-start gap-2.5" data-question="{% if locale == 'ar' %}ما هي رؤية وهدف منصة SOLIX؟{% else %}What is the vision and goal of SOLIX?{% endif %}" onclick="sendSuggestion(this)">
+                        <span class="material-symbols-outlined text-primary text-base mt-0.5">info</span>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-on-surface">{% if locale == 'ar' %}ما هي رؤية منصة SOLIX؟{% else %}What is the vision of SOLIX?{% endif %}</h4>
+                            <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}رؤية ورسالة النظام البيئي للمنصة{% else %}Vision and mission of the platform ecosystem{% endif %}</p>
+                        </div>
+                    </button>
+
+                    <button class="suggestion-btn text-start p-3 rounded-xl border border-outline-variant/15 bg-surface-container/20 hover:bg-surface-container-high transition-colors flex items-start gap-2.5" data-question="{% if locale == 'ar' %}من هم أعضاء فريق العمل وما هي أدوارهم؟{% else %}Who are the team members and what are their roles?{% endif %}" onclick="sendSuggestion(this)">
+                        <span class="material-symbols-outlined text-violet-500 text-base mt-0.5">group</span>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-on-surface">{% if locale == 'ar' %}من هم أعضاء فريق العمل؟{% else %}Who are the team members?{% endif %}</h4>
+                            <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}أعضاء فريق SOL ومسؤولياتهم{% else %}SOL team members and their responsibilities{% endif %}</p>
+                        </div>
+                    </button>
+
+                    <button class="suggestion-btn text-start p-3 rounded-xl border border-outline-variant/15 bg-surface-container/20 hover:bg-surface-container-high transition-colors flex items-start gap-2.5" data-question="{% if locale == 'ar' %}ما هي إنجازات وجوائز فريق SOL في الهاكاثونات؟{% else %}What are the achievements and awards of the SOL team in hackathons?{% endif %}" onclick="sendSuggestion(this)">
+                        <span class="material-symbols-outlined text-amber-500 text-base mt-0.5">trophy</span>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-on-surface">{% if locale == 'ar' %}إنجازات وجوائز فريق SOL{% else %}SOL Team Achievements{% endif %}</h4>
+                            <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}المراكز والجوائز في الهاكاثونات التقنية{% else %}Placements and awards in tech hackathons{% endif %}</p>
+                        </div>
+                    </button>
+
+                    <button class="suggestion-btn text-start p-3 rounded-xl border border-outline-variant/15 bg-surface-container/20 hover:bg-surface-container-high transition-colors flex items-start gap-2.5" data-question="{% if locale == 'ar' %}من هم المشرفون الأكاديميون على المشروع والجامعة؟{% else %}Who are the academic supervisors of the project and university?{% endif %}" onclick="sendSuggestion(this)">
+                        <span class="material-symbols-outlined text-pink-500 text-base mt-0.5">school</span>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-on-surface">{% if locale == 'ar' %}من هم المشرفون الأكاديميون؟{% else %}Who are the academic supervisors?{% endif %}</h4>
+                            <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}المشرفون الأكاديميون وتفاصيل الجامعة{% else %}Academic supervisors and university details{% endif %}</p>
+                        </div>
+                    </button>
+
+                    <button class="suggestion-btn text-start p-3 rounded-xl border border-outline-variant/15 bg-surface-container/20 hover:bg-surface-container-high transition-colors flex items-start gap-2.5 md:col-span-2" data-question="{% if locale == 'ar' %}ما هي التقنيات المستخدمة في البنية البرمجية لمنصة SOLIX؟{% else %}What are the technologies used in the software architecture of SOLIX?{% endif %}" onclick="sendSuggestion(this)">
+                        <span class="material-symbols-outlined text-emerald-500 text-base mt-0.5">terminal</span>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-on-surface">{% if locale == 'ar' %}ما هي التقنيات المستخدمة؟{% else %}What technologies are used?{% endif %}</h4>
+                            <p class="text-[10px] text-outline mt-0.5">{% if locale == 'ar' %}الأدوات البرمجية وأطر العمل{% else %}Software tools and frameworks{% endif %}</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chatbot-input-panel">
+            <div class="input-wrapper">
+                <!-- Microphone Dictation -->
+                <button class="msg-action-btn p-1.5 hover:!bg-surface-container-high" id="mic-btn" onclick="toggleVoiceInput()" title="{% if locale == 'ar' %}إدخال صوتي{% else %}Voice Input{% endif %}">
+                    <span class="material-symbols-outlined text-xl">mic</span>
+                </button>
+
+                <input type="text" class="chat-text-input" id="chatbot-text-input" 
+                       placeholder="{% if locale == 'ar' %}اكتب سؤالك هنا حول منصة SOLIX...{% else %}Type your question here about SOLIX...{% endif %}" 
+                       onkeydown="handleInputKeydown(event)">
+                
+                <button class="action-circle-btn send-btn-active" id="chatbot-send-btn" onclick="submitMessage()">
+                    <span class="material-symbols-outlined text-xl">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audio Assets -->
+<audio id="sound-bubble-send" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
+<audio id="sound-bubble-receive" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-84.wav" preload="auto"></audio>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const messagesBox = document.getElementById('chat-messages-container');
+    const welcomeScreen = document.getElementById('chatbot-welcome-screen');
+    const textInput = document.getElementById('chatbot-text-input');
+    const sendButton = document.getElementById('chatbot-send-btn');
+    const soundToggle = document.getElementById('sound-toggle-btn');
+    const soundIcon = document.getElementById('sound-icon');
+
+    let audioEnabled = true;
+    let localHistory = [];
+    let startTime = Date.now();
+    let queryCount = 0;
+    let activeSessionId = null;
+
+    // Initialize sound settings
+    if (localStorage.getItem('sol_chat_sound') === 'disabled') {
+        audioEnabled = false;
+        soundIcon.innerText = 'volume_off';
+        soundToggle.classList.add('active-off');
+    }
+
+    function toggleSound() {
+        activeSessionId = activeSessionId; // No-op to satisfy linters or references
+        audioEnabled = !audioEnabled;
+        if (audioEnabled) {
+            soundIcon.innerText = 'volume_up';
+            soundToggle.classList.remove('active-off');
+            localStorage.setItem('sol_chat_sound', 'enabled');
+            playSfx('sound-bubble-send');
+        } else {
+            soundIcon.innerText = 'volume_off';
+            soundToggle.classList.add('active-off');
+            localStorage.setItem('sol_chat_sound', 'disabled');
+        }
+    }
+
+    function playSfx(id) {
+        if (audioEnabled) {
+            const sound = document.getElementById(id);
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Sound play prevented", e));
+            }
+        }
+    }
+
+    async function clearChatLog() {
+        if (!activeSessionId) return;
+        playSfx('sound-bubble-send');
+        if (confirm("{% if locale == 'ar' %}هل أنت متأكد من رغبتك في حذف هذه المحادثة بالكامل؟{% else %}Are you sure you want to delete this chat session?{% endif %}")) {
+            await deleteSession(activeSessionId);
+        }
+    }
+
+    function sendSuggestion(btn) {
+        const text = btn.getAttribute('data-question');
+        textInput.value = text;
+        submitMessage();
+    }
+
+    function handleInputKeydown(e) {
+        if (e.key === 'Enter') {
+            submitMessage();
+        }
+    }
+
+    // Markdown table parser helper
+    function parseMarkdownTable(text) {
+        const lines = text.split('\n');
+        let inTable = false;
+        let tableHtml = [];
+        let headers = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.startsWith('|') && line.endsWith('|')) {
+                if (!inTable) {
+                    inTable = true;
+                    headers = line.split('|').map(x => x.trim()).filter(x => x !== '');
+                    tableHtml.push('<div class="overflow-x-auto my-3 rounded-xl border border-outline-variant/20"><table class="min-w-full divide-y divide-outline-variant/10 text-xs">');
+                    tableHtml.push('<thead class="bg-surface-container-high"><tr>');
+                    headers.forEach(h => {
+                        tableHtml.push(`<th class="px-4 py-2 text-left font-bold text-on-surface uppercase tracking-wider">${h}</th>`);
+                    });
+                    tableHtml.push('</tr></thead>');
+                    tableHtml.push('<tbody class="divide-y divide-outline-variant/10 bg-surface-container/30">');
+                    if (i + 1 < lines.length && lines[i+1].includes('---')) {
+                        i++;
+                    }
+                } else {
+                    const cells = line.split('|').map(x => x.trim()).filter(x => x !== '');
+                    if (cells.length > 0) {
+                        tableHtml.push('<tr class="hover:bg-surface-container-high/30 transition-colors">');
+                        cells.forEach(c => {
+                            tableHtml.push(`<td class="px-4 py-2 text-on-surface-variant">${c}</td>`);
+                        });
+                        tableHtml.push('</tr>');
+                    }
+                }
+            } else {
+                if (inTable) {
+                    inTable = false;
+                    tableHtml.push('</tbody></table></div>');
+                }
+                tableHtml.push(line);
+            }
+        }
+        if (inTable) {
+            tableHtml.push('</tbody></table></div>');
+        }
+        return tableHtml.join('\n');
+    }
+
+    function formatMarkdown(text) {
+        // 1. Code blocks fenced with ```
+        let formatted = text;
+        const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+        formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
+            const escapedCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return `<div class="code-block-wrapper relative group my-3 rounded-xl overflow-hidden border border-outline-variant/20 bg-slate-950 text-slate-100">
+                <div class="flex items-center justify-between px-4 py-1.5 bg-slate-900 border-b border-slate-800 text-[10px] font-mono text-slate-400">
+                    <span>${lang || 'CODE'}</span>
+                    <button onclick="copyCodeText(this)" class="hover:text-slate-200 flex items-center gap-1 transition-colors">
+                        <span class="material-symbols-outlined text-xs">content_copy</span>
+                        <span>Copy</span>
+                    </button>
+                </div>
+                <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="language-${lang}">${escapedCode.trim()}</code></pre>
+            </div>`;
+        });
+
+        // 2. Bold text
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-on-surface">$1</strong>');
+
+        // 3. Tables
+        formatted = parseMarkdownTable(formatted);
+
+        // 4. Lines, lists, and paragraphs
+        const lines = formatted.split('\n');
+        let htmlLines = [];
+        let inUl = false;
+        let inOl = false;
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('<div class="overflow-x-auto') || trimmed.startsWith('<table') || 
+                trimmed.startsWith('<thead') || trimmed.startsWith('<tbody') || trimmed.startsWith('<tr') || 
+                trimmed.startsWith('<th') || trimmed.startsWith('<td') || trimmed.startsWith('</tr') || 
+                trimmed.startsWith('</thead') || trimmed.startsWith('</tbody') || trimmed.startsWith('</table') || 
+                trimmed.startsWith('</div')) {
+                htmlLines.push(line);
+                return;
+            }
+
+            if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+                if (inOl) { htmlLines.push('</ol>'); inOl = false; }
+                if (!inUl) {
+                    htmlLines.push('<ul class="list-disc pl-5 pr-5 mb-2 flex flex-col gap-1.5 text-on-surface-variant">');
+                    inUl = true;
+                }
+                htmlLines.push(`<li>${trimmed.substring(2)}</li>`);
+            } else if (/^\d+\.\s/.test(trimmed)) {
+                if (inUl) { htmlLines.push('</ul>'); inUl = false; }
+                if (!inOl) {
+                    htmlLines.push('<ol class="list-decimal pl-5 pr-5 mb-2 flex flex-col gap-1.5 text-on-surface-variant">');
+                    inOl = true;
+                }
+                const content = trimmed.replace(/^\d+\.\s/, '');
+                htmlLines.push(`<li>${content}</li>`);
+            } else {
+                if (inUl) { htmlLines.push('</ul>'); inUl = false; }
+                if (inOl) { htmlLines.push('</ol>'); inOl = false; }
+                htmlLines.push(line ? `<p class="mb-2 last:mb-0">${line}</p>` : '');
+            }
+        });
+
+        if (inUl) htmlLines.push('</ul>');
+        if (inOl) htmlLines.push('</ol>');
+
+        return htmlLines.join('\n');
+    }
+
+    function copyCodeText(btn) {
+        const codeElement = btn.closest('.code-block-wrapper').querySelector('code');
+        if (codeElement) {
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                const label = btn.querySelector('span:last-child');
+                const origText = label.innerText;
+                label.innerText = 'Copied!';
+                btn.style.color = '#10b981';
+                setTimeout(() => {
+                    label.innerText = origText;
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+    }
+
+    function copyBubbleText(text, btn) {
+        // Remove HTML tags for raw text copy
+        const cleanText = text.replace(/<\/?[^>]+(>|$)/g, "");
+        navigator.clipboard.writeText(cleanText).then(() => {
+            const icon = btn.querySelector('.material-symbols-outlined');
+            icon.innerText = 'done';
+            btn.classList.add('text-emerald-500');
+            setTimeout(() => {
+                icon.innerText = 'content_copy';
+                btn.classList.remove('text-emerald-500');
+            }, 2000);
+        });
+    }
+
+    let currentUtterance = null;
+    function speakText(text, btn) {
+        if ('speechSynthesis' in window) {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                if (currentUtterance && currentUtterance.btn === btn) {
+                    btn.querySelector('.material-symbols-outlined').innerText = 'volume_up';
+                    btn.classList.remove('text-primary');
+                    currentUtterance = null;
+                    return;
+                }
+            }
+
+            const cleanText = text.replace(/<\/?[^>]+(>|$)/g, "");
+            const isArabic = /[\u0600-\u06FF]/.test(cleanText);
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = isArabic ? 'ar-SA' : 'en-US';
+            utterance.rate = 1.0;
+            
+            utterance.onend = () => {
+                btn.querySelector('.material-symbols-outlined').innerText = 'volume_up';
+                btn.classList.remove('text-primary');
+                currentUtterance = null;
+            };
+
+            utterance.onerror = () => {
+                btn.querySelector('.material-symbols-outlined').innerText = 'volume_up';
+                btn.classList.remove('text-primary');
+                currentUtterance = null;
+            };
+
+            btn.querySelector('.material-symbols-outlined').innerText = 'stop';
+            btn.classList.add('text-primary');
+            
+            currentUtterance = { utterance, btn };
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("{% if locale == 'ar' %}عذراً، ميزة نطق النصوص غير مدعومة في متصفحك.{% else %}Sorry, text-to-speech is not supported in your browser.{% endif %}");
+        }
+    }
+
+    function appendMessage(sender, text, isCached = false, timeStr = null) {
+        if (welcomeScreen.style.display !== 'none') {
+            welcomeScreen.style.display = 'none';
+        }
+
+        const row = document.createElement('div');
+        row.className = `msg-row ${sender}`;
+
+        const box = document.createElement('div');
+        box.className = 'msg-box';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.innerHTML = formatMarkdown(text);
+        box.appendChild(bubble);
+
+        // Add action tools for Bot messages
+        if (sender === 'bot') {
+            const actions = document.createElement('div');
+            actions.className = 'msg-actions';
+            
+            // Speak Button
+            const speakBtn = document.createElement('button');
+            speakBtn.className = 'msg-action-btn';
+            speakBtn.title = "{% if locale == 'ar' %}استمع للرسالة{% else %}Listen to message{% endif %}";
+            speakBtn.innerHTML = '<span class="material-symbols-outlined text-sm">volume_up</span>';
+            speakBtn.onclick = () => speakText(text, speakBtn);
+            
+            // Copy Button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'msg-action-btn';
+            copyBtn.title = "{% if locale == 'ar' %}نسخ الرسالة{% else %}Copy message{% endif %}";
+            copyBtn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span>';
+            copyBtn.onclick = () => copyBubbleText(text, copyBtn);
+
+            actions.appendChild(speakBtn);
+            actions.appendChild(copyBtn);
+            box.appendChild(actions);
+        }
+
+        if (isCached && sender === 'bot') {
+            const badge = document.createElement('div');
+            badge.className = 'cache-badge';
+            badge.innerHTML = `<span class="material-symbols-outlined text-xs">bolt</span> {% if locale == 'ar' %}مسترجع من الذاكرة المؤقتة{% else %}Retrieved from cache{% endif %}`;
+            box.appendChild(badge);
+        }
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'msg-time';
+        if (!timeStr) {
+            const now = new Date();
+            timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+        timeSpan.innerText = timeStr;
+        box.appendChild(timeSpan);
+
+        row.appendChild(box);
+        messagesBox.appendChild(row);
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+
+        return timeStr;
+    }
+
+    function appendTypingIndicator() {
+        if (welcomeScreen.style.display !== 'none') {
+            welcomeScreen.style.display = 'none';
+        }
+
+        const row = document.createElement('div');
+        row.className = 'msg-row bot';
+        row.id = 'typing-indicator-row';
+
+        const box = document.createElement('div');
+        box.className = 'msg-box';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = '<div class="dot-pulse"></div><div class="dot-pulse"></div><div class="dot-pulse"></div>';
+
+        bubble.appendChild(indicator);
+        box.appendChild(bubble);
+        row.appendChild(box);
+        messagesBox.appendChild(row);
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+        return row;
+    }
+
+    async function fetchSessions() {
+        try {
+            const response = await fetch('/api/chat/sessions');
+            if (response.ok) {
+                const sessions = await response.json();
+                renderSessionsList(sessions);
+                
+                // If there are no sessions at all, create one silently
+                if (sessions.length === 0) {
+                    await createNewChatSession(true);
+                    return;
+                }
+                
+                // Determine active session
+                const urlParams = new URLSearchParams(window.location.search);
+                let currentId = urlParams.get('session_id');
+                
+                // If the URL has no session_id or it's not valid, select the first session in the list
+                if (!currentId || !sessions.some(s => s.id === currentId)) {
+                    currentId = sessions[0].id;
+                    const url = new URL(window.location);
+                    url.searchParams.set('session_id', currentId);
+                    window.history.pushState({}, '', url);
+                }
+                
+                if (activeSessionId !== currentId) {
+                    await loadSession(currentId);
+                } else {
+                    highlightActiveSessionInSidebar(currentId);
+                }
+            } else {
+                console.error("Failed to fetch sessions");
+            }
+        } catch (error) {
+            console.error("Error in fetchSessions:", error);
+        }
+    }
+
+    function renderSessionsList(sessions) {
+        const listContainer = document.getElementById('chat-session-list');
+        if (!listContainer) return;
+        
+        listContainer.innerHTML = '';
+        sessions.forEach(sess => {
+            const item = document.createElement('div');
+            item.className = 'session-item';
+            item.id = `session-item-${sess.id}`;
+            item.onclick = () => selectSession(sess.id);
+            
+            const titleWrap = document.createElement('div');
+            titleWrap.className = 'session-title-wrap';
+            
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined text-sm';
+            icon.innerText = 'chat_bubble';
+            
+            const title = document.createElement('span');
+            title.className = 'session-title';
+            title.innerText = sess.title || 'New Chat';
+            
+            titleWrap.appendChild(icon);
+            titleWrap.appendChild(title);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'session-delete-btn';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete</span>';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteSession(sess.id);
+            };
+            
+            item.appendChild(titleWrap);
+            item.appendChild(deleteBtn);
+            listContainer.appendChild(item);
+        });
+        
+        if (activeSessionId) {
+            highlightActiveSessionInSidebar(activeSessionId);
+        }
+    }
+
+    function selectSession(sessionId) {
+        const url = new URL(window.location);
+        url.searchParams.set('session_id', sessionId);
+        window.history.pushState({}, '', url);
+        loadSession(sessionId);
+    }
+
+    function highlightActiveSessionInSidebar(sessionId) {
+        document.querySelectorAll('.session-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        const activeEl = document.getElementById(`session-item-${sessionId}`);
+        if (activeEl) {
+            activeEl.classList.add('active');
+        }
+    }
+
+    async function createNewChatSession(silent = false) {
+        try {
+            const response = await fetch('/api/chat/sessions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                const newSess = await response.json();
+                activeSessionId = newSess.id;
+                
+                // Update URL
+                const url = new URL(window.location);
+                url.searchParams.set('session_id', newSess.id);
+                window.history.pushState({}, '', url);
+                
+                await loadSession(newSess.id);
+                await fetchSessions();
+                
+                if (!silent) {
+                    playSfx('sound-bubble-send');
+                }
+            } else {
+                console.error("Failed to create new session");
+            }
+        } catch (error) {
+            console.error("Error creating session:", error);
+        }
+    }
+
+    async function loadSession(sessionId) {
+        try {
+            activeSessionId = sessionId;
+            highlightActiveSessionInSidebar(sessionId);
+            
+            // Clear message display
+            messagesBox.innerHTML = '';
+            messagesBox.appendChild(welcomeScreen);
+            welcomeScreen.style.display = 'flex';
+            
+            localHistory = [];
+            queryCount = 0;
+            startTime = Date.now();
+            
+            const response = await fetch(`/api/chat/sessions/${sessionId}/messages`);
+            if (response.ok) {
+                const messages = await response.json();
+                if (messages.length > 0) {
+                    welcomeScreen.style.display = 'none';
+                    messages.forEach(msg => {
+                        appendMessage(msg.role, msg.content, false, null);
+                        localHistory.push({ role: msg.role, content: msg.content });
+                        if (msg.role === 'user') {
+                            queryCount++;
+                        }
+                    });
+                }
+            }
+            const queryEl = document.getElementById('query-count');
+            if (queryEl) queryEl.innerText = queryCount;
+        } catch (error) {
+            console.error("Error loading session:", error);
+        }
+    }
+
+    async function deleteSession(sessionId) {
+        try {
+            const response = await fetch(`/api/chat/sessions/${sessionId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                playSfx('sound-bubble-send');
+                if (activeSessionId === sessionId) {
+                    activeSessionId = null;
+                }
+                await fetchSessions();
+            } else {
+                console.error("Failed to delete session");
+            }
+        } catch (error) {
+            console.error("Error deleting session:", error);
+        }
+    }
+
+    async function submitMessage() {
+        const message = textInput.value.trim();
+        if (!message) return;
+        
+        if (!activeSessionId) {
+            await createNewChatSession();
+        }
+
+        playSfx('sound-bubble-send');
+        const userTimeStr = appendMessage('user', message);
+        textInput.value = '';
+        textInput.focus();
+
+        textInput.disabled = true;
+        sendButton.disabled = true;
+        const typingIndicator = appendTypingIndicator();
+
+        // Increment query metrics
+        queryCount++;
+        const queryEl = document.getElementById('query-count');
+        if (queryEl) queryEl.innerText = queryCount;
+
+        localHistory.push({ role: 'user', content: message, time: userTimeStr });
+
+        try {
+            const response = await fetch(`/api/chat/sessions/${activeSessionId}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+
+            typingIndicator.remove();
+
+            if (response.ok) {
+                const data = await response.json();
+                const botTimeStr = appendMessage('bot', data.response, data.cached);
+                localHistory.push({ role: 'bot', content: data.response, cached: data.cached, time: botTimeStr });
+                playSfx('sound-bubble-receive');
+                
+                await fetchSessions();
+            } else {
+                const errTimeStr = appendMessage('bot', `{% if locale == 'ar' %}عذراً، حدث خطأ أثناء الاتصال بالخادم. يرجى إعادة المحاولة.{% else %}Sorry, an error occurred while connecting to the server. Please try again.{% endif %}`);
+                localHistory.push({ role: 'bot', content: `{% if locale == 'ar' %}عذراً، حدث خطأ أثناء الاتصال بالخادم. يرجى إعادة المحاولة.{% else %}Sorry, an error occurred while connecting to the server. Please try again.{% endif %}`, time: errTimeStr });
+            }
+        } catch (error) {
+            if (typingIndicator) typingIndicator.remove();
+            const connErrTimeStr = appendMessage('bot', `{% if locale == 'ar' %}عذراً، خطأ بالاتصال. تأكد من أن الخادم يعمل بشكل صحيح.{% else %}Connection error. Make sure the server is running correctly.{% endif %}`);
+            localHistory.push({ role: 'bot', content: `{% if locale == 'ar' %}عذراً، خطأ بالاتصال. تأكد من أن الخادم يعمل بشكل صحيح.{% else %}Connection error. Make sure the server is running correctly.{% endif %}`, time: connErrTimeStr });
+        } finally {
+            textInput.disabled = false;
+            sendButton.disabled = false;
+            textInput.focus();
+        }
+    }
+
+    // Export to Markdown
+    function exportConversation() {
+        if (localHistory.length === 0) {
+            alert("{% if locale == 'ar' %}لا توجد محادثة لتصديرها حالياً.{% else %}No conversation to export yet.{% endif %}");
+            return;
+        }
+
+        let markdown = `# SOL Copilot Conversation Export\n`;
+        markdown += `Exported on: ${new Date().toLocaleString()}\n\n`;
+        markdown += `---\n\n`;
+
+        localHistory.forEach(msg => {
+            const role = msg.role === 'user' ? 'User' : 'SOL Assistant';
+            markdown += `### **[${role}]**\n${msg.content}\n\n---\n\n`;
+        });
+
+        const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `sol_copilot_chat_${Date.now()}.md`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Speech-To-Text Recognition
+    let recognition = null;
+    let isRecording = false;
+
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = `{% if locale == 'ar' %}ar-SA{% else %}en-US{% endif %}`;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                const micBtn = document.getElementById('mic-btn');
+                micBtn.classList.add('bg-red-500/10', 'text-red-500', 'border-red-500/20', 'animate-pulse');
+                micBtn.querySelector('.material-symbols-outlined').innerText = 'mic_active';
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                const micBtn = document.getElementById('mic-btn');
+                micBtn.classList.remove('bg-red-500/10', 'text-red-500', 'border-red-500/20', 'animate-pulse');
+                micBtn.querySelector('.material-symbols-outlined').innerText = 'mic';
+            };
+
+            recognition.onerror = (e) => {
+                console.error("Speech recognition error", e);
+                recognition.stop();
+            };
+
+            recognition.onresult = (event) => {
+                const resultText = event.results[0][0].transcript;
+                textInput.value = textInput.value ? textInput.value + ' ' + resultText : resultText;
+                textInput.focus();
+            };
+        }
+    }
+
+    function toggleVoiceInput() {
+        if (!recognition) {
+            initSpeechRecognition();
+        }
+
+        if (recognition) {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        } else {
+            alert("{% if locale == 'ar' %}عذراً، ميزة التعرف على الصوت غير مدعومة في متصفحك.{% else %}Sorry, speech recognition is not supported in your browser.{% endif %}");
+        }
+    }
+
+    // Session Timer
+    function updateSessionTime() {
+        const diffMs = Date.now() - startTime;
+        const diffSec = Math.floor(diffMs / 1000);
+        const mins = Math.floor(diffSec / 60);
+        const secs = diffSec % 60;
+        const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        const timeEl = document.getElementById('session-time');
+        if (timeEl) timeEl.innerText = timeStr;
+    }
+
+    setInterval(updateSessionTime, 1000);
+
+    // Toggle Mobile Sidebar Drawer
+    function toggleMobileSidebar() {
+        const sidebar = document.querySelector('.chatbot-sidebar');
+        const backdrop = document.getElementById('mobile-sidebar-backdrop');
+        if (!sidebar) return;
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+            sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.add('hidden');
+        } else {
+            sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.remove('hidden');
+        }
+    }
+
+    // Adjust parent main container layout to disable double scrolls on chatbot page
+    document.addEventListener('DOMContentLoaded', () => {
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            mainEl.style.overflowY = 'hidden';
+            mainEl.style.padding = '0.5rem';
+        }
+        fetchSessions();
+    });
+</script>
+{% endblock %}
