@@ -511,6 +511,11 @@ async def refine_user_input(raw_text: str) -> dict:
         )
         if response.usage:
             logging.info(f"[Token Tracker] Model: {response.model} | Prompt: {response.usage.prompt_tokens} | Completion: {response.usage.completion_tokens} | Total: {response.usage.total_tokens}")
+            try:
+                from backend.utils.llm_logger import log_groq_response
+                log_groq_response(response, module_name="chat")
+            except Exception as e_log:
+                logging.error(f"Failed to log copilot router token usage: {e_log}")
         content = (response.choices[0].message.content or "").strip()
         data = json.loads(content)
 
@@ -721,6 +726,11 @@ async def get_chat_response(
             )
             if response.usage:
                 logging.info(f"[Token Tracker] Model: {response.model} | Prompt: {response.usage.prompt_tokens} | Completion: {response.usage.completion_tokens} | Total: {response.usage.total_tokens}")
+                try:
+                    from backend.utils.llm_logger import log_groq_response
+                    log_groq_response(response, module_name="chat")
+                except Exception as e_log:
+                    logging.error(f"Failed to log copilot chat token usage: {e_log}")
             reply = (response.choices[0].message.content or "").strip()
             audit_log = df.attrs.get("audit_log") if df is not None else None
             return clean_llm_reply(reply), df, False, audit_log
@@ -767,6 +777,11 @@ async def get_chat_response(
             response = await groq_client.chat.completions.create(**kwargs)
             if response.usage:
                 logging.info(f"[Token Tracker] Model: {response.model} | Prompt: {response.usage.prompt_tokens} | Completion: {response.usage.completion_tokens} | Total: {response.usage.total_tokens}")
+                try:
+                    from backend.utils.llm_logger import log_groq_response
+                    log_groq_response(response, module_name="chat")
+                except Exception as e_log:
+                    logging.error(f"Failed to log copilot command token usage: {e_log}")
             choice   = response.choices[0]
             message  = choice.message
 

@@ -177,7 +177,7 @@ def run_local_generation_task(
         _store_tasks[task_id]["progress"] = 15
         
         # 2. عمل تحليل هيكلي (Profile)
-        profile = profile_dataframe(df)
+        profile = profile_dataframe(df, user_id=user_id)
         _store_tasks[task_id]["progress"] = 30
         
         # 3. دالة التقدم الداخلي للتوليد
@@ -477,7 +477,7 @@ def suggest_schema(
         settings = db.query(UserSettings).filter_by(user_id=current_user.id).first()
         groq_api_key = settings.groq_api_key if settings else None
         
-        result = suggest_schema_from_prompt(prompt, num_columns, locale, api_key=groq_api_key)
+        result = suggest_schema_from_prompt(prompt, num_columns, locale, api_key=groq_api_key, user_id=current_user.id)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to suggest schema: {e}")

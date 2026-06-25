@@ -234,7 +234,7 @@ def _fallback_types(df: pd.DataFrame) -> dict:
     return result
 
 
-def detect_column_types_llm(df: pd.DataFrame, api_key: Optional[str] = None) -> dict:
+def detect_column_types_llm(df: pd.DataFrame, api_key: Optional[str] = None, user_id: Optional[int] = None) -> dict:
     """
     يستخدم Groq LLM لفهم عينة من البيانات وإرجاع نوع كل عمود.
     ميزات الأداء:
@@ -270,6 +270,9 @@ def detect_column_types_llm(df: pd.DataFrame, api_key: Optional[str] = None) -> 
 
     def _call_llm():
         try:
+            if user_id:
+                from backend.store import active_user_id
+                active_user_id.set(user_id)
             from groq import Groq
             key = api_key or os.getenv("GROQ_API_KEY", "").strip()
             if not key or not key.startswith("gsk"):
@@ -402,7 +405,7 @@ def extract_pattern_template(series: pd.Series) -> str:
 # PROFILING — تحليل كامل للملف بأكمله (Pandas سريع جداً)
 # ─────────────────────────────────────────────
 
-def profile_dataframe(df: pd.DataFrame) -> dict:
+def profile_dataframe(df: pd.DataFrame, user_id: Optional[int] = None) -> dict:
     """
     يدرس كل عمود ويرجع قاموس بخصائصه الإحصائية مدمجاً بذكاء LLM للفهم.
     """
@@ -416,7 +419,7 @@ def profile_dataframe(df: pd.DataFrame) -> dict:
         "was_sampled":   False,
     }
 
-    llm_types = detect_column_types_llm(df)
+    llm_types = detect_column_types_llm(df, user_id=user_id)
 
     null_pcts   = df.isnull().mean() * 100
     num_uniques = df.nunique()
@@ -1248,7 +1251,7 @@ def generate_data_dictionary(profile: dict, df: pd.DataFrame) -> str:
     return md
 
 
-def suggest_schema_from_prompt(user_prompt: str, num_columns: int = 5, locale: str = "en_US", api_key: Optional[str] = None) -> dict:
+def suggest_schema_from_prompt(user_prompt: str, num_columns: int = 5, locale: str = "en_US", api_key: Optional[str] = None, user_id: Optional[int] = None) -> dict:
     """
     يقترح هيكل بيانات (Schema) وقواعد العلاقات المنطقية (Rules) بناءً على وصف المستخدم والـ locale المطلوبة.
     """
@@ -1315,6 +1318,9 @@ def suggest_schema_from_prompt(user_prompt: str, num_columns: int = 5, locale: s
 
     def _call_llm():
         try:
+            if user_id:
+                from backend.store import active_user_id
+                active_user_id.set(user_id)
             from groq import Groq
             key = api_key or os.getenv("GROQ_API_KEY", "").strip()
             if not key or not key.startswith("gsk"):
@@ -1501,6 +1507,9 @@ def generate_data_via_code_agent(user_prompt: str, schema_columns: list, rules: 
 
     def _call_llm():
         try:
+            if user_id:
+                from backend.store import active_user_id
+                active_user_id.set(user_id)
             from groq import Groq
             key = api_key or os.getenv("GROQ_API_KEY", "").strip()
             if not key or not key.startswith("gsk"):

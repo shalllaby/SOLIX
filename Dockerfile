@@ -52,6 +52,10 @@ COPY frontend/ ./frontend/
 COPY core/ ./core/
 COPY utils/ ./utils/
 COPY data_layer/ ./data_layer/
+COPY SOLIX_DOCUMENTATION.md .
+
+# Copy default team images
+COPY ["صور التيم/", "./صور التيم/"]
 
 # CRITICAL FIX: Ensure directories mounted by FastAPI exist to prevent startup failure
 # e.g., FastAPI fails to mount directories if they are missing

@@ -159,6 +159,11 @@ def correct_query_via_llm(query: str) -> str:
         response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=2.5)
         if response.status_code == 200:
             result = response.json()
+            try:
+                from backend.utils.llm_logger import log_groq_response
+                log_groq_response(result, module_name="chat")
+            except Exception as e_log:
+                print(f"Failed to log chatbot query corrector token usage: {e_log}")
             corrected = result["choices"][0]["message"]["content"].strip()
             corrected = re.sub(r'^["\'\u201c\u201d\u2018\u2019]|["\'\u201c\u201d\u2018\u2019]$', '', corrected).strip()
             if corrected:
@@ -571,6 +576,11 @@ async def chat_endpoint(req: ChatRequest, current_user: User = Depends(get_curre
         response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=15)
         if response.status_code == 200:
             result = response.json()
+            try:
+                from backend.utils.llm_logger import log_groq_response
+                log_groq_response(result, module_name="chat")
+            except Exception as e_log:
+                print(f"Failed to log chatbot endpoint token usage: {e_log}")
             bot_response = result["choices"][0]["message"]["content"].strip()
             
             if not req.history:
@@ -764,6 +774,11 @@ async def session_chat_endpoint(session_id: str, req: SessionChatRequest, curren
         response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=15)
         if response.status_code == 200:
             result = response.json()
+            try:
+                from backend.utils.llm_logger import log_groq_response
+                log_groq_response(result, module_name="chat")
+            except Exception as e_log:
+                print(f"Failed to log session chat token usage: {e_log}")
             bot_response = result["choices"][0]["message"]["content"].strip()
             
             # Save user message to database
